@@ -1,0 +1,131 @@
+<xml>
+
+
+
+<View>
+	<Name>MainTab</Name>
+	<Type>Tab</Type>
+	<Position>
+		<X>10</X>
+		<Y>30</Y>
+		<Z>0</Z>
+	</Position>
+	<Size>
+		<Width>800</Width>
+		<Height>340</Height>
+	</Size>
+	<Child>PBLS</Child>
+</View>
+
+
+<View>
+	<Name>PBLS</Name>
+	<Type>Grid</Type>
+	<Position>
+		<X>0</X>
+		<Y>0</Y>
+		<Z>0</Z>
+	</Position>
+	<Size>
+		<Width>200</Width>
+		<Height>100</Height>
+	</Size>
+	<Source>
+		<Type>Table</Type>
+		<Name>PBLS</Name>
+	</Source>
+	<Field>FFNA</Field>
+	<Field>BGID</Field>
+	<Field>BORD</Field>
+	<Field>BOFF</Field>
+	<Field>PBGI</Field>
+	<Field>PBPI</Field>
+	<Field>BNAM</Field>
+	<Field>POSN</Field>
+	<Field>PBPR</Field>
+	<Field>PBOS</Field>
+	<Field>PBPT</Field>
+	<Field>PBFV</Field>
+</View>
+
+
+<Table>
+	<Abbreviation>PBLS</Abbreviation>
+	<Name></Name>
+</Table>
+
+<Field>
+	<Abbreviation>FFNA</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>string</Type>
+</Field>
+<Field>
+	<Abbreviation>BGID</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>BORD</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>BOFF</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>PBGI</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>PBPI</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>BNAM</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>string</Type>
+</Field>
+<Field>
+	<Abbreviation>POSN</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>string</Type>
+</Field>
+<Field>
+	<Abbreviation>PBPR</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>PBOS</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>PBPT</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>PBFV</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+
+
+</xml>

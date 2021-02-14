@@ -2050,7 +2050,7 @@ namespace EA_DB_Editor
             var guid = Guid.NewGuid().ToByteArray().Take(4).ToArray();
             var i = BitConverter.ToInt32(guid, 0);
 
-            if(i < 0)
+            if (i < 0)
             {
                 i &= 0x7fffffff;
             }
@@ -2491,7 +2491,7 @@ namespace EA_DB_Editor
             }
         }
 
-        private static HashSet<int> Style1Playbooks = new HashSet<int>(new[] {174,173, 135, 170,169,168, 167, 166, 164, 1, 2, 3, 4, 8, 9, 10, 14, 15, 16, 19, 20, 22, 23, 25, 29, 33, 36, 37, 42, 44, 45, 47, 49, 50, 54, 56, 57, 58, 61, 62, 63, 64, 65, 67, 68, 69, 70, 71, 72, 75, 79, 83, 85, 89, 90, 91, 92, 93, 94, 95, 97, 100, 102, 103, 107, 108, 112, 113, 115, 118, 130, 131, 133, 134 });
+        private static HashSet<int> Style1Playbooks = new HashSet<int>(new[] { 174, 173, 135, 170, 169, 168, 167, 166, 164, 1, 2, 3, 4, 8, 9, 10, 14, 15, 16, 19, 20, 22, 23, 25, 29, 33, 36, 37, 42, 44, 45, 47, 49, 50, 54, 56, 57, 58, 61, 62, 63, 64, 65, 67, 68, 69, 70, 71, 72, 75, 79, 83, 85, 89, 90, 91, 92, 93, 94, 95, 97, 100, 102, 103, 107, 108, 112, 113, 115, 118, 130, 131, 133, 134 });
         private static HashSet<int> Style2Playbooks = new HashSet<int>(new[] { 5, 6, 11, 12, 13, 17, 18, 21, 24, 26, 27, 35, 39, 41, 46, 48, 53, 55, 60, 73, 76, 84, 88, 99, 101, 106, 109, 110, 129 });
         private static HashSet<int> Style3Playbooks = new HashSet<int>(new[] { 0, 7, 30, 59 });
         private static HashSet<int> Style4Playbooks = new HashSet<int>(new[] { 28, 31, 32, 34, 38, 40, 43, 51, 52, 66, 74, 77, 78, 80, 81, 82, 86, 87, 96, 98, 104, 105, 111, 114, 116, 117, 125, 132, 163, 165, 162 });
@@ -2629,7 +2629,7 @@ POVR = overall
 PPOS = Position
              */
 
-            Dictionary<int,TransferCandidate[]> GetPlayers(Func<int,bool> positionPredicate=null)
+            Dictionary<int, TransferCandidate[]> GetPlayers(Func<int, bool> positionPredicate = null)
             {
                 if (positionPredicate == null) positionPredicate = i => true;
                 // QB depth chart
@@ -2677,7 +2677,7 @@ PPOS = Position
             sb.AppendLine();
 
             // each teams QB depth chart
-            foreach (var dc in players.Values.Where(tc => inNeed.Contains(tc.First().Team)).OrderBy(tc => tc.First().P5).ThenBy(tc=>tc.First().OVR).ThenBy(tc => tc.First().Team))
+            foreach (var dc in players.Values.Where(tc => inNeed.Contains(tc.First().Team)).OrderBy(tc => tc.First().P5).ThenBy(tc => tc.First().OVR).ThenBy(tc => tc.First().Team))
             {
                 sb.AppendLine(string.Empty);
                 sb.AppendLine(string.Empty);
@@ -2933,11 +2933,6 @@ PPOS = Position
         }
 
         private void importRecordsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void setSGINToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
         }
@@ -3337,13 +3332,13 @@ PPOS = Position
                 var recruitTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPT");
                 var recruit = recruitTable.lRecords.Where(r => r["RCRK"].ToInt32() == entry.TeamId).Single();
 
-                if( recruit["PYEA"].ToInt32()==3)
+                if (recruit["PYEA"].ToInt32() == 3)
                 {
                     MessageBox.Show("Eligbility exhausted");
-                    return; 
+                    return;
                 }
 
-                var ignoreFields = new HashSet<string>(new[] {/*"RATH", "RPGP",*/ "PRSI", "RCRK", "RCPR", "RCCB"});
+                var ignoreFields = new HashSet<string>(new[] {/*"RATH", "RPGP",*/ "PRSI", "RCRK", "RCPR", "RCCB" });
                 var dict = new Dictionary<string, string>();
 
                 foreach (var f in recruitTable.lFields.Where(f => !ignoreFields.Contains(f.Abbreviation)))
@@ -3412,7 +3407,7 @@ PPOS = Position
                     foreach (var kvp in dict)
                     {
                         if (!fields.Contains(kvp.Key))
-                            continue; 
+                            continue;
 
                         player[kvp.Key] = kvp.Value;
                     }
@@ -3499,7 +3494,7 @@ PPOS = Position
             {
                 var table = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "CCHH");
 
-                int yr = 0; 
+                int yr = 0;
 
                 foreach (var mr in table.lRecords)
                 {
@@ -3512,12 +3507,12 @@ PPOS = Position
             return CurrentYear.Value;
         }
 
-        private void FindGamesPlayed(Dictionary<int,int> dict, string table)
+        private void FindGamesPlayed(Dictionary<int, int> dict, string table)
         {
             var year = FindCurrentYear();
             var statTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, table);
 
-            foreach( var mr in statTable.lRecords)
+            foreach (var mr in statTable.lRecords)
             {
                 // SEYR needs to be the current year - 1 for this to count
                 if (mr["SEYR"].ToInt32() != year) continue;
@@ -3528,11 +3523,83 @@ PPOS = Position
                 // player is in the dict and the value in the dict is less than the games played
                 if (dict.TryGetValue(playerId, out var currValue) && currValue < gamesPlayed)
                 {
-                        dict[playerId] = gamesPlayed;
+                    dict[playerId] = gamesPlayed;
                 }
             }
         }
 
+        const string PlaybookFile = "pb.txt";
+
+        private void exportToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            var dict = new Dictionary<string, List<Dictionary<string, string>>>();
+
+            foreach (var table in maddenDB.lTables)
+            {
+                var name = table.Abbreviation ?? table.Name;
+
+                var tbl = new List<Dictionary<string, string>>();
+                dict[name] = tbl;
+
+                var columns = table.lFields.Select(f => f.Abbreviation).ToArray();
+
+                foreach (var mr in table.lRecords)
+                {
+                    var row = new Dictionary<string, string>();
+                    foreach (var c in columns)
+                    {
+                        row[c] = mr[c];
+                    }
+
+                    tbl.Add(row);
+                }
+            }
+
+            dict.ToJsonFile(PlaybookFile);
+        }
+
+        private void importToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            // this appears to be a book id, which should not change
+            const string BOKL = "BOKL";
+            var tablesToImport = new HashSet<string>(new[] { "PGPL", "PBAI"});
+
+            var dict = PlaybookFile.FromJsonFile<Dictionary<string, List<Dictionary<string, string>>>>();
+
+            var myBOKL = dict.First().Value.First()[BOKL];
+
+            foreach (var table in maddenDB.lTables)
+            {
+                // don't change the playbook id
+                var playbookId = table.lRecords[0][BOKL];
+                var name = table.Abbreviation ?? table.Name;
+
+                if (!tablesToImport.Contains(name))
+                {
+                    continue;
+                }
+
+                // get the dict
+                var tbl = dict[name];
+
+                table.Clear();
+
+                foreach (var row in tbl)
+                {
+                    var mr = table.AddNewRecord();
+
+                    foreach (var kvp in row)
+                    {
+                        mr[kvp.Key] = kvp.Value;
+                    }
+
+                    if(mr[BOKL] == myBOKL)
+                    {
+                        mr[BOKL] = playbookId;
+                    }                    
+                }
+            }
+        }
     }
 
     [DataContract]
@@ -4922,6 +4989,12 @@ PPOS = Position
         }
         public MaddenTable()
         {
+        }
+
+        public void Clear()
+        {
+            this.lRecords.Clear();
+            this.Table.currecords = 0;
         }
 
         public override string ToString()
