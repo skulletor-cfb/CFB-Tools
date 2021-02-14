@@ -1,0 +1,352 @@
+<xml>
+
+
+
+<View>
+	<Name>MainTab</Name>
+	<Type>Tab</Type>
+	<Position>
+		<X>10</X>
+		<Y>30</Y>
+		<Z>0</Z>
+	</Position>
+	<Size>
+		<Width>800</Width>
+		<Height>340</Height>
+	</Size>
+	<Child>PGPL</Child>
+	<Child>PGFM</Child>
+	<Child>STID</Child>
+	<Child>STSP</Child>
+	<Child>PBAU</Child>
+	<Child>PBAI</Child>
+</View>
+
+
+<View>
+	<Name>PGPL</Name>
+	<Type>Grid</Type>
+	<Position>
+		<X>0</X>
+		<Y>0</Y>
+		<Z>0</Z>
+	</Position>
+	<Size>
+		<Width>200</Width>
+		<Height>100</Height>
+	</Size>
+	<Source>
+		<Type>Table</Type>
+		<Name>PGPL</Name>
+	</Source>
+	<Field>BOKL</Field>
+	<Field>SETL</Field>
+	<Field>PLYL</Field>
+	<Field>PBST</Field>
+	<Field>PLYT</Field>
+	<Field>ord_</Field>
+	<Field>Flag</Field>
+</View>
+
+
+<Table>
+	<Abbreviation>PGPL</Abbreviation>
+	<Name></Name>
+</Table>
+
+<Field>
+	<Abbreviation>BOKL</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>SETL</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>PLYL</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>PBST</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>PLYT</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>ord_</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>Flag</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+
+<View>
+	<Name>PGFM</Name>
+	<Type>Grid</Type>
+	<Position>
+		<X>0</X>
+		<Y>0</Y>
+		<Z>0</Z>
+	</Position>
+	<Size>
+		<Width>200</Width>
+		<Height>100</Height>
+	</Size>
+	<Source>
+		<Type>Table</Type>
+		<Name>PGFM</Name>
+	</Source>
+	<Field>BOKL</Field>
+	<Field>PBFM</Field>
+	<Field>SRFM</Field>
+</View>
+
+
+<Table>
+	<Abbreviation>PGFM</Abbreviation>
+	<Name></Name>
+</Table>
+
+<Field>
+	<Abbreviation>BOKL</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>PBFM</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>SRFM</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+
+<View>
+	<Name>STID</Name>
+	<Type>Grid</Type>
+	<Position>
+		<X>0</X>
+		<Y>0</Y>
+		<Z>0</Z>
+	</Position>
+	<Size>
+		<Width>200</Width>
+		<Height>100</Height>
+	</Size>
+	<Source>
+		<Type>Table</Type>
+		<Name>STID</Name>
+	</Source>
+	<Field>BOKL</Field>
+	<Field>SETL</Field>
+	<Field>PBFM</Field>
+	<Field>PBST</Field>
+</View>
+
+
+<Table>
+	<Abbreviation>STID</Abbreviation>
+	<Name></Name>
+</Table>
+
+<Field>
+	<Abbreviation>BOKL</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>SETL</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>PBFM</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>PBST</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+
+<View>
+	<Name>STSP</Name>
+	<Type>Grid</Type>
+	<Position>
+		<X>0</X>
+		<Y>0</Y>
+		<Z>0</Z>
+	</Position>
+	<Size>
+		<Width>200</Width>
+		<Height>100</Height>
+	</Size>
+	<Source>
+		<Type>Table</Type>
+		<Name>STSP</Name>
+	</Source>
+	<Field>BOKL</Field>
+	<Field>SETL</Field>
+</View>
+
+
+<Table>
+	<Abbreviation>STSP</Abbreviation>
+	<Name></Name>
+</Table>
+
+<Field>
+	<Abbreviation>BOKL</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>SETL</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+
+<View>
+	<Name>PBAU</Name>
+	<Type>Grid</Type>
+	<Position>
+		<X>0</X>
+		<Y>0</Y>
+		<Z>0</Z>
+	</Position>
+	<Size>
+		<Width>200</Width>
+		<Height>100</Height>
+	</Size>
+	<Source>
+		<Type>Table</Type>
+		<Name>PBAU</Name>
+	</Source>
+	<Field>BOKL</Field>
+	<Field>PBPL</Field>
+	<Field>FTYP</Field>
+	<Field>PBAU</Field>
+	<Field>Flag</Field>
+</View>
+
+
+<Table>
+	<Abbreviation>PBAU</Abbreviation>
+	<Name></Name>
+</Table>
+
+<Field>
+	<Abbreviation>BOKL</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>PBPL</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>FTYP</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>PBAU</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>Flag</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+
+<View>
+	<Name>PBAI</Name>
+	<Type>Grid</Type>
+	<Position>
+		<X>0</X>
+		<Y>0</Y>
+		<Z>0</Z>
+	</Position>
+	<Size>
+		<Width>200</Width>
+		<Height>100</Height>
+	</Size>
+	<Source>
+		<Type>Table</Type>
+		<Name>PBAI</Name>
+	</Source>
+	<Field>BOKL</Field>
+	<Field>PLYL</Field>
+	<Field>AIGR</Field>
+	<Field>prct</Field>
+</View>
+
+
+<Table>
+	<Abbreviation>PBAI</Abbreviation>
+	<Name></Name>
+</Table>
+
+<Field>
+	<Abbreviation>BOKL</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>PLYL</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>AIGR</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+<Field>
+	<Abbreviation>prct</Abbreviation>
+	<Name></Name>
+	<ControlType>TextBox</ControlType>
+	<Type>uint</Type>
+</Field>
+
+
+</xml>
