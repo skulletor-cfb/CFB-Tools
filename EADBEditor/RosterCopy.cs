@@ -384,10 +384,11 @@ namespace EA_DB_Editor
         }
 
         static void CopyTeamData(
-            Dictionary<int, Dictionary<string, DBData>> source,
-            Dictionary<int, Dictionary<string, DBData>> destination,
-            Action<int, int, Dictionary<string, DBData>, Dictionary<string, DBData>> action,
-            string[] dontReplaceKeys)
+            Dictionary<int, Dictionary<string, DBData>> source, 
+            Dictionary<int, Dictionary<string, DBData>> destination, 
+            Action<int, int, Dictionary<string, DBData>, Dictionary<string, DBData>> action, 
+            string[] dontReplaceKeys, 
+            Func<string, bool> filter = null)
         {
             // for each key in the destination find data in the source
             foreach (var key in destination.Keys)
@@ -408,7 +409,9 @@ namespace EA_DB_Editor
                     if (key == 100 || key == 61)
                         continue;
 
-                    Func<string, bool> filter = columnKey => dontReplaceKeys.Contains(columnKey) == false;
+                    if (filter == null)
+                        filter = columnKey => dontReplaceKeys.Contains(columnKey) == false;
+                    
                     CopyRecordData(row, destination[key], filter);
                 }
             }
