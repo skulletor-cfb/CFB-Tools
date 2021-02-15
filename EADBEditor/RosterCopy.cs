@@ -221,6 +221,10 @@ namespace EA_DB_Editor
                 if (key.IsValidTeam() == false)
                     continue;
 
+                // uconn and nmsu are gone!
+                if (key == 61 || key == 100)
+                    continue;
+
                 var sourceId = key.SourceKeyFromDesintation(out var value) ? value : key;
 
                 CopyPlayersForTeam(sourceTeams[sourceId], sourceDepthChart[sourceId], destTeams[key], destDepthChart[key]);
@@ -379,7 +383,11 @@ namespace EA_DB_Editor
                 key => coachSkillKeys.Contains(key));
         }
 
-        static void CopyTeamData(Dictionary<int, Dictionary<string, DBData>> source, Dictionary<int, Dictionary<string, DBData>> destination, Action<int, int, Dictionary<string, DBData>, Dictionary<string, DBData>> action, string[] dontReplaceKeys, Func<string, bool> filter = null, Func<Dictionary<string, DBData>, Dictionary<string, DBData>, string, bool> editRowFilter = null)
+        static void CopyTeamData(
+            Dictionary<int, Dictionary<string, DBData>> source,
+            Dictionary<int, Dictionary<string, DBData>> destination,
+            Action<int, int, Dictionary<string, DBData>, Dictionary<string, DBData>> action,
+            string[] dontReplaceKeys)
         {
             // for each key in the destination find data in the source
             foreach (var key in destination.Keys)
@@ -396,9 +404,11 @@ namespace EA_DB_Editor
                         action(rowKey, sourceKey, row, destination[key]);
                     }
 
-                    if (filter == null)
-                        filter = columnKey => dontReplaceKeys.Contains(columnKey) == false;
+                    // dont copy nmsu or uconn
+                    if (key == 100 || key == 61)
+                        continue;
 
+                    Func<string, bool> filter = columnKey => dontReplaceKeys.Contains(columnKey) == false;
                     CopyRecordData(row, destination[key], filter);
                 }
             }
