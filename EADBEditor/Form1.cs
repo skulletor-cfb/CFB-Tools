@@ -3528,8 +3528,6 @@ PPOS = Position
             }
         }
 
-        const string PlaybookFile = "pb.txt";
-
         private void exportToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             var dict = new Dictionary<string, List<Dictionary<string, string>>>();
@@ -3555,48 +3553,64 @@ PPOS = Position
                 }
             }
 
-            dict.ToJsonFile(PlaybookFile);
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.AddExtension = true;
+            saveFileDialog.DefaultExt = ".txt";
+            saveFileDialog.Filter = "*.txt|*.*";
+            saveFileDialog.Title = "Save playbook as...";
+            saveFileDialog.InitialDirectory = Environment.CurrentDirectory;
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                dict.ToJsonFile(saveFileDialog.FileName);
+            }
         }
 
         private void importToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            // this appears to be a book id, which should not change
-            const string BOKL = "BOKL";
-//            var tablesToImport = new HashSet<string>(new[] { "PGPL", "PBAI"});
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.InitialDirectory = Environment.CurrentDirectory;
+            openFileDialog.AddExtension = true;
+            openFileDialog.DefaultExt = ".txt";
+            openFileDialog.Filter = "*.txt|*.*";
+            openFileDialog.Multiselect = false;
+            openFileDialog.Title = "Select a playbook to import...";
 
-            var dict = PlaybookFile.FromJsonFile<Dictionary<string, List<Dictionary<string, string>>>>();
-
-            var myBOKL = dict.First().Value.First()[BOKL];
-
-            foreach (var table in maddenDB.lTables)
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                // don't change the playbook id
-                var playbookId = table.lRecords[0][BOKL];
-                var name = table.Abbreviation ?? table.Name;
 
-  /*              if (!tablesToImport.Contains(name))
+                // this appears to be a book id, which should not change
+                const string BOKL = "BOKL";
+
+                var dict = openFileDialog.FileName.FromJsonFile<Dictionary<string, List<Dictionary<string, string>>>>();
+
+                var myBOKL = dict.First().Value.First()[BOKL];
+
+                foreach (var table in maddenDB.lTables)
                 {
-                    continue;
-                }*/
+                    // don't change the playbook id
+                    var playbookId = table.lRecords[0][BOKL];
+                    var name = table.Abbreviation ?? table.Name;
 
-                // get the dict
-                var tbl = dict[name];
+                    // get the dict
+                    var tbl = dict[name];
 
-                table.Clear();
+                    table.Clear();
 
-                foreach (var row in tbl)
-                {
-                    var mr = table.AddNewRecord();
-
-                    foreach (var kvp in row)
+                    foreach (var row in tbl)
                     {
-                        mr[kvp.Key] = kvp.Value;
+                        var mr = table.AddNewRecord();
+
+                        foreach (var kvp in row)
+                        {
+                            mr[kvp.Key] = kvp.Value;
+                        }
+
+                        if (mr[BOKL] == myBOKL)
+                        {
+                            mr[BOKL] = playbookId;
+                        }
                     }
-
-                    if(mr[BOKL] == myBOKL)
-                    {
-                        mr[BOKL] = playbookId;
-                    }                    
                 }
             }
         }
