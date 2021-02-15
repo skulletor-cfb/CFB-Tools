@@ -660,6 +660,12 @@ namespace EA_DB_Editor
             try
             {
                 var sttm = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "STTM");
+
+                if(sttm == null)
+                {
+                    return new List<int>();
+                }
+
                 var list =  sttm.lRecords.Where(mr => mr["CFUC"].ToInt32() == 1).Select(mr => mr["TGID"].ToInt32()).ToList();
 
                 if (remove)

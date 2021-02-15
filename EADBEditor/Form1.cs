@@ -478,7 +478,7 @@ namespace EA_DB_Editor
             }
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = @"D:\NCAA_2014\ncaa";
+            openFileDialog.InitialDirectory = @"D:\OneDrive\ncaa";
             openFileDialog.AddExtension = true;
             openFileDialog.DefaultExt = ".*";
             openFileDialog.Filter = "(*.*)|*.*";
@@ -2943,7 +2943,7 @@ PPOS = Position
             // year == 0 is first year in the dynasty file
             // RBKS table
             // load the current file
-            var file = @"D:\NCAA_2014\ncaa\Default NCAA Files\BaseSchoolRecords.txt";
+            var file = @"D:\OneDrive\ncaa\Default NCAA Files\BaseSchoolRecords.txt";
             var records = File.ReadAllText(file).FromJson<TeamRecord[]>();
             var dict = records.ToDictionary(r => r.GetHashCode());
 
@@ -3562,7 +3562,7 @@ PPOS = Position
         {
             // this appears to be a book id, which should not change
             const string BOKL = "BOKL";
-            var tablesToImport = new HashSet<string>(new[] { "PGPL", "PBAI"});
+//            var tablesToImport = new HashSet<string>(new[] { "PGPL", "PBAI"});
 
             var dict = PlaybookFile.FromJsonFile<Dictionary<string, List<Dictionary<string, string>>>>();
 
@@ -3574,10 +3574,10 @@ PPOS = Position
                 var playbookId = table.lRecords[0][BOKL];
                 var name = table.Abbreviation ?? table.Name;
 
-                if (!tablesToImport.Contains(name))
+  /*              if (!tablesToImport.Contains(name))
                 {
                     continue;
-                }
+                }*/
 
                 // get the dict
                 var tbl = dict[name];
@@ -4631,10 +4631,18 @@ PPOS = Position
 			WriteDW2Buf( theFile, (int)(headerOffset + DBsize -4), calcdEOFCRC );
 
 		}
-		public void Save( FileStream fs )
+		public void Save( FileStream fs , bool saveWholeFile)
 		{	fs.Position	= 0;
 			CalcChecksums( );
-			fs.Write( theFile, 0, (int) DBsize );
+
+            if (saveWholeFile)
+            {
+                fs.Write(theFile, 0, theFile.Length);
+            }
+            else
+            {
+                fs.Write(theFile, 0, (int)DBsize);
+            }
 		}
 
 		/// <summary>
@@ -5183,33 +5191,6 @@ PPOS = Position
                 fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
 
             }
-          else  if (type == MaddenFileType.FileType_MC02_PS3_TeamBuilder)
-            {
-                PS3.Package package = null;
-                byte[] mc02 = new byte[fs.Length];
-
-                try
-                {
-                    fs.Read(mc02, 0, (int)fs.Length);
-                    fs.Position = 0;
-                    package = new PS3.Package(mc02);
-                }
-                catch (Exception exception)
-                {
-                    MessageBox.Show("Error opening MC02 package: " + exception.ToString());
-                    fs.Close();
-                    return;
-                }
-
-                // extract the DB file now & set the filename to work on
-                fileName = realfileName + ".DB";
-                package.Extract(PS3.Package.DataType.SaveData, fileName);
-                package.Dispose();
-
-                fs.Close();
-                fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-
-            }
             else    // must be a DB file
 #endregion
 #region DB file type
@@ -5245,7 +5226,7 @@ PPOS = Position
 			foreach( MaddenTable mt in lTables )
 				mt.WriteTable( dbFileInfo.theFile );
 
-			dbFileInfo.Save( fs );
+			dbFileInfo.Save( fs, type == MaddenFileType.FileType_DB );
 			fs.Close( );
 
 #region if this was an MC02 file, repackage
@@ -5316,7 +5297,6 @@ PPOS = Position
 			FileType_DB,
 			FileType_MC02,
 			FileType_CON,
-            FileType_MC02_PS3_TeamBuilder,
         }
         public static MaddenFileType CheckFileType(FileStream fs)
         {
@@ -5326,13 +5306,12 @@ PPOS = Position
             fs.Read(b, 0, 4);
             fs.Position = 0;
 
+
             // on ps3 a team builder save starts with 'DD'
             if (b[0] == 'D' && b[1] == 'B' )
                 return MaddenFileType.FileType_DB;
             if ((b[0] == 'M' && b[1] == 'C' && b[2] == '0' && b[3] == '2') )
                 return MaddenFileType.FileType_MC02;
-            if( (b[0] == 0x44 && b[1] == 0x44))
-                return MaddenFileType.FileType_MC02_PS3_TeamBuilder;
             if (b[0] == 'C' && b[1] == 'O' && b[2] == 'N')
                 return MaddenFileType.FileType_CON;
             return MaddenFileType.FileType_None;
