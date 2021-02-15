@@ -71,7 +71,7 @@ namespace EA_DB_Editor
 
                 if (copyAction == CopyAction.Coach)
                 {
-                    CopyCoachTable(continuation, FindTable(sourceTablesForRoster, "COCH"), FindTable(destination.lTables, "COCH"));
+                    CopyCoachTable(continuation, FindTable(sourceTablesForRoster, "COCH"), FindTable(destination.lTables, "COCH")); 
                     CopyCoachSkillTable(continuation, FindTable(sourceTablesForRoster, "CSKL"), FindTable(destination.lTables, "CSKL"));
 
                     if (MessageBox.Show("Do you want to copy over Bowl Tie-ins, NCAA Records and School Records?", "Copy", MessageBoxButtons.YesNo) == DialogResult.Yes)
@@ -367,7 +367,7 @@ namespace EA_DB_Editor
 
         static void CopyCoachTable(ContinuationData continuationData, MaddenTable source, MaddenTable destination)
         {
-            var exclude = new[] { "CCID", "CLPS", "CFUC", "CSXP", "PTID", "TOID", "CLPS" };
+            var exclude = new[] { "CCID", "CLPS", "CFUC", "CSXP", "PTID", "TOID", "CLPS", "TGID" };
             var coachSkillKeys = File.ReadAllText("coachColumns.txt").Split(',').Where(s => !exclude.Contains(s)).ToArray();
 
             //CCID is coach ID
@@ -375,12 +375,30 @@ namespace EA_DB_Editor
             //COPS is position
             var destinationTable = destination.CreateDictionary(CreateCoachKey, mr => mr.IsValidTeam());
             var sourceTable = source.CreateDictionary(CreateCoachKey, mr => mr.IsValidTeam());
-            CopyData(
-                sourceTable,
-                destinationTable,
-                (sourceKey, destinationkey, sourceRow, destinationRow) => continuationData.CoachMapping.Add(new CoachMapping { OldCoachId = sourceKey.CoachId, NewCoachId = destinationkey.CoachId }),
-                null,
-                key => coachSkillKeys.Contains(key));
+
+            foreach (var key in destinationTable.Keys)
+            {
+                // dont modify uncc/ccu, you dont have to do this for the next continuation
+                if (key.Team == 61 || key.Team == 100)
+                {
+                    continue;
+                }
+
+                // source key for gaso/appst are different
+                var sourceKey = key.Team.SourceKeyFromDesintation(out var value) ? new CoachKey { Team = value, CoachId = key.CoachId, Position = key.Position } : key;
+
+                if (sourceTable.TryGetValue(sourceKey, out var sourceRow))
+                {
+                    continuationData.CoachMapping.Add(
+                        new CoachMapping
+                        {
+                            OldCoachId = sourceKey.CoachId,
+                            NewCoachId = key.CoachId,
+                        });
+
+                    CopyRecordData(sourceRow, destinationTable[key], fieldKey => coachSkillKeys.Contains(fieldKey));
+                }
+            }
         }
 
         static void CopyTeamData(
@@ -416,7 +434,6 @@ namespace EA_DB_Editor
                 }
             }
         }
-
 
         static void CopyData<TableKey>(Dictionary<TableKey, Dictionary<string, DBData>> source, Dictionary<TableKey, Dictionary<string, DBData>> destination, Action<TableKey, TableKey, Dictionary<string, DBData>, Dictionary<string, DBData>> action, string[] dontReplaceKeys, Func<string, bool> filter = null, Func<Dictionary<string, DBData>, Dictionary<string, DBData>, string, bool> editRowFilter = null)
         {
