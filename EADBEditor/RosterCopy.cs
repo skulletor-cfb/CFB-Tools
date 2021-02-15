@@ -37,7 +37,7 @@ namespace EA_DB_Editor
         {
             ContinuationData continuation = new ContinuationData();
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = @"D:\NCAA_2014\ncaa";
+            openFileDialog.InitialDirectory = @"D:\OneDrive\ncaa";
             openFileDialog.AddExtension = true;
             openFileDialog.DefaultExt = ".*";
             openFileDialog.Filter = "(*.*)|*.*";
@@ -176,7 +176,7 @@ namespace EA_DB_Editor
 
             var columnsToCopy = new[] { "PCHV", "PPFV", "PAFV", "PTDV", "TMAR", "TDPB", "TOPB", "PCLV", "PAPV", "PCPV", "PPSV", "PTVV", "TPRX", "TPST", "TPSL", "TPSW", "TCRK", "TMRK" , "TCHS"};
 
-            CopyData(
+            CopyTeamData(
                 teamSource.CreateDictionary(mr => mr["TGID"].ToInt32(), mr => mr.IsValidTeam()),
                 teamDestination.CreateDictionary(mr => mr["TGID"].ToInt32(), mr => mr.IsValidTeam()),
                 action,
@@ -221,7 +221,9 @@ namespace EA_DB_Editor
                 if (key.IsValidTeam() == false)
                     continue;
 
-                CopyPlayersForTeam(sourceTeams[key], sourceDepthChart[key], destTeams[key], destDepthChart[key]);
+                var sourceId = key.SourceKeyFromDesintation(out var value) ? value : key;
+
+                CopyPlayersForTeam(sourceTeams[sourceId], sourceDepthChart[sourceId], destTeams[key], destDepthChart[key]);
             }
         }
 
@@ -377,6 +379,32 @@ namespace EA_DB_Editor
                 key => coachSkillKeys.Contains(key));
         }
 
+        static void CopyTeamData(Dictionary<int, Dictionary<string, DBData>> source, Dictionary<int, Dictionary<string, DBData>> destination, Action<int, int, Dictionary<string, DBData>, Dictionary<string, DBData>> action, string[] dontReplaceKeys, Func<string, bool> filter = null, Func<Dictionary<string, DBData>, Dictionary<string, DBData>, string, bool> editRowFilter = null)
+        {
+            // for each key in the destination find data in the source
+            foreach (var key in destination.Keys)
+            {
+                var sourceKey = key.SourceKeyFromDesintation(out var value) ? value : key;
+                if (source.ContainsKey(sourceKey))
+                {
+                    // get the row and the key for the coach we want to replace
+                    var rowKey = source.Keys.First(myKey => myKey.Equals(sourceKey));
+                    var row = source[sourceKey];
+
+                    if (action != null)
+                    {
+                        action(rowKey, sourceKey, row, destination[key]);
+                    }
+
+                    if (filter == null)
+                        filter = columnKey => dontReplaceKeys.Contains(columnKey) == false;
+
+                    CopyRecordData(row, destination[key], filter);
+                }
+            }
+        }
+
+
         static void CopyData<TableKey>(Dictionary<TableKey, Dictionary<string, DBData>> source, Dictionary<TableKey, Dictionary<string, DBData>> destination, Action<TableKey, TableKey, Dictionary<string, DBData>, Dictionary<string, DBData>> action, string[] dontReplaceKeys, Func<string, bool> filter = null, Func<Dictionary<string, DBData>, Dictionary<string, DBData>, string, bool> editRowFilter = null)
         {
             // for each key in the destination find data in the source
@@ -480,11 +508,52 @@ namespace EA_DB_Editor
 
         private static HashSet<int> TeamBuilderTeams = new HashSet<int>(new[] { 901, 902 });
 
+
+        public static bool SourceKeyFromDesintation( this int teamId, out int sourceId)
+        {
+            sourceId = 0;
+
+            if (teamId == 34)
+            {
+                sourceId = 901;
+                return true;
+            }
+
+            if (teamId == 181)
+            {
+                sourceId = 902;
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool HasRedirect(this int teamId, out int redirectTo)
+        {
+            redirectTo = 0; 
+
+            if (teamId == 901)
+            {
+                redirectTo = 34;
+                return true;
+            }
+
+            if (teamId == 902)
+            {
+                redirectTo = 181;
+                return true;
+            }
+
+            return false;
+        }
+
         public static bool IsValidTeam(this int teamId)
         {
             // copy over team builder rosters uncomment the line below
             //return TeamBuilderTeams.Contains(teamId);
-             return TeamBuilderTeams.Contains(teamId) || teamId != 34 && teamId != 181 && teamId != 0 && teamId != 1023 && teamId != 300 && teamId < 600;
+            //return TeamBuilderTeams.Contains(teamId) || teamId != 34 && teamId != 181 && teamId != 0 && teamId != 1023 && teamId != 300 && teamId < 600;
+
+            return TeamBuilderTeams.Contains(teamId) || (teamId != 0 && teamId != 1023 && teamId != 300 && teamId < 600);
         }
 
         public static bool IsFcsTeam(this int teamId)

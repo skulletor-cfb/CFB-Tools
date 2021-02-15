@@ -478,7 +478,7 @@ namespace EA_DB_Editor
             }
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = @"D:\NCAA_2014\ncaa";
+            openFileDialog.InitialDirectory = @"D:\OneDrive\ncaa";
             openFileDialog.AddExtension = true;
             openFileDialog.DefaultExt = ".*";
             openFileDialog.Filter = "(*.*)|*.*";
@@ -2050,7 +2050,7 @@ namespace EA_DB_Editor
             var guid = Guid.NewGuid().ToByteArray().Take(4).ToArray();
             var i = BitConverter.ToInt32(guid, 0);
 
-            if(i < 0)
+            if (i < 0)
             {
                 i &= 0x7fffffff;
             }
@@ -2491,7 +2491,7 @@ namespace EA_DB_Editor
             }
         }
 
-        private static HashSet<int> Style1Playbooks = new HashSet<int>(new[] {174,173, 135, 170,169,168, 167, 166, 164, 1, 2, 3, 4, 8, 9, 10, 14, 15, 16, 19, 20, 22, 23, 25, 29, 33, 36, 37, 42, 44, 45, 47, 49, 50, 54, 56, 57, 58, 61, 62, 63, 64, 65, 67, 68, 69, 70, 71, 72, 75, 79, 83, 85, 89, 90, 91, 92, 93, 94, 95, 97, 100, 102, 103, 107, 108, 112, 113, 115, 118, 130, 131, 133, 134 });
+        private static HashSet<int> Style1Playbooks = new HashSet<int>(new[] { 174, 173, 135, 170, 169, 168, 167, 166, 164, 1, 2, 3, 4, 8, 9, 10, 14, 15, 16, 19, 20, 22, 23, 25, 29, 33, 36, 37, 42, 44, 45, 47, 49, 50, 54, 56, 57, 58, 61, 62, 63, 64, 65, 67, 68, 69, 70, 71, 72, 75, 79, 83, 85, 89, 90, 91, 92, 93, 94, 95, 97, 100, 102, 103, 107, 108, 112, 113, 115, 118, 130, 131, 133, 134 });
         private static HashSet<int> Style2Playbooks = new HashSet<int>(new[] { 5, 6, 11, 12, 13, 17, 18, 21, 24, 26, 27, 35, 39, 41, 46, 48, 53, 55, 60, 73, 76, 84, 88, 99, 101, 106, 109, 110, 129 });
         private static HashSet<int> Style3Playbooks = new HashSet<int>(new[] { 0, 7, 30, 59 });
         private static HashSet<int> Style4Playbooks = new HashSet<int>(new[] { 28, 31, 32, 34, 38, 40, 43, 51, 52, 66, 74, 77, 78, 80, 81, 82, 86, 87, 96, 98, 104, 105, 111, 114, 116, 117, 125, 132, 163, 165, 162 });
@@ -2629,7 +2629,7 @@ POVR = overall
 PPOS = Position
              */
 
-            Dictionary<int,TransferCandidate[]> GetPlayers(Func<int,bool> positionPredicate=null)
+            Dictionary<int, TransferCandidate[]> GetPlayers(Func<int, bool> positionPredicate = null)
             {
                 if (positionPredicate == null) positionPredicate = i => true;
                 // QB depth chart
@@ -2677,7 +2677,7 @@ PPOS = Position
             sb.AppendLine();
 
             // each teams QB depth chart
-            foreach (var dc in players.Values.Where(tc => inNeed.Contains(tc.First().Team)).OrderBy(tc => tc.First().P5).ThenBy(tc=>tc.First().OVR).ThenBy(tc => tc.First().Team))
+            foreach (var dc in players.Values.Where(tc => inNeed.Contains(tc.First().Team)).OrderBy(tc => tc.First().P5).ThenBy(tc => tc.First().OVR).ThenBy(tc => tc.First().Team))
             {
                 sb.AppendLine(string.Empty);
                 sb.AppendLine(string.Empty);
@@ -2937,18 +2937,13 @@ PPOS = Position
 
         }
 
-        private void setSGINToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void generateRecordsFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // built in records are those with SEWN == 31 and RCDY==0
             // year == 0 is first year in the dynasty file
             // RBKS table
             // load the current file
-            var file = @"D:\NCAA_2014\ncaa\Default NCAA Files\BaseSchoolRecords.txt";
+            var file = @"D:\OneDrive\ncaa\Default NCAA Files\BaseSchoolRecords.txt";
             var records = File.ReadAllText(file).FromJson<TeamRecord[]>();
             var dict = records.ToDictionary(r => r.GetHashCode());
 
@@ -3337,13 +3332,13 @@ PPOS = Position
                 var recruitTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPT");
                 var recruit = recruitTable.lRecords.Where(r => r["RCRK"].ToInt32() == entry.TeamId).Single();
 
-                if( recruit["PYEA"].ToInt32()==3)
+                if (recruit["PYEA"].ToInt32() == 3)
                 {
                     MessageBox.Show("Eligbility exhausted");
-                    return; 
+                    return;
                 }
 
-                var ignoreFields = new HashSet<string>(new[] {/*"RATH", "RPGP",*/ "PRSI", "RCRK", "RCPR", "RCCB"});
+                var ignoreFields = new HashSet<string>(new[] {/*"RATH", "RPGP",*/ "PRSI", "RCRK", "RCPR", "RCCB" });
                 var dict = new Dictionary<string, string>();
 
                 foreach (var f in recruitTable.lFields.Where(f => !ignoreFields.Contains(f.Abbreviation)))
@@ -3412,7 +3407,7 @@ PPOS = Position
                     foreach (var kvp in dict)
                     {
                         if (!fields.Contains(kvp.Key))
-                            continue; 
+                            continue;
 
                         player[kvp.Key] = kvp.Value;
                     }
@@ -3499,7 +3494,7 @@ PPOS = Position
             {
                 var table = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "CCHH");
 
-                int yr = 0; 
+                int yr = 0;
 
                 foreach (var mr in table.lRecords)
                 {
@@ -3512,12 +3507,12 @@ PPOS = Position
             return CurrentYear.Value;
         }
 
-        private void FindGamesPlayed(Dictionary<int,int> dict, string table)
+        private void FindGamesPlayed(Dictionary<int, int> dict, string table)
         {
             var year = FindCurrentYear();
             var statTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, table);
 
-            foreach( var mr in statTable.lRecords)
+            foreach (var mr in statTable.lRecords)
             {
                 // SEYR needs to be the current year - 1 for this to count
                 if (mr["SEYR"].ToInt32() != year) continue;
@@ -3528,11 +3523,97 @@ PPOS = Position
                 // player is in the dict and the value in the dict is less than the games played
                 if (dict.TryGetValue(playerId, out var currValue) && currValue < gamesPlayed)
                 {
-                        dict[playerId] = gamesPlayed;
+                    dict[playerId] = gamesPlayed;
                 }
             }
         }
 
+        private void exportToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            var dict = new Dictionary<string, List<Dictionary<string, string>>>();
+
+            foreach (var table in maddenDB.lTables)
+            {
+                var name = table.Abbreviation ?? table.Name;
+
+                var tbl = new List<Dictionary<string, string>>();
+                dict[name] = tbl;
+
+                var columns = table.lFields.Select(f => f.Abbreviation).ToArray();
+
+                foreach (var mr in table.lRecords)
+                {
+                    var row = new Dictionary<string, string>();
+                    foreach (var c in columns)
+                    {
+                        row[c] = mr[c];
+                    }
+
+                    tbl.Add(row);
+                }
+            }
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.AddExtension = true;
+            saveFileDialog.DefaultExt = ".txt";
+            saveFileDialog.Filter = "*.txt|*.*";
+            saveFileDialog.Title = "Save playbook as...";
+            saveFileDialog.InitialDirectory = Environment.CurrentDirectory;
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                dict.ToJsonFile(saveFileDialog.FileName);
+            }
+        }
+
+        private void importToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.InitialDirectory = Environment.CurrentDirectory;
+            openFileDialog.AddExtension = true;
+            openFileDialog.DefaultExt = ".txt";
+            openFileDialog.Filter = "*.txt|*.*";
+            openFileDialog.Multiselect = false;
+            openFileDialog.Title = "Select a playbook to import...";
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+
+                // this appears to be a book id, which should not change
+                const string BOKL = "BOKL";
+
+                var dict = openFileDialog.FileName.FromJsonFile<Dictionary<string, List<Dictionary<string, string>>>>();
+
+                var myBOKL = dict.First().Value.First()[BOKL];
+
+                foreach (var table in maddenDB.lTables)
+                {
+                    // don't change the playbook id
+                    var playbookId = table.lRecords[0][BOKL];
+                    var name = table.Abbreviation ?? table.Name;
+
+                    // get the dict
+                    var tbl = dict[name];
+
+                    table.Clear();
+
+                    foreach (var row in tbl)
+                    {
+                        var mr = table.AddNewRecord();
+
+                        foreach (var kvp in row)
+                        {
+                            mr[kvp.Key] = kvp.Value;
+                        }
+
+                        if (mr[BOKL] == myBOKL)
+                        {
+                            mr[BOKL] = playbookId;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     [DataContract]
@@ -4564,10 +4645,18 @@ PPOS = Position
 			WriteDW2Buf( theFile, (int)(headerOffset + DBsize -4), calcdEOFCRC );
 
 		}
-		public void Save( FileStream fs )
+		public void Save( FileStream fs , bool saveWholeFile)
 		{	fs.Position	= 0;
 			CalcChecksums( );
-			fs.Write( theFile, 0, (int) DBsize );
+
+            if (saveWholeFile)
+            {
+                fs.Write(theFile, 0, theFile.Length);
+            }
+            else
+            {
+                fs.Write(theFile, 0, (int)DBsize);
+            }
 		}
 
 		/// <summary>
@@ -4924,6 +5013,12 @@ PPOS = Position
         {
         }
 
+        public void Clear()
+        {
+            this.lRecords.Clear();
+            this.Table.currecords = 0;
+        }
+
         public override string ToString()
         {
             return Table.TableName;
@@ -5110,33 +5205,6 @@ PPOS = Position
                 fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
 
             }
-          else  if (type == MaddenFileType.FileType_MC02_PS3_TeamBuilder)
-            {
-                PS3.Package package = null;
-                byte[] mc02 = new byte[fs.Length];
-
-                try
-                {
-                    fs.Read(mc02, 0, (int)fs.Length);
-                    fs.Position = 0;
-                    package = new PS3.Package(mc02);
-                }
-                catch (Exception exception)
-                {
-                    MessageBox.Show("Error opening MC02 package: " + exception.ToString());
-                    fs.Close();
-                    return;
-                }
-
-                // extract the DB file now & set the filename to work on
-                fileName = realfileName + ".DB";
-                package.Extract(PS3.Package.DataType.SaveData, fileName);
-                package.Dispose();
-
-                fs.Close();
-                fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-
-            }
             else    // must be a DB file
 #endregion
 #region DB file type
@@ -5172,7 +5240,7 @@ PPOS = Position
 			foreach( MaddenTable mt in lTables )
 				mt.WriteTable( dbFileInfo.theFile );
 
-			dbFileInfo.Save( fs );
+			dbFileInfo.Save( fs, type == MaddenFileType.FileType_DB );
 			fs.Close( );
 
 #region if this was an MC02 file, repackage
@@ -5243,7 +5311,6 @@ PPOS = Position
 			FileType_DB,
 			FileType_MC02,
 			FileType_CON,
-            FileType_MC02_PS3_TeamBuilder,
         }
         public static MaddenFileType CheckFileType(FileStream fs)
         {
@@ -5253,13 +5320,12 @@ PPOS = Position
             fs.Read(b, 0, 4);
             fs.Position = 0;
 
+
             // on ps3 a team builder save starts with 'DD'
             if (b[0] == 'D' && b[1] == 'B' )
                 return MaddenFileType.FileType_DB;
             if ((b[0] == 'M' && b[1] == 'C' && b[2] == '0' && b[3] == '2') )
                 return MaddenFileType.FileType_MC02;
-            if( (b[0] == 0x44 && b[1] == 0x44))
-                return MaddenFileType.FileType_MC02_PS3_TeamBuilder;
             if (b[0] == 'C' && b[1] == 'O' && b[2] == 'N')
                 return MaddenFileType.FileType_CON;
             return MaddenFileType.FileType_None;

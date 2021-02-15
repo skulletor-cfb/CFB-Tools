@@ -48,7 +48,6 @@
             this.aCCScheduleForOddYearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.generateHomeRecordFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.importRecordsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setSGINToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.generateRecordsFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fixG5SchedulesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dumpTablesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -94,6 +93,9 @@
             this.pollPointsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.redshritFroshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.playbookToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.importToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -118,7 +120,6 @@
             this.aCCScheduleForOddYearToolStripMenuItem,
             this.generateHomeRecordFileToolStripMenuItem,
             this.importRecordsToolStripMenuItem,
-            this.setSGINToolStripMenuItem,
             this.generateRecordsFileToolStripMenuItem,
             this.fixG5SchedulesToolStripMenuItem,
             this.dumpTablesToolStripMenuItem,
@@ -131,7 +132,8 @@
             this.copyRecruitToolStripMenuItem,
             this.applyRecruitFileToolStripMenuItem,
             this.applyRosterStatsToolStripMenuItem,
-            this.randomizeNamesToolStripMenuItem});
+            this.randomizeNamesToolStripMenuItem,
+            this.playbookToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "&File";
@@ -263,13 +265,6 @@
             this.importRecordsToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
             this.importRecordsToolStripMenuItem.Text = "Import Records";
             this.importRecordsToolStripMenuItem.Click += new System.EventHandler(this.importRecordsToolStripMenuItem_Click);
-            // 
-            // setSGINToolStripMenuItem
-            // 
-            this.setSGINToolStripMenuItem.Name = "setSGINToolStripMenuItem";
-            this.setSGINToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
-            this.setSGINToolStripMenuItem.Text = "Set SGIN";
-            this.setSGINToolStripMenuItem.Click += new System.EventHandler(this.setSGINToolStripMenuItem_Click);
             // 
             // generateRecordsFileToolStripMenuItem
             // 
@@ -623,6 +618,29 @@
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
+            // playbookToolStripMenuItem
+            // 
+            this.playbookToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.exportToolStripMenuItem1,
+            this.importToolStripMenuItem1});
+            this.playbookToolStripMenuItem.Name = "playbookToolStripMenuItem";
+            this.playbookToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
+            this.playbookToolStripMenuItem.Text = "Playbook";
+            // 
+            // exportToolStripMenuItem1
+            // 
+            this.exportToolStripMenuItem1.Name = "exportToolStripMenuItem1";
+            this.exportToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.exportToolStripMenuItem1.Text = "Export";
+            this.exportToolStripMenuItem1.Click += new System.EventHandler(this.exportToolStripMenuItem1_Click);
+            // 
+            // importToolStripMenuItem1
+            // 
+            this.importToolStripMenuItem1.Name = "importToolStripMenuItem1";
+            this.importToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.importToolStripMenuItem1.Text = "Import";
+            this.importToolStripMenuItem1.Click += new System.EventHandler(this.importToolStripMenuItem1_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -662,7 +680,6 @@
         private System.Windows.Forms.ToolStripMenuItem aCCScheduleForOddYearToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem generateHomeRecordFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem importRecordsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem setSGINToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem generateRecordsFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem filterToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem massToolStripMenuItem;
@@ -708,6 +725,9 @@
         private System.Windows.Forms.ToolStripMenuItem redshritFroshToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem applyRosterStatsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem randomizeNamesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem playbookToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem1;
     }
 }
 
