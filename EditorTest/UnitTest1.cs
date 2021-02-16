@@ -293,20 +293,45 @@ namespace EditorTest
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
-/*        [TestMethod]
-        public void CUSAScheduleC()
+        [TestMethod]
+        public void MACScheduleA()
         {
-            CUSASchedule.CreateC().Verify(11, RecruitingFixup.CUSAId, "CUSA  ", false);
-            var hash = CUSASchedule.CreateC().BuildHashSet();
+            MACSchedule.CreateA().Verify(12, RecruitingFixup.MACId, "MAC  ", false);
+            var hash = MACSchedule.CreateA().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
         [TestMethod]
-        public void CUSAScheduleD()
+        public void MACScheduleB()
         {
-            CUSASchedule.CreateD().Verify(11, RecruitingFixup.CUSAId, "CUSA  ", false);
-            var hash = CUSASchedule.CreateD().BuildHashSet();
+            MACSchedule.CreateB().Verify(12, RecruitingFixup.MACId, "MAC  ", false);
+            var hash = MACSchedule.CreateB().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }*/
+        }
+
+        [TestMethod]
+        public void MACScheduleC()
+        {
+            MACSchedule.CreateC().Verify(12, RecruitingFixup.MACId, "MAC  ", false);
+            var hash = MACSchedule.CreateC().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void MACScheduleD()
+        {
+            MACSchedule.CreateD().Verify(12, RecruitingFixup.MACId, "MAC  ", false);
+            var hash = MACSchedule.CreateD().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void MACScheduleE()
+        {
+            MACSchedule.CreateE().Verify(12, RecruitingFixup.MACId, "MAC  ", false);
+            var hash = MACSchedule.CreateE().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
     }
 }
