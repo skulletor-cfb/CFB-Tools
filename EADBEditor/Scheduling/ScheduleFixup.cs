@@ -135,8 +135,8 @@ namespace EA_DB_Editor
             MWCSchedule.Init();
             MACSchedule.Init();
             Big10Schedule.Init();
-            //CUSASchedule.Init();
-            //SunBeltSchedule.Init();
+            CUSASchedule.Init();
+            SunBeltSchedule.Init();
 
             var scheduleTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "SCHD").lRecords.Where(r => r["SEYR"].ToInt32() == 0).ToArray();
             Dictionary<int, PreseasonScheduledGame[]> teamSchedule = new Dictionary<int, PreseasonScheduledGame[]>();
@@ -329,8 +329,8 @@ namespace EA_DB_Editor
                 AmericanSchedule.ProcessAmericanSchedule(teamSchedule);
                 MWCSchedule.ProcessMWCSchedule(teamSchedule);
                 MACSchedule.ProcessMACSchedule(teamSchedule);
-                //CUSASchedule.ProcessCUSASchedule(teamSchedule);
-                //SunBeltSchedule.ProcessSunbeltSchedule(teamSchedule);
+                CUSASchedule.ProcessCUSASchedule(teamSchedule);
+                SunBeltSchedule.ProcessSunbeltSchedule(teamSchedule);
                 ConfScheduleFixer.G5FCSSwap(teamSchedule);
 
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EA_DB_Editor
 {
-    public    class AmericanSchedule
+    public class AmericanSchedule
     {
         private static bool initRun = false;
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE, CreateA, CreateA, CreateB };
@@ -37,7 +37,7 @@ namespace EA_DB_Editor
         const int CincyId = 20;
         const int MemphisId = 48;
         const int SMUId = 83;
-        const int UCONNId = 100;
+        const int MarshId = 46;
         const int UCFId = 18;
         const int USFId = 144;
         const int ECUId = 25;
@@ -51,16 +51,16 @@ namespace EA_DB_Editor
         {
             return new Dictionary<int, int[]>()
             {
-                {USFId,new[] {UCFId,UCONNId,SMUId,MemphisId} },
+                {USFId,new[] {UCFId,MarshId,SMUId,MemphisId} },
                 {UCFId,new[] {ECUId,CincyId,TempleId,TulsaId} },
                 {ECUId,new[] {USFId,TempleId,MemphisId,TulaneId} },
-                {UCONNId,new[] {UCFId,ECUId,CincyId,RiceId} },
+                {MarshId,new[] {UCFId,ECUId,CincyId,RiceId} },
                 {CincyId,new[] {USFId,ECUId,TempleId,HoustonId} },
-                {TempleId,new[] {USFId,UCONNId,SMUId,TulaneId} },
-                {TulsaId,new[] {CincyId,UCONNId,RiceId,TulaneId} },
+                {TempleId,new[] {USFId,MarshId,SMUId,TulaneId} },
+                {TulsaId,new[] {CincyId,MarshId,RiceId,TulaneId} },
                 {RiceId,new[] {UCFId,CincyId,SMUId,HoustonId} },
                 {SMUId,new[] {ECUId,TulsaId,MemphisId,TulaneId} },
-                {HoustonId,new[] {UCFId,UCONNId,TulsaId,SMUId} },
+                {HoustonId,new[] {UCFId,MarshId,TulsaId,SMUId} },
                 {MemphisId,new[] {TempleId,TulsaId,RiceId,HoustonId} },
                 {TulaneId,new[] {USFId,RiceId,HoustonId,MemphisId} },
             };
@@ -70,15 +70,15 @@ namespace EA_DB_Editor
         {
             return new Dictionary<int, int[]>()
             {
-                {USFId,new[] {UCFId,UCONNId,SMUId,MemphisId} },
+                {USFId,new[] {UCFId,MarshId,SMUId,MemphisId} },
                 {UCFId,new[] {ECUId,CincyId,TempleId,TulsaId} },
                 {ECUId,new[] {USFId,CincyId,TempleId,RiceId} },
-                {UCONNId,new[] {UCFId,ECUId,CincyId,TulaneId} },
+                {MarshId,new[] {UCFId,ECUId,CincyId,TulaneId} },
                 {CincyId,new[] {USFId,TempleId,MemphisId,TulaneId} },
-                {TempleId,new[] {USFId,UCONNId,RiceId,HoustonId} },
+                {TempleId,new[] {USFId,MarshId,RiceId,HoustonId} },
                 {TulsaId,new[] {USFId,TempleId,RiceId,TulaneId} },
-                {RiceId,new[] {UCONNId,SMUId,HoustonId,MemphisId} },
-                {SMUId,new[] {UCFId,UCONNId,TulsaId,TulaneId} },
+                {RiceId,new[] {MarshId,SMUId,HoustonId,MemphisId} },
+                {SMUId,new[] {UCFId,MarshId,TulsaId,TulaneId} },
                 {HoustonId,new[] {ECUId,CincyId,TulsaId,SMUId} },
                 {MemphisId,new[] {UCFId,TulsaId,SMUId,HoustonId} },
                 {TulaneId,new[] {ECUId,RiceId,HoustonId,MemphisId} },
@@ -89,15 +89,15 @@ namespace EA_DB_Editor
         {
             return new Dictionary<int, int[]>()
             {
-                {USFId,new[] {UCFId,UCONNId,RiceId,HoustonId} },
+                {USFId,new[] {UCFId,MarshId,RiceId,HoustonId} },
                 {UCFId,new[] {ECUId,CincyId,TempleId,TulsaId} },
-                {ECUId,new[] {USFId,UCONNId,CincyId,SMUId} },
-                {UCONNId,new[] {UCFId,CincyId,TulsaId,MemphisId} },
+                {ECUId,new[] {USFId,MarshId,CincyId,SMUId} },
+                {MarshId,new[] {UCFId,CincyId,TulsaId,MemphisId} },
                 {CincyId,new[] {USFId,TempleId,RiceId,HoustonId} },
-                {TempleId,new[] {USFId,ECUId,UCONNId,TulaneId} },
+                {TempleId,new[] {USFId,ECUId,MarshId,TulaneId} },
                 {TulsaId,new[] {ECUId,RiceId,MemphisId,TulaneId} },
                 {RiceId,new[] {UCFId,SMUId,HoustonId,MemphisId} },
-                {SMUId,new[] {CincyId,UCONNId,TulsaId,TulaneId} },
+                {SMUId,new[] {CincyId,MarshId,TulsaId,TulaneId} },
                 {HoustonId,new[] {TempleId,TulsaId,SMUId,TulaneId} },
                 {MemphisId,new[] {ECUId,TempleId,SMUId,HoustonId} },
                 {TulaneId,new[] {USFId,UCFId,RiceId,MemphisId} },
@@ -108,15 +108,15 @@ namespace EA_DB_Editor
         {
             return new Dictionary<int, int[]>()
             {
-                {USFId,new[] {UCFId,UCONNId,SMUId,MemphisId} },
+                {USFId,new[] {UCFId,MarshId,SMUId,MemphisId} },
                 {UCFId,new[] {ECUId,CincyId,TempleId,TulsaId} },
-                {ECUId,new[] {USFId,UCONNId,TempleId,TulaneId} },
-                {UCONNId,new[] {UCFId,CincyId,HoustonId,TulaneId} },
+                {ECUId,new[] {USFId,MarshId,TempleId,TulaneId} },
+                {MarshId,new[] {UCFId,CincyId,HoustonId,TulaneId} },
                 {CincyId,new[] {USFId,ECUId,TempleId,RiceId} },
-                {TempleId,new[] {USFId,UCONNId,TulsaId,RiceId} },
+                {TempleId,new[] {USFId,MarshId,TulsaId,RiceId} },
                 {TulsaId,new[] {CincyId,RiceId,MemphisId,TulaneId} },
                 {RiceId,new[] {ECUId,SMUId,HoustonId,MemphisId} },
-                {SMUId,new[] {UCFId,UCONNId,TulsaId,TulaneId} },
+                {SMUId,new[] {UCFId,MarshId,TulsaId,TulaneId} },
                 {HoustonId,new[] {USFId,UCFId,TulsaId,SMUId} },
                 {MemphisId,new[] {ECUId,CincyId,SMUId,HoustonId} },
                 {TulaneId,new[] {TempleId,RiceId,HoustonId,MemphisId} },
@@ -127,14 +127,14 @@ namespace EA_DB_Editor
         {
             return new Dictionary<int, int[]>()
             {
-                {USFId,new[] {UCFId,UCONNId,RiceId,TulaneId} },
+                {USFId,new[] {UCFId,MarshId,RiceId,TulaneId} },
                 {UCFId,new[] {ECUId,CincyId,TempleId,TulsaId} },
-                {ECUId,new[] {USFId,UCONNId,TempleId,HoustonId} },
-                {UCONNId,new[] {UCFId,CincyId,HoustonId,MemphisId} },
+                {ECUId,new[] {USFId,MarshId,TempleId,HoustonId} },
+                {MarshId,new[] {UCFId,CincyId,HoustonId,MemphisId} },
                 {CincyId,new[] {USFId,ECUId,TempleId,TulaneId} },
-                {TempleId,new[] {USFId,UCONNId,SMUId,RiceId} },
+                {TempleId,new[] {USFId,MarshId,SMUId,RiceId} },
                 {TulsaId,new[] {USFId,ECUId,RiceId,MemphisId} },
-                {RiceId,new[] {UCONNId,SMUId,MemphisId,TulaneId} },
+                {RiceId,new[] {MarshId,SMUId,MemphisId,TulaneId} },
                 {SMUId,new[] {ECUId,CincyId,TulsaId,TulaneId} },
                 {HoustonId,new[] {TempleId,TulsaId,RiceId,SMUId} },
                 {MemphisId,new[] {UCFId,CincyId,SMUId,HoustonId} },

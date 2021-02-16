@@ -229,13 +229,14 @@ namespace EA_DB_Editor
                     lockChecks = new Func<PreseasonScheduledGame, int?>[]
                     {
                         g=>MatchTeams(13+Is10TeamConf, g, 144, 18),
-                        g=>MatchTeams(13+Is10TeamConf, g, 100, 90),
-                        g=>MatchTeams(13+Is10TeamConf, g, 25, 20),
+                        g=>MatchTeams(13+Is10TeamConf, g, 20, 90),
+                        g=>MatchTeams(13+Is10TeamConf, g, 25, 46),
                         g=>MatchTeams(13+Is10TeamConf, g, 33, 97),
                         g=>MatchTeams(13+Is10TeamConf, g, 83, 79),
                         g=>MatchTeams(13+Is10TeamConf, g, 48, 96),
                         g=>MatchTeams(12+Is10TeamConf, g, 33, 83),
                         g=>MatchTeams(8, g, 33, 79),
+                        g=>MatchTeams(7, g, 18, 25),
                     };
                 }
 

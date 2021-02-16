@@ -77,14 +77,12 @@ namespace EditorTest
         }
 
         [TestMethod]
-        [Ignore]
         public void MWCScheduleA()
         {
             MWCSchedule.CreateA().Verify(12, RecruitingFixup.MWCId, "MWC  ", false);
         }
 
         [TestMethod]
-        [Ignore]
         public void MWCScheduleB()
         {
             MWCSchedule.CreateB().Verify(12, RecruitingFixup.MWCId, "MWC  ", false);
@@ -282,7 +280,7 @@ namespace EditorTest
         [TestMethod]
         public void CUSAScheduleA()
         {
-            CUSASchedule.CreateA().Verify(11, RecruitingFixup.CUSAId, "CUSA  ", false);
+            CUSASchedule.CreateA().Verify(12, RecruitingFixup.CUSAId, "CUSA  ", false);
             var hash = CUSASchedule.CreateA().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -290,12 +288,12 @@ namespace EditorTest
         [TestMethod]
         public void CUSAScheduleB()
         {
-            CUSASchedule.CreateB().Verify(11, RecruitingFixup.CUSAId, "CUSA  ", false);
+            CUSASchedule.CreateB().Verify(12, RecruitingFixup.CUSAId, "CUSA  ", false);
             var hash = CUSASchedule.CreateB().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
-        [TestMethod]
+/*        [TestMethod]
         public void CUSAScheduleC()
         {
             CUSASchedule.CreateC().Verify(11, RecruitingFixup.CUSAId, "CUSA  ", false);
@@ -309,6 +307,6 @@ namespace EditorTest
             CUSASchedule.CreateD().Verify(11, RecruitingFixup.CUSAId, "CUSA  ", false);
             var hash = CUSASchedule.CreateD().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
+        }*/
     }
 }
