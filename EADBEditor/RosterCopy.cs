@@ -77,7 +77,7 @@ namespace EA_DB_Editor
                     if (MessageBox.Show("Do you want to copy over Bowl Tie-ins, NCAA Records and School Records?", "Copy", MessageBoxButtons.YesNo) == DialogResult.Yes)
                     {
                         CopyTeamRecordData(maddenDB.lTables[159], destination.lTables[159]);
-                        CopyNCAARecordData(maddenDB.lTables[91], destination.lTables[91]);
+                        //CopyNCAARecordData(maddenDB.lTables[91], destination.lTables[91]);
                         CopyBowlData(maddenDB.lTables[129], destination.lTables[129]);
                     }
                 }
@@ -385,14 +385,16 @@ namespace EA_DB_Editor
                 }
 
                 // source key for gaso/appst are different
-                var sourceKey = key.Team.SourceKeyFromDesintation(out var value) ? new CoachKey { Team = value, CoachId = key.CoachId, Position = key.Position } : key;
+                var sourceKey = key.Team.SourceKeyFromDesintation(out var value) ? new CoachKey { Team = value, Position = key.Position } : key;
 
                 if (sourceTable.TryGetValue(sourceKey, out var sourceRow))
                 {
+                    var rowKey = sourceTable.Keys.First(myKey => myKey.Equals(sourceKey));
+
                     continuationData.CoachMapping.Add(
                         new CoachMapping
                         {
-                            OldCoachId = sourceKey.CoachId,
+                            OldCoachId = rowKey.CoachId,
                             NewCoachId = key.CoachId,
                         });
 
