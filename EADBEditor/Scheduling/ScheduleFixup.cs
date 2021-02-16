@@ -683,14 +683,11 @@ namespace EA_DB_Editor
 
         public static void FixPreseasonSchedule()
         {
-            var hhFile = "homeandhome.xml";
             // Pitt-WVU , OU-NEB are week 14
             var schedules = ReadSchedule();
 
             var gamesThatCanBeReplaced = schedules.Where(kvp => kvp.Value.Where(v => !kvp.Key.IsP5OrND() && v != null).Select(v => v.IsG5Game()).Count() > 0).SelectMany(kvp => kvp.Value.Where(v => v != null && v.IsG5Game() && !v.IsServiceAcademyGame() && !v.IsConferenceGame() && !v.IsRivalryGame())).OrderBy(g => g.Week).Distinct().ToList();
             var teams = schedules.Keys.Where(k => k.IsP5());
-            var xmlRoot = XDocument.Parse(File.ReadAllText(hhFile)).Root;
-            var homeAndHome = xmlRoot.Elements("Game").Select(e => FutureGame.FromXml(e)).Where(fg => RecruitingFixup.TeamAndConferences[fg.AwayId] != RecruitingFixup.TeamAndConferences[fg.HomeId]).ToList();
 
             // find user controlled teams and lock them
             var ucTeams = FindUserControllerTeams(false);
@@ -702,7 +699,7 @@ namespace EA_DB_Editor
             {
                 schedules = ReadSchedule();
                 gamesThatCanBeReplaced = schedules.Where(kvp => kvp.Value.Where(v => !kvp.Key.IsP5OrND() && v != null).Select(v => v.IsG5Game()).Count() > 0).SelectMany(kvp => kvp.Value.Where(v => v != null && v.IsG5Game() && !v.IsServiceAcademyGame() && !v.IsConferenceGame() && !v.IsRivalryGame())).OrderBy(g => g.Week).Distinct().ToList();
-                var gamesToAdd = CleanSchedule(team, schedules, homeAndHome, gamesThatCanBeReplaced);
+                var gamesToAdd = CleanSchedule(team, schedules, new List<FutureGame>(), gamesThatCanBeReplaced);
                 futureGames.AddRange(gamesToAdd);
             }
 
@@ -772,10 +769,6 @@ namespace EA_DB_Editor
                     }
                 }
             }
-
-            homeAndHome.AddRange(futureGames);
-            var gamesElement = new XElement("Games", homeAndHome.Select(x => x.ToXml()));
-            gamesElement.Save(hhFile);
 
             schedules = ReadSchedule();
 
