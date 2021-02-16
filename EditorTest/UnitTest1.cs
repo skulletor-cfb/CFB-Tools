@@ -240,7 +240,7 @@ namespace EditorTest
         [TestMethod]
         public void SBCScheduleA()
         {
-            SunBeltSchedule.CreateA().Verify(12, RecruitingFixup.SBCId, "SunBelt  ", false);
+            SunBeltSchedule.CreateA().Verify(11, RecruitingFixup.SBCId, "SunBelt  ", false);
             var hash = SunBeltSchedule.CreateA().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -248,7 +248,7 @@ namespace EditorTest
         [TestMethod]
         public void SBCScheduleB()
         {
-            SunBeltSchedule.CreateB().Verify(12, RecruitingFixup.SBCId, "SunBelt  ", false);
+            SunBeltSchedule.CreateB().Verify(11, RecruitingFixup.SBCId, "SunBelt  ", false);
             var hash = SunBeltSchedule.CreateB().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -256,7 +256,7 @@ namespace EditorTest
         [TestMethod]
         public void SBCScheduleC()
         {
-            SunBeltSchedule.CreateC().Verify(12, RecruitingFixup.SBCId, "SunBelt  ", false);
+            SunBeltSchedule.CreateC().Verify(11, RecruitingFixup.SBCId, "SunBelt  ", false);
             var hash = SunBeltSchedule.CreateC().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -264,16 +264,8 @@ namespace EditorTest
         [TestMethod]
         public void SBCScheduleD()
         {
-            SunBeltSchedule.CreateD().Verify(12, RecruitingFixup.SBCId, "SunBelt  ", false);
+            SunBeltSchedule.CreateD().Verify(11, RecruitingFixup.SBCId, "SunBelt  ", false);
             var hash = SunBeltSchedule.CreateD().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void SBCScheduleE()
-        {
-            SunBeltSchedule.CreateE().Verify(12, RecruitingFixup.SBCId, "SunBelt  ", false);
-            var hash = SunBeltSchedule.CreateE().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
