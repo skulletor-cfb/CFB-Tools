@@ -71,14 +71,15 @@ namespace EA_DB_Editor
 
                 if (copyAction == CopyAction.Coach)
                 {
-                    CopyCoachTable(continuation, FindTable(sourceTablesForRoster, "COCH"), FindTable(destination.lTables, "COCH"));
+                    CopyCoachTable(continuation, FindTable(sourceTablesForRoster, "COCH"), FindTable(destination.lTables, "COCH")); 
                     CopyCoachSkillTable(continuation, FindTable(sourceTablesForRoster, "CSKL"), FindTable(destination.lTables, "CSKL"));
 
                     if (MessageBox.Show("Do you want to copy over Bowl Tie-ins, NCAA Records and School Records?", "Copy", MessageBoxButtons.YesNo) == DialogResult.Yes)
                     {
                         CopyTeamRecordData(maddenDB.lTables[159], destination.lTables[159]);
-                        CopyNCAARecordData(maddenDB.lTables[91], destination.lTables[91]);
+                        //CopyNCAARecordData(maddenDB.lTables[91], destination.lTables[91]);
                         CopyBowlData(maddenDB.lTables[129], destination.lTables[129]);
+                        CopyStadiumData(MaddenTable.FindTable(maddenDB.lTables, "STAD"), MaddenTable.FindTable(destination.lTables, "STAD"));
                     }
                 }
                 else if (copyAction == CopyAction.Roster)
@@ -166,6 +167,64 @@ namespace EA_DB_Editor
                 key => include.Contains(key));
         }
 
+        static void CopyStadiumData(MaddenTable source, MaddenTable destination)
+        {
+            var include = new[] { "SNAM", "SCIT", "STAT", "STNN", "TDNA", "SCAP", "STAA", "FLID", "WCLC", "STOF", "STRY", "STYP"  };
+
+            var sourceToDestinationMap = new Dictionary<int, int>();
+
+            // for a straight map we just copy
+            var ids = new int[] { 242, 258, 261, 262, 263, 264, 265, 266, 267, 163, 259, 268 };
+            foreach(var id in ids)
+            {
+                sourceToDestinationMap[id] = id;
+            }
+
+            sourceToDestinationMap[279] = 278;
+            // sourceToDestinationMap[279] = 257;
+
+            // we need to know what destination to copy to 
+            var destinationMap = sourceToDestinationMap.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+            destinationMap[257] = 279;
+
+
+            var sauce = source.CreateDictionary(mr => mr["SGID"].ToInt32(), mr => sourceToDestinationMap.ContainsKey(mr["SGID"].ToInt32()));
+            var dest = destination.CreateDictionary(mr => mr["SGID"].ToInt32(), mr => destinationMap.ContainsKey(mr["SGID"].ToInt32()));
+
+            foreach (var key in dest.Keys)
+            {
+                var sourceKey = destinationMap[key];
+                var sourceRow = sauce[sourceKey];
+                var destRow = dest[key];
+                CopyRecordData(sourceRow, destRow, dataKey => include.Contains(dataKey));
+
+                switch(key)
+                {
+                    case 278:
+                        destRow["TDNA"].Data = "Southwest Classic";
+                        break;
+
+                    case 257:
+                        destRow["TDNA"].Data = "Battle for the Iron Skillet";
+                        break;
+
+                    case 268:
+                        destRow["FLID"].Data = "HSNESM";
+                        break;
+
+                    case 259:
+                    case 266:
+                    case 265:
+                    case 264:
+                        destRow["FLID"].Data = "HSNEMD";
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+
         static void CopyTeamData(ContinuationData continuation, MaddenTable teamSource, MaddenTable teamDestination)
         {
             Action<int, int, Dictionary<string, DBData>, Dictionary<string, DBData>> action = null;
@@ -219,6 +278,10 @@ namespace EA_DB_Editor
             {
                 // only copy over for valid teams
                 if (key.IsValidTeam() == false)
+                    continue;
+
+                // uconn and nmsu are gone!
+                if (key == 61 || key == 100)
                     continue;
 
                 var sourceId = key.SourceKeyFromDesintation(out var value) ? value : key;
@@ -363,7 +426,7 @@ namespace EA_DB_Editor
 
         static void CopyCoachTable(ContinuationData continuationData, MaddenTable source, MaddenTable destination)
         {
-            var exclude = new[] { "CCID", "CLPS", "CFUC", "CSXP", "PTID", "TOID", "CLPS" };
+            var exclude = new[] { "CCID", "CLPS", "CFUC", "CSXP", "PTID", "TOID", "CLPS", "TGID" };
             var coachSkillKeys = File.ReadAllText("coachColumns.txt").Split(',').Where(s => !exclude.Contains(s)).ToArray();
 
             //CCID is coach ID
@@ -371,15 +434,40 @@ namespace EA_DB_Editor
             //COPS is position
             var destinationTable = destination.CreateDictionary(CreateCoachKey, mr => mr.IsValidTeam());
             var sourceTable = source.CreateDictionary(CreateCoachKey, mr => mr.IsValidTeam());
-            CopyData(
-                sourceTable,
-                destinationTable,
-                (sourceKey, destinationkey, sourceRow, destinationRow) => continuationData.CoachMapping.Add(new CoachMapping { OldCoachId = sourceKey.CoachId, NewCoachId = destinationkey.CoachId }),
-                null,
-                key => coachSkillKeys.Contains(key));
+
+            foreach (var key in destinationTable.Keys)
+            {
+                // dont modify uncc/ccu, you dont have to do this for the next continuation
+                if (key.Team == 61 || key.Team == 100)
+                {
+                    continue;
+                }
+
+                // source key for gaso/appst are different
+                var sourceKey = key.Team.SourceKeyFromDesintation(out var value) ? new CoachKey { Team = value, Position = key.Position } : key;
+
+                if (sourceTable.TryGetValue(sourceKey, out var sourceRow))
+                {
+                    var rowKey = sourceTable.Keys.First(myKey => myKey.Equals(sourceKey));
+
+                    continuationData.CoachMapping.Add(
+                        new CoachMapping
+                        {
+                            OldCoachId = rowKey.CoachId,
+                            NewCoachId = key.CoachId,
+                        });
+
+                    CopyRecordData(sourceRow, destinationTable[key], fieldKey => coachSkillKeys.Contains(fieldKey));
+                }
+            }
         }
 
-        static void CopyTeamData(Dictionary<int, Dictionary<string, DBData>> source, Dictionary<int, Dictionary<string, DBData>> destination, Action<int, int, Dictionary<string, DBData>, Dictionary<string, DBData>> action, string[] dontReplaceKeys, Func<string, bool> filter = null, Func<Dictionary<string, DBData>, Dictionary<string, DBData>, string, bool> editRowFilter = null)
+        static void CopyTeamData(
+            Dictionary<int, Dictionary<string, DBData>> source, 
+            Dictionary<int, Dictionary<string, DBData>> destination, 
+            Action<int, int, Dictionary<string, DBData>, Dictionary<string, DBData>> action, 
+            string[] dontReplaceKeys, 
+            Func<string, bool> filter = null)
         {
             // for each key in the destination find data in the source
             foreach (var key in destination.Keys)
@@ -396,16 +484,25 @@ namespace EA_DB_Editor
                         action(rowKey, sourceKey, row, destination[key]);
                     }
 
+                    // dont copy nmsu or uconn
+                    if (key == 100 || key == 61)
+                        continue;
+
                     if (filter == null)
                         filter = columnKey => dontReplaceKeys.Contains(columnKey) == false;
-
+                    
                     CopyRecordData(row, destination[key], filter);
                 }
             }
         }
 
-
-        static void CopyData<TableKey>(Dictionary<TableKey, Dictionary<string, DBData>> source, Dictionary<TableKey, Dictionary<string, DBData>> destination, Action<TableKey, TableKey, Dictionary<string, DBData>, Dictionary<string, DBData>> action, string[] dontReplaceKeys, Func<string, bool> filter = null, Func<Dictionary<string, DBData>, Dictionary<string, DBData>, string, bool> editRowFilter = null)
+        static void CopyData<TableKey>(
+            Dictionary<TableKey, Dictionary<string, DBData>> source, 
+            Dictionary<TableKey, Dictionary<string, DBData>> destination, 
+            Action<TableKey, TableKey, Dictionary<string, DBData>, Dictionary<string, DBData>> action, 
+            string[] dontReplaceKeys, 
+            Func<string, bool> filter = null, 
+            Func<Dictionary<string, DBData>, Dictionary<string, DBData>, string, bool> editRowFilter = null)
         {
             // for each key in the destination find data in the source
             foreach (var key in destination.Keys)

@@ -135,8 +135,8 @@ namespace EA_DB_Editor
             MWCSchedule.Init();
             MACSchedule.Init();
             Big10Schedule.Init();
-            //CUSASchedule.Init();
-            //SunBeltSchedule.Init();
+            CUSASchedule.Init();
+            SunBeltSchedule.Init();
 
             var scheduleTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "SCHD").lRecords.Where(r => r["SEYR"].ToInt32() == 0).ToArray();
             Dictionary<int, PreseasonScheduledGame[]> teamSchedule = new Dictionary<int, PreseasonScheduledGame[]>();
@@ -329,8 +329,8 @@ namespace EA_DB_Editor
                 AmericanSchedule.ProcessAmericanSchedule(teamSchedule);
                 MWCSchedule.ProcessMWCSchedule(teamSchedule);
                 MACSchedule.ProcessMACSchedule(teamSchedule);
-                //CUSASchedule.ProcessCUSASchedule(teamSchedule);
-                //SunBeltSchedule.ProcessSunbeltSchedule(teamSchedule);
+                CUSASchedule.ProcessCUSASchedule(teamSchedule);
+                SunBeltSchedule.ProcessSunbeltSchedule(teamSchedule);
                 ConfScheduleFixer.G5FCSSwap(teamSchedule);
 
 
@@ -1267,13 +1267,13 @@ namespace EA_DB_Editor
                 // tamu-ark play at 279 - southwest classic
                 else if (MatchTeams(homeTeam, awayTeam, new[] { 6, 93 }))
                 {
-                    gameRecord["SGID"] = "279";
+                    gameRecord["SGID"] = "278";
                     query["TGID"] = awayTeam.ToString();
                     teamScheduleRecord = MaddenTable.Query(teamSchedules, query).Single();
                     teamScheduleRecord["THOA"] = "1";
                 }
                 // baylor-tt play at 279 - Texas Shootout
-                else if (MatchTeams(homeTeam, awayTeam, new[] { 11, 94 }))
+                else if (false &&  MatchTeams(homeTeam, awayTeam, new[] { 11, 94 }))
                 {
                     gameRecord["SGID"] = "279";
                     query["TGID"] = awayTeam.ToString();
@@ -1292,7 +1292,7 @@ namespace EA_DB_Editor
                 // smu-tcu play at 279 when smu is in big 12 on friday night
                 else if (MatchTeams(homeTeam, awayTeam, new[] { 83, 89 }))
                 {
-                    gameRecord["SGID"] = "279";
+                    gameRecord["SGID"] = "257";
                     gameRecord["GDAT"] = "4";
                     gameRecord["GTOD"] = "1200";
                     query["TGID"] = awayTeam.ToString();

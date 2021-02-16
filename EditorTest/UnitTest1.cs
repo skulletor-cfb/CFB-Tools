@@ -77,14 +77,12 @@ namespace EditorTest
         }
 
         [TestMethod]
-        [Ignore]
         public void MWCScheduleA()
         {
             MWCSchedule.CreateA().Verify(12, RecruitingFixup.MWCId, "MWC  ", false);
         }
 
         [TestMethod]
-        [Ignore]
         public void MWCScheduleB()
         {
             MWCSchedule.CreateB().Verify(12, RecruitingFixup.MWCId, "MWC  ", false);
@@ -242,7 +240,7 @@ namespace EditorTest
         [TestMethod]
         public void SBCScheduleA()
         {
-            SunBeltSchedule.CreateA().Verify(12, RecruitingFixup.SBCId, "SunBelt  ", false);
+            SunBeltSchedule.CreateA().Verify(11, RecruitingFixup.SBCId, "SunBelt  ", false);
             var hash = SunBeltSchedule.CreateA().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -250,7 +248,7 @@ namespace EditorTest
         [TestMethod]
         public void SBCScheduleB()
         {
-            SunBeltSchedule.CreateB().Verify(12, RecruitingFixup.SBCId, "SunBelt  ", false);
+            SunBeltSchedule.CreateB().Verify(11, RecruitingFixup.SBCId, "SunBelt  ", false);
             var hash = SunBeltSchedule.CreateB().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -258,7 +256,7 @@ namespace EditorTest
         [TestMethod]
         public void SBCScheduleC()
         {
-            SunBeltSchedule.CreateC().Verify(12, RecruitingFixup.SBCId, "SunBelt  ", false);
+            SunBeltSchedule.CreateC().Verify(11, RecruitingFixup.SBCId, "SunBelt  ", false);
             var hash = SunBeltSchedule.CreateC().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -266,23 +264,15 @@ namespace EditorTest
         [TestMethod]
         public void SBCScheduleD()
         {
-            SunBeltSchedule.CreateD().Verify(12, RecruitingFixup.SBCId, "SunBelt  ", false);
+            SunBeltSchedule.CreateD().Verify(11, RecruitingFixup.SBCId, "SunBelt  ", false);
             var hash = SunBeltSchedule.CreateD().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void SBCScheduleE()
-        {
-            SunBeltSchedule.CreateE().Verify(12, RecruitingFixup.SBCId, "SunBelt  ", false);
-            var hash = SunBeltSchedule.CreateE().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
         [TestMethod]
         public void CUSAScheduleA()
         {
-            CUSASchedule.CreateA().Verify(11, RecruitingFixup.CUSAId, "CUSA  ", false);
+            CUSASchedule.CreateA().Verify(12, RecruitingFixup.CUSAId, "CUSA  ", false);
             var hash = CUSASchedule.CreateA().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -290,25 +280,50 @@ namespace EditorTest
         [TestMethod]
         public void CUSAScheduleB()
         {
-            CUSASchedule.CreateB().Verify(11, RecruitingFixup.CUSAId, "CUSA  ", false);
+            CUSASchedule.CreateB().Verify(12, RecruitingFixup.CUSAId, "CUSA  ", false);
             var hash = CUSASchedule.CreateB().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
         [TestMethod]
-        public void CUSAScheduleC()
+        public void MACScheduleA()
         {
-            CUSASchedule.CreateC().Verify(11, RecruitingFixup.CUSAId, "CUSA  ", false);
-            var hash = CUSASchedule.CreateC().BuildHashSet();
+            MACSchedule.CreateA().Verify(12, RecruitingFixup.MACId, "MAC  ", false);
+            var hash = MACSchedule.CreateA().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
         [TestMethod]
-        public void CUSAScheduleD()
+        public void MACScheduleB()
         {
-            CUSASchedule.CreateD().Verify(11, RecruitingFixup.CUSAId, "CUSA  ", false);
-            var hash = CUSASchedule.CreateD().BuildHashSet();
+            MACSchedule.CreateB().Verify(12, RecruitingFixup.MACId, "MAC  ", false);
+            var hash = MACSchedule.CreateB().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
+
+        [TestMethod]
+        public void MACScheduleC()
+        {
+            MACSchedule.CreateC().Verify(12, RecruitingFixup.MACId, "MAC  ", false);
+            var hash = MACSchedule.CreateC().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void MACScheduleD()
+        {
+            MACSchedule.CreateD().Verify(12, RecruitingFixup.MACId, "MAC  ", false);
+            var hash = MACSchedule.CreateD().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void MACScheduleE()
+        {
+            MACSchedule.CreateE().Verify(12, RecruitingFixup.MACId, "MAC  ", false);
+            var hash = MACSchedule.CreateE().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
     }
 }

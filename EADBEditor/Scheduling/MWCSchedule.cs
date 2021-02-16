@@ -8,7 +8,7 @@ namespace EA_DB_Editor
     public class MWCSchedule
     {
         private const int UNMId = 60;
-        private const int NMSUId = 61;
+        private const int UTEPId = 105;
         private const int SDSUId = 81;
         private const int HawaiiId = 32;
 
@@ -48,16 +48,16 @@ namespace EA_DB_Editor
             return new Dictionary<int, int[]>()
             {
                 {HawaiiId,new[] {SDSUId,101,59,23 } },
-                {SDSUId,new[] {82,101,115,NMSUId } },
-                {29,new[] { HawaiiId, SDSUId,NMSUId,104 } },
+                {SDSUId,new[] {82,101,115,UTEPId } },
+                {29,new[] { HawaiiId, SDSUId,UTEPId,104 } },
                 {82,new[] { HawaiiId, 29,59,UNMId } },
                 {101,new[] {29,82,59,1 } },
                 {59,new[] {SDSUId,29,115,104 } },
                 {23,new[] { 82,101,115,1} },
-                {115,new[] {29,UNMId,NMSUId,104 } },
+                {115,new[] {29,UNMId,UTEPId,104 } },
                 {UNMId,new[] { HawaiiId, 101,23,1 } },
-                {NMSUId,new[] {59,23,UNMId,1 } },
-                {104,new[] {SDSUId,23,UNMId,NMSUId } },
+                {UTEPId,new[] {59,23,UNMId,1 } },
+                {104,new[] {SDSUId,23,UNMId,UTEPId } },
                 {1,new[] { HawaiiId, 82,115,104 } },
             };
         }
@@ -69,15 +69,15 @@ namespace EA_DB_Editor
                 {HawaiiId,new[] {SDSUId,101,59,115 } },
                 {SDSUId,new[] {82,59,23,UNMId } },
                 {29,new[] { HawaiiId, SDSUId,UNMId,1 } },
-                {82,new[] { HawaiiId, 29,101,NMSUId } },
+                {82,new[] { HawaiiId, 29,101,UTEPId } },
                 {101,new[] {SDSUId,29,59,104 } },
                 {59,new[] {29,82,23,1} },
-                {23,new[] {29,115,NMSUId,1 } },
-                {115,new[] {82,101,NMSUId,104} },
+                {23,new[] {29,115,UTEPId,1 } },
+                {115,new[] {82,101,UTEPId,104} },
                 {UNMId,new[] {59,23,115,1 } },
-                {NMSUId,new[] { HawaiiId, 101,UNMId,104} },
+                {UTEPId,new[] { HawaiiId, 101,UNMId,104} },
                 {104,new[] { HawaiiId, 82,23,UNMId } },
-                {1,new[] {SDSUId,115,NMSUId,104 } },
+                {1,new[] {SDSUId,115,UTEPId,104 } },
             };
         }
     }
