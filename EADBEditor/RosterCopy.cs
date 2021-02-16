@@ -79,6 +79,7 @@ namespace EA_DB_Editor
                         CopyTeamRecordData(maddenDB.lTables[159], destination.lTables[159]);
                         //CopyNCAARecordData(maddenDB.lTables[91], destination.lTables[91]);
                         CopyBowlData(maddenDB.lTables[129], destination.lTables[129]);
+                        CopyStadiumData(MaddenTable.FindTable(maddenDB.lTables, "STAD"), MaddenTable.FindTable(destination.lTables, "STAD"));
                     }
                 }
                 else if (copyAction == CopyAction.Roster)
@@ -164,6 +165,64 @@ namespace EA_DB_Editor
                 null,
                 null,
                 key => include.Contains(key));
+        }
+
+        static void CopyStadiumData(MaddenTable source, MaddenTable destination)
+        {
+            var include = new[] { "SNAM", "SCIT", "STAT", "STNN", "TDNA", "SCAP", "STAA", "FLID", "WCLC", "STOF", "STRY", "STYP"  };
+
+            var sourceToDestinationMap = new Dictionary<int, int>();
+
+            // for a straight map we just copy
+            var ids = new int[] { 242, 258, 261, 262, 263, 264, 265, 266, 267, 163, 259, 268 };
+            foreach(var id in ids)
+            {
+                sourceToDestinationMap[id] = id;
+            }
+
+            sourceToDestinationMap[279] = 278;
+            // sourceToDestinationMap[279] = 257;
+
+            // we need to know what destination to copy to 
+            var destinationMap = sourceToDestinationMap.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+            destinationMap[257] = 279;
+
+
+            var sauce = source.CreateDictionary(mr => mr["SGID"].ToInt32(), mr => sourceToDestinationMap.ContainsKey(mr["SGID"].ToInt32()));
+            var dest = destination.CreateDictionary(mr => mr["SGID"].ToInt32(), mr => destinationMap.ContainsKey(mr["SGID"].ToInt32()));
+
+            foreach (var key in dest.Keys)
+            {
+                var sourceKey = destinationMap[key];
+                var sourceRow = sauce[sourceKey];
+                var destRow = dest[key];
+                CopyRecordData(sourceRow, destRow, dataKey => include.Contains(dataKey));
+
+                switch(key)
+                {
+                    case 278:
+                        destRow["TDNA"].Data = "Southwest Classic";
+                        break;
+
+                    case 257:
+                        destRow["TDNA"].Data = "Battle for the Iron Skillet";
+                        break;
+
+                    case 268:
+                        destRow["FLID"].Data = "HSNESM";
+                        break;
+
+                    case 259:
+                    case 266:
+                    case 265:
+                    case 264:
+                        destRow["FLID"].Data = "HSNEMD";
+                        break;
+
+                    default:
+                        break;
+                }
+            }
         }
 
         static void CopyTeamData(ContinuationData continuation, MaddenTable teamSource, MaddenTable teamDestination)
@@ -437,7 +496,13 @@ namespace EA_DB_Editor
             }
         }
 
-        static void CopyData<TableKey>(Dictionary<TableKey, Dictionary<string, DBData>> source, Dictionary<TableKey, Dictionary<string, DBData>> destination, Action<TableKey, TableKey, Dictionary<string, DBData>, Dictionary<string, DBData>> action, string[] dontReplaceKeys, Func<string, bool> filter = null, Func<Dictionary<string, DBData>, Dictionary<string, DBData>, string, bool> editRowFilter = null)
+        static void CopyData<TableKey>(
+            Dictionary<TableKey, Dictionary<string, DBData>> source, 
+            Dictionary<TableKey, Dictionary<string, DBData>> destination, 
+            Action<TableKey, TableKey, Dictionary<string, DBData>, Dictionary<string, DBData>> action, 
+            string[] dontReplaceKeys, 
+            Func<string, bool> filter = null, 
+            Func<Dictionary<string, DBData>, Dictionary<string, DBData>, string, bool> editRowFilter = null)
         {
             // for each key in the destination find data in the source
             foreach (var key in destination.Keys)
