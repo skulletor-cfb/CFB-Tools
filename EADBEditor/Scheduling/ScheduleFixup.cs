@@ -1171,6 +1171,43 @@ namespace EA_DB_Editor
 
         public static Lazy<Dictionary<int, string>> TeamStadiums = new Lazy<Dictionary<int, string>>(StadiumsForTeams, true);
 
+        public static void SetNeutralSiteLogos()
+        {
+            var nesg = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "NESG");
+
+            var dict = new Dictionary<int, (int logo, int beforeWeek)>
+            {
+                [181] = (11, 14),
+                [182] = (59, 14),
+                [183] = (26, 14),
+                [184] = (24, 14),
+                [268] = (54, 8),
+                [264] = (93, 5),
+                [265] = (93, 5),
+                [266] = (93, 5),
+                [259] = (93, 5),
+                [271] = (97, 5),
+                [272] = (96, 5),
+                [273] = (95, 5),
+            };
+
+            foreach(var mr in nesg.lRecords)
+            {
+                var sgid = mr["SGID"].ToInt32();
+                var sewn = mr["SEWN"].ToInt32();
+
+                if(dict.ContainsKey(sgid))
+                {
+                    var (logo, beforeWeek) = dict[sgid];
+
+                    if(sewn < beforeWeek)
+                    {
+                        mr["RLID"] = logo.ToString();
+                    }
+                }
+            }
+        }
+
         public static void SetSunBeltChampionship()
         {
             // games in week 14 should be moved to week 16

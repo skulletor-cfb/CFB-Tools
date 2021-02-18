@@ -1706,6 +1706,7 @@ namespace EA_DB_Editor
             ScheduleFixup.FixSchedule();
             ScheduleFixup.FixSchedule();
             ScheduleFixup.SetSunBeltChampionship();
+            ScheduleFixup.SetNeutralSiteLogos();
         }
 
         private void testCoachesToolStripMenuItem_Click(object sender, EventArgs e)
