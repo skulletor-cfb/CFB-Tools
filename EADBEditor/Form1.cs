@@ -1705,6 +1705,7 @@ namespace EA_DB_Editor
         {
             ScheduleFixup.FixSchedule();
             ScheduleFixup.FixSchedule();
+            ScheduleFixup.SetSunBeltChampionship();
         }
 
         private void testCoachesToolStripMenuItem_Click(object sender, EventArgs e)
