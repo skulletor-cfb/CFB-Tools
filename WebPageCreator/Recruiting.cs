@@ -239,7 +239,7 @@ namespace EA_DB_Editor
 
                     foreach (var ranking in rankings)
                     {
-                        var rosterOpenings = 70 - db.GetTable("PLAY").lRecords.Where(player => player["TGID"].ToInt32() == ranking.TeamId).Count();
+                        var rosterOpenings = 70 - db.GetTable("PLAY").lRecords.Where(player => player["TGID"].ToInt32().GetRealTeamId() == ranking.TeamId).Count();
 
                         tw.Write("<tr>");
                         tw.Write(@"<td class=c3>" + i + "</td>");

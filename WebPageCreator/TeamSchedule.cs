@@ -65,6 +65,9 @@ namespace EA_DB_Editor
                     TeamId = teamId
                 };
 
+                if (game.Week > 14)
+                    continue;
+
                 List<Game> gamesForWeek;
                 if (!teamSchedule.TryGetValue(game.Week, out gamesForWeek))
                 {

@@ -1002,6 +1002,7 @@ namespace EA_DB_Editor
         {
             this.Id = id;
             this.Name = name;
+            BCSRank = CoachesPollRank = MediaPollRank = 200;
         }
 
         public Team(MaddenRecord record, MaddenDatabase db, bool isPreseason)

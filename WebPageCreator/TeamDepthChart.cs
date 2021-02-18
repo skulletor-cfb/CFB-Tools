@@ -20,7 +20,7 @@ namespace EA_DB_Editor
 
             var mediaTable = MaddenTable.FindMaddenTable(db.lTables, "MCOV");
             MediaReports = mediaTable.lRecords
-                .GroupBy(mr => mr["TGID"].ToInt32())
+                .GroupBy(mr => mr["TGID"].ToInt32().GetRealTeamId())
                 .ToDictionary(
                     group => group.Key,
                     group => group
@@ -28,7 +28,7 @@ namespace EA_DB_Editor
                         .Select(mr =>
                         new MediaCoverage
                         {
-                            TeamId = mr["TGID"].ToInt32(),
+                            TeamId = mr["TGID"].ToInt32().GetRealTeamId(),
                             GameNumber = mr["SGNM"].ToInt32(),
                             Week = mr["SEWN"].ToInt32(),
                             PlayerId = mr["PGID"].ToInt32(),
@@ -106,7 +106,7 @@ namespace EA_DB_Editor
                 return;
 
             var depthChartTable = MaddenTable.FindMaddenTable(db.lTables, "DCHT");
-            TeamDepthCharts = depthChartTable.lRecords.Where(mr => mr["TGID"].ToInt32().IsValidTeam()).GroupBy(mr => mr["TGID"].ToInt32()).ToDictionary(
+            TeamDepthCharts = depthChartTable.lRecords.Where(mr => mr["TGID"].ToInt32().GetRealTeamId().IsValidTeam()).GroupBy(mr => mr["TGID"].ToInt32().GetRealTeamId()).ToDictionary(
                 group => group.Key,
                 group => group.Select(g =>
                     new DepthChartPosition

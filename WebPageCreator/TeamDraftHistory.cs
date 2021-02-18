@@ -14,7 +14,7 @@ namespace EA_DB_Editor
             // Team Draft History
             var draftHistoryTable = MaddenTable.FindTable(db.lTables, "TPHS");
             DraftHistory = draftHistoryTable.lRecords.GroupBy(
-                mr => mr["TGID"].ToInt32(),
+                mr => mr["TGID"].ToInt32().GetRealTeamId(),
                 mr => new DraftClass
                 {
                     DynastyYear = mr["dryr"].ToInt32(),
