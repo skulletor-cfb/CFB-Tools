@@ -185,11 +185,17 @@ namespace RefreshRunner
                         continuationYear = ContinuationConfig5;
                         cf = CF5;
                     }
-                    else 
+                    else if(i<=StartContinuation7)
                     {
                         continuationDir = ContinationDir6;
                         continuationYear = ContinuationConfig6;
                         cf = CF6;
+                    }
+                    else
+                    {
+                        continuationDir = ContinationDir7;
+                        continuationYear = ContinuationConfig7;
+                        cf = CF7;
                     }
                 }
                 Console.WriteLine("Going from {0} to {1}", dirs[i], reportDestinations[i]);
@@ -349,7 +355,11 @@ namespace RefreshRunner
                 }
                 else if (year >= NeutralSitesPhase7.Item1 && year <= NeutralSitesPhase7.Item2)
                 {
-                    // use app.config until phase 8
+                    form.NeutralSiteGamesForRecords(Phase7NeutralSiteValue, Phase7Override);
+                }
+                else if (year >= NeutralSitesPhase8.Item1 && year <= NeutralSitesPhase8.Item2)
+                {
+                    // use app.config until phase 9
                 }
 
                 // starting in the same year the poinsetta bowl became the Pinstripe Bowl

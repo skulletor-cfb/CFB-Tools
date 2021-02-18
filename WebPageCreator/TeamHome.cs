@@ -251,12 +251,12 @@ namespace EA_DB_Editor
             for (int i = 0; i < table.Table.currecords; i++)
             {
                 var teamId = table.lRecords[i].lEntries[40].Data.ToInt32();
-                
+
                 // don't look at any team with an id greater than 235 and less than 901 which is the first teambuilder team id
                 if (teamId > 235 && teamId < 901)
                     continue;
 
-                var team = new Team(table.lRecords[i],db);
+                var team = new Team(table.lRecords[i], db, isPreseason);
                 Teams.Add(team.Id, team);
             }
         }
@@ -993,7 +993,7 @@ static int GetDivisorForRecruitClass(int win,int loss)
         }
         public int MainRival { get; set; }
 
-        public Team(MaddenRecord record, MaddenDatabase db)
+        public Team(MaddenRecord record, MaddenDatabase db, bool isPreseason)
         {
             OffPlayBookId = record["TOPB"].ToInt32();
             Id = record.lEntries[40].Data.ToInt32();
@@ -1127,7 +1127,8 @@ static int GetDivisorForRecruitClass(int win,int loss)
             TeamSchedule schedule = null;
 
             // check to see if we are division champ, this means we played in the CCG but did not win it
-            if (this.ConferenceOrDivisionChampionship == null &&
+            if (!isPreseason &&
+                this.ConferenceOrDivisionChampionship == null &&
                 TeamSchedule.TeamSchedules.TryGetValue(this.Id, out schedule) &&
                 schedule.FlattenedListOfGames.Where(g => g.Week == 16 && g.GameNumber != 127).Any())
             {
