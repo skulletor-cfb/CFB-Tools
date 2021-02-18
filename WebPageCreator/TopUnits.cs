@@ -62,7 +62,8 @@ namespace EA_DB_Editor
 
         public static TopUnit[] GetTop10(Func<Team, int> ratingFunc, int[] group)
         {
-            return Team.Teams.Values.Where(t => !t.Id.IsFCS()).OrderByDescending(t => ratingFunc(t)).ThenByDescending(t => PlayerDB.Rosters[t.Id].Where(p => group.Contains(p.Position)).OrderByDescending(p => p.Ovr).Select(p => p.Ovr).First()).Take(10)
+            return Team.Teams.Values.Where(t => !t.Id.IsFCS() && !t.Id.TeamNoLongerFBS())
+                .OrderByDescending(t => ratingFunc(t)).ThenByDescending(t => PlayerDB.Rosters[t.Id].Where(p => group.Contains(p.Position)).OrderByDescending(p => p.Ovr).Select(p => p.Ovr).First()).Take(10)
                 .Select(t => CreateTopUnit(t.Id, t.Name, group))
                 .ToArray();
         }

@@ -171,7 +171,7 @@ namespace EA_DB_Editor
                     LastName = record.GetData(16),
                     Acc = record.GetInt(29),
                     Id = record.GetInt(34),
-                    TeamId = record.GetInt(35),
+                    TeamId = record.GetInt(35).GetRealTeamId(),
                     OriginalPlayerId = record.GetInt(36),
                     Spd = record.GetInt(39),
                     IsRedShirt = record.GetInt(40) == 2,

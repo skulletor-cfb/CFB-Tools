@@ -40,7 +40,12 @@ namespace EA_DB_Editor
 
         public void AssignArticle(Team team)
         {
-            var eligbleArticles = this.Article.Where(a => a.Conditions.TeamSatisfiesConditions(team)).ToArray();
+            if(team.Id.TeamNoLongerFBS())
+            {
+                return;
+            }
+
+            var eligbleArticles = this.Article.Where(a =>  a.Conditions.TeamSatisfiesConditions(team)).ToArray();
             if (eligbleArticles.Length > 0)
             {
                 var n = RAND.Next(0, eligbleArticles.Length);

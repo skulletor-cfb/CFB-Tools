@@ -102,7 +102,7 @@ namespace EA_DB_Editor
         public static void Create(MaddenDatabase db)
         {
             //we need to group teams by conference
-            var conferenceGrouping = Team.Teams.Values.Where(t => t.ConferenceId!=17).GroupBy(team => team.ConferenceId).ToDictionary(g => g.Key, g => g.OrderByDescending(t => t.PredictedConferenceWin.Value).ThenByDescending(t => t.PredictedDivisionWin.Value).ToArray());
+            var conferenceGrouping = Team.Teams.Values.Where(t => t.ConferenceId!=17 && !t.Id.TeamNoLongerFBS()).GroupBy(team => team.ConferenceId).ToDictionary(g => g.Key, g => g.OrderByDescending(t => t.PredictedConferenceWin.Value).ThenByDescending(t => t.PredictedDivisionWin.Value).ToArray());
             foreach (var key in conferenceGrouping.Keys.Where(k => k < 17))
             {
                 var conf = conferenceGrouping[key];

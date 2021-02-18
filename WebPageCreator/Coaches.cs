@@ -32,7 +32,7 @@ namespace EA_DB_Editor
                 var coach = new Coach
                 {
                     Id = db.lTables[133].lRecords[i].lEntries[20].Data.ToInt32(),
-                    TeamId = db.lTables[133].lRecords[i].lEntries[23].Data.ToInt32(),
+                    TeamId = db.lTables[133].lRecords[i].lEntries[23].Data.ToInt32().GetRealTeamId(),
                     Position = db.lTables[133].lRecords[i].lEntries[100].Data.ToInt32(),
                     FirstName = db.lTables[133].lRecords[i].lEntries[65].Data,
                     LastName = db.lTables[133].lRecords[i].lEntries[66].Data,
@@ -288,6 +288,7 @@ namespace EA_DB_Editor
         } 
 
         public Team Team { get { return Team.Teams[this.TeamId]; } }
+
         [DataMember]
         public int Id
         {

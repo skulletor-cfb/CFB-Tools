@@ -147,6 +147,7 @@
     <Compile Include="TeamDepthChart.cs" />
     <Compile Include="TeamDraftHistory.cs" />
     <Compile Include="TeamHome.cs" />
+    <Compile Include="TeamIdForwarder.cs" />
     <Compile Include="TeamSchedule.cs" />
     <Compile Include="TopUnits.cs" />
     <Compile Include="Utility.cs" />

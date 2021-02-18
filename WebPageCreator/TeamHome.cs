@@ -21,13 +21,13 @@ namespace EA_DB_Editor
 
         [DataMember]
         public int Win { get; set; }
-        
+
         [DataMember]
         public int Loss { get; set; }
-        
+
         [DataMember]
         public int BowlWin { get; set; }
-        
+
         [DataMember]
         public int BowlLoss { get; set; }
 
@@ -38,8 +38,8 @@ namespace EA_DB_Editor
     [Serializable]
     public enum PlayoffStatus
     {
-        None = 0 ,
-        LostInPlayoff = 1, 
+        None = 0,
+        LostInPlayoff = 1,
         LostInChampionshipGame = 2,
         NationalChampion = 4
     }
@@ -47,7 +47,7 @@ namespace EA_DB_Editor
     [DataContract]
     public class TeamStatRanking
     {
-        [DataMember(EmitDefaultValue=false)]
+        [DataMember(EmitDefaultValue = false)]
         public int Overall { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
@@ -170,7 +170,7 @@ namespace EA_DB_Editor
                 return "Loss";
             }
         }
-        public string OpponentDescription { get { return GetDescription( this.Opponent, this.Opponent.Name, this.Opponent.SeasonRecord); } }
+        public string OpponentDescription { get { return GetDescription(this.Opponent, this.Opponent.Name, this.Opponent.SeasonRecord); } }
         public string TeamDescription { get { return GetDescription(this.TeamName, this.TeamName.Name, this.TeamName.SeasonRecord); } }
 
         private string GetDescription(Team team, string name, string record)
@@ -179,26 +179,26 @@ namespace EA_DB_Editor
             int rank = 0;
             switch (Utility.TeamRankDisplay)
             {
-                    case TeamRankDisplay.AP:
-                        rank = team.MediaPollRank;
-                        break;
-                    case TeamRankDisplay.Coach:
-                        rank = team.CoachesPollRank;
-                        break;
-                    case TeamRankDisplay.BCS:
-                    default:
-                        rank = team.BCSRank;
+                case TeamRankDisplay.AP:
+                    rank = team.MediaPollRank;
+                    break;
+                case TeamRankDisplay.Coach:
+                    rank = team.CoachesPollRank;
+                    break;
+                case TeamRankDisplay.BCS:
+                default:
+                    rank = team.BCSRank;
 
-                        //Will use Coaches Poll until BCS Ranking is generated around Week 8
-                        if (rank == 0) { rank = team.CoachesPollRank; } 
-                        break;
-             }
+                    //Will use Coaches Poll until BCS Ranking is generated around Week 8
+                    if (rank == 0) { rank = team.CoachesPollRank; }
+                    break;
+            }
 
 
-            if( Utility.ShowTeamRank == ShowTeamRank.All || (Utility.ShowTeamRank == ShowTeamRank.Top25 && rank<=25 && rank>=1))
+            if (Utility.ShowTeamRank == ShowTeamRank.All || (Utility.ShowTeamRank == ShowTeamRank.Top25 && rank <= 25 && rank >= 1))
                 prefix = "#" + rank + " - ";
 
-            return string.Format("{0}{1}  ({2})",prefix,name,record);
+            return string.Format("{0}{1}  ({2})", prefix, name, record);
         }
     }
 
@@ -212,7 +212,7 @@ namespace EA_DB_Editor
         public static void ToJsonFile(bool isPreseason)
         {
             var file = isPreseason ? TeamFile.Replace("\\team", "\\ps-team") : TeamFile;
-            Teams.Values.ToArray().OrderBy( team => team.CoachesPollRank).ToArray().ToJsonFile(file);
+            Teams.Values.ToArray().OrderBy(team => team.CoachesPollRank).ToArray().ToJsonFile(file);
         }
 
         public static Team[] FromJsonFile()
@@ -231,8 +231,8 @@ namespace EA_DB_Editor
             HistoricTeamRecord.Create(db);
             BowlChampion.Create(db);
             TeamSchedule.Create(db);
-            ScheduledGame.Create(db,isPreseason);
-            Bowl.Create(db,isPreseason);
+            ScheduledGame.Create(db, isPreseason);
+            Bowl.Create(db, isPreseason);
             Coach.Create(db);
             Stadium.Create(db);
             ConferenceChampion.Create(db);
@@ -251,6 +251,7 @@ namespace EA_DB_Editor
             for (int i = 0; i < table.Table.currecords; i++)
             {
                 var teamId = table.lRecords[i].lEntries[40].Data.ToInt32();
+                teamId = teamId.GetRealTeamId();
 
                 // don't look at any team with an id greater than 235 and less than 901 which is the first teambuilder team id
                 if (teamId > 235 && teamId < 901)
@@ -259,12 +260,16 @@ namespace EA_DB_Editor
                 var team = new Team(table.lRecords[i], db, isPreseason);
                 Teams.Add(team.Id, team);
             }
+
+
+            Teams.Add(61, new Team(61, "New Mexico State"));
+            Teams.Add(100, new Team(100, "Connecticut"));
         }
 
         public static void TopPrograms(MaddenDatabase db, bool isPreseason)
         {
             Conference.Create(db);
-            Team.Create(db,isPreseason);
+            Team.Create(db, isPreseason);
             TextWriter tw = null;
 
             // top programs
@@ -337,18 +342,18 @@ namespace EA_DB_Editor
         }
 
 
-        public static Dictionary<int,Team>[] Last5TeamFiles;
+        public static Dictionary<int, Team>[] Last5TeamFiles;
 
         public static void LoadLast5Years()
         {
             if (Last5TeamFiles == null)
             {
-                int[] Last5Years = { Seasons.CurrentYear - 1, Seasons.CurrentYear - 2, Seasons.CurrentYear - 3, Seasons.CurrentYear - 4,Seasons.CurrentYear-5 };
+                int[] Last5Years = { Seasons.CurrentYear - 1, Seasons.CurrentYear - 2, Seasons.CurrentYear - 3, Seasons.CurrentYear - 4, Seasons.CurrentYear - 5 };
                 Last5TeamFiles = Last5Years.Select(yr => Seasons.DirectoryForYear(yr)).Where(s => s != null).Select(s => Team.FromJsonFile(Path.Combine(s, "team")).ToDictionary(t => t.Id)).ToArray();
             }
         }
 
-static int GetDivisorForRecruitClass(int win,int loss)
+        static int GetDivisorForRecruitClass(int win, int loss)
         {
             var total = win + loss;
             return total == 0 ? 1 : total;
@@ -356,7 +361,7 @@ static int GetDivisorForRecruitClass(int win,int loss)
 
         public static void CreateMainPage(MaddenDatabase db, bool isPreseason = false)
         {
-            Team.Create(db,isPreseason);
+            Team.Create(db, isPreseason);
             TextWriter tw = null;
 
             ConferenceChampion.ToCCFile("tcc.csv");
@@ -371,7 +376,7 @@ static int GetDivisorForRecruitClass(int win,int loss)
                 LoadLast5Years();
                 foreach (var team in Team.Teams.Values)
                 {
-                    if (team.Id.IsFCS())
+                    if (team.Id.IsFCS() || team.Id.TeamNoLongerFBS())
                         continue;
 
                     var sum = Last5TeamFiles.Select(dict => dict.ContainsKey(team.Id) ? dict[team.Id].RecruitClassRating : 0).Sum();
@@ -453,21 +458,21 @@ static int GetDivisorForRecruitClass(int win,int loss)
             }
         }
 
-        public static Dictionary<int,Team> LastYearData
+        public static Dictionary<int, Team> LastYearData
         {
             get
             {
                 var file = Path.Combine(Seasons.LastYearDirectory, "team");
                 if (File.Exists(file))
                 {
-                    return Team.FromJsonFile(file).ToDictionary(t => t.Id );
+                    return Team.FromJsonFile(file).ToDictionary(t => t.Id);
                 }
 
-                return null;    
+                return null;
             }
         }
 
-        [DataMember(EmitDefaultValue=false)]
+        [DataMember(EmitDefaultValue = false)]
         public PlayoffStatus PlayoffStatus { get; set; }
         public bool LostInPlayoffLastYear
         {
@@ -478,7 +483,7 @@ static int GetDivisorForRecruitClass(int win,int loss)
                 {
                     Team team = null;
 
-                    return lastYear.TryGetValue(this.Id,out team) &&
+                    return lastYear.TryGetValue(this.Id, out team) &&
                         (team.PlayoffStatus == EA_DB_Editor.PlayoffStatus.LostInPlayoff || team.PlayoffStatus == EA_DB_Editor.PlayoffStatus.LostInChampionshipGame);
                 }
 
@@ -494,7 +499,7 @@ static int GetDivisorForRecruitClass(int win,int loss)
         [DataMember(EmitDefaultValue = false)]
         public int RecruitClass5YearAverage { get; set; }
 
-        [DataMember(EmitDefaultValue=false)]
+        [DataMember(EmitDefaultValue = false)]
         public int RecruitClassRating { get; set; }
 
         [DataMember]
@@ -680,7 +685,7 @@ static int GetDivisorForRecruitClass(int win,int loss)
         [DataMember]
         public int AllTimeTie { get; set; }
         #region Prediction Engine
-        [DataMember(EmitDefaultValue=false)]
+        [DataMember(EmitDefaultValue = false)]
         public int? PredictedWin { get; set; }
         [DataMember(EmitDefaultValue = false)]
         public int? PredictedLoss { get; set; }
@@ -750,7 +755,7 @@ static int GetDivisorForRecruitClass(int win,int loss)
                         if (data.Length == 1 && data[0].Value.Win == 0)
                             return new TeamSeasonRecord[0];
 
-                        for (int i = 0; i < Math.Min(last5Years.Length,data.Length); i++)
+                        for (int i = 0; i < Math.Min(last5Years.Length, data.Length); i++)
                         {
                             last5Years[i] = data[i].Value;
                         }
@@ -848,11 +853,11 @@ static int GetDivisorForRecruitClass(int win,int loss)
                     this.oc = Coach.FindCoach(this.Id, 1);
                 }
 
-                return this.oc;                
+                return this.oc;
             }
             set
             {
-                this.oc = value; 
+                this.oc = value;
             }
         }
 
@@ -870,7 +875,7 @@ static int GetDivisorForRecruitClass(int win,int loss)
             }
             set
             {
-                this.dc = value; 
+                this.dc = value;
             }
         }
 
@@ -993,10 +998,16 @@ static int GetDivisorForRecruitClass(int win,int loss)
         }
         public int MainRival { get; set; }
 
+        private Team(int id, string name)
+        {
+            this.Id = id;
+            this.Name = name;
+        }
+
         public Team(MaddenRecord record, MaddenDatabase db, bool isPreseason)
         {
             OffPlayBookId = record["TOPB"].ToInt32();
-            Id = record.lEntries[40].Data.ToInt32();
+            Id = record.lEntries[40].Data.ToInt32().GetRealTeamId();
             Name = record.lEntries[7].Data;
             Mascot = record.lEntries[9].Data;
             ConferenceId = record.lEntries[36].Data.ToInt32();
@@ -1150,13 +1161,13 @@ static int GetDivisorForRecruitClass(int win,int loss)
             if (yr > 0)
                 this.LastNationalChampionshipYear = yr - 263 + startYear;
 
-            if( yr > 262)
+            if (yr > 262)
                 this.LastNationalChampionshipYear = this.LastNationalChampionshipYear.Value + ContinuationData.ContinuationYear;
 
             if (ContinuationData.UsingContinuationData)
             {
                 var a = this.LastConferenceChampionshipYear.HasValue ? this.LastConferenceChampionshipYear.Value : 0;
-                var b = ContinuationData.Instance.TeamData.ContainsKey(Id)&&ContinuationData.Instance.TeamData[Id].LastConferenceChampionshipYear.HasValue ? ContinuationData.Instance.TeamData[Id].LastConferenceChampionshipYear.Value : 0;
+                var b = ContinuationData.Instance.TeamData.ContainsKey(Id) && ContinuationData.Instance.TeamData[Id].LastConferenceChampionshipYear.HasValue ? ContinuationData.Instance.TeamData[Id].LastConferenceChampionshipYear.Value : 0;
                 this.LastConferenceChampionshipYear = Math.Max(a, b);
 
                 a = this.LastNationalChampionshipYear.HasValue ? this.LastNationalChampionshipYear.Value : 0;
@@ -1189,7 +1200,7 @@ static int GetDivisorForRecruitClass(int win,int loss)
             for (int i = 0; i < table.Table.currecords; i++)
             {
                 var record = table.lRecords[i];
-                var teamId = record.GetInt(0);
+                var teamId = record.GetInt(0).GetRealTeamId();
                 Dictionary<int, TeamSeasonRecord> teamSeasonRecords;
                 if (TeamRecords.TryGetValue(teamId, out teamSeasonRecords) == false)
                 {

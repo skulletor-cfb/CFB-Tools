@@ -45,7 +45,7 @@ namespace EA_DB_Editor
             var table = db.lTables[113];
             for (int i = 0; i < table.Table.currecords; i++)
             {
-                var teamId = table.lRecords[i].lEntries[2].Data.ToInt32();
+                var teamId = table.lRecords[i].lEntries[2].Data.ToInt32().GetRealTeamId();
 
                 // get or create team schedule
                 if (TeamSchedules.TryGetValue(teamId, out teamSchedule) == false)
@@ -59,7 +59,7 @@ namespace EA_DB_Editor
                 var game = new Game
                 {
                     IsHomeGame = table.lRecords[i].lEntries[0].Data.ToInt32() > 0,
-                    OpponentId = table.lRecords[i].lEntries[1].Data.ToInt32(),
+                    OpponentId = table.lRecords[i].lEntries[1].Data.ToInt32().GetRealTeamId(),
                     GameNumber = table.lRecords[i].lEntries[3].Data.ToInt32(),
                     Week = table.lRecords[i].lEntries[4].Data.ToInt32(),
                     TeamId = teamId
