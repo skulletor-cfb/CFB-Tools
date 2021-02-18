@@ -1,0 +1,325 @@
+﻿    <tr>
+      <td class="c3" colspan="3">
+	  <b>Links: | <a id="careerStatsLink" href="">Career Stats</a> | | <a id="playerStatsLink2" href="">Player
+      Stats</a> | | <a id="topPerfLink" href="">Top Performances</a> |
+      </b></td>
+    </tr>
+
+    <tr>
+      <td width="900" align="center" colspan="8">
+        <table id="passingTable" cellspacing="1" cellpadding="2" width="80%" class="standard">
+          <tr>
+            <td class="c2" colspan="13"><b>Passing Stats</b></td>
+          </tr>
+
+          <tr>
+            <td class="C10" width="6%">Year</td>
+
+            <td class="C10" width="4%">#</td>
+
+            <td class="C10" width="20%">Name</td>
+
+            <td class="C10" width="8%">Year</td>
+
+            <td class="C10" width="6%">Pos</td>
+
+            <td class="C10" width="5%">Hgt</td>
+
+            <td class="C10" width="5%">Lbs</td>
+
+            <td class="C10" width="8%">Att</td>
+
+            <td class="C10" width="8%">Comp</td>
+
+            <td class="C10" width="8%">Yards</td>
+
+            <td class="C10" width="8%">TDs</td>
+
+            <td class="C10"  width="7%">Ints</td>
+
+            <td class="C10" width="7%">Games</td>
+          </tr>
+
+        </table><br />
+      </td>
+    </tr>
+
+    <tr>
+      <td width="900" align="center" colspan="14">
+        <table id="rushingTable" cellspacing="1" cellpadding="2" width="80%" class="standard">
+          <tr>
+            <td class="c2" colspan="14"><b>Rushing Stats</b></td>
+          </tr>
+
+          <tr>
+            <td class="C10" width="6%">Year</td>
+
+            <td class="C10" width="4%">#</td>
+
+            <td class="C10" width="20%">Name</td>
+
+            <td class="C10" width="8%">Year</td>
+
+            <td class="C10" width="6%">Pos</td>
+
+            <td class="C10" width="5%">Hgt</td>
+
+            <td class="C10" width="5%">Lbs</td>
+
+            <td class="C10" width="7%">Car</td>
+
+            <td class="C10" width="7%">Yards</td>
+
+            <td class="C10" width="7%">TDs</td>
+
+            <td class="C10" width="6%">YAC</td>
+
+            <td class="C10" width="7%">BTK</td>
+
+            <td class="C10" width="6%">Fumb</td>
+
+            <td class="C10" width="6%">Games</td>
+          </tr>
+        </table><br />
+      </td>
+    </tr>
+
+    <tr>
+      <td width="900" align="center" colspan="8">
+        <table id="receivingTable" cellspacing="1" cellpadding="2" width="80%" class="standard">
+          <tr>
+            <td class="c2" colspan="13"><b>Receiving Stats</b></td>
+          </tr>
+
+          <tr>
+            <td class="C10" width="6%">Year</td>
+
+            <td class="C10" width="4%">#</td>
+
+            <td class="C10" width="20%">Name</td>
+
+            <td class="C10" width="8%">Year</td>
+
+            <td class="C10" width="6%">Pos</td>
+
+            <td class="C10" width="5%">Hgt</td>
+
+            <td class="C10" width="5%">Lbs</td>
+
+            <td class="C10" width="8%">Rec</td>
+
+            <td class="C10" width="8%">Yards</td>
+
+            <td class="C10" width="8%">TDs</td>
+
+            <td class="C10" width="8%">YAC</td>
+
+            <td class="C10" width="7%">Fumb</td>
+
+            <td class="C10" width="7%">Games</td>
+          </tr>
+
+        </table><br />
+      </td>
+    </tr>
+
+    <tr>
+      <td width="900" align="center" colspan="8">
+        <table id="olTable" cellspacing="1" cellpadding="2" width="80%" class="standard">
+          <tr>
+            <td class="c2" colspan="13"><b>Blocking Stats</b></td>
+          </tr>
+
+          <tr>
+            <td class="C10" width="6%">Year</td>
+
+            <td class="C10" width="4%">#</td>
+
+            <td class="C10" width="20%">Name</td>
+
+            <td class="C10" width="8%">Year</td>
+
+            <td class="C10" width="6%">Pos</td>
+
+            <td class="C10" width="5%">Hgt</td>
+
+            <td class="C10" width="5%">Lbs</td>
+
+            <td class="C10" width="16%">Pancakes</td>
+
+            <td class="C10" width="15%">Sacks Allowed</td>
+
+            <td class="C10" width="15%">Games</td>
+          </tr>
+
+        </table><br />
+      </td>
+    </tr>
+
+    <tr>
+      <td width="900" align="center" colspan="14">
+        <table id="defTable" cellspacing="1" cellpadding="2" width="80%" class="standard">
+          <tr>
+            <td class="c2" colspan="14"><b>Defensive Stats</b></td>
+          </tr>
+
+          <tr>
+            <td class="C10" width="6%">Year</td>
+
+            <td class="C10" width="4%">#</td>
+
+            <td class="C10" width="20%">Name</td>
+
+            <td class="C10" width="8%">Year</td>
+
+            <td class="C10" width="6%">Pos</td>
+
+            <td class="C10" width="5%">Hgt</td>
+
+            <td class="C10" width="5%">Lbs</td>
+
+            <td class="C10" width="7%">Tck</td>
+
+            <td class="C10" width="7%">TFL</td>
+
+            <td class="C10" width="7%">Sck</td>
+
+            <td class="C10" width="6%">Int</td>
+
+            <td class="C10" width="7%">PDef</td>
+
+            <td class="C10" width="6%">FF</td>
+
+            <td class="C10" width="6%">Games</td>
+          </tr>
+
+        </table><br />
+      </td>
+    </tr>
+
+    <tr>
+      <td width="900" align="center" colspan="14">
+        <table id="kickTable" cellspacing="1" cellpadding="2" width="80%" class="standard">
+          <tr>
+            <td class="c2" colspan="14"><b>Kicking Stats</b></td>
+          </tr>
+
+          <tr>
+            <td class="C10" width="6%">Year</td>
+
+            <td class="C10" width="4%">#</td>
+
+            <td class="C10" width="20%">Name</td>
+
+            <td class="C10" width="8%">Year</td>
+
+            <td class="C10" width="6%">Pos</td>
+
+            <td class="C10" width="5%">Hgt</td>
+
+            <td class="C10" width="5%">Lbs</td>
+
+            <td class="C10" width="7%">FGM/FGA</td>
+
+            <td class="C10" width="7%">40-49<br />
+            FGM/FGA</td>
+
+            <td class="C10" width="7%">50+<br />
+            FGM/FGA</td>
+
+            <td class="C10" width="6%">Long</td>
+
+            <td class="C10" width="7%">XPM/XPA</td>
+
+            <td class="C10" width="6%">TB</td>
+
+            <td class="C10" width="6%">Games</td>
+          </tr>
+        </table><br />
+      </td>
+    </tr>
+
+    <tr>
+      <td width="900" align="center" colspan="14">
+        <table id="puntTable" cellspacing="1" cellpadding="2" width="80%" class="standard">
+          <tr>
+            <td class="c2" colspan="14"><b>Punting Stats</b></td>
+          </tr>
+
+          <tr>
+            <td class="C10" width="6%">Year</td>
+
+            <td class="C10" width="4%">#</td>
+
+            <td class="C10" width="20%">Name</td>
+
+            <td class="C10" width="8%">Year</td>
+
+            <td class="C10" width="6%">Pos</td>
+
+            <td class="C10" width="5%">Hgt</td>
+
+            <td class="C10" width="5%">Lbs</td>
+
+            <td class="C10" width="6%">Net Yds</td>
+
+            <td class="C10" width="6%">Tot Yds</td>
+
+            <td class="C10" width="6%">Inside<br />
+            20</td>
+
+            <td class="C10" width="6%">Long</td>
+
+            <td class="C10" width="6%">Blkd</td>
+
+            <td class="C10" width="6%">TB</td>
+
+            <td class="C10" width="6%">Games</td>
+          </tr>
+
+        </table><br />
+      </td>
+    </tr>
+
+    <tr>
+      <td width="900" align="center" colspan="14">
+        <table id="returnTable" cellspacing="1" cellpadding="2" width="80%" class="standard">
+          <tr>
+            <td class="c2" colspan="14"><b>Return Stats</b></td>
+          </tr>
+
+          <tr>
+            <td class="C10" width="6%">Year</td>
+
+            <td class="C10" width="4%">#</td>
+
+            <td class="C10" width="20%">Name</td>
+
+            <td class="C10" width="8%">Year</td>
+
+            <td class="C10" width="6%">Pos</td>
+
+            <td class="C10" width="5%">Hgt</td>
+
+            <td class="C10" width="5%">Lbs</td>
+
+            <td class="C10" width="7%">KR</td>
+
+            <td class="C10" width="7%">KR YDS</td>
+
+            <td class="C10" width="7%">KR_TD</td>
+
+            <td class="C10" width="7%">PR</td>
+
+            <td class="C10" width="7%">PR_YDS</td>
+
+            <td class="C10" width="7%">PR_TD</td>
+
+            <td class="C10" width="6%">Games</td>
+          </tr>
+
+        </table><br />
+      </td>
+    </tr>
+  </table>
+</body>

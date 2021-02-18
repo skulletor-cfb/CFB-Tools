@@ -708,6 +708,12 @@ namespace EA_DB_Editor
                 gamesToReplace = schedules.Values.SelectMany(games => games.Where(g => g != null && g.MustReplace)).GroupBy(g => g.WeekIndex).ToDictionary(g => g.Key, g => g.Distinct().ToList());
             }
 
+            // nothing to replace, proceed
+            if(gamesToReplace.Count == 0)
+            {
+                return;
+            }
+
             for (int i = 0; i < g5fcs.Count; i++)
             {
                 var game = g5fcs[i];

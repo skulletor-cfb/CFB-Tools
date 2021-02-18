@@ -44,7 +44,7 @@ namespace EA_DB_Editor
         const int ODU = 234;
         const int CLT = 100;
         const int GaSo = 181;
-        const int AppSt = 341;
+        const int AppSt = 34;
         const int GSU = 233;
         const int CCU = 61;
 

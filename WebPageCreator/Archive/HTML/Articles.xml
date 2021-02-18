@@ -1,0 +1,2316 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Articles>
+  <Article>
+    <Blurb>{0}Here come the {1}. I see {2} as one of two teams that shouldn't lose a game during the regular season. That's high praise: There are a thousand or so games, a dozen or so title contenders, and the chance of getting through unbeaten is rare. {3} has successfully altered the {4} national standing, rapidly moving into the elite upper slice of college football. This team has everything you'd want from a title contender: a jaw-dropping coach, wonderful motivation, beautiful talent, wonderful leadership, elite talent and – last but not least – the sort of schedule needed for 12-0. There's no reason to think {5} won't match the expectations.</Blurb>
+    <Aspects>
+      <Aspect>Nickname</Aspect>
+      <Aspect>School</Aspect>
+      <Aspect>Coach</Aspect>
+      <Aspect>Nickname</Aspect>
+      <Aspect>School</Aspect>
+    </Aspects>
+    <Conditions>
+      <MinWin>11</MinWin>
+      <MinPreseasonRank>5</MinPreseasonRank>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}The {1} slow, steady, up-from-the-bootstraps climb continues in {2} with another deadly non-conference slate, another tough {3} schedule and, more than likely, 10 or more losses. Ten losses seem a safe pick: {4} could beat {5} and then maybe get one {6} win, but anything more than that would be a slight surprise. Why? Quite simply, {7} doesn't have the offensive firepower to run with most of the {8} nor the defensive fortitude to bottle teams up and win in the fourth quarter.</Blurb>
+    <Aspects>
+      <Aspect>Nickname</Aspect>
+      <Aspect>CurrentYear</Aspect>
+      <Aspect>Conference</Aspect>
+      <Aspect>School</Aspect>
+      <Aspect>WorstOpponent</Aspect>
+      <Aspect>Conference</Aspect>
+      <Aspect>School</Aspect>
+      <Aspect>Conference</Aspect>
+    </Aspects>
+    <Conditions>
+      <MinWin>0</MinWin>
+      <MaxWin>3</MaxWin>		
+      <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}This isn't going to go well. How could it? To be honest, what I see when looking at {1}'s roster, overall personnel and coaching moves is a multiple-year rebuilding job – not three or four years, perhaps, but at least two seasons of growth, development and hard work on the recruiting trail before the {2} are back to the point where winning six or more games in successive seasons is a possibility. Now, the big question: Does {3} and this staff have what it takes to get this done?</Blurb>
+    <Aspects>
+      <Aspect>School</Aspect>
+      <Aspect>Nickname</Aspect>
+      <Aspect>Coach</Aspect>
+    </Aspects>
+    <Conditions>
+      <MaxPreseasonRank>100</MaxPreseasonRank>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}Yes, there's some experience up front and in the secondary, but does {1} have the tools to be successful against the {2}'s elite offenses? Let's put it this way: it would be a surprise if {3} won six games. Five wins would be a pleasant surprise; four would be nice; three would be expected; two wouldn't raise an eyebrow. To beat many teams on this schedule, {4} would need to play a perfect game. Is that possible?</Blurb>
+    <Aspects>
+      <Aspect>School</Aspect>
+      <Aspect>Conference</Aspect>
+      <Aspect>School</Aspect>
+      <Aspect>School</Aspect>
+    </Aspects>
+    <Conditions>
+      <MinWin>2</MinWin>
+      <MaxWin>5</MaxWin>	  
+      <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}The nation's stoutest schedule meets a team and program struggling through a transition, and the results should be predictably painful. As of today, given all that {1} has and needs, the {2} should be an underdog in most game this year. If an overly simplistic way to view the coming season, the schedule does paint a picture: {3} is the weakest program in what many view as the nation's elite conference, for one, and adds to this conference slate a pair of teams, {4}, {5} with expectations of six or more wins during the regular season. Speaking generally, the {6} are at least one full year behind the curve in comparison to nearly every team on this slate. More losses are coming.</Blurb>
+    <Aspects>
+      <Aspect>School</Aspect>
+      <Aspect>Nickname</Aspect>
+      <Aspect>School</Aspect>
+      <Aspect>BestNonConfOpponent</Aspect>
+      <Aspect>BestNonConfOpponent2</Aspect>
+      <Aspect>Nickname</Aspect>
+    </Aspects>
+    <Conditions>
+      <MinWin>0</MinWin>		
+      <MaxWin>4</MaxWin>		
+      <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}Part of me wants to jump on board: {1} seems energized, judging by its performance during the spring, and is clearly motivated by the task of moving back into {2}'s bowl picture. In this sense – that the {3} are looking forward, and never in the rearview mirror – {4} has been a successful hire, even if the record suggests otherwise. It'd be easy for this program to wallow in its misery; that hasn't been the case. Once the roster catches up with this mentality, {4} will be ready to fight {5}, {6} and others for the top spot in {7}. The {8} simply aren't ready for that leap in {9}.</Blurb>
+    <Aspects>
+      <Aspect>School</Aspect>
+      <Aspect>Conference</Aspect>
+      <Aspect>Nickname</Aspect>
+      <Aspect>Coach</Aspect>
+      <Aspect>School</Aspect>
+      <Aspect>BestConfOpponent</Aspect>
+      <Aspect>BestConfOpponent2</Aspect>
+      <Aspect>Nickname</Aspect>
+      <Aspect>CurrentYear</Aspect>
+    </Aspects>
+    <Conditions>
+      <OnTheRise>true</OnTheRise>
+      <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}{1} has entered the fall with expectations in the past only to fall flat, often stumbling out of the gate before coasting to another 10-loss season. {2} has only one more shot to get this program moving forward. Is this the year the {3} turns the corner or will they be looking for a new coach next year?</Blurb>
+    <Aspects>
+      <Aspect>School</Aspect>
+      <Aspect>Coach</Aspect>
+      <Aspect>Nickname</Aspect>
+    </Aspects>
+    <Conditions>
+      <LastSeasonLossMin>10</LastSeasonLossMin>
+      <CoachRatingMax>50</CoachRatingMax>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}The offseason was long for the {1}, and every player coming back remembers what transpired.  After their playoff loss a season ago, {2} has a single goal:  be the National Champions.  Coach {3} and these players know what it takes to make the playoffs, it won't be easy, but now it's time for {4} to take the next step.</Blurb>
+    <Aspects>
+      <Aspect>Nickname</Aspect>
+      <Aspect>School</Aspect>
+      <Aspect>Coach</Aspect>
+      <Aspect>School</Aspect>
+    </Aspects>
+    <Conditions>
+      <MinWin>10</MinWin>		
+      <MaxWin>13</MaxWin>	
+      <LostInPlayoffsLastYear>true</LostInPlayoffsLastYear>
+      <MinPreseasonRank>10</MinPreseasonRank>
+    </Conditions>
+  </Article>
+  
+  <Article>
+    <Blurb>{0}It's going to be hard for {1} to score enough points to win games when the offensive line is in shambles, the quarterback position in flux and the backfield devoid of any proven game-breaking talent. Both sides of the ball remain a work in progress, the offense far more so than the defense. {2} should get off to a slow start this year, ending any hope of a massive rebound, but should win a few games with there best chance for victory coming again {3}. Should, mind you, and there's no assurance that this season ends any differently than last.
+	</Blurb>
+    <Aspects>
+      <Aspect>School</Aspect>
+      <Aspect>School</Aspect>
+      <Aspect>WorstOpponent</Aspect>
+    </Aspects>
+    <Conditions>
+      <MinWin>0</MinWin>		
+      <MaxWin>4</MaxWin>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}Don't expect the overnight fix. What {1} has returning isn't just a woebegone roster, but a broken program, and even a coach of his experience can't be expected to reverse the {2} course in a single season, let alone an offseason. Only those familiar with {3}'s downfall will be able to understand just how much work lies ahead: {4} needs to tear down the dilapidated exterior, dig up the loose roots and start from scratch, first reversing a loser's mindset before attacking the schematics needed to lift an offense and defense out of the doldrums. This is going to be difficult.
+	</Blurb>
+    <Aspects>
+      <Aspect>Coach</Aspect>
+      <Aspect>NickName</Aspect>
+      <Aspect>School</Aspect>
+      <Aspect>Coach</Aspect>	  
+    </Aspects>
+    <Conditions>
+      <MinWin>0</MinWin>		
+      <MaxWin>4</MaxWin>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}The {1} are getting there. {2} pushes this bunch, looking to get the best out of every practice, all with the goal of creating the sort of winning environment needed to rip this program out of its long and painful malaise. Even if this season doesn't lead {3} to its postseason goal, the {4} should show enough progression – and develop enough young talent – to be a upset a couple teams that are in the {5} race in {6}. But it's vital that {7}'s young players progress over the next 12 games.
+	</Blurb>
+    <Aspects>
+      <Aspect>NickName</Aspect>	
+      <Aspect>Coach</Aspect>
+      <Aspect>School</Aspect>
+      <Aspect>NickName</Aspect>
+      <Aspect>Conference</Aspect>	  
+      <Aspect>CurrentYear</Aspect>	  
+      <Aspect>School</Aspect>	  
+    </Aspects>
+    <Conditions>
+      <MinWin>3</MinWin>		
+      <MaxWin>5</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}There's really only one truly winnable game on this schedule, {1}, along with several toss-up games against teams similarly skimming along the lower range of college football: {2}, {3} to name a couple. It's not the toughest schedule in the country, just one not entirely conducive to a breakthrough season, and not one that leaves {4} poised for anything close to six or seven wins and a bowl trip. There are too many holes for the {5} to turn this season into something positive.
+	</Blurb>
+    <Aspects>
+      <Aspect>WorstOpponent</Aspect>	
+      <Aspect>WorstOpponent2</Aspect>	
+      <Aspect>WorstOpponent3</Aspect>
+      <Aspect>School</Aspect>	  	  
+      <Aspect>NickName</Aspect>	  
+    </Aspects>
+    <Conditions>
+      <MinWin>0</MinWin>	
+      <MaxWin>4</MaxWin>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}{1} has a steep hill to climb before beating {2}, let alone beating six teams and reaching bowl eligibility. In hindsight, the program's last bowl run was built on smoke, mirrors and the kindest schedule imaginable; that there was no foundation behind that postseason appearance was obvious during the ensuing seasons, when {3} reclaimed its spot among the nation's underachievers. Bringing {4} into this century will be a challenge: {5} has personnel and schematic issues to address, as do countless other coaches, but the {6} will be stuck in neutral until the staff can instill a tough, physical, error-free mindset.
+	</Blurb>
+    <Aspects>
+      <Aspect>School</Aspect>	
+      <Aspect>BestOpponent</Aspect>	
+      <Aspect>School</Aspect>
+      <Aspect>School</Aspect>	  
+      <Aspect>Coach</Aspect>	  
+      <Aspect>NickName</Aspect>	  
+    </Aspects>
+    <Conditions>
+      <MinWin>3</MinWin>		
+      <MaxWin>5</MaxWin>
+      <LosingRecordOver5Years>true</LosingRecordOver5Years>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}{1} must find motivation amid dealing with the painful process of building a winner from the bottom up. It is a frightening thought that could – and should, perhaps – lead to another season spent on the lower rung of the FBS. This isn't a team who will be competing for a place among the nations elite. This is {2}, one of the nation's struggling programs, and for the progress he's made, {3} faces the greatest challenge of his career – by leaps and bounds – in attempting to motivate a team and roster playing out the string.
+	</Blurb>
+    <Aspects>
+      <Aspect>School</Aspect>
+      <Aspect>School</Aspect>
+      <Aspect>Coach</Aspect>	  
+    </Aspects>
+    <Conditions>
+      <MinWin>0</MinWin>		
+      <MaxWin>4</MaxWin>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}The future according to {1}: {2} rides waves upon waves of talent to the top of the {3}, outhitting, outrunning and outmuscling the competition like would-be foe {4}. {5}'s vision – whether or not it holds any flaws – has been evident since day one, when he began the process of overhauling the {6} roster with a do-or-die commitment to the recruiting trail. One premier class is an aberration; two is a sign; three would be a trend. At this rate, {7} will have stockpiled enough talent to wear down enough conference foes to ensure annual bowl eligibility. That's the program's future, should {8} see it through to fruition and not leave for greener pastures.
+	</Blurb>
+    <Aspects>
+      <Aspect>Coach</Aspect>
+      <Aspect>School</Aspect>
+      <Aspect>Conference</Aspect>	  
+      <Aspect>BestOpponent</Aspect>	
+      <Aspect>Coach</Aspect>
+      <Aspect>NickName</Aspect>	  
+      <Aspect>School</Aspect>	  
+      <Aspect>Coach</Aspect>	  	  
+    </Aspects>
+    <Conditions>
+      <MinWin>5</MinWin>	<!-- START BACK HERE TCS -->	  
+      <MaxWin>7</MaxWin>
+	  <IsIndependent>false</IsIndependent>	  
+	  <ImprovedLastYear>true</ImprovedLastYear>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}The number of changes – on the field and on the sideline – are matched by the number of holes dotting the two-deep. In the long run, change is good: {1} needs to bring in fresh blood to reverse this tide, even if we're looking at a multiple-year process before the {2} are viewed as preseason bowl contenders. At the same time, this specific team has a number of issues to address throughout the roster before the opener; few positions are settled and even fewer secure, so the {3} are clearly headed toward another losing season.
+	</Blurb>
+    <Aspects>
+      <Aspect>School</Aspect>
+      <Aspect>NickName</Aspect>	  
+      <Aspect>NickName</Aspect>	  	  	  	  
+    </Aspects>
+    <Conditions>
+      <MinWin>0</MinWin>		
+      <MaxWin>4</MaxWin>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}There are too many unknowns to project a substantial leap forward. That's the safe bet, though it lacks imagination: {1} is still learning the ropes on defense, is still untrustworthy on offense and still lacks the depth needed to survive another rash of injuries, though it's difficult to imagine lightning striking the {2} twice. The offense clearly needs a someone to step up and carry them; even if the rest of the offense falls short of expectations. The defense must make a major improvement merely to reach respectability – and the {3} attack might need to be more than respectable to mount a charge to the postseason.
+	</Blurb>
+    <Aspects>
+      <Aspect>School</Aspect>
+      <Aspect>NickName</Aspect>	  
+      <Aspect>NickName</Aspect>	  	  	  	  
+    </Aspects>
+    <Conditions>
+      <MinWin>0</MinWin>	
+      <MaxWin>4</MaxWin>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}{1} will eventually bring {2} back to the light offensively. I don't think he'll do so in {3}, and when combined with an unsteady defense, I'm not convinced that the {4} have what it takes to leap back into postseason play. Another factor is this schedule, which is one of the toughest in {5}. While there will be some major improvement seen across the board, I'm not picking {6} to get to six wins and a bowl game this season. That's coming soon – just not yet.
+	</Blurb>
+    <Aspects>
+      <Aspect>Coach</Aspect>	
+      <Aspect>School</Aspect>
+      <Aspect>CurrentYear</Aspect>	  
+      <Aspect>NickName</Aspect>	  	  	  	  
+      <Aspect>Conference</Aspect>	  	  	  	  	  
+      <Aspect>School</Aspect>	  
+    </Aspects>
+    <Conditions>
+      <MinWin>3</MinWin>	
+      <MaxWin>5</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}It's hard to gauge the readiness of {1}'s roster. Even if improved athletically, can {2} expect new faces, on defense in particular, to run with and slow down the many bowl teams in the {3}? I'm a little skeptical. Just one step forward won't be enough; to make a run at bowl play, the {4} needs to make huge strides on both sides of the ball. When it comes to {5}, winning three or four games would mark a productive year while laying additional groundwork for next year.
+	</Blurb>
+    <Aspects>
+      <Aspect>School</Aspect>	  
+      <Aspect>School</Aspect>
+      <Aspect>Conference</Aspect>	  
+      <Aspect>NickName</Aspect>	  	  	  	  
+      <Aspect>CurrentYear</Aspect>	  	  	  	  	  
+    </Aspects>
+    <Conditions>
+      <MinWin>3</MinWin>	
+      <MaxWin>5</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}Call this a gut pick, one not necessarily backed up by the {1} personnel. My feeling: {2} has the weapons and confidence to notch a winning season. In general, the {3} have the talent and experience to make this pick look silly: {4} is solid in several spots and adequate at others, giving this team the right combination to charge back to a winning season. I'm simply hesitant to say a team not exactly accustomed to success can rediscover this stride when dealing with off-field distractions.
+	</Blurb>
+    <Aspects>
+      <Aspect>NickName</Aspect>	  	
+      <Aspect>School</Aspect>	  
+	  <Aspect>NickName</Aspect>	  
+      <Aspect>School</Aspect>
+    </Aspects>
+    <Conditions>
+      <MinWin>5</MinWin>	
+      <MaxWin>6</MaxWin>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}It's hard not to admire how {1} has slowly developed {2}'s offense, identity and overall depth since stepping in as head coach, first reversing the {3} awful mentality – a team totally broken by the previous regime – and then addressing the lingering issues and concerns dotting the roster. To say this isn't evident would be ridiculous: {4} is miles better today than before {5}'s arrival, and has now created enough of a foundation for this program to eventually turn the corner and return to the postseason.
+	</Blurb>
+    <Aspects>
+      <Aspect>Coach</Aspect>	  		
+      <Aspect>School</Aspect>	  
+      <Aspect>NickName</Aspect>	  
+      <Aspect>School</Aspect>	  
+	  <Aspect>Coach</Aspect>	  
+    </Aspects>
+    <Conditions>
+      <MinWin>5</MinWin>	
+      <MaxWin>6</MaxWin>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}About the final standings: {1} is not a bowl team. There are too many question marks to go with a ridiculous schedule to expect a trip to the postseason, with the {2} looking at a very slow start before the schedule lessens in November. Most {3} teams have fewer issues. I think {4} wins four games, perhaps topping out at five, and begins laying the groundwork behind {5} and this staff to get to the postseason in the next couple years.
+	</Blurb>
+    <Aspects>
+      <Aspect>School</Aspect>	  
+      <Aspect>NickName</Aspect>	  
+      <Aspect>Conference</Aspect>	  
+      <Aspect>School</Aspect>	  
+	  <Aspect>Coach</Aspect>	  
+    </Aspects>
+    <Conditions>
+      <MinWin>4</MinWin>	
+      <MaxWin>5</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}This is a team that does nothing particularly well: {1} is vanilla on offense, pedestrian on defense – at best, maybe – and short of any explosiveness, a trio of factors that when combined with a deadly opening stretch points toward a second-tier finish in conference. With several key pieces gone for the {2}, young bodies set for key roles and proven depth a significant concern, this seems like a transitional year – one spent treading water, if not a touch worse, while the underclassmen gain steam against {3} competition.
+	</Blurb>
+    <Aspects>
+      <Aspect>School</Aspect>	  
+      <Aspect>NickName</Aspect>	  	  
+      <Aspect>Conference</Aspect>	  
+    </Aspects>
+    <Conditions>
+      <MinWin>0</MinWin>	
+      <MaxWin>4</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}I will say that anything is possible, even in the ridiculously deep {1}; I will also say that I think it's more likely {2} loses 10 games than it wins six, in my opinion. There's just too much work to be done, too many holes and too many question marks, for this season to end anywhere other than 4-8. Five would be a pleasant surprise; six wins would be shocking. While it's tough to make such a claim, this schedule looks to be one of the most difficult in college football.
+	</Blurb>
+    <Aspects>
+      <Aspect>Conference</Aspect>	  	
+      <Aspect>School</Aspect>	  
+      <Aspect>NickName</Aspect>	  	  
+    </Aspects>
+    <Conditions>
+      <MinWin>3</MinWin>
+	  <MaxWin>5</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}If the {1} hit the ground running in September and can handle this difficult slate, I wouldn't be surprised if this team ends up winning nine games in the regular season. That's possible, though not entirely probable. Again, what's more likely is that {2} sputter a bit coming out of the gate but develop into a typically aggressive, tough, physical, {3}-coached team in the second half. If not a real contender for the {4} title, they should neck-and-neck for second place.
+	</Blurb>
+    <Aspects>
+      <Aspect>NickName</Aspect>	  	  
+      <Aspect>School</Aspect>	  
+      <Aspect>Coach</Aspect>	  	  	  
+      <Aspect>Conference</Aspect>	  	
+	  </Aspects>
+    <Conditions>
+      <MinWin>8</MinWin>
+	  <MaxWin>9</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}The {1} many unknowns are joined by a number of positives, with none bigger than {2}'s new approach which has made subtle tweaks and changes to the program's mindset and general schematic approach, stressing size, offensive balance and defensive aggressiveness between the white lines and increased competitiveness on the practice field. Such changes were in demand, to put it lightly; {3} seems to have regained some momentum this offseason, now let's see if they can carry it over into the season and make a bowl game.
+	</Blurb>
+    <Aspects>
+      <Aspect>NickName</Aspect>	  
+      <Aspect>Coach</Aspect>	  	  	  	  	  
+      <Aspect>School</Aspect>	  
+	  </Aspects>
+    <Conditions>
+      <MinWin>5</MinWin>
+	  <MaxWin>7</MaxWin>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}I'm not even going to discuss wins and losses. If nothing else, {1} is not talented enough to beat the {2} opponents on this schedule, with a team like {3} being the {4} best chance at a victory. A tough game with {5} will be a rough one this year.  Ugliness will ensue, but it'll be ugliness with a silver lining as the {6} start to try and turn things around.
+	</Blurb>
+    <Aspects>
+      <Aspect>School</Aspect>	  
+      <Aspect>Conference</Aspect>	  	  
+      <Aspect>WorstOpponent</Aspect>	  
+      <Aspect>NickName</Aspect>	
+      <Aspect>BestConfOpponent</Aspect>	
+      <Aspect>NickName</Aspect>		 
+	</Aspects>
+    <Conditions>
+      <MinWin>0</MinWin>	
+	  <MaxWin>4</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}The idea of what tomorrow could bring to this program should – or will, even – help {1} smile despite another season spent on the outer edges of the {2} race. Tomorrow will be better than today: {3} was better in {4} than in {5}, will be better in {6} than in {7}, continuing the multiple-year rebuilding project placed on {8}'s plate. With a stronger identity in place, the priority this fall should be developing talent, finding another set of answers and locating the sort of depth this team needs to battle for six wins in one of the nation's deepest conference.
+	</Blurb>
+    <Aspects>
+      <Aspect>School</Aspect>	  
+      <Aspect>Conference</Aspect>	  	  
+      <Aspect>School</Aspect>	  	  
+      <Aspect>LastYear</Aspect>	  
+      <Aspect>TwoYearsAgo</Aspect>	  
+      <Aspect>CurrentYear</Aspect>	
+      <Aspect>NextYear</Aspect>		  
+      <Aspect>Coach</Aspect>		 
+	</Aspects>
+    <Conditions>
+	  <MinWin>4</MinWin>	
+	  <MaxWin>6</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}The {1} will be entertaining, at least, which may or may not be a good thing, depending on how well you remember the days prior to {2}'s arrival. This program is always interesting: {3} keeps things tight against most teams in its general stratosphere, making any projection a bit of a guessing game – or more of a guessing game, I'd say. When things work, the {4} combine a productive passing game, an underrated ground attack, a pressuring front seven and an opportunistic secondary to form an easy bowl team and an {5} contender. When it doesn't, however, {6} finds close quarters on offense and tough sledding on defense.
+	</Blurb>
+    <Aspects>
+      <Aspect>NickName</Aspect>	  
+	  <Aspect>Coach</Aspect>	  
+      <Aspect>School</Aspect>	  	  
+      <Aspect>NickName</Aspect>	  	  
+      <Aspect>Conference</Aspect>	  
+      <Aspect>School</Aspect>	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>7</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}So it's going to be one of those years, and you know exactly what I mean. It'll be a year when {1} either nips and tucks and bobs and weaves its way into bowl contention – you know, like all those other times – or it'll be one of those years when the {2} take that first step, miss their mark and go tumbling downhill. There are no shades of gray for {3}, just good or bad, so prepare for another white-knuckling ride through the {4}.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	  
+      <Aspect>NickName</Aspect>	 
+      <Aspect>School</Aspect>	  	  	  
+      <Aspect>Conference</Aspect>	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>7</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}There's really no reason why {1} can't be a successful program in the {2}, reaching bowl eligibility without fail thanks to solid coaching, a close-the-borders recruiting approach and an improved offensive mindset. Of course, whether the {3} can achieve each of those markers remains to be seen – both this year, where the outlook isn't good, and in the long run, where changes may be needed in order to secure the {4} hopes for a productive future. In terms of a positive, steps are being taken to address last years offensive deficiencies in production and depth; it shows that {5} is being proactive, for one, while also indicating the in-house support needed to run with the rest of the {6}. But that's just a start.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	  
+      <Aspect>Conference</Aspect>	 	  
+      <Aspect>NickName</Aspect>	 
+      <Aspect>NickName</Aspect>	 	  
+      <Aspect>Coach</Aspect>	  	  	  
+      <Aspect>Conference</Aspect>	  	  	  	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>7</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}Here's a question: In how many games will {1} be favored? Not many. A team with title aspirations would love to have that home slate, in a sense. A struggling team like {2}, on the other hand, won't have an easy road through {3}. I wouldn't be surprised if the {4} took one home game against a stronger opponent, since that happens every year, but there's a strong chance that the {5} win only one, maybe two home games against FBS competition all season.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	  
+	  <Aspect>School</Aspect>
+	  <Aspect>CurrentYear</Aspect>
+      <Aspect>NickName</Aspect>	 
+      <Aspect>NickName</Aspect>	 	  	  	  	  	  
+	</Aspects>
+    <Conditions>
+      <MinWin>0</MinWin>	
+	  <MaxWin>4</MaxWin>
+	  <IsIndependent>false</IsIndependent>	  
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}There are two ways this can go. One: {1} lacks balance on offense, has no prayer on defense and scuffles its way through the {2}, finding itself among the league's worst. Two: {3} has a solid offseason and new starters fill the holes left from graduation  – yields a strongly improved performance, making the {4} an easy bowl team and one of the {5}'s most pleasant surprises. Where you stand might depend on your level of faith in the program, this team and this coaching staff; it also depends on your willingness to believe a this team has the athletes to get bowl eligible in {6}.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	  
+	  <Aspect>Conference</Aspect>
+	  <Aspect>School</Aspect>
+      <Aspect>NickName</Aspect>	 
+      <Aspect>Conference</Aspect>	 	  	  	  	  	  
+      <Aspect>CurrentYear</Aspect>	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>7</MaxWin>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}What I do think: {1} is the unquestioned top dog in the {2}, a team with the potential for 11 or 12 wins during the regular season should the young talent develop slightly ahead of the curve. The safer projection has the {3} going 10-2, making a strong charge for a national ranking and a push for the school record for wins in a single season.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	  
+	  <Aspect>Conference</Aspect>
+      <Aspect>NickName</Aspect>	 
+	</Aspects>
+    <Conditions>
+	  <MinWin>11</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <IsPowerConferenceTeam>True</IsPowerConferenceTeam>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}It's important that {1} go at least 2-2 to start the season before turning to the heart of {2} play. So what's the big-picture story? This is a team with issues, obviously, but one with the talent and the schedule to win seven games in the regular season and make a trip back to the postseason.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	  
+	  <Aspect>Conference</Aspect>
+	</Aspects>
+    <Conditions>
+	  <MinWin>6</MinWin>	
+	  <MaxWin>7</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}So how do the {1} get to six wins? By harassing quarterbacks, forcing turnovers and punching back between the tackles on defense. Offensively, {2} needs to be smooth and patient, balancing out the bouts of inconsistency with an opportunistic running game. It's a simple formula that should yield solid results. The {3} should expect six wins and bowl eligibility if they can escape the injury bug.
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>School</Aspect>	  
+	  <Aspect>NickName</Aspect>
+	</Aspects>
+    <Conditions>
+	  <MinWin>6</MinWin>	
+	  <MaxWin>7</MaxWin>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}{1} might win eight games but won't be an eight-win team – meaning the talent and overall skill level won't match the standings. This is not a particularly talented team nor a particularly impressive team, to be honest, and against a tougher schedule would be hard-pressed to win six games. But I'm thinking the {2} will get at least six wins and as many as nine against this schedule.
+	</Blurb>
+    <Aspects>  
+	  <Aspect>School</Aspect>	  
+	  <Aspect>NickName</Aspect>
+	</Aspects>
+    <Conditions>
+	  <MinWin>6</MinWin>	
+	  <MaxWin>8</MaxWin>
+    </Conditions>
+  </Article>
+   <Article>
+    <Blurb>{0}I think the {1} win seven games during the regular season, coming out of the non-conference slate with a winning record and winning four games against {2} competition. Based on {3}'s continued potential on offense, this team will be a nuisance to every team in league play. It might be hard to imagine a scenario where the {4} challenge for a top-three spot in the {5}, but it's even more difficult to envision a scenario where {6} falls flat.
+	</Blurb>
+    <Aspects>  
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>Conference</Aspect>
+	  <Aspect>School</Aspect>	  
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>Conference</Aspect>
+	  <Aspect>School</Aspect>	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>6</MinWin>	
+	  <MaxWin>8</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+    </Conditions>
+  </Article>
+   <Article>
+    <Blurb>{0}It's difficult to be overly optimistic after seeing the {1} have a pull back last year. But let's give optimism a try: {2} simply can't be worse, I'd say, and has significant room for growth at quarterback, wide receiver, the offensive line, the defensive back seven and on special teams. At the same time, I'm impressed by the quality of the backfield and the potential in the secondary. If you want to be optimistic – and who doesn't – it's possible to plug the {3} for six or more wins during the regular season.
+	</Blurb>
+    <Aspects>  
+	  <Aspect>NickName</Aspect>	  	  	
+	  <Aspect>School</Aspect> 
+	  <Aspect>NickName</Aspect>	  	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>7</MaxWin>
+	  <DownLastYear>true</DownLastYear>
+    </Conditions>
+  </Article>
+   <Article>
+    <Blurb>{0}This is still a bowl team. The schedule is tougher, yes, but don't forget that {1} has played teams like {2}, {3} and many others before – so there's familiarity, basically. While the defense reloads, look for the offense to carry the torch and lead the {4} back into bowl play, giving the program back-to-back seasons improving their win total.
+	</Blurb>
+    <Aspects>  
+	  <Aspect>School</Aspect> 	
+	  <Aspect>BestNonConfOpponent</Aspect>	  	  	
+	  <Aspect>BestConfOpponent</Aspect>	  	  	
+	  <Aspect>NickName</Aspect>	  	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>9</MaxWin>
+	  <ImprovedLastYear>true</ImprovedLastYear>
+    </Conditions>
+  </Article>
+   <Article>
+    <Blurb>{0}This is an easy bowl team with the potential to rocket back to the top of the {1}, should the defense deliver. Well, that's a major question mark: {2} might be better defensively, but I still wonder if the defense has the cohesiveness needed to shoulder past {3} – let alone {4} – and claim six or more wins during league play. One issue is the pass rush, or lack thereof; another is the play in the secondary, where experience alone might not be enough to justify a healthy degree of optimism. It's really on this defense to make a night-and-day improvement.
+	</Blurb>
+    <Aspects>  
+	  <Aspect>Conference</Aspect> 	
+	  <Aspect>School</Aspect> 		  	  	
+	  <Aspect>BestConfOpponent2</Aspect>	  	  	
+	  <Aspect>BestConfOpponent</Aspect>	  	  		   	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>9</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+   <Article>
+    <Blurb>{0}{1} is a quarterback, a solid offensive line and a passing game away from being one of the surprise teams in the {2}. Now, let's not gloss over these issues: {3} quarterback situation is a little shaky, the offensive line situation in flux and the potential for an unbalanced offense very much an issue for {4} to address – because the running game might hum along fine behind this solid backfield, but the {5} absolutely must find some degree of competitiveness under center to match wits with the top half of the conference.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect> 		  	  		
+	  <Aspect>Conference</Aspect> 	
+	  <Aspect>School</Aspect> 		  	  	
+	  <Aspect>Coach</Aspect>	  	  	
+	  <Aspect>NickName</Aspect>	  	  		   	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>6</MinWin>	
+	  <MaxWin>8</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}I think eight wins might be overly optimistic. Six wins? I'd bet on it, and I'd plug a seven-win finish if I knew the offense, these receivers and this passing game could deliver against top-tier competition. But eight seems a stretch: {1} doesn't seem built to eke out eight wins against a high-quality schedule. There's {2} and {3}, and very likely ugly lossess.  The {4} is laying the foundation for future success but they just do not have the talent this year to break out of the middle tier of the {5}. 
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect> 		  	  			
+	  <Aspect>BestConfOpponent</Aspect> 		  	  	
+	  <Aspect>BestConfOpponent2</Aspect> 		  	  	
+	  <Aspect>NickName</Aspect>	  	  		   	
+	  <Aspect>Conference</Aspect> 	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>6</MinWin>	
+	  <MaxWin>8</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}So can {1} beat {2}? I would not bet on it! It's only with a degree of trepidation that I pick {3} to do anything but continue their upward trajectory from last year. However, I do think the {4} top out at seven or eight wins during the regular season. If I had to guess, I'd say it's a 7-5 mark heading into the postseason.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect> 		  	  			
+	  <Aspect>BestOpponent</Aspect> 		  	  	
+	  <Aspect>School</Aspect> 	  
+	  <Aspect>NickName</Aspect>	  	  		   	
+	</Aspects>
+    <Conditions>
+	  <MinWin>6</MinWin>	
+	  <MaxWin>8</MaxWin>
+      <ImprovedLastYear>true</ImprovedLastYear>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}A meaty first-half schedule, some issues on both lines and the concerns along the back end of the defense won't prevent {1} from reaching a bowl game, though I do hesitate to project this team to challenge for the {2} title. It's possible, just not probable: {3} should win six or seven games, but getting to eight would entail a clean sweep of the should-win games – you know, the matchups where the {4} seem to hold an on-paper advantage. I really like the direction of the program and certain aspects of this year's team, but I'm not sure if the {5} have what it takes to make another move forward in the win column.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect> 		  	  			
+	  <Aspect>Conference</Aspect> 		  	  			
+      <Aspect>School</Aspect> 		  	  			
+	  <Aspect>NickName</Aspect>	  	  		   	
+	  <Aspect>NickName</Aspect>	  	  		   
+	  </Aspects>
+    <Conditions>
+	  <MinWin>6</MinWin>	
+	  <MaxWin>8</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+      <ImprovedLastYear>true</ImprovedLastYear>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}This isn't the season {1} reverses course and reaches bowl play, though I see that time coming at some point in the near future. One looming issue is this schedule, which features tough games against {2}, {3} to name a couple. What's the bottom line? Fewer than six wins, more than three, and reason to think that the {4} will work out the kinks in advance of {5}.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect> 		  	  			
+	  <Aspect>BestOpponent</Aspect> 		  	  			
+	  <Aspect>BestOpponent1</Aspect> 		  	  				  
+	  <Aspect>NickName</Aspect>	  	  		   	
+	  <Aspect>NextYear</Aspect>	  	  		   
+	  </Aspects>
+    <Conditions>
+	  <MinWin>4</MinWin>	
+	  <MaxWin>6</MaxWin>
+      <DownLastYear>true</DownLastYear>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}I think this team can win the {1} if a few games break their way. Five reasons: one, confidence; two, athleticism; three, the burst on offense; four, the potential on defense; and five, the impressive quality of the starting twenty-two. Confidence shouldn't be an issue for {2} and this team should have a baseline for {3} at seven or more wins and a top-three finish in the {4}. The {5} athleticism is evident nearly across the board, but at the skill positions in particular. This is a talented team; this is a confident team. Put those assets in concert and you have a very dangerous team capable of contending for a conference title.
+	</Blurb>
+    <Aspects>
+	  <Aspect>Conference</Aspect>	
+	  <Aspect>School</Aspect> 		  	  			
+	  <Aspect>CurrentYear</Aspect> 		  	  		
+	  <Aspect>Conference</Aspect>	
+	  <Aspect>NickName</Aspect>	  	  		   	
+	  </Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>10</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}So what's the bottom line? Anything less than nine wins for the {1} would be a disappointment. Ten wins is easily in play. Eleven wins remains a possibility. This team has its flaws, true, but {2} remains the class of the {3} with {4} being their threat to the conference crown.
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>
+	  <Aspect>School</Aspect> 		  	  				  
+	  <Aspect>Conference</Aspect>	
+	  <Aspect>BestConfOpponent</Aspect> 		  	  		  	  		   	
+	  </Aspects>
+    <Conditions>
+	  <MinWin>10</MinWin>	
+	  <MaxWin>11</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}{1} should make it to a bowl game this year, notching six or seven wins during the regular season and earning some sort of lower-tier postseason bid in December. But {2} just does not have what it takes to unseat {3} atop the {4}. {5} is dangerous, pure and simple with an offense that could be one of the best in conference. The {6}, meanwhile, could be defined by its own offense – but not in a good way.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect> 
+	  <Aspect>School</Aspect> 
+	  <Aspect>BestConfOpponent</Aspect>
+	  <Aspect>Conference</Aspect>	
+	  <Aspect>BestConfOpponent</Aspect>	  
+	  <Aspect>NickName</Aspect>	  
+	  </Aspects>
+    <Conditions>
+	  <MinWin>6</MinWin>	
+	  <MaxWin>8</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+ <Article>
+    <Blurb>{0}The {1} have a number of talented options at running back and receiver; enough, in fact, that one or two potential contributors will get squeezed out of touches. The team also enters {2} with a degree of confidence after a strong spring practice and offseason. Though five wins is a safer bet, don't be surprised if {3} gets that sixth victory and lands bowl eligibility.
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>CurrentYear</Aspect>	  	  
+	  <Aspect>School</Aspect> 
+	  </Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>7</MaxWin>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}Well, it's time – and it's been a long time coming. If not possessed by the sort of cohesive, offense-to-defense balance needed to vault into the upper tier of the {1}, these {2} are ready to reach a bowl game: {3} should win six or seven games during the regular season, riding a powerful offense and a can't-be-worse defense to three or four wins in the {4} and a spot in the postseason. Anything less than a 6-6 regular season would be a substantial disappointment.
+	</Blurb>
+    <Aspects>
+	  <Aspect>Conference</Aspect>	  	  	
+	  <Aspect>NickName</Aspect>	 
+	  <Aspect>School</Aspect> 
+	  <Aspect>Conference</Aspect>	  	  		  
+	  </Aspects>
+    <Conditions>
+	  <MinWin>6</MinWin>	
+	  <MaxWin>8</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}Given what {1} has in hand and coming in next year's class, all they need is to have consistent play at quarterback. The skill players are there. The line will only get better. The defense will improve as the youngsters gain a stronger comfort level in the system. The back seven, for example, is brimming with all-conference potential. The {2} are one year away from competing for the {3} Championship. For {4}, the {5} should be happy with six-wins and a trip to the postseason.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect> 
+	  <Aspect>NickName</Aspect>	 	  
+	  <Aspect>Conference</Aspect>
+	  <Aspect>CurrentYear</Aspect>	 	  
+	  <Aspect>NickName</Aspect>	 
+	  </Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>7</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}In {1}'s corner stand this accommodating schedule, this solid and overlooked coaching staff and the knowledge that comes with spending another offseason in {2}'s system. This season will come down a battle with {3}: Win that game, get to six or more wins. Reaching six wins with a loss though is going to be tough, if doable.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect> 
+	  <Aspect>Coach</Aspect>	 	  
+	  <Aspect>BestNonConfOpponent2</Aspect>
+	  </Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>7</MaxWin>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}I do think {1} notches a bowl appearance but I don't think the {2} have enough in the tank to break out of the middle of the pack in conference play. One reason is the schedule: {3}'s set to take on some of the cream of the {4}'s crop. The schedule alone is reason to think the {5} top out at six or seven wins.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect> 
+	  <Aspect>NickName</Aspect>	 	  
+	  <Aspect>School</Aspect> 	  
+	  <Aspect>Conference</Aspect>
+	  <Aspect>NickName</Aspect>	 
+	  </Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>8</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}{1} should set the baseline at six wins during the regular season, meaning a return to the postseason is in the cards, but any improvement beyond the middle of the pack in the {2} hinges on several factors – many of which seem only slightly possible.  I will say this: Though I question whether the {3} can notch eight or more wins during the regular season, I can't really envision a scenario where this squad doesn't make a charge into bowl play.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect> 
+	  <Aspect>Conference</Aspect>
+	  <Aspect>NickName</Aspect>	 
+	  </Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>8</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}So {1} is clearly a bowl team this season – that's obvious. No game is a clear-cut loss; yes, that even includes {2}, that's still a likely loss, obviously, and {3} brings enough to the table to project the {4} for third place in the {5}. But this team is going to make hay against this slate, winning at least seven and perhaps eight games during the regular season and returning to bowl play.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect> 
+	  <Aspect>BestConfOpponent</Aspect>
+	  <Aspect>BestConfOpponent2</Aspect>	  
+	  <Aspect>NickName</Aspect>
+	  <Aspect>Conference</Aspect>	  
+	  </Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>9</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}Every team deals with injuries, that constant and unpredictable nuisance of nuisances, but {1} lives with injuries, year after year, come rain or shine. If the {2} can form a competent pass rush this defense should rank among the top in the {3}. To me, the combination of an improved offense and a credible defense, albeit one with some issues, paints {4} as a definite bowl team in {5} if they can avoid the injury bug.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect> 
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>Conference</Aspect>	  
+	  <Aspect>School</Aspect> 
+	  <Aspect>CurrentYear</Aspect> 
+	  </Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>8</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}There's no reason to think {1} won't find a degree of success in the {2} this year, not to mention a few reasons – perhaps more than a few – to suggest this team has what it takes to greatly exceed expectations. There are things to admire about the offense which is capable of scoring fast and frequently. Yet the offense lacks consistency as it seems handcuffed by a front that is scrambling to locate depth nearly across the board. That's an issue for the {3}, particularly with {4} and {5} on the schedule.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect> 
+	  <Aspect>Conference</Aspect>	  	  
+	  <Aspect>NickName</Aspect>	    
+	  <Aspect>BestConfOpponent</Aspect> 
+	  <Aspect>BestConfOpponent2</Aspect> 	  
+	  </Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>9</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}{1} must be taken seriously as a threat to be the best team in the {2} and a 10-win threat. Though projecting a very slight decline in the win column seems safe – down to nine wins in the regular season – don't sleep on the {3} ability to claim yet another conference title.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect> 
+	  <Aspect>Conference</Aspect>	  	  
+	  <Aspect>NickName</Aspect>	    
+	  </Aspects>
+    <Conditions>
+	  <MinWin>9</MinWin>	
+	  <MaxWin>11</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}{1} remains very dangerous. The standards have changed inside the program, and that's a great thing: {2}'s returning personnel seems unwilling to accept anything less than more of the same, and this mentality – and the confidence that comes with it – should propel the {3} forward despite a handful of on-field concerns. It's these concerns that will have {4}'s squad coming up a game or two short of winning the {5} this year.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect> 
+	  <Aspect>School</Aspect>	  
+	  <Aspect>NickName</Aspect>	    	  
+	  <Aspect>Coach</Aspect>	    	  
+	  <Aspect>Conference</Aspect>	    	 
+	  </Aspects>
+    <Conditions>
+	  <MinWin>8</MinWin>	
+	  <MaxWin>10</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+	  <ImprovedLastYear>true</ImprovedLastYear>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}Getting to six wins shouldn't be too difficult for the {1}, though I'm of the belief that {2} tops out at 5-7. A good team, by and large. Not a great one by any means, and not one that will land the sort of wins the program needs to put them into the national spotlight.
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>
+	  <Aspect>School</Aspect>	  	  	    	 
+	  </Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>6</MaxWin>
+    </Conditions>
+  </Article>  
+  <Article>
+    <Blurb>{0}{1} is still a bowl team and still very much one of the top teams in the {2}, merely not as strong a team – on paper, at least – as {3}. My greatest concerns stand on the defensive side of the ball where {4} seems unprepared for a number of teams on this fall's schedule. There are continued issues at linebacker, where the {5} are reliant on youngsters to create havoc in space, and some concerns regarding depth and experience in the secondary – issues perhaps exacerbated by the projected position changes.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>
+	  <Aspect>Conference</Aspect>
+	  <Aspect>BestConfOpponent</Aspect>	  
+	  <Aspect>School</Aspect>	  
+	  <Aspect>NickName</Aspect>	  
+	  </Aspects>
+    <Conditions>
+	  <MinWin>8</MinWin>	
+	  <MaxWin>10</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+  <Article>
+    <Blurb>{0}If the {1} can continue to bring pressure into the backfield, perhaps their defense has the weapons along the back seven to make a nice step forward during {2} play. But as elsewhere, {3}'s defense is a year away. The {4} are not ready to challenge for a postseason berth or a spot in the top half of the {5}.
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>Conference</Aspect>
+	  <Aspect>School</Aspect>	  
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>Conference</Aspect>
+    </Aspects>
+    <Conditions>
+	  <MinWin>4</MinWin>	
+	  <MaxWin>6</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+  <Article>
+    <Blurb>{0}This is going to be a very, very interesting season. It's obvious that {1} is at the point where this offense is set to enter high gear. Part of this is due to mere familiarity with the system: the {2} offensive personnel now grasps the offense from top to bottom, thanks to game experience and with this increased experience comes the potential for improved production.  The real challenge for {3} will be making the postseason this year.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	  
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>School</Aspect>	  	  
+    </Aspects>
+    <Conditions>
+	  <MinWin>4</MinWin>	
+	  <MaxWin>6</MaxWin>
+    </Conditions>
+  </Article>  
+  <Article>
+    <Blurb>{0}The issue for {1} is extremely inadequate depth, and this will be plainly evident as the {2} go up against the meat of this year's schedule. The offensive line lacks backups with relevant experience. The back seven on defense can't suffer any meaningful injuries. Another issue on offense is the lack of one leading skill player with game-breaking potential. This is not a complete team, in my mind, and I see {3} having major issues even getting to the middle of the pack in the {4} this season.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	  
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>School</Aspect>
+	  <Aspect>Conference</Aspect>	  
+    </Aspects>
+    <Conditions>
+	  <MinWin>3</MinWin>	
+	  <MaxWin>6</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}My feeling is that {1} is a year away. That's a copout, of course, but it's genuine: {2} doesn't seem ready to move into the top of the {3}, though it's clear to me that there is a foundation in place that could yield a far stronger degree of competitiveness in {4} and beyond. It's all about the youth, the sophomores and underclassmen, and how well they develop at the forefront of this program during the next 12 months; if the {5} stay the course, this program seems poised to battle for eight-plus wins with a heavy level of regularity. It's all about getting there – and staying in the postseason during the interim.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>
+	  <Aspect>School</Aspect>	  
+	  <Aspect>Conference</Aspect>	  	  
+	  <Aspect>NextYear</Aspect>
+	  <Aspect>NickName</Aspect>	  
+    </Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>8</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}{1} shouldn't fall outside the {2}'s top quartet. The {3} could be even better. Basically, I'm of the belief that {4} has reached the point where this system and style factor more heavily than any major personnel concerns; the {5} know what it takes to win, as we've seen, and won't wilt against adversity, as we've seen. Despite a few lingering concerns, {6} is easily a bowl team, very much a contender for an eight-win finish. There's a lot to like about the current state of the program.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>
+	  <Aspect>Conference</Aspect>	  
+	  <Aspect>NickName</Aspect>	 
+	  <Aspect>School</Aspect>	  
+	  <Aspect>NickName</Aspect>	 
+	  <Aspect>School</Aspect>	 	   
+    </Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>9</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}Here's my take: {1} will win at least eight games and likely nine during the regular season, but unless the defense takes a step forward the {2} will not land the wins they need to earn the national recognition this program and its coaching staff deserve. And what if this defense exceeds expectation? Then you're looking at a potential monster. I can't say enough about the work {3} and his staff have done.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>
+	  <Aspect>NickName</Aspect>
+	  <Aspect>Coach</Aspect>	  	  	   
+    </Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>9</MaxWin>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}So it'll be a seven- or eight-win regular season. How horrible! It's actually right on schedule: the {1} and {2} are looking forward to the next batch of all-conference contributors they will try to develop this year. This happens – yes, even at {3}. But you know what? All {4} and this staff have done is exceed expectations; here's betting there's a strong chance they do so again this fall. 
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>
+	  <Aspect>Coach</Aspect>		  
+	  <Aspect>School</Aspect>
+	  <Aspect>Coach</Aspect>  	  	   
+    </Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>9</MaxWin>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}Should the {1} feature strong play from the quarterback position, get pressure up front, solve depth issues at linebacker and land consistency at cornerback, {2} should put pressure on {3} in the {4}. To me, it's safer to call for a eight-win regular season.
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>
+	  <Aspect>School</Aspect>
+	  <Aspect>BestConfOpponent</Aspect>		  
+	  <Aspect>Conference</Aspect>  	  	   
+    </Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>9</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}So here's where I stand: I think {1} wins seven or eight games in the regular season, likely eight, and that's a pretty nice accomplishment given this schedule. What's vital – and what would push {2} far higher in these rankings – is that the {3} land meaningful wins, victories against premier competition, rather than just feasting on the weaklings.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>
+	  <Aspect>School</Aspect>
+	  <Aspect>NickName</Aspect>
+    </Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>9</MaxWin>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}It's somewhat strange to question the {1} validity as an {2} contender. Then again, {3} is always an {4} contender. My take is that this team seems unbalanced heading into fall camp – and not that this means it'll be a down season, merely that I have fewer reservations about the remaining members of the conference. The {5} are clearly a bowl team and, as always, a threat to burst to the top of the conference. 
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>
+	  <Aspect>Conference</Aspect>	  
+	  <Aspect>School</Aspect>
+	  <Aspect>Conference</Aspect>	  	  
+	  <Aspect>NickName</Aspect>
+    </Aspects>
+    <Conditions>
+	  <MinWin>9</MinWin>	
+	  <MaxWin>11</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}{1} is going to be exciting. Is that a good thing? It could be: {2} has the potential to light up the scoreboard on one end – the offensive end, as this program tends to do – but seems very questionable nearly across the board defensively. If both units are working in tandem this season, the {3} will be a scary bunch. This year's group may have to settle for excitement, the back-and-forth style that can be electric, thrilling, exhilarating and – this most of all, perhaps – frustrating.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>
+	  <Aspect>School</Aspect>	  
+	  <Aspect>NickName</Aspect>
+    </Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>8</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}The talent – and coaching, of course – also stand in the {1} corner. I'm simply a little worried about the lack of depth on offense and holes on defense. Of course, {2} always outplays its preseason expectations, but I would not expect them to be battling for the {3} championship this season.
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>	
+	  <Aspect>School</Aspect>
+	  <Aspect>Conference</Aspect>	  
+    </Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>8</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}This a team with two major flaws: one the offensive line depth, the other is defensive line depth. What should we make of a team with no other substantial concerns – not perfect across the board, though adequate in several areas – except how it fares along the line of scrimmage on both sides of the ball? It's a confusing and troubling set of circumstances: {1} would be a sneaky contender if just one of the two lines cooperate, but each unit contains far too many question marks and lack the depth for me to hop fully on board the {2} bandwagon. I'm tempted; I'm always tempted.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>NickName</Aspect>	
+    </Aspects>
+    <Conditions>
+	  <MinWin>6</MinWin>	
+	  <MaxWin>8</MaxWin>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}You can doubt this specific team while respecting the program. This program has earned the benefit of the doubt as they keep improving each year; this team has to earn its respect. There are certain flaws here that simply cannot be ignored: {1} is really insecure along the offensive line, at linebacker and in the secondary, and the {2} can't feel overly comfortable with the current lack of depth at wide receiver. On paper, in my opinion, this is the least cohesive group {3} has brought into a season since taking over at {4}.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>NickName</Aspect>	
+	  <Aspect>Coach</Aspect>	
+	  <Aspect>School</Aspect>	
+    </Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>9</MaxWin>
+	  <OnTheRise>true</OnTheRise>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}This offense, along with some improvement on defense, makes {1} a top-25 threat and a strong {2} contender. I think the {3} could be won by {4} in {5}, but not without a fight: {6}'s baseline is eight wins, an impressive feat considering this schedule, but the {7} easily have the potential for double-digit victories during the regular season.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>Conference</Aspect>	
+	  <Aspect>Conference</Aspect>		  
+	  <Aspect>BestConfOpponent</Aspect>	
+	  <Aspect>CurrentYear</Aspect>	
+	  <Aspect>School</Aspect>	
+	  <Aspect>NickName</Aspect>		  
+    </Aspects>
+    <Conditions>
+	  <MinWin>8</MinWin>	
+	  <MaxWin>10</MaxWin>
+      <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}It's not going to be easy, all preseason expectations aside. But these are unfair, to a degree: {1} isn't ready to claim the {2} even if the conference remains as undecided as any in the FBS, seeing that the {3} are not just battling a few personnel woes but dealing with one of the rowdiest schedules in the conference. This isn't a perfect situation; it may be a perfect storm, in fact, one that leads {4} not to first place but into a position behind the league's top group – {5} and {6} in one order or another.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>Conference</Aspect>	
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>School</Aspect>	
+	  <Aspect>BestConfOpponent</Aspect>	
+	  <Aspect>BestConfOpponent2</Aspect>	
+    </Aspects>
+    <Conditions>
+	  <MinWin>6</MinWin>	
+	  <MaxWin>9</MaxWin>
+      <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}If everything clicks, {1} is winning at least nine games during the regular season. Whether the {2} click entirely is up for debate, however. It's not about the offense, a group known for consistent play under center, loaded with accompanying talent in the backfield and perhaps defined by a seasoned, veteran and productive front five. When on its game, this offense is going to be an absolute handful. In my mind, the concern is the defense: {3} shouldn't feel overly secure in any one unit, though it's possible to imagine a scenario where each grouping – even the front – responds to the challenge and improves upon last year's up-and-down showing.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>		
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>School</Aspect>	
+    </Aspects>
+    <Conditions>
+	  <MinWin>8</MinWin>	
+	  <MaxWin>11</MaxWin>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}What's the worst-case scenario? That {1} stumbles early and is never taken seriously in the {2} race. The best-case scenario, on the other hand, could see the {3} win 10 or more games during the regular season and take a giant leap ahead of schedule. To me, the former is more likely than the latter.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>		
+	  <Aspect>Conference</Aspect>		  
+	  <Aspect>NickName</Aspect>	  
+    </Aspects>
+    <Conditions>
+	  <MinWin>6</MinWin>	
+	  <MaxWin>9</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}The {1} can challenge for eight wins during the regular season and make things interesting in the {2} – because despite some flaws, this team has the talent and coaching to run with any team in this deep and crowded conference. The schedule does hurt matters, with games against {3} and {4}, but that shouldn't prevent a season with seven or more wins. This isn't a stumble; it's merely a hiccup for {5}, and the good times will return in short order.
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>		
+	  <Aspect>Conference</Aspect>		  	  
+	  <Aspect>BestConfOpponent2</Aspect>		  
+	  <Aspect>BestConfOpponent</Aspect>		  	  
+	  <Aspect>School</Aspect>		
+    </Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>9</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}The foundation is so solid, so strong and so well-formed, that it's hard to imagine any scenario where {1} fails to make noise in the {2}. That I'm not picking the {3} to win the conference has a bit to do with {4} and a bit to do with this team's own issues, the personnel concerns that hamper even a program built to last. And yes, {5} is built for the long run, not the short term, and has the ability to remain a {6} frontrunner.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>		
+	  <Aspect>Conference</Aspect>		  	  
+	  <Aspect>NickName</Aspect>			  
+	  <Aspect>BestConfOpponent</Aspect>		  
+	  <Aspect>School</Aspect>
+	  <Aspect>Conference</Aspect>			  
+    </Aspects>
+    <Conditions>
+	  <MinWin>8</MinWin>	
+	  <MaxWin>10</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}The strengths outweigh the weaknesses – and do so by a pretty fair margin. What's a little strange, however, is that I comb through {1}'s schedule and see every game as winnable and several that may test the {2} ability – basically, there are six or seven clear wins and six or seven toss-ups. I think {3} takes a few of the toss-ups but struggles at times against high-quality opposition, particularly in the early going, and if everything goes perfect they could enter the finale with a shot at winning the {4}.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>		
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>School</Aspect>		  
+	  <Aspect>Conference</Aspect>		  	  
+    </Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>9</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}Honestly, I think of it this way: It's now or never. If {1} can't win with this team, with this talent and this experience, it'll never win until even more drastic changes are made. Yeah, the pressure is on.  The {2} have a great chance to succeed if the offense can be consistent, but without consistency and leadership this team might ended up falling into the middle of the pack in the {3}. 
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>		
+	  <Aspect>NickName</Aspect>	  	  
+	  <Aspect>Conference</Aspect>		  	  
+    </Aspects>
+    <Conditions>
+	  <MinWin>8</MinWin>	
+	  <MaxWin>10</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}Because of some personnel issues, I'm a little hesitant to plug {1} as anything more than one of the top two or three teams in the {2}, albeit one that could end the year inside the top 25. The good news? I have little doubt that the {3} will be bowl team in {4}, but if they plan on winning anything of real meaning they must do more than just make hay on an easy side of their schedule and actually win some games of consequence.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>		
+	  <Aspect>Conference</Aspect>		  	  	  
+	  <Aspect>NickName</Aspect>	  	  
+	  <Aspect>CurrentYear</Aspect>		  	  	  
+    </Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>9</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}So I'm not entirely sold on {1} as the {2} favorite, though I do think this is an improved team. Wins are coming, and they're coming in bunches: {3} should win nine games and perhaps reach the double-digit mark, should things click into place. I simply worry that the {4} won't get it done against the upper-level competition on the docket; if not, this will be a team that wins nine games but none of consequence.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>		
+	  <Aspect>Conference</Aspect>	
+	  <Aspect>School</Aspect>	  
+	  <Aspect>NickName</Aspect>	  	  
+    </Aspects>
+    <Conditions>
+	  <MinWin>8</MinWin>	
+	  <MaxWin>10</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}So let's do this dance once again, convinced of the fact that {1} will exceed my preseason expectations — and one can only assume the {2} faithful are happy to see the {3} again flying in below the radar. So let's just say seven or eight wins during the regular season, I can't get wholly on board, instead erring on the side of caution with a talented, confident, well-coached {4} team with a few inherent flaws and weaknesses. 
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>School</Aspect>		  
+	  <Aspect>NickName</Aspect>	  	  
+	  <Aspect>Coach</Aspect>	  	  
+    </Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>8</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}This year will prove to be the {1} norm. The norm is at least seven and as many as nine wins during the regular season, an achievement I believe {2} can achieve with relative ease due to four factors: one, health; two, motivation; three, a streamlined offense; and four, defensive depth. In terms of injuries, it's very hard to envision a scenario where the {3} suffers through the enough nicks and bruises to deplete this teams depth. The team as a whole seems prepared for the grind of the {4} season and to try and make a push into the upper echelon of the conference. 
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>
+	  <Aspect>School</Aspect>	
+	  <Aspect>NickName</Aspect>	 
+	  <Aspect>Conference</Aspect>	  	  
+    </Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>10</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}I see enough to project {1} into a bowl game in {2} and I see reason to believe the {3} will be a better team between the white lines than it is on paper. It won't be easy, but I think six wins is very attainable should {4} take advantage of the easier half of their schedule.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>
+	  <Aspect>CurrentYear</Aspect>	  
+	  <Aspect>NickName</Aspect>
+	  <Aspect>School</Aspect>	
+    </Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>8</MaxWin>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}Buy in but don't bet the farm on {1}. Make sense? This is clearly an improved team from last year's version and clearly a more confident and cohesive bunch as a result some hard fought wins last year. There's a certain something to be said for confidence: {2} isn't the most talented team in the {3}, though there's talent across the board, but adding self-assurance to the incumbent personnel, gifted skill players and overall coaching does paint the {4} as a team set to pull off some upsets this year. 
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>
+	  <Aspect>School</Aspect>		  
+	  <Aspect>Conference</Aspect>	  
+	  <Aspect>NickName</Aspect>
+    </Aspects>
+    <Conditions>
+	  <MinWin>6</MinWin>	
+	  <MaxWin>9</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+ <Article>
+    <Blurb>{0}{1} is a team with obvious 10-win potential should it land an upset win and settle a few lingering concerns before heading the meat of {2} play: offensive line, the fourth and fifth wide receiver, rush defensive end and cornerback. I'd be very surprised if the {3} don't end the year with at least eight wins and they have an outside chance at battling for one of the top spots in the {4} standings.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>
+	  <Aspect>Conference</Aspect>	  
+	  <Aspect>NickName</Aspect>
+	  <Aspect>Conference</Aspect>	  
+    </Aspects>
+    <Conditions>
+	  <MinWin>8</MinWin>	
+	  <MaxWin>10</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}{1} is not going to give away the {2}. This is the {3} house, you see, and these {4} won't go down without a fight. {5} and {6} are two good, strong, capable teams but neither has what it takes to stop {7} from claiming the {8} championship and competing for another season with double-digit wins.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>
+	  <Aspect>Conference</Aspect>	  
+	  <Aspect>NickName</Aspect>
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>BestConfOpponent2</Aspect>	  
+	  <Aspect>BestConfOpponent</Aspect>	  	  
+	  <Aspect>School</Aspect>
+	  <Aspect>Conference</Aspect>	  	  
+    </Aspects>
+    <Conditions>
+	  <MinWin>10</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}Optimistically, I see {1} starting strong and winning one game in November to clinch bowl eligibility. There's too much talent, speed and athleticism for this team to disappoint. The one thing that's missing is confidence, however – so the {2} must start with a bang against the weaker opponents in early in the year.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>
+	  <Aspect>NickName</Aspect>
+    </Aspects>
+    <Conditions>
+	  <MinWin>5</MinWin>	
+	  <MaxWin>8</MaxWin>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}If this defense can step up and set the pace, there's really no reason to think the {1} can't take home the {2} championship. That's a question, of course: {3} can't necessarily rely on the offense to put them in the best position – so it's on the defense to embrace a more consistent, down-to-down approach to getting stops, forcing punts rather than relying on takeaways to shift the field. Given the amount of depth seen nearly across the board defensively – even in the secondary, my biggest concern – it's logical to project a banner season; it's also possible that the defense takes a step back, though not to an extreme degree.
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>
+	  <Aspect>Conference</Aspect>
+	  <Aspect>School</Aspect>
+    </Aspects>
+    <Conditions>
+	  <MinWin>10</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}Consider how {1} might develop during the next 12 games, as young linemen, young receivers, young backs, young specialists and others grow into their full potential – when everything clicks, and it could click this season, the {2} will be a handful. I'm just a little pessimistic on {3} in {4} and do not see them challenging for a {5} title.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>NickName</Aspect>
+	  <Aspect>School</Aspect>
+	  <Aspect>CurrentYear</Aspect>	  
+	  <Aspect>Conference</Aspect>
+    </Aspects>
+    <Conditions>
+	  <MinWin>6</MinWin>	
+	  <MaxWin>9</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}Ten wins would be positively fantastic – that would leave {1} among the top 15 nationally and in the mix for a major bowl. To get there, however, the {2} need help. Both offensive and defensive lines lack substantial depth, but if the {3} can avoid any major injuries they should contend for the {4} title.  
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>NickName</Aspect>
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>School</Aspect>
+	  <Aspect>Conference</Aspect>
+    </Aspects>
+    <Conditions>
+	  <MinWin>9</MinWin>	
+	  <MaxWin>11</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}I will say this: Question the coaching, perhaps, but don't question the foundation of personnel. At each position – yes, even the line – the {1} have accumulated the pieces needed to create a working puzzle; some of this foundation is young, hence the fears of continued growing pains, but they are nonetheless the pieces this program needs to charge back into the conversation. {2} should get to eight wins heading into the postseason. To me, an eight-win team that struggles against the cream of the crop won't deserve a national ranking. 
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>School</Aspect>
+    </Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>9</MaxWin>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}Here's what I feel: {1} wins eight games during the regular season, dropping four dates with terrific competition, and heads into the postseason on the edge of a national ranking. Two things to consider: one, winning eight games against this schedule would be impressive, and two, the {2} could achieve much more should its offense develop ahead of schedule and they get a couple breaks along the way.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>NickName</Aspect>	  
+    </Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>9</MaxWin>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}{1} seems poised to break past the eight-win mark and challenge for nine-plus victories during the regular season. It's not all because of the schedule, mind you: {2} is punishingly effective on offense and again stout on defense and should ride this blend of physicality to a successful season. The {3} are a solidly balanced team that could eventually work its way into a nice national ranking by the end of the season.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>School</Aspect>		  
+	  <Aspect>NickName</Aspect>	  
+    </Aspects>
+    <Conditions>
+	  <MinWin>8</MinWin>	
+	  <MaxWin>10</MaxWin>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}There's going to come a time – and it's coming fairly soon – when {1} will have talent and experience, the two qualities needed to fend off the cream of the {2}'s crop and earn a spot among the five best teams in college football. The {3} offense wins at least 10 games during the regular season; {4}'s defense loses one or two. But I'd be foolish to not acknowledge the {5} ability to run the table and play for the national championship.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>Conference</Aspect>		  
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>School</Aspect>		  
+	  <Aspect>NickName</Aspect>	
+	</Aspects>
+    <Conditions>
+	  <MinWin>10</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}Any team with these issues on defense is going to hit a bump or two during the regular season. But it'll be interesting: {1} has as much pure talent as any team in the {2} but not the requisite experience, both on offense and defense, so every two steps forward might be accompanied by a matching step back. Against most of the schedule, talent alone – and some terrific coaching from {3} – will be enough for {4}; against some teams, however, the {5} seem to lack balance. To me, this paints {6} as a season in the middle, stuck between the hopes of fighting for the top spot in the {7} and the realities of bringing a gifted roster up to speed.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>Conference</Aspect>		  
+	  <Aspect>Coach</Aspect>	  
+	  <Aspect>School</Aspect>		  
+	  <Aspect>NickName</Aspect>	
+	  <Aspect>CurrentYear</Aspect>	
+	  <Aspect>Conference</Aspect>	
+	</Aspects>
+    <Conditions>
+	  <MinWin>9</MinWin>	
+	  <MaxWin>11</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}{1} goes 9-3 in the regular season and returns to the {2} title contention. It won't always be pretty, but the {3} are still suited for a return to the national conversation with a couple breaks. {4} is weakest on defense, but that's survivable if the offense can gain some traction this year.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>Conference</Aspect>		
+	  <Aspect>NickName</Aspect>		  
+	  <Aspect>School</Aspect>		  
+	</Aspects>
+    <Conditions>
+	  <MinWin>8</MinWin>	
+	  <MaxWin>10</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}Part of me thinks this team won't go down without a fight: {1} is one of the {2}'s top teams, clearly one of the teams with realistic hopes of winning the conference championship and absolutely talented enough to move back to the top rung with a healthy degree of improvement on offense. Yes, the {3} must have good showings against {4} and {5}, but if they can pull it off they could end up as one of the nations elite. 
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>Conference</Aspect>		
+	  <Aspect>NickName</Aspect>		  
+	  <Aspect>BestConfOpponent2</Aspect>		  
+	  <Aspect>BestConfOpponent</Aspect>		  	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>9</MinWin>	
+	  <MaxWin>11</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}I don't think {1} is quite ready for a breakthrough. There are issues: the {2} aren't quite up to {3}'s standard on offense, though it's getting there; the defense is very solid but still unproven in the pass rush, which is an issue in the {4}; and the kicking game must become more consistent – and at this point, perhaps the difference between eight and nine wins during the regular season. But that the baseline is seven wins – and perhaps eight – speaks volumes about the work {5} and the staff have done improving the {6} place in the pecking order.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>NickName</Aspect>	
+	  <Aspect>Coach</Aspect>		  
+	  <Aspect>Conference</Aspect>		
+	  <Aspect>Coach</Aspect>		  
+	  <Aspect>NickName</Aspect>	
+	</Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>9</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}{1} has the one of the best defense's in the {2} and, maybe, just enough offense to contend for a conference title, though the combination of this schedule and the projected decline offensively should prevent a season spent inside the top 15. If the {3} can overcome their lack of depth and find a couple play makers on offense they could find themselves in position to run crazy through the {4}, perhaps losing just once.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>Conference</Aspect>			  
+	  <Aspect>NickName</Aspect>	
+	  <Aspect>Conference</Aspect>			  
+	</Aspects>
+    <Conditions>
+	  <MinWin>9</MinWin>	
+	  <MaxWin>11</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}I'd be foolish to not at least consider the possibility – a pretty strong possibility – that the {1} survive the regular season unscathed. For all its talent and confidence, I still think {2} loses at least once before the postseason and if that loss shakes their confidence they might snow ball down to a 9-3 season. 
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>		
+	  <Aspect>School</Aspect>	
+	</Aspects>
+    <Conditions>
+	  <MinWin>10</MinWin>	
+	  <MaxWin>13</MaxWin>
+      <SwingLossMin>3</SwingLossMin>    
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}The offense should be absolutely superb. The {1} have some holes to fill on defense but they still should still win eight-plus games with an exquisite offense and a slightly above-average defense. {2} will not win the {3} altogether, of course, as they will not be finishing ahead of {4} or {5}. But this team can still make noise, still rattle some cages, still send a message and still create even more momentum for the future.
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>		
+	  <Aspect>School</Aspect>
+	  <Aspect>Conference</Aspect>
+	  <Aspect>BestConfOpponent2</Aspect>	  
+	  <Aspect>BestConfOpponent</Aspect>	  	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>8</MinWin>	
+	  <MaxWin>10</MaxWin>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}I have enough reservations about {1} to pick {2} to win the {3}. Let's get that out of the way, painful as it may be. There are some issues here that are hard to overlook: {4}'s squad has lacked dependable play quarterback, has some holes along the offensive line, depth concerns on the defensive front and youthfulness in the secondary, a quartet of potential flaws that paints the {5} as one of those close-but-no-cigar teams coming out of the {6} – good enough to possibly notch double-digit wins, if the puzzle clicks into place, but questionable enough to end the year against around seven or eight wins, hovering around a national ranking but not quite in the national picture.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>
+	  <Aspect>BestConfOpponent</Aspect>	  	  
+	  <Aspect>Conference</Aspect>
+	  <Aspect>Coach</Aspect>	  
+	  <Aspect>NickName</Aspect>	
+	  <Aspect>Conference</Aspect>
+	</Aspects>
+    <Conditions>
+	  <MinWin>8</MinWin>	
+	  <MaxWin>11</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+      <WorstCaseWinMax>8</WorstCaseWinMax>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}There are enough issues here to keep {1} out of the top four in the {2} but enough positives to expect the {3} to finish in the nine-win range and an end-of-year national ranking. To get there, however, {4} and staff must address some personnel concerns and the decline in experience in the secondary.  If they are successful it would leave {5} in great shape – and deserving of a spot in the top half of the {6}. 
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>
+	  <Aspect>Conference</Aspect>	  
+	  <Aspect>NickName</Aspect>		  
+	  <Aspect>Coach</Aspect>		  
+	  <Aspect>School</Aspect>
+	  <Aspect>Conference</Aspect>	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>8</MinWin>	
+	  <MaxWin>10</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}I'll hedge my bets by saying {1}'s schedule is sweet enough to reach bowl eligibility. I'll double this by saying that if the offense is better than expected, the {2} have enough weapons to beat at least half of their {3} competition. Will it be enough? One thing is for sure: {4} is no longer a clear write-in candidate for last place in the conference as the {5} easily have the potential for six wins.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>
+	  <Aspect>NickName</Aspect>		  	  
+	  <Aspect>Conference</Aspect>	  
+	  <Aspect>School</Aspect>
+	  <Aspect>NickName</Aspect>		  	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>6</MinWin>	
+	  <MaxWin>8</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <ImprovedLastYear>true</ImprovedLastYear>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}There are three tiers in the {1}: {2}, {3} and everyone else. {4} strikes me as the best of the rest, those teams fighting for double-digit wins; not perfect – not by a long shot – but balanced, the {5} should be viewed as one of the preseason five or six {6} teams capable of claiming an end-of-year national ranking. 
+	</Blurb>
+    <Aspects>
+	  <Aspect>Conference</Aspect>
+	  <Aspect>BestConfOpponent</Aspect>
+	  <Aspect>BestConfOpponent2</Aspect>	  
+	  <Aspect>School</Aspect>
+	  <Aspect>NickName</Aspect>		  	  	  
+	  <Aspect>Conference</Aspect>	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>8</MinWin>	
+	  <MaxWin>10</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}On one hand, it's hard to find the {1}' ceiling if the offense improves dramatically; on the other, it's hard to see {2} coming close to eight wins if the attack remains stuck in the doldrums. It's a fine problem to have, in a sense, since {3} could explode if this side of the ball behaves. Nonetheless, it's my opinion that the {4} can't be viewed as a title contender in {5} with an elite defense but an unpredictable offense.
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>
+	  <Aspect>School</Aspect>
+	  <Aspect>School</Aspect>	  
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>CurrentYear</Aspect>		  	  	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>6</MinWin>	
+	  <MaxWin>9</MaxWin>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}It is possible that {1} plays above my own expectations despite slight issues on offense and question marks on defense, making a push for 10 wins in the regular season and taking advantage of a somewhat easy schedule. I don't have enough optimism to make that projection, as I think the {2} will get upset a couple times this year and only win eight games in the regular season, falling out of contention for the {3} championship.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>NickName</Aspect>
+	  <Aspect>Conference</Aspect>	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>8</MinWin>	
+	  <MaxWin>10</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}I can't pick {1} to win the {2} – nine wins, perhaps, if not likely, but no shot at the league title. {3}'s more athletic, equally explosive on offense and better on defense, recent injuries be damned. The {4} are just a very good team that should top out at nine wins during the regular season; that's good, given their issues, and would bode well for the program's future under {5} once the young slice of the roster catches up with the curve.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>Conference</Aspect>
+	  <Aspect>BestConfOpponent</Aspect>	  
+	  <Aspect>NickName</Aspect>
+	  <Aspect>Coach</Aspect>	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>8</MinWin>	
+	  <MaxWin>10</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}{1} is going to tear this schedule to pieces, dropping 30-plus points on more teams than not and likely rolling through unscathed, a scenario that would leave the {2} as one of the few – if not the only – undefeated teams in the FBS heading into the postseason. Some of this has to do with the {3} personnel: {4} has the {5}'s best offense and its best defense, with superb athleticism along the starting lineup and, by leaps and bounds, the finest depth of {6}'s tenure. 
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>NickName</Aspect>
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>School</Aspect>		  
+	  <Aspect>Conference</Aspect>
+	  <Aspect>Coach</Aspect>
+	</Aspects>
+    <Conditions>
+	  <MinWin>11</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}Combined, the offense and defense will do enough to win six or seven games – but no more than that. {1} has enough to return to bowl play but not enough to challenge {2} or {3} for the top of the {4}.  The {5} are at least a couple season away from having the depth and play makers required for a Top 15 finish. 
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>BestConfOpponent</Aspect>
+	  <Aspect>BestConfOpponent2</Aspect>	  
+	  <Aspect>Conference</Aspect>
+	  <Aspect>NickName</Aspect>	  	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>6</MinWin>	
+	  <MaxWin>8</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}{1} is a good team on its own merit. The offense has great potential, a strong running game, a deeper receiver corps and your normally productive front. If the receiver corps responds to the challenge – get better, basically – and can stretch the field, {2} could even finish in the top five in the {3} in scoring. It's probably safer to expect more consistent production across the board from the {4}, beginning with fewer turnovers and continuing through a more reliable running game during league play; that would easily be enough to get {5} into a bowl game in {6}.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>
+	  <Aspect>School</Aspect>
+	  <Aspect>Conference</Aspect>
+	  <Aspect>NickName</Aspect>	  	  
+	  <Aspect>School</Aspect>
+	  <Aspect>CurrentYear</Aspect>	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>10</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}I don't completely buy the doom and gloom others in the national media are saying about the {1}. It stinks: {2} is playing from behind, personnel-wise, and the refrain is getting old. But there's enough talent on offense and enough speed along the front seven on defense to make this work, I'd say, even if there'll be speed bumps along the way. It's all about seven factors in particular: protecting the quarterback, finding a lead receiver, anchoring the left side, finding a pass rush, getting steady play in the middle, finding production at cornerback and locating consistency on special teams. If {3} can really tie down five of these issues expect them to win at least nine games before the postseason.
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>	
+	  <Aspect>School</Aspect>
+	  <Aspect>School</Aspect>
+	</Aspects>
+    <Conditions>
+	  <MinWin>8</MinWin>	
+	  <MaxWin>11</MaxWin>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}Given all that the {1} have on the field, in reserve and on the sideline, I'd be surprised by anything less than 8-4. This is when the program really excels: {2} loves coming in under the radar. This is still a very dangerous team that could easily be in the top four of the {3} in {4}.
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>	
+	  <Aspect>School</Aspect>
+	  <Aspect>Conference</Aspect>
+	  <Aspect>CurrentYear</Aspect>	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>9</MaxWin>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}Sleep on {1} at your own risk. I look at the {2} and see a better prepared team than a year ago, one more built for the year-long grind rather than needing time to ease into a rhythm, and I see a team with the coaching, experience, athleticism and overall talent to slide past {3} and {4} to secure the {5} championship. There's coaching, obviously: {6} shows no signs of slowing, in fact seems energized teams potential, and it's clear that the entire roster has completely bought into the process. He points, {7} follows.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>NickName</Aspect>	
+	  <Aspect>BestConfOpponent</Aspect>
+	  <Aspect>BestConfOpponent2</Aspect>
+	  <Aspect>Conference</Aspect>
+	  <Aspect>Coach</Aspect>	  
+	  <Aspect>School</Aspect>	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>9</MinWin>	
+	  <MaxWin>11</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}The issue for the {1} is this defense – specifically, new starters and lack of depth in the front seven. If the new additions play up to {2} standards, this team could finish ranked in the top ten and challenge for the {3} championship, if they fail to reach their full potential look for the {4} to only win eight games in the regular season.
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>	
+	  <Aspect>School</Aspect>	
+	  <Aspect>Conference</Aspect>
+	  <Aspect>NickName</Aspect>		    
+	</Aspects>
+    <Conditions>
+	  <MinWin>8</MinWin>	
+	  <MaxWin>11</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}In terms of the total package, this is the second-best team in the {1} behind {2}. But the total package – personnel, talent, experience, expectations – has never been {3}'s issue; the issue has been parlaying the total package into total production, a quest that has eluded this program for a full-season span during the duration of {4}'s tenure. It's easy to remember the recent past and be skeptical, questioning whether or not this specific team can avoid the mental missteps, the physical errors, the turnovers, the sloppiness and the general malaise that have long stymied {5} and the {6}. Let's buy in, I say – but let's retain some of that skepticism, keeping it in reserve if or when everything runs off the rails.
+	</Blurb>
+    <Aspects>
+	  <Aspect>Conference</Aspect>
+	  <Aspect>BestConfOpponent</Aspect>	  
+	  <Aspect>School</Aspect>
+	  <Aspect>Coach</Aspect>
+	  <Aspect>Coach</Aspect>	  
+	  <Aspect>NickName</Aspect>	
+	</Aspects>
+    <Conditions>
+	  <MinWin>9</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}It is not out of the realm of possibility that the {1} can run the table; with that said, I see two or three losses during the regular season, which keeps {2} in the {3} hunt but a step removed from the championship conversation. What makes {4} a potential sleeper is this defense. The front seven might be one of the best in college football. If they are able to realize their potential the {5} might exceed expectations in {6}.  
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>	
+	  <Aspect>School</Aspect>	  
+	  <Aspect>Conference</Aspect>
+	  <Aspect>School</Aspect>	  
+	  <Aspect>NickName</Aspect>	
+	  <Aspect>CurrentYear</Aspect>		  
+	</Aspects>
+    <Conditions>
+	  <MinWin>9</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}{1} has some daunting personnel losses to overcome. This still remains a wildly dangerous team, one capable of a double-digit win regular season should the new cast come together before playing against {2} and {3}. I can think of a major reasons in particular why any sense of pessimism about the {4} seems unfounded: {5} is still calling the shots and leading this program.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>BestConfOpponent</Aspect>	  
+	  <Aspect>BestConfOpponent2</Aspect>	  	  
+	  <Aspect>NickName</Aspect>	
+	  <Aspect>Coach</Aspect>		  
+	</Aspects>
+    <Conditions>
+	  <MinWin>9</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}A healthy {1} is a dangerous {2}. This is clear at wide receiver, for example, where a clean and upright rotation will be needed. It's also the case at linebacker, which is fantastically gifted among its top quartet but totally unproven along the second tier. So that's the story, and it's a familiar one for the {3}: In terms of talent, experience and overall ability, a complete {4} team can hang with anyone – and beat anyone – in college football. This is the program's greatest asset and largest annual frustration.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>	
+	  <Aspect>School</Aspect>	  
+	  <Aspect>NickName</Aspect>		
+	  <Aspect>School</Aspect>	
+	</Aspects>
+    <Conditions>
+	  <MinWin>9</MinWin>	
+	  <MaxWin>13</MaxWin>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}{1} must get tougher between the ears and start bouncing back against adversity rather than crumpling. I think the {2} do rebound, though not to an extreme degree. My take: {3} wins nine or 10 games during the regular season, starting strong before encountering some difficulties against {4} and {5}.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>		  
+	  <Aspect>NickName</Aspect>		
+	  <Aspect>School</Aspect>	
+	  <Aspect>BestConfOpponent</Aspect>		  
+	  <Aspect>BestConfOpponent2</Aspect>		  	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>9</MinWin>	
+	  <MaxWin>10</MaxWin>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}A healthy {1} team is dangerous indeed. Once again, there are fears about the {2}' depth on both sides of the ball, and, in my opinion, on defense in particular. But I don't know if these fears will manifest themselves if {3}'s top tier remains healthy and upright; if all hands are on deck, in fact, the only group that seems a bit unsteady in terms of depth is the defensive front. But even that comes with a caveat: {4} might lack great depth but if they can stay healthy it will not matter as the {5} will be competing for a {6} championship.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>		  
+	  <Aspect>NickName</Aspect>		
+	  <Aspect>School</Aspect>
+	  <Aspect>School</Aspect>	  
+	  <Aspect>NickName</Aspect>			  
+	  <Aspect>Conference</Aspect>		  
+	</Aspects>
+    <Conditions>
+	  <MinWin>10</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>	  
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}{1} reloads its arsenal for another run at {2}, {3} and the rest of the {4}. There is reason for optimism: This is what the {5} do, by and large, and it's simply foolish to expect this team to do anything but notch double-digit wins, challenge for the {6} crown and factor heavily into the National Championship conversation. It's on a somewhat untested and unproven team to answer the call but with {7} at the helm they should do it.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>		  
+	  <Aspect>BestConfOpponent</Aspect>		
+	  <Aspect>BestConfOpponent2</Aspect>			  
+	  <Aspect>Conference</Aspect>
+	  <Aspect>NickName</Aspect>			  
+	  <Aspect>Conference</Aspect>
+	  <Aspect>Coach</Aspect>	  	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>10</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}{1} can have a special season. Maybe not special, in the sense that the year ends with a National Championship; it can still be special, with a young and underclassmen-heavy roster battling against the stumbling blocks to end the season bruised and beaten yet atop the {2}. Without any question, the {3} wealth of skill talent, amazing defensive front, speed along the back seven and ever-increasing depth makes it one of the two best teams in the conference. It's not going to be easy; it's going to be hard, in fact, and it's going to take everything {4} has in the tank.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>		  			  
+	  <Aspect>Conference</Aspect>
+	  <Aspect>NickName</Aspect>			  
+	  <Aspect>School</Aspect>
+	</Aspects>
+    <Conditions>
+	  <MinWin>10</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}I'm leaning positive but still not convinced {1} has what it takes to compete for a National Championship this season. I think the pieces are here for future success, particularly on offense. But a rough schedule and some in-flux personnel decisions should lead to two or three losses during the regular season for the {2} in {3}.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>		  			  
+	  <Aspect>NickName</Aspect>			  
+	  <Aspect>CurrentYear</Aspect>
+	</Aspects>
+    <Conditions>
+	  <MinWin>9</MinWin>	
+	  <MaxWin>12</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}A team with this defense probably isn't going to survive a brutal schedule and capture the {1} title – and I say probably because with anyone else it'd be certainly; with {2}, however, you simply never know. If everything breaks {3}'s way, if this offense clicks – and it certainly will – and this defense finds an identity, not to mention a pass rush, the {4} are one of the very elite teams in college football. They're in that conversation anyway, firmly among the nation's ten best, but I see a team that loses twice during the regular season.
+	</Blurb>
+    <Aspects>
+	  <Aspect>Conference</Aspect>		  			  
+	  <Aspect>Coach</Aspect>		  			  	  
+	  <Aspect>School</Aspect>		  			  
+	  <Aspect>NickName</Aspect>			  
+	</Aspects>
+    <Conditions>
+	  <MinWin>10</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}I think {1} enjoys its perch atop the {2} and has no plans of giving it up anytime soon. Come and take it, but bring some gauze and some bandages, let alone a defense with the nuts and bolts needed to slow down the nation's most consistent offensive attack. There's simply no opponent on this schedule capable of getting stops on a consistent basis: {3} is going to try – and perhaps succeed, to be fair – but the {4} seem poised to be even more dynamic, if humanly possible, and that's a devastatingly painful idea for the rest of the conference to consider.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>		  			  	
+	  <Aspect>Conference</Aspect>		  			  
+	  <Aspect>BestConfOpponent</Aspect>		  			  	  
+	  <Aspect>NickName</Aspect>			  
+	</Aspects>
+    <Conditions>
+	  <MinWin>10</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+      <ConferenceChampionLastYear>true</ConferenceChampionLastYear>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}It's all status quo, the same as usual, and that means the {1} will be one of the nation's very best. {2} is so possessed by an unyielding sense of self-confidence that it doesn't matter who's on the other side; {3}'s just going to be {4}, come rain or shine, and that's what makes this not just a great program today but a program that shows no sign of going anywhere anytime soon.
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>	
+	  <Aspect>School</Aspect>		  			  	
+	  <Aspect>School</Aspect>	
+	  <Aspect>School</Aspect>	
+	</Aspects>
+    <Conditions>
+	  <MinWin>10</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <OnTheRise>true</OnTheRise>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}This combination of a productive offense, a stingy and opportunistic defense, superb coaching and confidence again makes {1} one of the top six or seven teams nationally and the top team in the {2}. There simply aren't any weaknesses: {3} is bridging the gap to a new cast on defense, true, but the incumbent personnel and recent standard of success makes this side of the ball an unquestioned strength. In all, the {4} are one of the very few teams that enter the {5} season with sincere and realistic hopes of claiming the national championship.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>		  			  	
+	  <Aspect>Conference</Aspect>	
+	  <Aspect>School</Aspect>	
+	  <Aspect>NickName</Aspect>	
+	  <Aspect>CurrentYear</Aspect>		  
+	</Aspects>
+    <Conditions>
+	  <MinWin>10</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+	  <MinPreseasonRank>8</MinPreseasonRank>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}{1} is a team built to win the national championship – not a national championship, as in some distant point in the future, but as in the national championship trophy awarded at the end of this season. There are no weak links, no weaknesses, no Achilles heels; the {2} are seemingly impenetrable across the board, built to take on any opponent in its path and claim the national title. That is very, very much in play: {3} is one of the five or six teams that can speak realistically of not just winning its conference title, but winning the whole deal.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>		  			  	
+	  <Aspect>NickName</Aspect>
+	  <Aspect>School</Aspect>	
+	</Aspects>
+    <Conditions>
+	  <MinWin>10</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+	  <MinPreseasonRank>8</MinPreseasonRank>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}Get ready for {1}. The {2} are ready, I promise you, and more than prepared to leap from {3} contender to one of the very best teams in all of college football. It's about all this team does extremely well: {4} will run the football tremendously, will attack downfield, will strike with big plays through the air and on the ground, will attack quarterbacks and backs behind the line of scrimmage, will run in space, will play the ball, will find explosiveness on both sides and will, by the end of November, stand firmly in the national championship conversation.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>		  			  	
+	  <Aspect>NickName</Aspect>
+	  <Aspect>Conference</Aspect>	  
+	  <Aspect>School</Aspect>	
+	</Aspects>
+    <Conditions>
+	  <MinWin>10</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+	  <MinPreseasonRank>8</MinPreseasonRank>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}The {1} have enough in the tank to win the national championship. New year, same story: {2} is a menace offensively and overlooked defensively, with the former making headlines but the latter, very quietly and without acclaim, doing enough to fend off opponents inside and out of the {3}. These {4} are similar to what we've seen in the past, with an all-everything quarterback running the show, a loaded backfield, a sneaky receiver corps, a strong offensive front, a multiple front seven, an aggressive edge-rush mentality and an experienced secondary. We've seen this before; we've done this dance before; we're pretty sure {5}'s going to be a monster.
+	</Blurb>
+    <Aspects>
+	  <Aspect>NickName</Aspect>	
+	  <Aspect>School</Aspect>		  			  	
+	  <Aspect>Conference</Aspect>	  
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>School</Aspect>	
+	</Aspects>
+    <Conditions>
+	  <MinWin>10</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <IsIndependent>false</IsIndependent>
+	  <IsPowerConferenceTeam>true</IsPowerConferenceTeam>
+	  <MinPreseasonRank>8</MinPreseasonRank>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}It's time to live up to expectations. The expectations are simple: {1} is expected to beat – not just beat; dominate – every opponent on this schedule and win the national championship. There is simply no reason to think the {2} cannot achieve this goal. This is not merely a team without weaknesses, since there are other teams without weaknesses. This is instead a team with only strengths and no other team in college football – let alone a team on this schedule – can match just exactly what {3} brings to the table. This team is engineered to run away with the national championship.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>		  			  		  
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>School</Aspect>	
+	</Aspects>
+    <Conditions>
+	  <MinWin>10</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <MinPreseasonRank>4</MinPreseasonRank>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}{1} is my pick to win the {2} national championship. While sliding in new faces at some new spots, the {3} are stocked, locked and loaded, ready for another run, ready to again plant its flag amid a shower of confetti in January. Don't be surprised. {4} is again the nation's best team, again coached better than anyone, again propelled forward by wonderful leadership and again defined by its ability to put forward the sort of consistently balanced effort needed to throttle every opponent in its path.
+	</Blurb>
+    <Aspects>
+	  <Aspect>School</Aspect>		  			  		  
+	  <Aspect>CurrentYear</Aspect>	  
+	  <Aspect>NickName</Aspect>	  
+	  <Aspect>School</Aspect>	
+	</Aspects>
+    <Conditions>
+	  <MinWin>11</MinWin>	
+	  <MaxWin>13</MaxWin>
+	  <MinPreseasonRank>3</MinPreseasonRank>
+    </Conditions>
+  </Article>
+  <Article>
+    <Blurb>{0}{1} is built for a national championship. Why not? Anyone who doubts {2}'s viability as a national champion simply hasn't been paying attention; the {3} have reached the point where its depth matches that of any contender in the FBS. That's the big difference in {4}: {5} has wonderful depth at every position. That, along with the line's continued improvement, the awesome front seven and wonderful secondary, makes the {6} one of the top two or three teams in the FBS.</Blurb>
+    <Aspects>
+      <Aspect>School</Aspect>
+      <Aspect>School</Aspect>
+      <Aspect>NickName</Aspect>
+      <Aspect>CurrentYear</Aspect>
+      <Aspect>School</Aspect>
+      <Aspect>NickName</Aspect>
+    </Aspects>
+    <Conditions>
+      <MinWin>11</MinWin>
+      <MaxWin>13</MaxWin>
+      <MinPreseasonRank>3</MinPreseasonRank>
+      <NationalChampionLastYear>false</NationalChampionLastYear>
+    </Conditions>
+  </Article>
+<Article>
+    <Blurb>{0}It might be step back before the {1} take that one enormous leap forward. Would the season be a failure if {2} goes 8-4 before the postseason? Nope. This is a young core of players who should develop as expected under {3}. The {4} have the pieces to win big in the future, just don't expect the breakthrough in {5}.
+	</Blurb>
+    <Aspects>	  
+	  <Aspect>NickName</Aspect>	
+	  <Aspect>School</Aspect>	  
+	  <Aspect>Coach</Aspect>	
+	  <Aspect>NickName</Aspect>	  	  
+	  <Aspect>CurrentYear</Aspect>	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>9</MaxWin>
+    </Conditions>
+  </Article>  
+<Article>
+    <Blurb>{0}It's too early to make that claim; the youthful defenders and skill players must still prove themselves, to a degree, and {1} needs to show some proof they can move the ball on offense. But this season's team alone is good enough to win another eight games and earn a national ranking – the {2} are steady but far less spectacular. Eight wins this season will be a good start to laying the foundation for the future.
+	</Blurb>
+    <Aspects>	  
+	  <Aspect>School</Aspect>	  
+	  <Aspect>NickName</Aspect>	  	  
+	</Aspects>
+    <Conditions>
+	  <MinWin>7</MinWin>	
+	  <MaxWin>9</MaxWin>
+    </Conditions>
+  </Article>    
+</Articles>
+
+
+<!--
+bugfix -
+team history link on presaseon page to look for prevouis year 
+
+add aspect - 
+WorstOpponent2,3
+BestOpponent
+TopCoachesPollTeam
+TwoYearsAgo
+NextYear
+	  
+add condition - 
+ImprovedLastYear - trend is +
+DownLastYear - trend is -
+	  
+prediction = make 99 qb worth more 
+
+
+Well, it's not going to be easy. What should you expect? Losses, many of 'em, and a last-place finish in the nation's weakest league. You should also expect improvement as the year wears on and plenty of signals that {1} hired the right man to get this program moving forward.
+{school}
+Condition: Bad Team
+
+To say the {1} lack any talent would be incorrect: {2} is strong at {3}, for example, and should feel good about the situations at {4} and {5}. In another year – say, two years from now – a similar talent level in conjunction with a stronger foundation of depth, experience and philosophy could yield a winning season, or at least a rare push toward bowl eligibility. As is, however,{6} as a whole needs time to adjust to the schematic blueprint while awaiting an influx of talent and depth, a combination that leaves the {7}s playing catchup.
+{nickname, school, highest rated position group, 2nd highest rated position group, 3rd highest rated position group, school, nickname}
+Condition: Bad Team
+
+I can't be optimistic. Begin with one crucial fact: {1} is less talented than every team in the {2} with the exception of {3}, which is either an even draw or a slight lean in the {4} direction – not that it's helped, mind you. {5} play without any confidence, partially as a result of diminishing results, and crumble against adversity, primarily as a result of a leadership gap. When held against the rest of the conference, this offense is beyond terrible; it's shockingly terrible, and comparing {6}'s speed, big-play ability, identity and consistency to {7} or {8} is akin to comparing rugby to football. While better, you can't expect the {9} defense to carry this team out of the bottom of the {10}.
+ {school, conference, lowest rated conf team, nickname, school, school, top ranked team in conf, 2nd best team in conf, nickname, conference}
+Condition: Bad Team, Not Indep
+
+The {1} might start strong and end on a high note, but the meat of this schedule, the stretch from mid-September through November, ensures another season on the lower tier of the {2}. In addition, can a team that is simply unable to win on the road take advantage of late-season road games against {3} and {4}? The rebuilding process continues unabated, with {5}'s foot firmly on the pedal, but {6} is not yet ready to take the next step.
+{nickname, conference, 2nd to last raod game, last road game, Coach, school  }
+Condition: bad team, not indep
+
+Consider the {1} displayed on a spectrum, with {2} on one end and {3} – or {4}, depending on how you view the preseason race – on the other. On this spectrum, {5} is a first down away from {6} but miles from the {7} or {8}. {9} has completely disappeared from the conference map like Houdini, falling faster than an anvil, and is so flimsy when compared to its peers it's impossible to view the {10} as anything but an easy mark for the rest of the {11} – and say what you will about {12}, but this program has never, ever been an easy mark. These are unhappy times.
+{Conference, School, top team in conf, 2nd best team in conf, School, 2nd worst team in conf, top team in conf nickname, 2nd best team in conf nickname, School, nickname, conference, school }
+Condition: worst team in a major conference
+
+But this isn't a particularly strong team, of course, nor one worthy of being included in the top half of the {1}. On paper and elsewhere, {2} comes up short against {3} and {4}. Regardless, this team and the staff should set the barometer for success at five wins and if they manage to get some breaks through out the season they might be able to get to a bowl game.
+{Conference, School, top ranked team in conf, 2nd best team in conf}
+Condition: predicted 5-7 team, not indep
+
+A coach well-versed in the ins and outs of rebuilding takes on another project: {1} inherits a program fallen on hard times and aims for a leap into conference contention. This will be a year defined more by off-field results than Saturday's final score. Essentially, the {2} {3} are a team in flux – in terms of this personnel, which lags behind the {4} in most spots – undergoing a shift in scheme, philosophy and mentality under a new staff. As in most cases, it won't be a seamless transition.
+{Coach, School, Nickname, Conference}
+Condition: Bad Team, Not Indep, New Coach
+
+
+I'm picking {1} to win seven games during the regular season and finish fourth in the {2}. Games against {3} and {4} essentially eliminates the {5} from playoff contention, in my opinion. But I will say there's obvious potential for a nine-win season, especially if the defense performs above my expectations and the offense finds some security behind {5}, {6}, {7} and the offensive front.
+{school, conference, highest rated opp, end highest rate opp, nickname, top qb, top rb, top wr}
+Condition: predicted 7-5 team, not indep
+
+I think {} gets to six wins but no more, returning to the postseason against this difficult schedule and getting {2} and friends out on the right foot – but I don't think it's going to a pretty season, with the potential for some ugly road losses and several games going down to the wire amid a barrage of points. Although there's reason for concern, any team with these weapons on offense will have more hits than misses in a 12-game season.
+{school, coach}
+Condition: predicted 6-6 or 5-7 team, first year head coach
+
+It's difficult to get on board when there's this defense, a group that must prove itself against spread-based and run-heavy teams in order to lift {1} back into the postseason. It's on {2} to deliver: {3} made a quick change at coordinator for a reason, to provide an immediate and rapid boost, but {4} has been handed largely the same personnel that doomed his predecessor. Boiled down to its most basic level, how well {5} relates to his incumbent two-deep will determine whether the {6} rediscovers its winning ways. How {7}'s defense rebounds – or if it rebounds – is one of the defining storylines of the {8} {9} season.
+{school, New Coordinator, school, New Coordinator Last Name, New Coordinator Last Name, nickname, school, current year, conference  }
+Condition: Team with a new defensive coordinator, predicted 6-8 win team, not indep
+
+It's not going to be easy for {1} to make another run into the postseason, but it won't be for a lack of effort. Effort: {2}'s dudes have it. The {3} also have a rock-solid identity born from this addiction to power football, not to mention the toughness inherent to such a mentality, and as such will make things difficult on even the most talented of opposition. {4} is impossible to outwork and difficult to outmuscle, and if so never as a result of poor effort. There's something to admire about such a team. It's entirely possible that {6} rallies a group of underdogs and nets six or seven wins during the regular season. I don't think it happens, but it's possible.
+{school, coach, nickname, school, coaches last name}
+Condition: Running Team (option, pistol, maybe look at sim playcalling balance), predicted 4,5,6 win team
+
+There are some things here that need fixing. The good news is that I can partially convince myself that {1} and {2} have what it takes to get it done. Take the offense, for one, where {3} can provide the balance this system needs to take pressure of a vanilla running game; a proven ability to stretch the field – possible given a solid receiver corps – could vastly improve the {4} ability to find explosiveness between the tackles. On defense, {5} provides an immediate upgrade in style and approach; this will translate itself into improved production should the new-look line cooperate. As such, I'm nearly able to convince myself that this team is destined to make the postseason.
+{coach, school, starting qb, nickname, new DC name}
+Condition: New DC, predicted 6,7 win team
+
+ 
+I really like the {1} hire; I also like his staff, though they still have to prove themselves as recruiters. The {2} should continue to build a more consistent program, and will, within a season or two, be experienced enough to handle the {3}'s higher level of competition. Based on the team's issues in {4}, however, I don't think {5} go higher than five wins.
+ {coach, nickname, conference, current year, school }
+ Condition: new coach, not indep, predicted to win 4,5,6 games
+ 
+ 
+ {1} is a young team undergoing the transition to a new coaching staff. {2} will implement new schemes within a roster and returning personnel indoctrinated in previous staff's offense and defensive approach. The biggest transition comes on defense and there will be growing pains in the interim, as the returning personnel adapts to a shifting approach in style, scheme, mentality and aggressiveness. For now, the defense may hit a few hiccups against high-quality competition in the {3}.
+ {school, coach, conference}
+ Condition: New coach
+
+ {1} history suggests that {2} won't hit its stride in year one, but rather year two. That doesn't bother me: I think he gets the {3} into the postseason by taking care of the weak opponents and notching three wins in {4} play. {5} will lead the way and the {6} going to follow.
+{coach, school, nickname, conference, coaches last name, nickname}
+Condition: new coach, predicted 5,6,7 win team, not indep
+
+{1} has been laying the foundation for {2}'s return to {3} competitiveness by adding layer upon layer of depth to each position on the {4} roster. It's been impressive: {5} is loaded with young talent on both sides of the ball, in the trenches and out, and can now turn its focus to player development, the next stage in this rebuilding project. But there's a key word there, and it deserves to be italicized: young. {6} is young, without a doubt, and dangerously so at several key positions. Only a diehard pessimist could ignore this teams overall talent; it doesn't take a pessimist to notice the {7} overall youth, however.
+{coach, school, conference, nickname, school, school, nickname}
+Condition: coach who is in second year with team, not indep
+
+The offense will benefit from teaming {1} with a coach of {2} experience and expertise. Defensively, I think the {3} new plan up front – quicker on the edge – will pay dividends against explosive {4} offenses. The back seven is a concern, one that will hamper this team's defensive efforts, but it shouldn't prevent {5} from moving back into bowl play.
+{starting qb, OC, nickname, conference, school}
+Condition: predicted 5,6,7,8 win team, not indep, new OC
+
+We're going to have to be realistic about what {1} faces in his debut season. {2} has issues, with none bigger than the lack of overall depth seen nearly across the board. To me, it's the offensive line that should cause a sleepless night even if we must admit the potential for growth during the next 24 months is obvious.
+{coach, school}
+Condition: new coach
+
+The hard part is just about to begin. Yes, {1} has started the process of remaking {2}, knocking out the shiny, unsupported floorboards in favor of a harder, more concrete foundation, but this is no short-term fix — it's a long-term process, painful at times, but one aided by the talent inherited by {2} and this new-look staff. Some might see the incumbent roster as a partial negative but I disagree: {3} has some pieces in place, talent-wise, and it's better to have the inherent personnel than need to perform a top-to-bottom roster overhaul — obviously. Yes, the {4} must get physically tougher, the {4} must get tougher between the ears more than anything, however.
+{coach, school, coach, school, nickname, nickname}
+Condition: new coach
+
+It's all about the offense. It's an intriguing situation, to put it lightly: {1} has tossed away the past and embraced the future, this pass-happy, up-tempo scheme, and if the future looks brighter – this offense plays very well with the program's recruiting base; it fits wonderfully with the history of defensive excellence – I wonder just how ably the {2} will grasp this new scheme in {3}. The personnel is fine, if questionable in spots, but it's more about the mental side of the equation. I'm of mind to believe this entire offense will need one full season before finding a groove in the Air Raid scheme.
+{school, nickname, current year}
+Condition: new coach who uses the air raid
+
+This isn't a perfect team, no. The {1} have flaws: they can't feel great about the offensive line, interior of its defensive line needs better depth and part of its secondary needs to step up, to be honest, and must also deal with the difficulties inherent to a coaching change. Scratch the latter: {2} is no ordinary change, in my mind, due to his ability to immediately and positively impact the {3}' already impressive offensive attack. Will everything click from the start? No, there might be a slight learning curve in September, most resulting from the shift terminology – not because of the personnel. By the time the calendar turns to October and {4} play begins, I think {5} will be ready to storm past every team on this schedule.
+{nickname, coach, nickname, conference, school}
+Condition: new coach, not indep, predicted 8,9,10,11 wins
+
+There's so much to like {1}; in fact, the only thing to dislike is the lack of proven depth up front. If the line stays healthy, however, and provides {2} with ample protection, the {3}' attack is going to tear to shreds unprepared defensive backfields and provide sneakily dangerous production on the ground, providing the sort of balanced, opportunistic, big-play attack often lacking under the previous staff. This is {4}'s gift: {5} is going to have an absolutely fantastic, often unstoppable offense.
+{school, starting qb, nickname, coach, school} 
+Condition: new coach, likes to pass the ball
+
+Let's not talk about the future, but rather today: {1} is going to have too much fun in the here and now to even consider tomorrow. When it comes to {2}'s debut, I see many of the same qualities that propelled the {3} forward under the last staff – solid quarterback play, a concrete offensive identity, a competent running game, depth along the front seven, depth in the backfield, aggressive play on the edges and opportunistic play from the secondary. It's a simple formula that'll work today, just as it worked yesterday – and, if the puzzle falls into place under the new staff, will continue to work tomorrow.
+{school, coach, nickname}
+Condition: new coach for a school who won at least 8 games last year.
+
+
+One of the best coaches in college football has walked into an optimal situation at {1}. This isn't just in the long run, though it's easy to get caught up dreaming about what {2} can achieve the next five to ten years; that's in play, of course, but he also grabs a prime seat in the here and now, with {3} set to match or exceed what the previous staff was able to accomplish. At a very basic level, that should be the program's goal: the {4} should set a baseline at eight wins during the regular season and eyeball nine with the postseason, knowing that an impressive mix of young and experienced talent, if led correctly, could make some major noise in the {5}. 
+{school, coach, school, nickname, conference}
+Condition: new coach at a major school, school won at least 8 games last year, not indep
+
+
+Guarded optimism. It's only fair to be pessimistic: {1} has struggled to play up to their potential under {2} even when the going was good. This staff and current program haven't earned the overwhelming benefit of the doubt. If you add even an average offense to this defense – just an offense that doesn't punch itself in the face weekly – you have the basic outline of a team balanced enough to place its full weight on conference foes and bleed the clock for 60 minutes, eventually pulling out enough close wins.  If the {3} can move the ball look for them to win seven to eight games, if they can not, expect a new staff to take over next year. 
+{school, coach, nickname}
+Condition: offensive rank last year was worse than 60th in the county, coach approval rating less than 60, not indep
+
+
+-->

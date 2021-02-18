@@ -683,14 +683,11 @@ namespace EA_DB_Editor
 
         public static void FixPreseasonSchedule()
         {
-            var hhFile = "homeandhome.xml";
             // Pitt-WVU , OU-NEB are week 14
             var schedules = ReadSchedule();
 
             var gamesThatCanBeReplaced = schedules.Where(kvp => kvp.Value.Where(v => !kvp.Key.IsP5OrND() && v != null).Select(v => v.IsG5Game()).Count() > 0).SelectMany(kvp => kvp.Value.Where(v => v != null && v.IsG5Game() && !v.IsServiceAcademyGame() && !v.IsConferenceGame() && !v.IsRivalryGame())).OrderBy(g => g.Week).Distinct().ToList();
             var teams = schedules.Keys.Where(k => k.IsP5());
-            var xmlRoot = XDocument.Parse(File.ReadAllText(hhFile)).Root;
-            var homeAndHome = xmlRoot.Elements("Game").Select(e => FutureGame.FromXml(e)).Where(fg => RecruitingFixup.TeamAndConferences[fg.AwayId] != RecruitingFixup.TeamAndConferences[fg.HomeId]).ToList();
 
             // find user controlled teams and lock them
             var ucTeams = FindUserControllerTeams(false);
@@ -702,7 +699,7 @@ namespace EA_DB_Editor
             {
                 schedules = ReadSchedule();
                 gamesThatCanBeReplaced = schedules.Where(kvp => kvp.Value.Where(v => !kvp.Key.IsP5OrND() && v != null).Select(v => v.IsG5Game()).Count() > 0).SelectMany(kvp => kvp.Value.Where(v => v != null && v.IsG5Game() && !v.IsServiceAcademyGame() && !v.IsConferenceGame() && !v.IsRivalryGame())).OrderBy(g => g.Week).Distinct().ToList();
-                var gamesToAdd = CleanSchedule(team, schedules, homeAndHome, gamesThatCanBeReplaced);
+                var gamesToAdd = CleanSchedule(team, schedules, new List<FutureGame>(), gamesThatCanBeReplaced);
                 futureGames.AddRange(gamesToAdd);
             }
 
@@ -772,10 +769,6 @@ namespace EA_DB_Editor
                     }
                 }
             }
-
-            homeAndHome.AddRange(futureGames);
-            var gamesElement = new XElement("Games", homeAndHome.Select(x => x.ToXml()));
-            gamesElement.Save(hhFile);
 
             schedules = ReadSchedule();
 
@@ -1177,6 +1170,80 @@ namespace EA_DB_Editor
         }
 
         public static Lazy<Dictionary<int, string>> TeamStadiums = new Lazy<Dictionary<int, string>>(StadiumsForTeams, true);
+
+        public static void SetNeutralSiteLogos()
+        {
+            var nesg = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "NESG");
+
+            var dict = new Dictionary<int, (int logo, int beforeWeek)>
+            {
+                [181] = (11, 14),
+                [182] = (59, 14),
+                [183] = (26, 14),
+                [184] = (24, 14),
+                [268] = (54, 8),
+                [264] = (93, 5),
+                [265] = (93, 5),
+                [266] = (93, 5),
+                [259] = (93, 5),
+                [271] = (97, 5),
+                [272] = (96, 5),
+                [273] = (95, 5),
+            };
+
+            foreach(var mr in nesg.lRecords)
+            {
+                var sgid = mr["SGID"].ToInt32();
+                var sewn = mr["SEWN"].ToInt32();
+
+                if(dict.ContainsKey(sgid))
+                {
+                    var (logo, beforeWeek) = dict[sgid];
+
+                    if(sewn < beforeWeek)
+                    {
+                        mr["RLID"] = logo.ToString();
+                    }
+                }
+            }
+        }
+
+        public static void SetSunBeltChampionship()
+        {
+            // games in week 14 should be moved to week 16
+            var schedule = Form1.MainForm.maddenDB.lTables[161];
+            var teamSchedules = Form1.MainForm.maddenDB.lTables[113];
+            int start = 43;
+
+            var games = schedule.lRecords.Where(mr => mr["SEWN"].ToInt32() == 14).OrderBy(mr => mr["SGNM"].ToInt32()).ToArray();
+            var set = new HashSet<int>(games.Select(mr => mr["SGNM"].ToInt32()));
+            var teamGames = teamSchedules.lRecords.Where(mr => mr["SEWN"].ToInt32() == 14 && set.Contains(mr["SGNM"].ToInt32())).OrderBy(mr => mr["SGNM"].ToInt32()).ToArray();
+
+            // sun belt
+            var bowlTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "BOWL");
+            var gameNum = start.ToString();
+            var sbcChamp = bowlTable.lRecords.Single(mr => mr["BIDX"].ToInt32() == 42);
+            sbcChamp["SGNM"] = gameNum;
+            var game = games[0];
+            var teamGame1 = teamGames[0];
+            var teamGame2 = teamGames[1];
+            const string ccgWeek = "16";
+            game["GDAT"] = "4";
+            game["GTOD"] = "1200";
+            game["SEWN"] = ccgWeek;
+            game["SEWT"] = ccgWeek;
+            teamGame1["SEWN"] = ccgWeek;
+            teamGame2["SEWN"] = ccgWeek;
+
+            teamGame1["SGNM"] = gameNum;
+            teamGame2["SGNM"] = gameNum;
+            game["SGNM"] = gameNum;
+
+            teamGame1["THOA"] = "1";
+            teamGame2["THOA"] = "1";
+
+            start--;
+        }
 
         public static void FixSchedule()
         {
