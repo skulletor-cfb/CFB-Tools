@@ -109,8 +109,38 @@ namespace EA_DB_Editor
                 var conferencePrediction = new ConferencePrediction { ConferenceId = key, ConferenceName = Conference.Conferences[key].Name };
                 ConferenceStandings.Add(key, conferencePrediction);
 
+                // do we have a conference with less than 12 teams have a ccg?
+                if (conf.First().ConferenceId == 13)
+                {
+                    var top2 = FindTopTwo(conf);
+                    var home = top2[0];
+                    var away = top2[1];
+
+                    // now we have to create a fake CCG
+                    ScheduledGame sg = new ScheduledGame
+                    {
+                        HomeTeamId = home.Id,
+                        AwayTeamId = away.Id,
+                        Week = 15, // week 15 makes sure we don't collide with the actual schedule
+                        GameNumber = key,
+                        GameSite = Conference.Conferences[key].Name + " Championship",
+                        IsNeutralSite = true
+                    };
+
+                    ScheduledGame.Schedule.Add(sg.Key, sg);
+                    CreatePostSeasonGame(home, away, sg.Week, sg.GameNumber, sg);
+                    CreatePostSeasonGame(away, home, sg.Week, sg.GameNumber, sg);
+                    var ccgPrediction = PredictedGame.Predict(sg.Week, sg.GameNumber);
+                    ConferenceChampionPrediction.Add(key, ccgPrediction.Winner);
+
+                    // Shoud already be sorted properly
+                    var order = conf.Where(t => t.Id != home.Id && t.Id != away.Id).Select(t => new PredictedTeamFinish(t)).ToList();
+                    order.Insert(0, new PredictedTeamFinish(ccgPrediction.Winner));
+                    order.Insert(1, new PredictedTeamFinish(ccgPrediction.Loser));
+                    conferencePrediction.Teams = order.ToArray();
+                }
                 // this means we don't have divisions
-                if (conf.First().DivisionId == 30)
+                else if (conf.First().DivisionId == 30)
                 {
                     var confChamp = FindDivisionOrConferenceWinner(conf);
                     ConferenceChampionPrediction.Add(key, confChamp);
@@ -186,6 +216,16 @@ namespace EA_DB_Editor
             var list = new List<Game>();
             list.Add(g);
             TeamSchedule.TeamSchedules[a.Id].Add(week, list);
+        }
+
+        /// <summary>
+        /// when having a ccg with less than 10 teams, find the top 2
+        /// </summary>
+        /// <param name="teams"></param>
+        /// <returns></returns>
+        public static Team[] FindTopTwo(Team[] teams)
+        {
+            return teams.Take(2).ToArray();
         }
 
         // Finds the winner of a division or a conference
@@ -341,12 +381,14 @@ namespace EA_DB_Editor
             {
                 this.Spread = (int)(10 * (homePts - awayPts)) / 2;
                 this.Winner = home;
+                this.Loser = away;
                 this.SetWinner(home, away);
             }
             else
             {
                 this.Spread = (int)(10 * (awayPts - homePts)) / 2;
                 this.Winner = away;
+                this.Loser = home;
                 this.SetWinner(away, home);
             }
 
@@ -411,6 +453,9 @@ namespace EA_DB_Editor
 
         public ScheduledGame Game { get; set; }
         public Team Winner { get; set; }
+
+        public Team Loser { get; set; }
+
         public int Spread { get; set; }
     }
 }
