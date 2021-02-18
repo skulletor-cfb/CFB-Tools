@@ -1,0 +1,5 @@
+	<tr>
+		<td class=c3 colspan=3><b>Links:  | <a href=team' + Convert.ToInt32(row["Players.Team_ID"]) + '.html>Schedule</a> | | <a href=team" + Convert.ToInt32(row["Players.Team_ID"]) + "pstats.html>Player Stats</a> | | <a href=team" + Convert.ToInt32(row["Players.Team_ID"]) + "roster.html>Roster</a> | | <a href=team" + Convert.ToInt32(row["Players.Team_ID"]) + "freshmen.html>Freshmen</a> |</b>
+		</td>
+	</tr>
+</center>

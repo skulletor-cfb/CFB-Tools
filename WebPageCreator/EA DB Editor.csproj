@@ -1,0 +1,1093 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{19BE3BC4-EC8A-4378-A6A9-211D9F93E1BC}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>EA_DB_Editor</RootNamespace>
+    <AssemblyName>NCAA2014_Webpage_Maker</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>C:\ncaa\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationVersion>2.3.122114.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\creator\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\creator\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestCertificateThumbprint>6753D2749F2B301BB9959BCE0811F062F7177D83</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestKeyFile>EA DB Editor_TemporaryKey.pfx</ManifestKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>false</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>false</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup>
+    <NoWin32Manifest>true</NoWin32Manifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MC02Handler">
+      <HintPath>.\MC02Handler.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AllAmericans.cs" />
+    <Compile Include="BetterListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Bowl.cs" />
+    <Compile Include="BowlRecords.cs" />
+    <Compile Include="ChooseField.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ChooseField.Designer.cs">
+      <DependentUpon>ChooseField.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CoachArticles.cs" />
+    <Compile Include="Coaches.cs" />
+    <Compile Include="Compression.cs" />
+    <Compile Include="ConfigCopySelection.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConfigCopySelection.Designer.cs">
+      <DependentUpon>ConfigCopySelection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ContinuationData.cs" />
+    <Compile Include="DirectoryCopy.cs" />
+    <Compile Include="FilterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FilterForm.Designer.cs">
+      <DependentUpon>FilterForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GenericList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GenericList.Designer.cs">
+      <DependentUpon>GenericList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Leaguedata.cs" />
+    <Compile Include="ListViewEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Player.cs" />
+    <Compile Include="PocketScout.cs" />
+    <Compile Include="PredictionEngine.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecruitAllAmericans.cs" />
+    <Compile Include="Recruiting.cs" />
+    <Compile Include="Schedule.cs" />
+    <Compile Include="Seasons.cs" />
+    <Compile Include="TeamArticles.cs" />
+    <Compile Include="TeamDepthChart.cs" />
+    <Compile Include="TeamDraftHistory.cs" />
+    <Compile Include="TeamHome.cs" />
+    <Compile Include="TeamSchedule.cs" />
+    <Compile Include="TopUnits.cs" />
+    <Compile Include="Utility.cs" />
+    <EmbeddedResource Include="ChooseField.resx">
+      <DependentUpon>ChooseField.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ConfigCopySelection.resx">
+      <DependentUpon>ConfigCopySelection.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FilterForm.resx">
+      <DependentUpon>FilterForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form1.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GenericList.resx">
+      <DependentUpon>GenericList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Archive\HTML\Award_Names.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Archive\HTML\boxscoretemplate" />
+    <None Include="Archive\HTML\cities.csv" />
+    <None Include="Archive\HTML\Link_Bar" />
+    <None Include="Archive\HTML\Logos\Playoffs\LAYOUT.psd" />
+    <None Include="Archive\HTML\Nav_Bar">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Archive\HTML\Nav_Bar_Arch" />
+    <None Include="Archive\HTML\PlayerStatsTemplate" />
+    <None Include="Archive\HTML\runcopy.bat" />
+    <None Include="Archive\HTML\SeasonReviewTemplate" />
+    <None Include="Archive\HTML\TeamOffStatTemplate" />
+    <None Include="Archive\HTML\TeamPageTemplate" />
+    <None Include="Archive\HTML\TeamTemplate" />
+    <None Include="Archive\HTML\TopProgramByConfTemplate" />
+    <None Include="Archive\HTML\TopProgramTemplate" />
+    <None Include="Archive\Seasons" />
+    <None Include="Archive\Web.config" />
+    <None Include="EA DB Editor_TemporaryKey.pfx" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Archive\BowlHistory.html" />
+    <Content Include="Archive\HTML\Articles.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Archive\HTML\Award_Names.xml" />
+    <Content Include="Archive\HTML\boxscoretemplate.txt" />
+    <Content Include="Archive\HTML\HistoricRecruitingTemplate.txt" />
+    <Content Include="Archive\HTML\KickOffWeekTemplate.txt" />
+    <Content Include="Archive\HTML\Link_Bar.txt" />
+    <Content Include="Archive\HTML\Logos\256\team1.png" />
+    <Content Include="Archive\HTML\Logos\256\team10.png" />
+    <Content Include="Archive\HTML\Logos\256\team100.png" />
+    <Content Include="Archive\HTML\Logos\256\team101.png" />
+    <Content Include="Archive\HTML\Logos\256\team102.png" />
+    <Content Include="Archive\HTML\Logos\256\team103.png" />
+    <Content Include="Archive\HTML\Logos\256\team104.png" />
+    <Content Include="Archive\HTML\Logos\256\team105.png" />
+    <Content Include="Archive\HTML\Logos\256\team106.png" />
+    <Content Include="Archive\HTML\Logos\256\team107.png" />
+    <Content Include="Archive\HTML\Logos\256\team108.png" />
+    <Content Include="Archive\HTML\Logos\256\team109.png" />
+    <Content Include="Archive\HTML\Logos\256\team11.png" />
+    <Content Include="Archive\HTML\Logos\256\team110.png" />
+    <Content Include="Archive\HTML\Logos\256\team111.png" />
+    <Content Include="Archive\HTML\Logos\256\team112.png" />
+    <Content Include="Archive\HTML\Logos\256\team113.png" />
+    <Content Include="Archive\HTML\Logos\256\team114.png" />
+    <Content Include="Archive\HTML\Logos\256\team115.png" />
+    <Content Include="Archive\HTML\Logos\256\team12.png" />
+    <Content Include="Archive\HTML\Logos\256\team13.png" />
+    <Content Include="Archive\HTML\Logos\256\team14.png" />
+    <Content Include="Archive\HTML\Logos\256\team143.png" />
+    <Content Include="Archive\HTML\Logos\256\team144.png" />
+    <Content Include="Archive\HTML\Logos\256\team15.png" />
+    <Content Include="Archive\HTML\Logos\256\team16.png" />
+    <Content Include="Archive\HTML\Logos\256\team160.png" />
+    <Content Include="Archive\HTML\Logos\256\team161.png" />
+    <Content Include="Archive\HTML\Logos\256\team162.png" />
+    <Content Include="Archive\HTML\Logos\256\team163.png" />
+    <Content Include="Archive\HTML\Logos\256\team164.png" />
+    <Content Include="Archive\HTML\Logos\256\team17.png" />
+    <Content Include="Archive\HTML\Logos\256\team18.png" />
+    <Content Include="Archive\HTML\Logos\256\team181.png" />
+    <Content Include="Archive\HTML\Logos\256\team19.png" />
+    <Content Include="Archive\HTML\Logos\256\team2.png" />
+    <Content Include="Archive\HTML\Logos\256\team20.png" />
+    <Content Include="Archive\HTML\Logos\256\team21.png" />
+    <Content Include="Archive\HTML\Logos\256\team211.png" />
+    <Content Include="Archive\HTML\Logos\256\team218.png" />
+    <Content Include="Archive\HTML\Logos\256\team22.png" />
+    <Content Include="Archive\HTML\Logos\256\team229.png" />
+    <Content Include="Archive\HTML\Logos\256\team23.png" />
+    <Content Include="Archive\HTML\Logos\256\team230.png" />
+    <Content Include="Archive\HTML\Logos\256\team232.png" />
+    <Content Include="Archive\HTML\Logos\256\team233.png" />
+    <Content Include="Archive\HTML\Logos\256\team234.png" />
+    <Content Include="Archive\HTML\Logos\256\team235.png" />
+    <Content Include="Archive\HTML\Logos\256\team24.png" />
+    <Content Include="Archive\HTML\Logos\256\team25.png" />
+    <Content Include="Archive\HTML\Logos\256\team26.png" />
+    <Content Include="Archive\HTML\Logos\256\team27.png" />
+    <Content Include="Archive\HTML\Logos\256\team28.png" />
+    <Content Include="Archive\HTML\Logos\256\team29.png" />
+    <Content Include="Archive\HTML\Logos\256\team3.png" />
+    <Content Include="Archive\HTML\Logos\256\team30.png" />
+    <Content Include="Archive\HTML\Logos\256\team31.png" />
+    <Content Include="Archive\HTML\Logos\256\team32.png" />
+    <Content Include="Archive\HTML\Logos\256\team33.png" />
+    <Content Include="Archive\HTML\Logos\256\team34.png" />
+    <Content Include="Archive\HTML\Logos\256\team35.png" />
+    <Content Include="Archive\HTML\Logos\256\team36.png" />
+    <Content Include="Archive\HTML\Logos\256\team37.png" />
+    <Content Include="Archive\HTML\Logos\256\team38.png" />
+    <Content Include="Archive\HTML\Logos\256\team39.png" />
+    <Content Include="Archive\HTML\Logos\256\team4.png" />
+    <Content Include="Archive\HTML\Logos\256\team40.png" />
+    <Content Include="Archive\HTML\Logos\256\team41.png" />
+    <Content Include="Archive\HTML\Logos\256\team42.png" />
+    <Content Include="Archive\HTML\Logos\256\team43.png" />
+    <Content Include="Archive\HTML\Logos\256\team44.png" />
+    <Content Include="Archive\HTML\Logos\256\team45.png" />
+    <Content Include="Archive\HTML\Logos\256\team46.png" />
+    <Content Include="Archive\HTML\Logos\256\team47.png" />
+    <Content Include="Archive\HTML\Logos\256\team48.png" />
+    <Content Include="Archive\HTML\Logos\256\team49.png" />
+    <Content Include="Archive\HTML\Logos\256\team5.png" />
+    <Content Include="Archive\HTML\Logos\256\team50.png" />
+    <Content Include="Archive\HTML\Logos\256\team51.png" />
+    <Content Include="Archive\HTML\Logos\256\team51_yellow.png" />
+    <Content Include="Archive\HTML\Logos\256\team52.png" />
+    <Content Include="Archive\HTML\Logos\256\team53.png" />
+    <Content Include="Archive\HTML\Logos\256\team54.png" />
+    <Content Include="Archive\HTML\Logos\256\team55.png" />
+    <Content Include="Archive\HTML\Logos\256\team56.png" />
+    <Content Include="Archive\HTML\Logos\256\team57.png" />
+    <Content Include="Archive\HTML\Logos\256\team58.png" />
+    <Content Include="Archive\HTML\Logos\256\team59.png" />
+    <Content Include="Archive\HTML\Logos\256\team6.png" />
+    <Content Include="Archive\HTML\Logos\256\team60.png" />
+    <Content Include="Archive\HTML\Logos\256\team61.png" />
+    <Content Include="Archive\HTML\Logos\256\team62.png" />
+    <Content Include="Archive\HTML\Logos\256\team63.png" />
+    <Content Include="Archive\HTML\Logos\256\team64.png" />
+    <Content Include="Archive\HTML\Logos\256\team65.png" />
+    <Content Include="Archive\HTML\Logos\256\team66.png" />
+    <Content Include="Archive\HTML\Logos\256\team67.png" />
+    <Content Include="Archive\HTML\Logos\256\team68.png" />
+    <Content Include="Archive\HTML\Logos\256\team69.png" />
+    <Content Include="Archive\HTML\Logos\256\team7.png" />
+    <Content Include="Archive\HTML\Logos\256\team70.png" />
+    <Content Include="Archive\HTML\Logos\256\team71.png" />
+    <Content Include="Archive\HTML\Logos\256\team72.png" />
+    <Content Include="Archive\HTML\Logos\256\team73.png" />
+    <Content Include="Archive\HTML\Logos\256\team74.png" />
+    <Content Include="Archive\HTML\Logos\256\team75.png" />
+    <Content Include="Archive\HTML\Logos\256\team76.png" />
+    <Content Include="Archive\HTML\Logos\256\team77.png" />
+    <Content Include="Archive\HTML\Logos\256\team78.png" />
+    <Content Include="Archive\HTML\Logos\256\team79.png" />
+    <Content Include="Archive\HTML\Logos\256\team8.png" />
+    <Content Include="Archive\HTML\Logos\256\team80.png" />
+    <Content Include="Archive\HTML\Logos\256\team81.png" />
+    <Content Include="Archive\HTML\Logos\256\team82.png" />
+    <Content Include="Archive\HTML\Logos\256\team83.png" />
+    <Content Include="Archive\HTML\Logos\256\team84.png" />
+    <Content Include="Archive\HTML\Logos\256\team85.png" />
+    <Content Include="Archive\HTML\Logos\256\team86.png" />
+    <Content Include="Archive\HTML\Logos\256\team87.png" />
+    <Content Include="Archive\HTML\Logos\256\team88.png" />
+    <Content Include="Archive\HTML\Logos\256\team89.png" />
+    <Content Include="Archive\HTML\Logos\256\team9.png" />
+    <Content Include="Archive\HTML\Logos\256\team90.png" />
+    <Content Include="Archive\HTML\Logos\256\team91.png" />
+    <Content Include="Archive\HTML\Logos\256\team92.png" />
+    <Content Include="Archive\HTML\Logos\256\team93.png" />
+    <Content Include="Archive\HTML\Logos\256\team94.png" />
+    <Content Include="Archive\HTML\Logos\256\team95.png" />
+    <Content Include="Archive\HTML\Logos\256\team96.png" />
+    <Content Include="Archive\HTML\Logos\256\team97.png" />
+    <Content Include="Archive\HTML\Logos\256\team98.png" />
+    <Content Include="Archive\HTML\Logos\256\team99.png" />
+    <Content Include="Archive\HTML\Logos\35\team1.png" />
+    <Content Include="Archive\HTML\Logos\35\team10.png" />
+    <Content Include="Archive\HTML\Logos\35\team100.png" />
+    <Content Include="Archive\HTML\Logos\35\team101.png" />
+    <Content Include="Archive\HTML\Logos\35\team102.png" />
+    <Content Include="Archive\HTML\Logos\35\team1023.png" />
+    <Content Include="Archive\HTML\Logos\35\team103.png" />
+    <Content Include="Archive\HTML\Logos\35\team104.png" />
+    <Content Include="Archive\HTML\Logos\35\team105.png" />
+    <Content Include="Archive\HTML\Logos\35\team106.png" />
+    <Content Include="Archive\HTML\Logos\35\team107.png" />
+    <Content Include="Archive\HTML\Logos\35\team108.png" />
+    <Content Include="Archive\HTML\Logos\35\team109.png" />
+    <Content Include="Archive\HTML\Logos\35\team11.png" />
+    <Content Include="Archive\HTML\Logos\35\team110.png" />
+    <Content Include="Archive\HTML\Logos\35\team111.png" />
+    <Content Include="Archive\HTML\Logos\35\team112.png" />
+    <Content Include="Archive\HTML\Logos\35\team113.png" />
+    <Content Include="Archive\HTML\Logos\35\team114.png" />
+    <Content Include="Archive\HTML\Logos\35\team115.png" />
+    <Content Include="Archive\HTML\Logos\35\team12.png" />
+    <Content Include="Archive\HTML\Logos\35\team13.png" />
+    <Content Include="Archive\HTML\Logos\35\team14.png" />
+    <Content Include="Archive\HTML\Logos\35\team143.png" />
+    <Content Include="Archive\HTML\Logos\35\team144.png" />
+    <Content Include="Archive\HTML\Logos\35\team15.png" />
+    <Content Include="Archive\HTML\Logos\35\team16.png" />
+    <Content Include="Archive\HTML\Logos\35\team160.png" />
+    <Content Include="Archive\HTML\Logos\35\team161.png" />
+    <Content Include="Archive\HTML\Logos\35\team162.png" />
+    <Content Include="Archive\HTML\Logos\35\team163.png" />
+    <Content Include="Archive\HTML\Logos\35\team164.png" />
+    <Content Include="Archive\HTML\Logos\35\team17.png" />
+    <Content Include="Archive\HTML\Logos\35\team18.png" />
+    <Content Include="Archive\HTML\Logos\35\team181.png" />
+    <Content Include="Archive\HTML\Logos\35\team19.png" />
+    <Content Include="Archive\HTML\Logos\35\team2.png" />
+    <Content Include="Archive\HTML\Logos\35\team20.png" />
+    <Content Include="Archive\HTML\Logos\35\team21.png" />
+    <Content Include="Archive\HTML\Logos\35\team211.png" />
+    <Content Include="Archive\HTML\Logos\35\team218.png" />
+    <Content Include="Archive\HTML\Logos\35\team22.png" />
+    <Content Include="Archive\HTML\Logos\35\team229.png" />
+    <Content Include="Archive\HTML\Logos\35\team23.png" />
+    <Content Include="Archive\HTML\Logos\35\team230.png" />
+    <Content Include="Archive\HTML\Logos\35\team232.png" />
+    <Content Include="Archive\HTML\Logos\35\team233.png" />
+    <Content Include="Archive\HTML\Logos\35\team234.png" />
+    <Content Include="Archive\HTML\Logos\35\team235.png" />
+    <Content Include="Archive\HTML\Logos\35\team24.png" />
+    <Content Include="Archive\HTML\Logos\35\team25.png" />
+    <Content Include="Archive\HTML\Logos\35\team26.png" />
+    <Content Include="Archive\HTML\Logos\35\team27.png" />
+    <Content Include="Archive\HTML\Logos\35\team28.png" />
+    <Content Include="Archive\HTML\Logos\35\team29.png" />
+    <Content Include="Archive\HTML\Logos\35\team3.png" />
+    <Content Include="Archive\HTML\Logos\35\team30.png" />
+    <Content Include="Archive\HTML\Logos\35\team31.png" />
+    <Content Include="Archive\HTML\Logos\35\team32.png" />
+    <Content Include="Archive\HTML\Logos\35\team33.png" />
+    <Content Include="Archive\HTML\Logos\35\team34.png" />
+    <Content Include="Archive\HTML\Logos\35\team35.png" />
+    <Content Include="Archive\HTML\Logos\35\team36.png" />
+    <Content Include="Archive\HTML\Logos\35\team37.png" />
+    <Content Include="Archive\HTML\Logos\35\team38.png" />
+    <Content Include="Archive\HTML\Logos\35\team39.png" />
+    <Content Include="Archive\HTML\Logos\35\team4.png" />
+    <Content Include="Archive\HTML\Logos\35\team40.png" />
+    <Content Include="Archive\HTML\Logos\35\team41.png" />
+    <Content Include="Archive\HTML\Logos\35\team42.png" />
+    <Content Include="Archive\HTML\Logos\35\team43.png" />
+    <Content Include="Archive\HTML\Logos\35\team44.png" />
+    <Content Include="Archive\HTML\Logos\35\team45.png" />
+    <Content Include="Archive\HTML\Logos\35\team46.png" />
+    <Content Include="Archive\HTML\Logos\35\team47.png" />
+    <Content Include="Archive\HTML\Logos\35\team48.png" />
+    <Content Include="Archive\HTML\Logos\35\team49.png" />
+    <Content Include="Archive\HTML\Logos\35\team5.png" />
+    <Content Include="Archive\HTML\Logos\35\team50.png" />
+    <Content Include="Archive\HTML\Logos\35\team51.png" />
+    <Content Include="Archive\HTML\Logos\35\team52.png" />
+    <Content Include="Archive\HTML\Logos\35\team53.png" />
+    <Content Include="Archive\HTML\Logos\35\team54.png" />
+    <Content Include="Archive\HTML\Logos\35\team55.png" />
+    <Content Include="Archive\HTML\Logos\35\team56.png" />
+    <Content Include="Archive\HTML\Logos\35\team57.png" />
+    <Content Include="Archive\HTML\Logos\35\team58.png" />
+    <Content Include="Archive\HTML\Logos\35\team59.png" />
+    <Content Include="Archive\HTML\Logos\35\team6.png" />
+    <Content Include="Archive\HTML\Logos\35\team60.png" />
+    <Content Include="Archive\HTML\Logos\35\team61.png" />
+    <Content Include="Archive\HTML\Logos\35\team62.png" />
+    <Content Include="Archive\HTML\Logos\35\team63.png" />
+    <Content Include="Archive\HTML\Logos\35\team64.png" />
+    <Content Include="Archive\HTML\Logos\35\team65.png" />
+    <Content Include="Archive\HTML\Logos\35\team66.png" />
+    <Content Include="Archive\HTML\Logos\35\team67.png" />
+    <Content Include="Archive\HTML\Logos\35\team68.png" />
+    <Content Include="Archive\HTML\Logos\35\team69.png" />
+    <Content Include="Archive\HTML\Logos\35\team7.png" />
+    <Content Include="Archive\HTML\Logos\35\team70.png" />
+    <Content Include="Archive\HTML\Logos\35\team71.png" />
+    <Content Include="Archive\HTML\Logos\35\team72.png" />
+    <Content Include="Archive\HTML\Logos\35\team73.png" />
+    <Content Include="Archive\HTML\Logos\35\team74.png" />
+    <Content Include="Archive\HTML\Logos\35\team75.png" />
+    <Content Include="Archive\HTML\Logos\35\team76.png" />
+    <Content Include="Archive\HTML\Logos\35\team77.png" />
+    <Content Include="Archive\HTML\Logos\35\team78.png" />
+    <Content Include="Archive\HTML\Logos\35\team79.png" />
+    <Content Include="Archive\HTML\Logos\35\team8.png" />
+    <Content Include="Archive\HTML\Logos\35\team80.png" />
+    <Content Include="Archive\HTML\Logos\35\team81.png" />
+    <Content Include="Archive\HTML\Logos\35\team82.png" />
+    <Content Include="Archive\HTML\Logos\35\team83.png" />
+    <Content Include="Archive\HTML\Logos\35\team84.png" />
+    <Content Include="Archive\HTML\Logos\35\team85.png" />
+    <Content Include="Archive\HTML\Logos\35\team86.png" />
+    <Content Include="Archive\HTML\Logos\35\team87.png" />
+    <Content Include="Archive\HTML\Logos\35\team88.png" />
+    <Content Include="Archive\HTML\Logos\35\team89.png" />
+    <Content Include="Archive\HTML\Logos\35\team9.png" />
+    <Content Include="Archive\HTML\Logos\35\team90.png" />
+    <Content Include="Archive\HTML\Logos\35\team91.png" />
+    <Content Include="Archive\HTML\Logos\35\team92.png" />
+    <Content Include="Archive\HTML\Logos\35\team93.png" />
+    <Content Include="Archive\HTML\Logos\35\team94.png" />
+    <Content Include="Archive\HTML\Logos\35\team95.png" />
+    <Content Include="Archive\HTML\Logos\35\team96.png" />
+    <Content Include="Archive\HTML\Logos\35\team97.png" />
+    <Content Include="Archive\HTML\Logos\35\team98.png" />
+    <Content Include="Archive\HTML\Logos\35\team99.png" />
+    <Content Include="Archive\HTML\Logos\55\team1.png" />
+    <Content Include="Archive\HTML\Logos\55\team10.png" />
+    <Content Include="Archive\HTML\Logos\55\team100.png" />
+    <Content Include="Archive\HTML\Logos\55\team101.png" />
+    <Content Include="Archive\HTML\Logos\55\team102.png" />
+    <Content Include="Archive\HTML\Logos\55\team103.png" />
+    <Content Include="Archive\HTML\Logos\55\team104.png" />
+    <Content Include="Archive\HTML\Logos\55\team105.png" />
+    <Content Include="Archive\HTML\Logos\55\team106.png" />
+    <Content Include="Archive\HTML\Logos\55\team107.png" />
+    <Content Include="Archive\HTML\Logos\55\team108.png" />
+    <Content Include="Archive\HTML\Logos\55\team109.png" />
+    <Content Include="Archive\HTML\Logos\55\team11.png" />
+    <Content Include="Archive\HTML\Logos\55\team110.png" />
+    <Content Include="Archive\HTML\Logos\55\team111.png" />
+    <Content Include="Archive\HTML\Logos\55\team112.png" />
+    <Content Include="Archive\HTML\Logos\55\team113.png" />
+    <Content Include="Archive\HTML\Logos\55\team114.png" />
+    <Content Include="Archive\HTML\Logos\55\team115.png" />
+    <Content Include="Archive\HTML\Logos\55\team12.png" />
+    <Content Include="Archive\HTML\Logos\55\team13.png" />
+    <Content Include="Archive\HTML\Logos\55\team14.png" />
+    <Content Include="Archive\HTML\Logos\55\team143.png" />
+    <Content Include="Archive\HTML\Logos\55\team144.png" />
+    <Content Include="Archive\HTML\Logos\55\team15.png" />
+    <Content Include="Archive\HTML\Logos\55\team16.png" />
+    <Content Include="Archive\HTML\Logos\55\team160.png" />
+    <Content Include="Archive\HTML\Logos\55\team161.png" />
+    <Content Include="Archive\HTML\Logos\55\team162.png" />
+    <Content Include="Archive\HTML\Logos\55\team163.png" />
+    <Content Include="Archive\HTML\Logos\55\team164.png" />
+    <Content Include="Archive\HTML\Logos\55\team17.png" />
+    <Content Include="Archive\HTML\Logos\55\team18.png" />
+    <Content Include="Archive\HTML\Logos\55\team181.png" />
+    <Content Include="Archive\HTML\Logos\55\team19.png" />
+    <Content Include="Archive\HTML\Logos\55\team2.png" />
+    <Content Include="Archive\HTML\Logos\55\team20.png" />
+    <Content Include="Archive\HTML\Logos\55\team21.png" />
+    <Content Include="Archive\HTML\Logos\55\team211.png" />
+    <Content Include="Archive\HTML\Logos\55\team218.png" />
+    <Content Include="Archive\HTML\Logos\55\team22.png" />
+    <Content Include="Archive\HTML\Logos\55\team229.png" />
+    <Content Include="Archive\HTML\Logos\55\team23.png" />
+    <Content Include="Archive\HTML\Logos\55\team230.png" />
+    <Content Include="Archive\HTML\Logos\55\team232.png" />
+    <Content Include="Archive\HTML\Logos\55\team233.png" />
+    <Content Include="Archive\HTML\Logos\55\team234.png" />
+    <Content Include="Archive\HTML\Logos\55\team235.png" />
+    <Content Include="Archive\HTML\Logos\55\team24.png" />
+    <Content Include="Archive\HTML\Logos\55\team25.png" />
+    <Content Include="Archive\HTML\Logos\55\team26.png" />
+    <Content Include="Archive\HTML\Logos\55\team27.png" />
+    <Content Include="Archive\HTML\Logos\55\team28.png" />
+    <Content Include="Archive\HTML\Logos\55\team29.png" />
+    <Content Include="Archive\HTML\Logos\55\team3.png" />
+    <Content Include="Archive\HTML\Logos\55\team30.png" />
+    <Content Include="Archive\HTML\Logos\55\team31.png" />
+    <Content Include="Archive\HTML\Logos\55\team32.png" />
+    <Content Include="Archive\HTML\Logos\55\team33.png" />
+    <Content Include="Archive\HTML\Logos\55\team34.png" />
+    <Content Include="Archive\HTML\Logos\55\team35.png" />
+    <Content Include="Archive\HTML\Logos\55\team36.png" />
+    <Content Include="Archive\HTML\Logos\55\team37.png" />
+    <Content Include="Archive\HTML\Logos\55\team38.png" />
+    <Content Include="Archive\HTML\Logos\55\team39.png" />
+    <Content Include="Archive\HTML\Logos\55\team4.png" />
+    <Content Include="Archive\HTML\Logos\55\team40.png" />
+    <Content Include="Archive\HTML\Logos\55\team41.png" />
+    <Content Include="Archive\HTML\Logos\55\team42.png" />
+    <Content Include="Archive\HTML\Logos\55\team43.png" />
+    <Content Include="Archive\HTML\Logos\55\team44.png" />
+    <Content Include="Archive\HTML\Logos\55\team45.png" />
+    <Content Include="Archive\HTML\Logos\55\team46.png" />
+    <Content Include="Archive\HTML\Logos\55\team47.png" />
+    <Content Include="Archive\HTML\Logos\55\team48.png" />
+    <Content Include="Archive\HTML\Logos\55\team49.png" />
+    <Content Include="Archive\HTML\Logos\55\team5.png" />
+    <Content Include="Archive\HTML\Logos\55\team50.png" />
+    <Content Include="Archive\HTML\Logos\55\team51.png" />
+    <Content Include="Archive\HTML\Logos\55\team52.png" />
+    <Content Include="Archive\HTML\Logos\55\team53.png" />
+    <Content Include="Archive\HTML\Logos\55\team54.png" />
+    <Content Include="Archive\HTML\Logos\55\team55.png" />
+    <Content Include="Archive\HTML\Logos\55\team56.png" />
+    <Content Include="Archive\HTML\Logos\55\team57.png" />
+    <Content Include="Archive\HTML\Logos\55\team58.png" />
+    <Content Include="Archive\HTML\Logos\55\team59.png" />
+    <Content Include="Archive\HTML\Logos\55\team6.png" />
+    <Content Include="Archive\HTML\Logos\55\team60.png" />
+    <Content Include="Archive\HTML\Logos\55\team61.png" />
+    <Content Include="Archive\HTML\Logos\55\team62.png" />
+    <Content Include="Archive\HTML\Logos\55\team63.png" />
+    <Content Include="Archive\HTML\Logos\55\team64.png" />
+    <Content Include="Archive\HTML\Logos\55\team65.png" />
+    <Content Include="Archive\HTML\Logos\55\team66.png" />
+    <Content Include="Archive\HTML\Logos\55\team67.png" />
+    <Content Include="Archive\HTML\Logos\55\team68.png" />
+    <Content Include="Archive\HTML\Logos\55\team69.png" />
+    <Content Include="Archive\HTML\Logos\55\team7.png" />
+    <Content Include="Archive\HTML\Logos\55\team70.png" />
+    <Content Include="Archive\HTML\Logos\55\team71.png" />
+    <Content Include="Archive\HTML\Logos\55\team72.png" />
+    <Content Include="Archive\HTML\Logos\55\team73.png" />
+    <Content Include="Archive\HTML\Logos\55\team74.png" />
+    <Content Include="Archive\HTML\Logos\55\team75.png" />
+    <Content Include="Archive\HTML\Logos\55\team76.png" />
+    <Content Include="Archive\HTML\Logos\55\team77.png" />
+    <Content Include="Archive\HTML\Logos\55\team78.png" />
+    <Content Include="Archive\HTML\Logos\55\team79.png" />
+    <Content Include="Archive\HTML\Logos\55\team8.png" />
+    <Content Include="Archive\HTML\Logos\55\team80.png" />
+    <Content Include="Archive\HTML\Logos\55\team81.png" />
+    <Content Include="Archive\HTML\Logos\55\team82.png" />
+    <Content Include="Archive\HTML\Logos\55\team83.png" />
+    <Content Include="Archive\HTML\Logos\55\team84.png" />
+    <Content Include="Archive\HTML\Logos\55\team85.png" />
+    <Content Include="Archive\HTML\Logos\55\team86.png" />
+    <Content Include="Archive\HTML\Logos\55\team87.png" />
+    <Content Include="Archive\HTML\Logos\55\team88.png" />
+    <Content Include="Archive\HTML\Logos\55\team89.png" />
+    <Content Include="Archive\HTML\Logos\55\team9.png" />
+    <Content Include="Archive\HTML\Logos\55\team90.png" />
+    <Content Include="Archive\HTML\Logos\55\team91.png" />
+    <Content Include="Archive\HTML\Logos\55\team92.png" />
+    <Content Include="Archive\HTML\Logos\55\team93.png" />
+    <Content Include="Archive\HTML\Logos\55\team94.png" />
+    <Content Include="Archive\HTML\Logos\55\team95.png" />
+    <Content Include="Archive\HTML\Logos\55\team96.png" />
+    <Content Include="Archive\HTML\Logos\55\team97.png" />
+    <Content Include="Archive\HTML\Logos\55\team98.png" />
+    <Content Include="Archive\HTML\Logos\55\team99.png" />
+    <Content Include="Archive\HTML\Logos\awards\0.png" />
+    <Content Include="Archive\HTML\Logos\awards\1.png" />
+    <Content Include="Archive\HTML\Logos\awards\10.png" />
+    <Content Include="Archive\HTML\Logos\awards\11.png" />
+    <Content Include="Archive\HTML\Logos\awards\12.png" />
+    <Content Include="Archive\HTML\Logos\awards\13.png" />
+    <Content Include="Archive\HTML\Logos\awards\14.png" />
+    <Content Include="Archive\HTML\Logos\awards\15.png" />
+    <Content Include="Archive\HTML\Logos\awards\16.png" />
+    <Content Include="Archive\HTML\Logos\awards\2.png" />
+    <Content Include="Archive\HTML\Logos\awards\3.png" />
+    <Content Include="Archive\HTML\Logos\awards\4.png" />
+    <Content Include="Archive\HTML\Logos\awards\5.png" />
+    <Content Include="Archive\HTML\Logos\awards\6.png" />
+    <Content Include="Archive\HTML\Logos\awards\7.png" />
+    <Content Include="Archive\HTML\Logos\awards\8.png" />
+    <Content Include="Archive\HTML\Logos\awards\9.png" />
+    <Content Include="Archive\HTML\Logos\awards\ALAMOBOWL.png" />
+    <Content Include="Archive\HTML\Logos\awards\BELKBOWL.png" />
+    <Content Include="Archive\HTML\Logos\awards\COTTONBOWL.png" />
+    <Content Include="Archive\HTML\Logos\awards\FIESTABOWL.png" />
+    <Content Include="Archive\HTML\Logos\awards\GATORBOWL.png" />
+    <Content Include="Archive\HTML\Logos\awards\HAWAIIBOWL.png" />
+    <Content Include="Archive\HTML\Logos\awards\HOLIDAYBOWL.png" />
+    <Content Include="Archive\HTML\Logos\awards\LASVEGASBOWL.png" />
+    <Content Include="Archive\HTML\Logos\awards\LIBERTYBOWL.png" />
+    <Content Include="Archive\HTML\Logos\awards\ORANGEBOWL.png" />
+    <Content Include="Archive\HTML\Logos\awards\OUTBACKBOWL.png" />
+    <Content Include="Archive\HTML\Logos\awards\ROSEBOWL.png" />
+    <Content Include="Archive\HTML\Logos\awards\SUGARBOWL.png" />
+    <Content Include="Archive\HTML\Logos\awards\SUNBOWL.png" />
+    <Content Include="Archive\HTML\Logos\BCSRanking.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\0.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\1.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\10.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\11.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\12.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\12_old.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\13.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\14.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\15.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\16.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\17.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\18.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\1859__las_vegas_bowl-primary-2013.png" />
+    <Content Include="Archive\HTML\Logos\bowls\19.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\2.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\20.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\21.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\22.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\23.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\24.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\25.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\26.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\27.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\28.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\29.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\3.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\30.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\31.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\32.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\39.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\4.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\5.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\5322_armed_forces__bowl-primary-2014.png" />
+    <Content Include="Archive\HTML\Logos\bowls\6.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\0.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\1-old.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\1.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\10.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\11.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\12.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\13.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\14.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\15.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\16.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\17.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\18.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\1859__las_vegas_bowl-primary-2013.png" />
+    <Content Include="Archive\HTML\Logos\bowls\65\19.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\1960_rose__bowl-primary-2015.png" />
+    <Content Include="Archive\HTML\Logos\bowls\65\2-old.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\2.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\20.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\21.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\22.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\23.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\24.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\25.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\26.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\27.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\28.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\29.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\3.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\30.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\31.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\32.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\39.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\4.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\5.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\5322_armed_forces__bowl-primary-2014.png" />
+    <Content Include="Archive\HTML\Logos\bowls\65\6.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\7.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\8.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\65\9.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\7.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\8.jpg" />
+    <Content Include="Archive\HTML\Logos\bowls\9.jpg" />
+    <Content Include="Archive\HTML\Logos\CoachesPoll.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\0.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\1.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\10.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\11.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\13.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\14.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\1859__las_vegas_bowl-primary-2013.png" />
+    <Content Include="Archive\HTML\Logos\conferences\2.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\3.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\4.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\5322_armed_forces__bowl-primary-2014.png" />
+    <Content Include="Archive\HTML\Logos\conferences\65\0.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\65\0_old.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\65\1.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\65\10.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\65\11.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\65\13.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\65\14.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\65\2.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\65\3.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\65\4-old.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\65\4.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\65\7.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\65\9.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\65\Atlantic_Coast_Conference_2014_logo.png" />
+    <Content Include="Archive\HTML\Logos\conferences\65\Big_12_Conference_logo.png" />
+    <Content Include="Archive\HTML\Logos\conferences\65\NewCUSAlogo.png" />
+    <Content Include="Archive\HTML\Logos\conferences\7.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\9.jpg" />
+    <Content Include="Archive\HTML\Logos\conferences\Atlantic_Coast_Conference_2014_logo.png" />
+    <Content Include="Archive\HTML\Logos\conferences\NewCUSAlogo.png" />
+    <Content Include="Archive\HTML\Logos\ESPNU.jpg" />
+    <Content Include="Archive\HTML\Logos\FCS.jpg" />
+    <Content Include="Archive\HTML\Logos\helmet\team1.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team10.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team100.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team101.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team102.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team103.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team104.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team105.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team106.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team106_BLACK.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team106_GOLD.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team107.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team108.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team109.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team11.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team110.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team111.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team112.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team113.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team114.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team115.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team12.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team12_OLD.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team13.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team14.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team143.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team144.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team15.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team16.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team160.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team161.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team162.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team163.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team164.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team17.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team18.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team181.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team19.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team2.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team20.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team21.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team211.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team218.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team22.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team229.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team23.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team230.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team232.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team233.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team234.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team235.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team24.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team25.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team26.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team27.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team28.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team29.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team3.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team30.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team31.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team32.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team33.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team34.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team35.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team36.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team37.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team38.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team39.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team4.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team40.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team41.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team42.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team43.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team44.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team45.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team46.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team47.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team48.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team49.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team5.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team50.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team51.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team52.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team53.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team54.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team55.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team56.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team57.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team58.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team59.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team6.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team60.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team61.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team62.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team63.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team64.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team65.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team66.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team67.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team68.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team69.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team7.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team70.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team71.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team72.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team73.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team74.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team74_OLD.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team75.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team75_OLD.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team76.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team77.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team78.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team79.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team8.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team80.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team81.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team82.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team83.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team84.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team85.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team86.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team87.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team88.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team89.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team9.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team90.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team91.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team92.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team93.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team94.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team95.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team96.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team97.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team97_GOLD.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team98.png" />
+    <Content Include="Archive\HTML\Logos\helmet\team99.png" />
+    <Content Include="Archive\HTML\Logos\helmet\UALR.png" />
+    <Content Include="Archive\HTML\Logos\large\airforce.png" />
+    <Content Include="Archive\HTML\Logos\large\akron.png" />
+    <Content Include="Archive\HTML\Logos\large\alabama.png" />
+    <Content Include="Archive\HTML\Logos\large\arizona.png" />
+    <Content Include="Archive\HTML\Logos\large\arizonastate.png" />
+    <Content Include="Archive\HTML\Logos\large\arkansas.png" />
+    <Content Include="Archive\HTML\Logos\large\arkansasstate.png" />
+    <Content Include="Archive\HTML\Logos\large\army.png" />
+    <Content Include="Archive\HTML\Logos\large\auburn.png" />
+    <Content Include="Archive\HTML\Logos\large\ballstate.png" />
+    <Content Include="Archive\HTML\Logos\large\baylor.png" />
+    <Content Include="Archive\HTML\Logos\large\boisestate.png" />
+    <Content Include="Archive\HTML\Logos\large\bostoncollege.png" />
+    <Content Include="Archive\HTML\Logos\large\bowlinggreen.png" />
+    <Content Include="Archive\HTML\Logos\large\buffalo.png" />
+    <Content Include="Archive\HTML\Logos\large\byu.png" />
+    <Content Include="Archive\HTML\Logos\large\cal.png" />
+    <Content Include="Archive\HTML\Logos\large\cincinnati.png" />
+    <Content Include="Archive\HTML\Logos\large\clemson.png" />
+    <Content Include="Archive\HTML\Logos\large\cmu.png" />
+    <Content Include="Archive\HTML\Logos\large\colorado.png" />
+    <Content Include="Archive\HTML\Logos\large\coloradostate.png" />
+    <Content Include="Archive\HTML\Logos\large\duke.png" />
+    <Content Include="Archive\HTML\Logos\large\eastcarolina.png" />
+    <Content Include="Archive\HTML\Logos\large\emu.png" />
+    <Content Include="Archive\HTML\Logos\large\fau.png" />
+    <Content Include="Archive\HTML\Logos\large\fiu.png" />
+    <Content Include="Archive\HTML\Logos\large\florida.png" />
+    <Content Include="Archive\HTML\Logos\large\floridastate.png" />
+    <Content Include="Archive\HTML\Logos\large\fresnostate.png" />
+    <Content Include="Archive\HTML\Logos\large\georgia.png" />
+    <Content Include="Archive\HTML\Logos\large\georgiastate.png" />
+    <Content Include="Archive\HTML\Logos\large\georgiatech.png" />
+    <Content Include="Archive\HTML\Logos\large\hawaii.png" />
+    <Content Include="Archive\HTML\Logos\large\houston.png" />
+    <Content Include="Archive\HTML\Logos\large\idaho.png" />
+    <Content Include="Archive\HTML\Logos\large\illinois.png" />
+    <Content Include="Archive\HTML\Logos\large\indiana.png" />
+    <Content Include="Archive\HTML\Logos\large\iowa.png" />
+    <Content Include="Archive\HTML\Logos\large\iowastate.png" />
+    <Content Include="Archive\HTML\Logos\large\kansas.png" />
+    <Content Include="Archive\HTML\Logos\large\kansasstate.png" />
+    <Content Include="Archive\HTML\Logos\large\kentstate.png" />
+    <Content Include="Archive\HTML\Logos\large\kentucky.png" />
+    <Content Include="Archive\HTML\Logos\large\latech.png" />
+    <Content Include="Archive\HTML\Logos\large\louisville.png" />
+    <Content Include="Archive\HTML\Logos\large\lsu.png" />
+    <Content Include="Archive\HTML\Logos\large\marshall.png" />
+    <Content Include="Archive\HTML\Logos\large\maryland.png" />
+    <Content Include="Archive\HTML\Logos\large\memphis.png" />
+    <Content Include="Archive\HTML\Logos\large\miami.png" />
+    <Content Include="Archive\HTML\Logos\large\miamioh.png" />
+    <Content Include="Archive\HTML\Logos\large\michigan.png" />
+    <Content Include="Archive\HTML\Logos\large\michiganstate.png" />
+    <Content Include="Archive\HTML\Logos\large\minnesota.png" />
+    <Content Include="Archive\HTML\Logos\large\missouri.png" />
+    <Content Include="Archive\HTML\Logos\large\missstate.png" />
+    <Content Include="Archive\HTML\Logos\large\mtsu.png" />
+    <Content Include="Archive\HTML\Logos\large\navy.png" />
+    <Content Include="Archive\HTML\Logos\large\ncstate.png" />
+    <Content Include="Archive\HTML\Logos\large\nebraska.png" />
+    <Content Include="Archive\HTML\Logos\large\nevada.png" />
+    <Content Include="Archive\HTML\Logos\large\newmexico.png" />
+    <Content Include="Archive\HTML\Logos\large\newmexicostate.png" />
+    <Content Include="Archive\HTML\Logos\large\northcarolina.png" />
+    <Content Include="Archive\HTML\Logos\large\northernillinois.png" />
+    <Content Include="Archive\HTML\Logos\large\northtexas.png" />
+    <Content Include="Archive\HTML\Logos\large\northwestern.png" />
+    <Content Include="Archive\HTML\Logos\large\notredame.png" />
+    <Content Include="Archive\HTML\Logos\large\ohio.png" />
+    <Content Include="Archive\HTML\Logos\large\ohiostate.png" />
+    <Content Include="Archive\HTML\Logos\large\oklahoma.png" />
+    <Content Include="Archive\HTML\Logos\large\oklahomastate.png" />
+    <Content Include="Archive\HTML\Logos\large\olddominion.png" />
+    <Content Include="Archive\HTML\Logos\large\olemiss.png" />
+    <Content Include="Archive\HTML\Logos\large\oregon.png" />
+    <Content Include="Archive\HTML\Logos\large\oregonstate.png" />
+    <Content Include="Archive\HTML\Logos\large\pennstate.png" />
+    <Content Include="Archive\HTML\Logos\large\pitt.png" />
+    <Content Include="Archive\HTML\Logos\large\purdue.png" />
+    <Content Include="Archive\HTML\Logos\large\rice.png" />
+    <Content Include="Archive\HTML\Logos\large\rutgers.png" />
+    <Content Include="Archive\HTML\Logos\large\sdsu.png" />
+    <Content Include="Archive\HTML\Logos\large\sjsu.png" />
+    <Content Include="Archive\HTML\Logos\large\smu.png" />
+    <Content Include="Archive\HTML\Logos\large\southalabama.png" />
+    <Content Include="Archive\HTML\Logos\large\southcarolina.png" />
+    <Content Include="Archive\HTML\Logos\large\southernmiss.png" />
+    <Content Include="Archive\HTML\Logos\large\stanford.png" />
+    <Content Include="Archive\HTML\Logos\large\syracuse.png" />
+    <Content Include="Archive\HTML\Logos\large\tcu.png" />
+    <Content Include="Archive\HTML\Logos\large\temple.png" />
+    <Content Include="Archive\HTML\Logos\large\tennessee.png" />
+    <Content Include="Archive\HTML\Logos\large\texas.png" />
+    <Content Include="Archive\HTML\Logos\large\texasam.png" />
+    <Content Include="Archive\HTML\Logos\large\texasstate.png" />
+    <Content Include="Archive\HTML\Logos\large\texastech.png" />
+    <Content Include="Archive\HTML\Logos\large\toledo.png" />
+    <Content Include="Archive\HTML\Logos\large\troy.png" />
+    <Content Include="Archive\HTML\Logos\large\tulane.png" />
+    <Content Include="Archive\HTML\Logos\large\tulsa.png" />
+    <Content Include="Archive\HTML\Logos\large\uab.png" />
+    <Content Include="Archive\HTML\Logos\large\ucf.png" />
+    <Content Include="Archive\HTML\Logos\large\ucla.png" />
+    <Content Include="Archive\HTML\Logos\large\uconn.png" />
+    <Content Include="Archive\HTML\Logos\large\ull.png" />
+    <Content Include="Archive\HTML\Logos\large\ulm.png" />
+    <Content Include="Archive\HTML\Logos\large\umass.png" />
+    <Content Include="Archive\HTML\Logos\large\unlv.png" />
+    <Content Include="Archive\HTML\Logos\large\usc.png" />
+    <Content Include="Archive\HTML\Logos\large\usf.png" />
+    <Content Include="Archive\HTML\Logos\large\utah.png" />
+    <Content Include="Archive\HTML\Logos\large\utahstate.png" />
+    <Content Include="Archive\HTML\Logos\large\utep.png" />
+    <Content Include="Archive\HTML\Logos\large\utsa.png" />
+    <Content Include="Archive\HTML\Logos\large\vanderbilt.png" />
+    <Content Include="Archive\HTML\Logos\large\virginia.png" />
+    <Content Include="Archive\HTML\Logos\large\virginiatech.png" />
+    <Content Include="Archive\HTML\Logos\large\wakeforest.png" />
+    <Content Include="Archive\HTML\Logos\large\washington.png" />
+    <Content Include="Archive\HTML\Logos\large\washingtonstate.png" />
+    <Content Include="Archive\HTML\Logos\large\westvirginia.png" />
+    <Content Include="Archive\HTML\Logos\large\wisconsin.png" />
+    <Content Include="Archive\HTML\Logos\large\wku.png" />
+    <Content Include="Archive\HTML\Logos\large\wmu.png" />
+    <Content Include="Archive\HTML\Logos\large\wyoming.png" />
+    <Content Include="Archive\HTML\Logos\MediaPoll.jpg" />
+    <Content Include="Archive\HTML\Logos\NC.jpg" />
+    <Content Include="Archive\HTML\Logos\NCAA2014.jpg" />
+    <Content Include="Archive\HTML\Logos\sos.jpg" />
+    <Content Include="Archive\HTML\Nav_Bar.txt" />
+    <Content Include="Archive\HTML\Nav_Bar_Arch.txt" />
+    <Content Include="Archive\HTML\out.txt" />
+    <Content Include="Archive\HTML\preaseasonindex.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Archive\HTML\PreseasonConferenceChampTemplate.txt" />
+    <Content Include="Archive\HTML\PreseasonScheduleTemplate.txt" />
+    <Content Include="Archive\HTML\PreseasonTeamPageLinkTemplate.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Archive\HTML\PreseasonTemplate.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Archive\HTML\PreseasonTOCTemplate.txt" />
+    <Content Include="Archive\HTML\roster.png" />
+    <Content Include="Archive\HTML\ScheduleTemplate.txt" />
+    <Content Include="Archive\HTML\styles.css" />
+    <Content Include="Archive\HTML\team.html" />
+    <Content Include="Archive\HTML\TeamOffStatTemplate.txt" />
+    <Content Include="Archive\HTML\TeamPageLinkTemplate.txt" />
+    <Content Include="Archive\HTML\TopGamesTemplate.txt" />
+    <Content Include="Archive\HTML\TopUnitsTemplate.txt" />
+    <Content Include="Archive\HTML\utility.js" />
+    <Content Include="Archive\PostSeasonGames.html" />
+    <Content Include="Archive\recentmeetings.html" />
+    <Content Include="Archive\Seasons.html" />
+    <Content Include="Icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 Client Profile %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.4.5">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 4.5</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Archive\Reports\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /y /e  "$(ProjectDir)"archive\* $(OutDir)archive\*</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

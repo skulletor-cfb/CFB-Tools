@@ -1,0 +1,24 @@
+﻿    <tr>
+      <td class="c8" colspan="13">
+        <center>
+			<b id="headlineContent"></b>
+		</center>
+      </td>
+    </tr>
+	<tr>
+      <td class="c3" colspan="13">
+        <center>
+<b>| <a id="teamScheduleLink" href="PreSeasonTeam.html">Schedule</a> | | 
+     <a id="rosterLink" href="PreseasonTeamRoster.html">Roster</a> | | 
+	 <a id="freshmanLink" href="PreseasonTeamFrosh.html">Freshmen</a> | | 
+	 <a id="recordBookLink" href="PreSeasonTeamRecords.html">Record Book</a> | 
+</b>        </center>
+      </td>
+    </tr>
+    <tr>
+      <td class="c7" colspan="13">
+        <center>
+			<b id="headlineText"></b>
+		</center>
+      </td>
+    </tr>

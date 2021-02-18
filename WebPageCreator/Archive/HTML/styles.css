@@ -1,0 +1,176 @@
+ BODY 
+
+
+table.main {
+	/*border-left: 1px Solid #666666; 
+	border-right: 1px Solid #666666; 
+	border-bottom: 1px Solid #666666; 
+	background-color:#FFFFFF; 
+	border-collapse:collapse; 
+	width: 770px; */
+
+}
+
+table.standard {
+background-color:#eeeeee; 
+border:1px solid #000000;
+border-radius:7px;
+box-shadow: 4px 4px 4px #888888;
+
+}
+
+
+td.c1 {font-family: Arial, Tahoma, Verdana; color:#232323; font-size:12px; text-align:left; background-color:#ABABAB;}
+td.c2 {font-family: Verdana, Tahoma, Arial; color:#232323; font-size:11px; text-align:center; background-color:#ABABAB; }
+td.c3 {font-family: Arial, Verdana Tahoma; color:#232323; font-size:11px; text-align:center; background-color:#FFFFFF; }
+td.c4 {font-family: Arial, Tahoma, Verdana; color:#232323; font-size:10px; text-align:left; background-color:#ABABAB; }
+td.c5 {font-family: Impact, Tahoma, Verdana; color:#232323; font-size:40px; text-align:left; background-color:#ABABAB; }
+td.c6 {font-family: Arial, Tahoma, Verdana; color:#232323; font-size:12px; text-align:left; background-color:#FFFFFF; }
+td.c7 {font-family: Arial, Verdana, Tahoma; color:#232323; font-size:11px; font-weight:bold; text-align:center; background-color:#EBEBEB; }
+td.c8 {font-family: Verdana, Tahoma, Impact; color:#232323; font-size:32px; font-weight:bold; text-align:left; background-color:#FFFFFF; }
+td.c9 {font-family: Arial, Verdana, Tahoma; color:#232323; font-size:11px; text-align:left; background-color:#EBEBEB; }
+td.c10 {font-family: Arial, Verdana, Tahoma; color:#b3b3b3; font-size:10px; text-align:center; background-color:#232323; }
+td.c11 {font-family: Arial, Verdana, Tahoma; color:#232323; font-size:10px; text-align:center; background-color:#EEEEEE; }
+td.c12 {font-family: Arial, Verdana Tahoma; color:#232323; font-size:11px; text-align:center; background-color:#F7F7F7; }
+td.c13 {font-family: Verdana, Tahoma, Impact; color:#232323; font-size:32px; font-weight:bold; text-align:right; background-color:#FFFFFF; }
+td.c14 {font-family: Arial, Verdana Tahoma; color:#d80e0e; font-size:11px; text-align:center; background-color:#FFFFFF; }
+
+A:link {color:#4056B8; text-decoration:none}
+A:visited {color:#4056B8; text-decoration:none}
+A:hover {color:#F70202; text-decoration:underline;}
+
+#cssmenu ul {
+  margin: 0;
+  padding: 0;
+}
+#cssmenu li {
+  margin: 0;
+  padding: 0;
+}
+#cssmenu a {
+  margin: 0;
+  padding: 0;
+}
+#cssmenu ul {
+  list-style: none;
+}
+#cssmenu a {
+  text-decoration: none;
+}
+#cssmenu {
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  height: 70px;
+  background-color: #232323;
+  box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.4);
+  width: 100%;
+}
+#cssmenu > ul > li {
+  float: left;
+  margin-left: 15px;
+  position: relative;
+}
+#cssmenu > ul > li > a {
+  color: #b3b3b3;
+  font-family: Verdana, 'Lucida Grande';
+  font-size: 15px;
+  line-height: 70px;
+  padding: 15px 20px;
+  -webkit-transition: color .15s;
+  -moz-transition: color .15s;
+  -o-transition: color .15s;
+  transition: color .15s;
+}
+#cssmenu > ul > li > a:hover {
+  color: #ffffff;
+}
+#cssmenu > ul > li > ul {
+  opacity: 0;
+  visibility: hidden;
+  padding: 16px 0 20px 0;
+  background-color: #fafafa;
+  text-align: left;
+  position: absolute;
+  top: 55px;
+  left: 50%;
+  margin-left: -90px;
+  width: 180px;
+  -webkit-transition: all .3s .1s;
+  -moz-transition: all .3s .1s;
+  -o-transition: all .3s .1s;
+  transition: all .3s .1s;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
+}
+#cssmenu > ul > li:hover > ul {
+  opacity: 1;
+  top: 65px;
+  visibility: visible;
+}
+#cssmenu > ul > li > ul:before {
+  content: '';
+  display: block;
+  border-color: transparent transparent #fafafa transparent;
+  border-style: solid;
+  border-width: 10px;
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  margin-left: -10px;
+}
+#cssmenu > ul ul > li {
+  position: relative;
+}
+#cssmenu ul ul a {
+  color: #323232;
+  font-family: Verdana, 'Lucida Grande';
+  font-size: 13px;
+  background-color: #fafafa;
+  padding: 5px 8px 7px 16px;
+  display: block;
+  -webkit-transition: background-color 0.1s;
+  -moz-transition: background-color 0.1s;
+  -o-transition: background-color 0.1s;
+  transition: background-color 0.1s;
+}
+#cssmenu ul ul a:hover {
+  background-color: #f0f0f0;
+}
+#cssmenu ul ul ul {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  top: -16px;
+  left: 206px;
+  padding: 16px 0 20px 0;
+  background-color: #fafafa;
+  text-align: left;
+  width: 180px;
+  -webkit-transition: all .3s;
+  -moz-transition: all .3s;
+  -o-transition: all .3s;
+  transition: all .3s;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
+}
+#cssmenu ul ul > li:hover > ul {
+  opacity: 1;
+  left: 190px;
+  visibility: visible;
+}
+#cssmenu ul ul a:hover {
+  background-color: #000000;
+  color: #f0f0f0;
+}

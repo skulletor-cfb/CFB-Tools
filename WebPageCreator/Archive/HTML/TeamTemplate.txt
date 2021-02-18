@@ -1,0 +1,161 @@
+﻿  <table cellpadding="20" cellspacing="0" width="700">
+    <tr>
+      <td width="100%" align="center" colspan="4"></td>
+    </tr>
+
+    <tr>
+      <td class="c3" colspan="13">
+        <center>
+<b>Links: | <a id="teamScheduleLink" href="">Schedule</a> | |
+      <a id="careerStatsLink" href="">Career Stats</a> | | <a id="playerStatsLink" href="">Player
+      Stats</a> | | <a id="rosterLink" href="">Roster</a> | | <a id="freshmanLink" href=
+      "">Freshmen</a> | | <a id="recordBookLink" href="">Team Record
+      Book</a> | | <a id="topPerfLink" href="">Team Top Performances</a> |</b>        </center>
+      </td>
+    </tr>
+
+    <tr>
+      <td width="600" align="center" colspan="1">
+        <table id="scheduleTable" cellspacing="1" cellpadding="2" width="599" class="standard" align='left'>
+          <tr>
+            <td class="c2" colspan="6" valign="top">
+              <center>
+                <b>Schedule</b>
+              </center>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="c7" width="15%">
+              <center>
+                <b>Week</b>
+              </center>
+            </td>
+
+            <td class="c7" width="15%">
+              <center>
+                <b>Location</b>
+              </center>
+            </td>
+
+            <td class="c7" width="40%" colspan="2">
+              <center>
+                <b>Opponent</b>
+              </center>
+            </td>
+
+            <td class="c7" width="15%">
+              <center>
+                <b>Result</b>
+              </center>
+            </td>
+
+            <td class="c7" width="15%">
+              <center>
+                <b>Box Scores</b>
+              </center>
+            </td>
+          </tr>
+
+
+        </table>
+      </td>
+
+      <td width="100" align="center" colspan="4" valign="top">
+        <table id="annualtable" cellspacing="1" cellpadding="2" width="100" class="standard" align='left'>
+          <tr>
+            <td class="c2" colspan="8">
+              <center>
+                <b>Yearly Record</b>
+              </center>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="c7" width="50%">
+              <center>
+                <b>Year</b>
+              </center>
+            </td>
+
+            <td class="c7" width="50%">
+              <center>
+                <b>W-L</b>
+              </center>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <table cellpadding="20" cellspacing="0">
+    <tr>
+      <td width="750" align="left" colspan="4">
+        <table cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td class="c8" width="100%"></td>
+
+            <td class="c8"></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr>
+      <td width="750" align="left" colspan="8">
+        <table id="confChamps" cellspacing="1" cellpadding="2" width="80%" class="standard">
+          <tr>
+            <td class="c2" colspan="6"><b>Conference Championships</b></td>
+          </tr>
+
+          <tr>
+            <td class="c7" width="20%">Year</td>
+
+            <td class="c7" width="30%">Conference</td>
+
+            <td class="c7" width="30%">Team</td>
+
+            <td class="c7" width="20%">Team</td>
+          </tr>
+
+        </table><br />
+      </td>
+    </tr>
+  </table>
+
+  <table cellpadding="20" cellspacing="0">
+    <tr>
+      <td width="750" align="left" colspan="4">
+        <table cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td class="c8" width="100%"></td>
+
+            <td class="c8"></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr>
+      <td width="750" align="left" colspan="8">
+        <table id="bowlChampionships" cellspacing="1" cellpadding="2" width="80%" class="standard">
+          <tr>
+            <td class="c2" colspan="6"><b>Bowl Championships</b></td>
+          </tr>
+
+          <tr>
+            <td class="c7" width="20%">Year</td>
+
+            <td class="c7" width="30%">Bowl</td>
+
+            <td class="c7" width="30%">Team</td>
+
+            <td class="c7" width="20%">Team</td>
+          </tr>
+
+        </table><br />
+      </td>
+    </tr>
+  </table>
