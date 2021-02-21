@@ -22,7 +22,7 @@ namespace EA_DB_Editor
 
             PlayerDB.Create(db);
             Conference.Create(db);
-            Team.Create(db,isPreseason);
+            Team.Create(db, isPreseason);
             BowlChampion.Create(db);
 
             AllAmericans = MaddenTable.FindMaddenTable(db.lTables, "AAPL").lRecords.Where(mr => mr["SEYR"].ToInt32() == BowlChampion.DynastyFileYear && PlayerDB.Players.ContainsKey(mr["PGID"].ToInt32())).Select(mr =>
@@ -39,7 +39,7 @@ namespace EA_DB_Editor
         public static void CreateReport(bool isPreseason = false)
         {
             var dict = AllAmericans.GroupBy(aa => new AllAmericanTeamKey { ConferenceId = aa.ConferenceId, Team = aa.AllAmericanTeam }).ToDictionary(g => g.Key, g => g.ToList());
-            var finalList = dict.Values.Select(list => DeriveTopReturner(list,isPreseason)).SelectMany(a => a).ToArray();
+            var finalList = dict.Values.Select(list => DeriveTopReturner(list, isPreseason)).SelectMany(a => a).ToArray();
 
             var allAmericanFile = isPreseason ? "ps-aaac.csv" : "aaac.csv";
             finalList.ToCsvFile(
@@ -124,10 +124,10 @@ namespace EA_DB_Editor
             };
 
             List<string> positionOverride = new List<string>(new string[order.Length]);
-            positionOverride[5]= "OT";
-            positionOverride[6]= "OG";
-            positionOverride[8]= "DE";
-            positionOverride[10]= "OLB";
+            positionOverride[5] = "OT";
+            positionOverride[6] = "OG";
+            positionOverride[8] = "DE";
+            positionOverride[10] = "OLB";
             positionOverride[order.Length - 1] = "RET";
 
             List<AllAmerican> result = new List<AllAmerican>();
@@ -143,17 +143,17 @@ namespace EA_DB_Editor
                 result.AddRange(sublist);
             }
 
-            return result; 
+            return result;
         }
 
         public static string ToCsvLine(AllAmerican aa)
         {
             return string.Join
                 (",",
-                new object[] { 
+                new object[] {
                     aa.ConferenceId,
                     aa.ConferenceId==14? "American":aa.Conference.Name,
-                    aa.Player.FirstName + " " + aa.Player.LastName , 
+                    aa.Player.FirstName + " " + aa.Player.LastName ,
                     (int)aa.AllAmericanTeam,
                     aa.Player.Team.Name,
                     aa.Player.PositionName,

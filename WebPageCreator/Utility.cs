@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace EA_DB_Editor
 {

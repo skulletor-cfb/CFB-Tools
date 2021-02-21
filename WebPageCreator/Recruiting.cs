@@ -339,10 +339,10 @@ namespace EA_DB_Editor
             {
                 var id = NCAADB.lTables[95].lRecords[i].lEntries[34].Data.ToInt32();
                 var recruit = RecruitRankings[id];
-                recruit.CommittedTeam = NCAADB.lTables[95].lRecords[i].lEntries[35].Data.ToInt32();
-                recruit.Team1 = NCAADB.lTables[95].lRecords[i].lEntries[6].Data.ToInt32();
-                recruit.Team2 = NCAADB.lTables[95].lRecords[i].lEntries[10].Data.ToInt32();
-                recruit.Team3 = NCAADB.lTables[95].lRecords[i].lEntries[13].Data.ToInt32();
+                recruit.CommittedTeam = NCAADB.lTables[95].lRecords[i].lEntries[35].Data.ToInt32().GetRealTeamId();
+                recruit.Team1 = NCAADB.lTables[95].lRecords[i].lEntries[6].Data.ToInt32().GetRealTeamId();
+                recruit.Team2 = NCAADB.lTables[95].lRecords[i].lEntries[10].Data.ToInt32().GetRealTeamId();
+                recruit.Team3 = NCAADB.lTables[95].lRecords[i].lEntries[13].Data.ToInt32().GetRealTeamId();
                 RecruitRankings[10000 + recruit.Rank] = recruit;
             }
         }
@@ -415,7 +415,7 @@ namespace EA_DB_Editor
             {
                 var ranking = new RecruitClassRanking
                 {
-                    TeamId = db.lTables[97].lRecords[i].lEntries[4].Data.ToInt32(),
+                    TeamId = db.lTables[97].lRecords[i].lEntries[4].Data.ToInt32().GetRealTeamId(),
                     Points = db.lTables[97].lRecords[i].lEntries[5].Data.ToInt32(),
                     Star1 = db.lTables[97].lRecords[i].lEntries[6].Data.ToInt32(),
                     Star2 = db.lTables[97].lRecords[i].lEntries[7].Data.ToInt32(),
@@ -429,7 +429,7 @@ namespace EA_DB_Editor
 
             for (int i = 0; i < db.lTables[167].Table.currecords; i++)
             {
-                int teamId = db.lTables[167].lRecords[i].lEntries[40].Data.ToInt32();
+                int teamId = db.lTables[167].lRecords[i].lEntries[40].Data.ToInt32().GetRealTeamId();
                 RecruitClassRanking ranking = null;
                 if (TeamRankings.TryGetValue(teamId, out ranking))
                 {

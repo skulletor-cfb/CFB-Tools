@@ -654,8 +654,8 @@ namespace EA_DB_Editor
                     AwayRank = game.AwayTeam.MediaPollRank,
                     HomeTeam = game.HomeTeam.Name,
                     AwayTeam = game.AwayTeam.Name,
-                    HomeTeamId = game.HomeTeamId,
-                    AwayTeamId = game.AwayTeamId,
+                    HomeTeamId = game.HomeTeamId.GetRealTeamId(),
+                    AwayTeamId = game.AwayTeamId.GetRealTeamId(),
                     IsConferenceGame = game.HomeTeam.ConferenceId == game.AwayTeam.ConferenceId,
                     IsNeutral = game.IsNeutralSite,
                     Week = game.Week + 1,
@@ -692,8 +692,8 @@ namespace EA_DB_Editor
                         AwayRank = game.AwayTeam.MediaPollRank,
                         HomeTeam = game.HomeTeam.Name,
                         AwayTeam = game.AwayTeam.Name,
-                        HomeTeamId = game.HomeTeamId,
-                        AwayTeamId = game.AwayTeamId,
+                        HomeTeamId = game.HomeTeamId.GetRealTeamId(),
+                        AwayTeamId = game.AwayTeamId.GetRealTeamId(),
                         IsConferenceGame = game.HomeTeam.ConferenceId == game.AwayTeam.ConferenceId,
                         IsNeutral = game.IsNeutralSite,
                         Week = game.Week + 1,
@@ -850,7 +850,7 @@ namespace EA_DB_Editor
                 var record = table.lRecords[i];
                 var gameNumber = record.GetInt(1);
                 var weekNumber = record.GetInt(2);
-                var teamId = record.GetInt(0);
+                var teamId = record.GetInt(0).GetRealTeamId();
                 var game = Schedule[CreateKey(weekNumber, gameNumber)];
 
                 //create the box score

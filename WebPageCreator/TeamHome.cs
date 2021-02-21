@@ -250,8 +250,7 @@ namespace EA_DB_Editor
             var table = db.lTables[167];
             for (int i = 0; i < table.Table.currecords; i++)
             {
-                var teamId = table.lRecords[i].lEntries[40].Data.ToInt32();
-                teamId = teamId.GetRealTeamId();
+                var teamId = table.lRecords[i].lEntries[40].Data.ToInt32().GetRealTeamId();
 
                 // don't look at any team with an id greater than 235 and less than 901 which is the first teambuilder team id
                 if (teamId > 235 && teamId < 901)
@@ -1313,7 +1312,7 @@ namespace EA_DB_Editor
             for (int i = 0; i < table.Table.currecords; i++)
             {
                 var row = table.lRecords[i];
-                var teamId = row.GetInt(0);
+                var teamId = row.GetInt(0).GetRealTeamId();
 
                 var stats = new TeamStat
                 {

@@ -334,7 +334,7 @@ namespace EA_DB_Editor
                     Records = Bowl.Bowls.Values.Where(b => b.Week >= 16).Select(b => new IndividualBowlRecords(b.Id, b.Name)).ToList(),
                     Teams = Team.Teams.Values.Select(t => new TeamMap
                     {
-                        TeamId = t.Id,
+                        TeamId = t.Id.GetRealTeamId(),
                         School = t.Name,
                         Mascot = t.Mascot
                     }).ToList()

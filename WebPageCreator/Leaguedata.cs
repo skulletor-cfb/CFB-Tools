@@ -401,7 +401,7 @@ namespace EA_DB_Editor
                 ConferenceChampions.Add(new ConferenceChampion
                 {
                     ConferenceId = record.GetInt(0),
-                    TeamId = record.GetInt(1),
+                    TeamId = record.GetInt(1).GetRealTeamId(),
                     Year = record.GetInt(2) + ContinuationData.ContinuationYear
                 });
             }

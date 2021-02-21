@@ -21,7 +21,7 @@ namespace EA_DB_Editor
         public static SortedSet<Player> PuntLeaders = new SortedSet<Player>(new PlayerStatComparer(PlayerStats.PuntYds));
         public static SortedSet<Player> KRLeaders = new SortedSet<Player>(new PlayerStatComparer(PlayerStats.KRYds));
         public static SortedSet<Player> PRLeaders = new SortedSet<Player>(new PlayerStatComparer(PlayerStats.PRYds));
-        public static SortedSet<Player> AllPurposeLeaders = new SortedSet<Player>(new PlayerStatComparer(p=> p.CurrentYearStats.AllPurposeYards));
+        public static SortedSet<Player> AllPurposeLeaders = new SortedSet<Player>(new PlayerStatComparer(p => p.CurrentYearStats.AllPurposeYards));
         public static Dictionary<int, List<Player>> Rosters;
         public static Dictionary<int, Player> Players;
         public static int CurrentYear;
@@ -136,11 +136,11 @@ namespace EA_DB_Editor
         }
 
 
-        public static Player Find( int teamId , char firstInitial, string LastName)
+        public static Player Find(int teamId, char firstInitial, string LastName)
         {
             var roster = Rosters[teamId];
             var lastNames = roster.Where(p => p.LastName == LastName && p.FirstName[0] == firstInitial).ToArray();
-            return lastNames.Length == 0 ? null : lastNames.First() ;
+            return lastNames.Length == 0 ? null : lastNames.First();
         }
 
         public static void Create(MaddenDatabase db)
@@ -161,7 +161,7 @@ namespace EA_DB_Editor
                 var record = table[i];
 
                 // don't look at any player with a team id greater than 235
-                if (record.GetInt(35) > 235 && record.GetInt(35)<901)
+                if (record.GetInt(35) > 235 && record.GetInt(35) < 901)
                     continue;
 
                 var player = new Player
@@ -264,7 +264,7 @@ namespace EA_DB_Editor
 
         public static void AddReturnTeamStats(MaddenDatabase db)
         {
-            var keys = new Tuple<string, int, Func<int, int>>[]{ 
+            var keys = new Tuple<string, int, Func<int, int>>[]{
                 MakeTuple(PlayerStats.LongestKR, 2),
                 MakeTuple(PlayerStats.LongestPR,3),
                 MakeTuple(PlayerStats.KickReturns,5),
@@ -285,7 +285,7 @@ namespace EA_DB_Editor
 
         public static int GetSeasonOffensiveYardsTransform(int value)
         {
-            var result =  value > 10000 ? value - 32768 : value;
+            var result = value > 10000 ? value - 32768 : value;
             return result;
         }
 
@@ -599,7 +599,7 @@ namespace EA_DB_Editor
         public int GetIntValue(string key)
         {
             return this.GetValueOrDefault(key, 0);
-        }      
+        }
     }
 
     public class Player
@@ -619,10 +619,12 @@ namespace EA_DB_Editor
             }
         }
 
-        public int Points { 
-            get {
+        public int Points
+        {
+            get
+            {
                 return this.Stats[PlayerDB.CurrentYear].Points;
-            } 
+            }
         }
 
         public int this[string name]
