@@ -1315,7 +1315,7 @@ namespace EA_DB_Editor
             ContinuationData.Create(maddenDB);
             BowlChampion.Create(maddenDB);
             City.Create();
-            TeamSchedule.Create(maddenDB);
+            TeamSchedule.Create(maddenDB, isPreseason);
             PlayerDB.Create(maddenDB);
             Bowl.Create(maddenDB,isPreseason);
             Coach.Create(maddenDB);

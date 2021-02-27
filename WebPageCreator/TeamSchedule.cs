@@ -34,7 +34,7 @@ namespace EA_DB_Editor
         {
         }
 
-        public static void Create(MaddenDatabase db)
+        public static void Create(MaddenDatabase db, bool isPreseason)
         {
             if (TeamSchedules != null)
                 return;
@@ -65,7 +65,7 @@ namespace EA_DB_Editor
                     TeamId = teamId
                 };
 
-                if (game.Week > 14)
+                if (game.Week > 14 && isPreseason)
                     continue;
 
                 List<Game> gamesForWeek;
@@ -81,7 +81,7 @@ namespace EA_DB_Editor
 
         public static void CalculateOpponentMetrics(MaddenDatabase db, bool isPreseason)
         {
-            TeamSchedule.Create(db);
+            TeamSchedule.Create(db, isPreseason);
             Team.Create(db,isPreseason);
 
             if (opponentMetricsDone)
@@ -259,7 +259,7 @@ namespace EA_DB_Editor
 
         public static void ToSOSCsv(MaddenDatabase db, bool isPreseason)
         {
-            TeamSchedule.Create(db);
+            TeamSchedule.Create(db, isPreseason);
             Team.Create(db,isPreseason);
 
             StringBuilder sb = new StringBuilder();

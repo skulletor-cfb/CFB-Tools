@@ -95,6 +95,11 @@ namespace EA_DB_Editor
             sb.AppendLine("Team,TeamId,Record,National,Conference,WinPct");
             foreach (var team in Team.Teams.Values.Where(t => t.Id.IsFCS()==false).OrderByDescending(t => t.NationalTitles).ThenByDescending(t => t.AllTimeWin))
             {
+                if(team.Id.TeamNoLongerFBS())
+                {
+                    continue;
+                }
+
                 sb.AppendLine(string.Format("{0},{1},{2}-{3},{4},{5},{6}",
                     team.Name, team.Id, team.AllTimeWin, team.AllTimeLoss, team.NationalTitles, team.ConferenceTitles, team.AllTimeWin * 1000 / (team.AllTimeWin + team.AllTimeTie + team.AllTimeLoss)));
             }

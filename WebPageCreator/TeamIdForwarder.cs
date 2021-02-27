@@ -6,7 +6,7 @@ namespace EA_DB_Editor
 {
     public static class TeamIdForwarder
     {
-        public static Dictionary<int, int> TeamIdFwd = ConfigurationManager.AppSettings["TeamIdFwd"].Split(',').ToDictionary(s => s.Split('=').First().ToInt32(), s => s.Split('=')[1].ToInt32());
+        public static Dictionary<int, int> TeamIdFwd = ConfigurationManager.AppSettings["TeamIdFwd"]?.Split(',').ToDictionary(s => s.Split('=').First().ToInt32(), s => s.Split('=')[1].ToInt32()) ?? new Dictionary<int, int>();
 
         public static int GetRealTeamId(this int id)
         {

@@ -6,7 +6,7 @@ namespace EA_DB_Editor
     public class SunBeltSchedule
     {
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD };
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA };
         public static Dictionary<int, HashSet<int>> SunbeltConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
 
@@ -29,7 +29,7 @@ namespace EA_DB_Editor
         {
             var idx = (Form1.DynastyYear - 2372) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(11, RecruitingFixup.SBCId, "SunBelt");
+            result = result.Verify(9, RecruitingFixup.SBCId, "SunBelt");
             SunbeltConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -43,9 +43,24 @@ namespace EA_DB_Editor
         const int LT = 43;
         const int ULM = 65;
         const int ULL = 86;
-        const int Army = 8;
-        const int Navy = 57;
 
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new Dictionary<int, int[]>()
+            {
+                {TexSt, new[]{NT, ULM, LT, UAB} },
+                {UTSA, new[]{TexSt, ArkSt, ULL, USM} },
+                {NT, new[]{UTSA, ArkSt, ULL, USM} },
+                {ArkSt, new[]{TexSt, ULM, LT, UAB} },
+                {ULM, new[]{UTSA, NT, ULL, UAB} },
+                {ULL, new[]{TexSt, ArkSt, LT, USM} },
+                {LT, new[]{UTSA, NT, ULM, USM} },
+                {USM, new[]{TexSt, ArkSt, ULM, UAB} },
+                {UAB, new[]{UTSA, NT, ULL, LT} },
+            };
+        }
+
+#if false
         public static Dictionary<int, int[]> CreateA()
         {
             return new Dictionary<int, int[]>()
@@ -78,5 +93,6 @@ namespace EA_DB_Editor
         {
             return null;
         }
+#endif
     }
 }

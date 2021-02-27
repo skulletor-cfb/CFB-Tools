@@ -240,11 +240,12 @@ namespace EditorTest
         [TestMethod]
         public void SBCScheduleA()
         {
-            SunBeltSchedule.CreateA().Verify(11, RecruitingFixup.SBCId, "SunBelt  ", false);
+            SunBeltSchedule.CreateA().Verify(9, RecruitingFixup.SBCId, "SunBelt  ", false);
             var hash = SunBeltSchedule.CreateA().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
+#if false
         [TestMethod]
         public void SBCScheduleB()
         {
@@ -268,6 +269,7 @@ namespace EditorTest
             var hash = SunBeltSchedule.CreateD().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
+#endif
 
         [TestMethod]
         public void CUSAScheduleA()

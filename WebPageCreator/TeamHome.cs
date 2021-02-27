@@ -230,7 +230,7 @@ namespace EA_DB_Editor
             // need historic records
             HistoricTeamRecord.Create(db);
             BowlChampion.Create(db);
-            TeamSchedule.Create(db);
+            TeamSchedule.Create(db, isPreseason);
             ScheduledGame.Create(db, isPreseason);
             Bowl.Create(db, isPreseason);
             Coach.Create(db);
@@ -261,8 +261,11 @@ namespace EA_DB_Editor
             }
 
 
-            Teams.Add(61, new Team(61, "New Mexico State"));
-            Teams.Add(100, new Team(100, "Connecticut"));
+            if( !Teams.ContainsKey(61))
+                Teams.Add(61, new Team(61, "New Mexico State"));
+
+            if (!Teams.ContainsKey(100))
+                Teams.Add(100, new Team(100, "Connecticut"));
         }
 
         public static void TopPrograms(MaddenDatabase db, bool isPreseason)

@@ -1705,7 +1705,7 @@ namespace EA_DB_Editor
         {
             ScheduleFixup.FixSchedule();
             ScheduleFixup.FixSchedule();
-            ScheduleFixup.SetSunBeltChampionship();
+//            ScheduleFixup.SetSunBeltChampionship();
             ScheduleFixup.SetNeutralSiteLogos();
         }
 

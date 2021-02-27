@@ -876,7 +876,7 @@ namespace EA_DB_Editor
             for (int i = 0; i < table.Length; i++)
             {
                 var record = table[i];
-                var teamId = record.GetInt(7);
+                var teamId = record.GetInt(7).GetRealTeamId();
                 var holder = record["RCDH"].Substring(5);
 
                 SetNewRecord((TeamRecordKeys)record["RCDI"].ToInt32(), record["RCDV"].ToInt32(), PlayerDB.Find(teamId, holder[0], holder.Substring(2)), null, Int32.MaxValue, record["RCDT"].ToInt32());
