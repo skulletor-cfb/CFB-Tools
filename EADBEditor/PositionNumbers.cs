@@ -193,7 +193,7 @@ namespace EA_DB_Editor
 
             // now we know all the numbers of all the players on all teams
             var incomingFrosh = playerTable.lRecords.Where(r => IsNewFrosh(r)).ToArray();
-            incomingFrosh = incomingFrosh.Where(r => r.Position() == 0).OrderByDescending(r => r.Overall()).Concat(incomingFrosh.Where(r => r.Position() != 0 && r.Position() < 19).OrderByDescending(r => r.Overall())).Concat( incomingFrosh.Where(r=> r.Position()>=19)).ToArray();
+            incomingFrosh = incomingFrosh.Where(r => r.Position() == 0).OrderByDescending(r => r.Overall()).Concat(incomingFrosh.Where(r => r.Position() != 0 && r.Position() < 19).OrderByDescending(r => r.Overall())).Concat(incomingFrosh.Where(r => r.Position() >= 19)).ToArray();
             foreach (var row in incomingFrosh)
             {
                 var team = row.TeamId();

@@ -262,10 +262,10 @@ namespace EA_DB_Editor
 
 
             if( !Teams.ContainsKey(61))
-                Teams.Add(61, new Team(61, "New Mexico State"));
+                Teams.Add(61, new Team(61, "New Mexico State") { ToughestPlaceToPlayRank = 1000});
 
             if (!Teams.ContainsKey(100))
-                Teams.Add(100, new Team(100, "Connecticut"));
+                Teams.Add(100, new Team(100, "Connecticut") { ToughestPlaceToPlayRank = 1000 });
         }
 
         public static void TopPrograms(MaddenDatabase db, bool isPreseason)
@@ -1186,6 +1186,11 @@ namespace EA_DB_Editor
             if (stadium != null)
             {
                 this.ToughestPlaceToPlayRank = stadium["STDR"].ToInt32();
+            }
+
+            if (this.Id.TeamNoLongerFBS())
+            {
+                this.ToughestPlaceToPlayRank = 1000;
             }
         }
     }

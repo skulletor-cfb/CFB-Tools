@@ -303,7 +303,7 @@ namespace EA_DB_Editor
         {
             return new Func<PreseasonScheduledGame, int?>[]
             {
-//                game=> MatchTeams(13,game,8,57), //army-navy
+                game=> MatchTeams(13,game,8,57), //army-navy
                 game=> MatchTeams(13,game,85,98), //uab-usm
                 game=> MatchTeams(13,game,64,7), //nt-ark st
                 game=> MatchTeams(13,game,232,218), //tex st-utsa
@@ -312,9 +312,6 @@ namespace EA_DB_Editor
                 game=> MatchTeams(12,game,43,65), //lt-ulm
                 game=> MatchTeams(7,game,43,85), //lt-usm
                 game=> MatchTeams(7,game,65,7), //ulm-ark st
-//                game=> MatchTeams(13,game,211,53), //wku-mtsu
- //               game=> MatchTeams(13,game,85,98), //usm-uab
-   //             game=> MatchTeams(8,game,53,64), //mtsu-nt
             };
         }
     }
@@ -364,6 +361,7 @@ namespace EA_DB_Editor
                 game=> MatchTeams(7,game,901,234), //appst-odu
                 game=> MatchTeams(7,game,61,100), //ccu-clt
                 game=> MatchTeams(8,game,61,181), //ccu-gaso
+                game=> MatchTeams(13,game,8,57), //army-navy
             };
         }
     }

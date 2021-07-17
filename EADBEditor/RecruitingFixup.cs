@@ -420,6 +420,8 @@ namespace EA_DB_Editor
                 }
             }
 
+            if(recruitId < DontChange) { return; }
+
             List<int> teams = new List<int>();
             List<int> subs = new List<int>();
 

@@ -512,7 +512,7 @@ namespace EA_DB_Editor
                 var record = table.lRecords[i];
                 var bc = new BowlChampion
                 {
-                    TeamId = record.GetInt(0),
+                    TeamId = record.GetInt(0).GetRealTeamId(),
                     Year = record.GetInt(1) + ContinuationData.ContinuationYear,
                     BowlId = record.GetInt(2)
                 };
