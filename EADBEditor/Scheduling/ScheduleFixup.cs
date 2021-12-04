@@ -1210,39 +1210,41 @@ namespace EA_DB_Editor
 
         public static void SetSunBeltChampionship()
         {
+            MessageBox.Show("setting sunbelt ccg");
             // games in week 14 should be moved to week 16
             var schedule = Form1.MainForm.maddenDB.lTables[161];
             var teamSchedules = Form1.MainForm.maddenDB.lTables[113];
-            int start = 43;
 
             var games = schedule.lRecords.Where(mr => mr["SEWN"].ToInt32() == 14).OrderBy(mr => mr["SGNM"].ToInt32()).ToArray();
             var set = new HashSet<int>(games.Select(mr => mr["SGNM"].ToInt32()));
-            var teamGames = teamSchedules.lRecords.Where(mr => mr["SEWN"].ToInt32() == 14 && set.Contains(mr["SGNM"].ToInt32())).OrderBy(mr => mr["SGNM"].ToInt32()).ToArray();
+            //var teamGames = teamSchedules.lRecords.Where(mr => mr["SEWN"].ToInt32() == 14 && set.Contains(mr["SGNM"].ToInt32())).OrderBy(mr => mr["SGNM"].ToInt32()).ToArray();
 
             // sun belt
             var bowlTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "BOWL");
-            var gameNum = start.ToString();
+            var gameNum = "43";
             var sbcChamp = bowlTable.lRecords.Single(mr => mr["BIDX"].ToInt32() == 42);
             sbcChamp["SGNM"] = gameNum;
             var game = games[0];
-            var teamGame1 = teamGames[0];
-            var teamGame2 = teamGames[1];
+            //var teamGame1 = teamGames[0];
+            //var teamGame2 = teamGames[1];
             const string ccgWeek = "16";
             game["GDAT"] = "4";
             game["GTOD"] = "1200";
             game["SEWN"] = ccgWeek;
             game["SEWT"] = ccgWeek;
+            game["SGNM"] = gameNum;
+            game["GHTG"] = "1023";
+            game["GATG"] = "1023";
+
+            /*
             teamGame1["SEWN"] = ccgWeek;
             teamGame2["SEWN"] = ccgWeek;
 
             teamGame1["SGNM"] = gameNum;
             teamGame2["SGNM"] = gameNum;
-            game["SGNM"] = gameNum;
 
             teamGame1["THOA"] = "1";
-            teamGame2["THOA"] = "1";
-
-            start--;
+            teamGame2["THOA"] = "1";*/
         }
 
         public static void FixSchedule()

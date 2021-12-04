@@ -433,25 +433,25 @@ namespace EA_DB_Editor
                         NumberLookup.Add(4, new PositionNumbers(4, Create(11, 19), Create(80, 89), Create(80, 89), Create(11, 19), Create(80, 89), Create(80, 89), Create(40, 49)));
 
                         // OL
-                        NumberLookup.Add(5, new PositionNumbers(5, Create(50, 79)) { ReplaceOnlyIfDuplicate = true });
+                        NumberLookup.Add(5, new PositionNumbers(5, Create(50, 79)));
                         NumberLookup[6] = NumberLookup[5];
                         NumberLookup[7] = NumberLookup[5];
                         NumberLookup[8] = NumberLookup[5];
                         NumberLookup[9] = NumberLookup[5];
 
                         // P/K
-                        NumberLookup.Add(19, new PositionNumbers(19, Create(10, 49), Create(80, 99)) { ReplaceOnlyIfDuplicate = true });
+                        NumberLookup.Add(19, new PositionNumbers(19, Create(20, 49), Create(80, 99)) { ReplaceOnlyIfDuplicate = true });
                         NumberLookup[20] = NumberLookup[19];
 
                         // DE
-                        NumberLookup.Add(10, new PositionNumbers(10, Create(1, 49), Create(70, 79), Create(90, 99), Create(70, 79), Create(90, 99), Create(70, 99), Create(80, 89)));
+                        NumberLookup.Add(10, new PositionNumbers(10, Create(1, 59), Create(70, 79), Create(90, 99), Create(70, 79), Create(90, 99), Create(70, 99), Create(80, 89)));
                         NumberLookup[11] = NumberLookup[10];
 
                         // DT
-                        NumberLookup.Add(12, new PositionNumbers(12, Create(1, 49), Create(60, 69), Create(70, 79), Create(90, 99), Create(70, 79), Create(90, 99), Create(70, 99)));
+                        NumberLookup.Add(12, new PositionNumbers(12, Create(1, 59), Create(60, 69), Create(70, 79), Create(90, 99), Create(70, 79), Create(90, 99), Create(70, 99)));
 
                         // LB
-                        NumberLookup.Add(13, new PositionNumbers(13, Create(1, 59), Create(90, 99), Create(50, 59)));
+                        NumberLookup.Add(13, new PositionNumbers(13, Create(1, 59), Create(90, 99), Create(40, 59)));
                         NumberLookup[14] = NumberLookup[13];
                         NumberLookup[15] = NumberLookup[13];
 

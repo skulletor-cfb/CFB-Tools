@@ -6,7 +6,7 @@ namespace EA_DB_Editor
     public class CUSASchedule
     {
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE, CreateF, CreateF };
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB};
         public static Dictionary<int, HashSet<int>> CUSAConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
 
@@ -27,9 +27,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2380) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2395) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(14, RecruitingFixup.CUSAId, "CUSA");
+            result = result.Verify(12, RecruitingFixup.CUSAId, "CUSA");
             CUSAConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -88,7 +88,7 @@ namespace EA_DB_Editor
                 {CCU,new[] {USA,GaSo,CLT,GSU } },
             };
         }
-#else
+#elif false
         public static Dictionary<int, int[]> CreateA()
         {
             return new Dictionary<int, int[]>()
@@ -220,6 +220,48 @@ namespace EA_DB_Editor
             };
         }
 
+#else
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new Dictionary<int, int[]>()
+            {
+                {GSU,new[] {GaSo, AppSt, ODU, Navy } },
+                {GaSo,new[] {Coastal, AppSt, Army, FAU} },
+                {Coastal,new[] {GSU, Charlotte, ODU, Navy } },
+                {AppSt,new[] {Coastal, ODU, FIU, USA } },
+                {Charlotte,new[] {GSU, GaSo, AppSt, Troy} },
+                {ODU,new[] {GaSo, Charlotte, FIU, USA} },
+
+
+                {Army,new[] {GSU, Coastal, FAU, Troy } },
+                {Navy,new[] {GaSo, Army , FIU, USA } },
+                {FAU,new[] {GSU, Coastal, Navy, Troy} },
+                {FIU,new[] {Charlotte, Army, FAU, Troy} },
+                {Troy,new[] {AppSt, ODU, Navy, USA} },
+                {USA,new[] {Charlotte, Army, FAU, FIU} },
+            };
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new Dictionary<int, int[]>()
+            {
+                {GSU,new[] {GaSo, AppSt, ODU, Troy} },
+                {GaSo,new[] {Coastal, AppSt, FIU, USA} },
+                {Coastal,new[] {GSU, Charlotte, ODU, Troy} },
+                {AppSt,new[] {Coastal, ODU, Army, FAU } },
+                {Charlotte,new[] {GSU, GaSo, AppSt, Navy} },
+                {ODU,new[] {GaSo, Charlotte, Navy, FAU} },
+
+
+                {Army,new[] {Charlotte, ODU, FIU, USA } },
+                {Navy,new[] {AppSt, Army, FAU, Troy } },
+                {FAU,new[] {Charlotte, Army, Troy, USA} },
+                {FIU,new[] {GSU, Coastal, Navy, FAU} },
+                {Troy,new[] {GaSo, Army, FIU, USA} },
+                {USA,new[] {GSU, Coastal, Navy, FIU} },
+            };
+        }
 #endif
     }
 }

@@ -1705,7 +1705,7 @@ namespace EA_DB_Editor
         {
             ScheduleFixup.FixSchedule();
             ScheduleFixup.FixSchedule();
-//            ScheduleFixup.SetSunBeltChampionship();
+            //ScheduleFixup.SetSunBeltChampionship();
             ScheduleFixup.SetNeutralSiteLogos();
         }
 
@@ -3475,7 +3475,7 @@ PPOS = Position
             // find all the freshman players
             var playerTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "PLAY");
 
-#if true
+#if false
             // any players without a redshirt are set to current season, allowing for 5 years of eligibility
             var playersToRedshirt = playerTable.lRecords.Where(mr => mr["TGID"].ToInt32() != 1023 && mr["PRSD"].ToInt32() == 0).ToList();
 
@@ -3631,6 +3631,55 @@ PPOS = Position
                             mr[BOKL] = playbookId;
                         }
                     }
+                }
+            }
+        }
+
+        private void setSunBeltCCGToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TeamEntry homeEntry = new TeamEntry("Home team");
+            TeamEntry awayEntry = new TeamEntry("Away team");
+            if (homeEntry.ShowDialog() == DialogResult.OK)
+            {
+                if (awayEntry.ShowDialog() == DialogResult.OK)
+                {
+                    var home = homeEntry.TeamId;
+                    var away = awayEntry.TeamId;
+                    var week = "16";
+                    var gameNum = "43";
+
+                    //find stadium id for home team
+                    var teamQuery = new Dictionary<string, string>();
+                    teamQuery["TGID"] = home.ToString();
+                    var teamRecord = MaddenTable.Query(Form1.MainForm.maddenDB.lTables, "TEAM", teamQuery).SingleOrDefault();
+                    var teamStadium = teamRecord["SGID"];
+
+                    var query = new Dictionary<string, string>();
+                    query["SGNM"] = gameNum;
+                    query["SEWN"] = week;
+
+                    // get the team schedule
+                    var scheduleTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "SCHD");
+                    var ccg = MaddenTable.Query(scheduleTable, query).SingleOrDefault();
+                    ccg["GHTG"] = home.ToString();
+                    ccg["GATG"] = away.ToString();
+                    ccg["SGID"] = teamStadium;
+
+                    var teamScheduleTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "TSCH");
+                    query = new Dictionary<string, string>();
+                    query["TGID"] = home.ToString();
+                    query["SEWN"] = week;
+
+                    var homeTeamSchedule = MaddenTable.Query(teamScheduleTable, query).SingleOrDefault();
+                    homeTeamSchedule["OGID"] = away.ToString();
+                    homeTeamSchedule["THOA"] = "1";
+                    homeTeamSchedule["SGNM"] = gameNum;
+
+                    query["TGID"] = away.ToString();
+                    var awayTeamSchedule = MaddenTable.Query(teamScheduleTable, query).SingleOrDefault();
+                    awayTeamSchedule["OGID"] = home.ToString();
+                    awayTeamSchedule["THOA"] = "0";
+                    awayTeamSchedule["SGNM"] = gameNum;
                 }
             }
         }

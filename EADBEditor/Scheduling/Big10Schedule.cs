@@ -18,11 +18,12 @@ namespace EA_DB_Editor
         const int Indiana = 36;
         const int Purdue = 78;
         const int PennState = 76;
-        const int Rutgers = 80; 
+        const int Rutgers = 80;
 
 
         private static bool initRun = false;
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateE, CreateE, CreateF, CreateF, CreateC, CreateC, CreateG, CreateG, CreateA, CreateA, CreateH, CreateH, CreateD, CreateD, CreateJ, CreateJ, CreateB, CreateB, CreateI, CreateI };
+        //public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE };
         public static Dictionary<int, HashSet<int>> Big10ConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
 
@@ -42,13 +43,14 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = Form1.DynastyYear % Creators.Length;
+            var idx = (Form1.DynastyYear) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(12, RecruitingFixup.Big10Id, "Big10");
             Big10ConferenceSchedule = result.BuildHashSet();
             return result;
         }
 
+#if true
 
         public static Dictionary<int, int[]> CreateA()
         {
@@ -192,7 +194,7 @@ namespace EA_DB_Editor
             dict.Create(Northwestern, MichSt, Iowa, Wisconsin, OhioSt);
             dict.Create(MichSt, Iowa, Minnesota, Wisconsin, PennState);
             dict.Create(Iowa, Michigan, Minnesota, PennState, Purdue);
-            dict.Create(Minnesota, Michigan, Northwestern, Purdue,Rutgers);
+            dict.Create(Minnesota, Michigan, Northwestern, Purdue, Rutgers);
             dict.Create(Wisconsin, Michigan, Iowa, Minnesota, OhioSt);
 
             dict.Create(OhioSt, Michigan, Illinois, Indiana, Rutgers);
@@ -208,18 +210,18 @@ namespace EA_DB_Editor
         {
             var dict = new Dictionary<int, int[]>();
             dict.Create(Michigan, MichSt, Wisconsin, Purdue, Rutgers);
-            dict.Create(Northwestern, Michigan,Iowa,Indiana,Rutgers);
-            dict.Create(MichSt, Northwestern,Wisconsin,OhioSt,PennState);
-            dict.Create(Iowa, Michigan,MichSt,Minnesota,Purdue);
-            dict.Create(Minnesota, Michigan, Northwestern,MichSt,PennState);
-            dict.Create(Wisconsin, Northwestern,Iowa,Minnesota,Indiana);
+            dict.Create(Northwestern, Michigan, Iowa, Indiana, Rutgers);
+            dict.Create(MichSt, Northwestern, Wisconsin, OhioSt, PennState);
+            dict.Create(Iowa, Michigan, MichSt, Minnesota, Purdue);
+            dict.Create(Minnesota, Michigan, Northwestern, MichSt, PennState);
+            dict.Create(Wisconsin, Northwestern, Iowa, Minnesota, Indiana);
 
-            dict.Create(OhioSt, Michigan, Iowa,Illinois,Rutgers);
-            dict.Create(Illinois, Northwestern,Iowa,Minnesota,Indiana);
-            dict.Create(Indiana, MichSt,OhioSt,Purdue,Rutgers);
-            dict.Create(Purdue, Wisconsin,OhioSt,Illinois,PennState);
-            dict.Create(PennState, Wisconsin,OhioSt,Illinois,Indiana);
-            dict.Create(Rutgers, Minnesota,Illinois,Purdue,PennState);
+            dict.Create(OhioSt, Michigan, Iowa, Illinois, Rutgers);
+            dict.Create(Illinois, Northwestern, Iowa, Minnesota, Indiana);
+            dict.Create(Indiana, MichSt, OhioSt, Purdue, Rutgers);
+            dict.Create(Purdue, Wisconsin, OhioSt, Illinois, PennState);
+            dict.Create(PennState, Wisconsin, OhioSt, Illinois, Indiana);
+            dict.Create(Rutgers, Minnesota, Illinois, Purdue, PennState);
             return dict;
         }
 
@@ -235,14 +237,53 @@ namespace EA_DB_Editor
 
             dict.Create(OhioSt, Michigan, Illinois, Indiana, Rutgers);
             dict.Create(Illinois, Northwestern, Wisconsin, Indiana, PennState);
-            dict.Create(Indiana, Iowa,Wisconsin, Purdue, Rutgers);
+            dict.Create(Indiana, Iowa, Wisconsin, Purdue, Rutgers);
             dict.Create(Purdue, MichSt, OhioSt, Illinois, Rutgers);
             dict.Create(PennState, Northwestern, OhioSt, Indiana, Purdue);
             dict.Create(Rutgers, MichSt, Minnesota, Illinois, PennState);
             return dict;
         }
+#else
+        public static Dictionary<int, int[]> CreateA()
+        {
+            var dict = new Dictionary<int, int[]>();
+            dict.Create(Indiana, MichSt, OhioSt, Purdue, Wisconsin);
+            dict.Create(MichSt, OhioSt, PennState, Wisconsin, Illinois);
+            dict.Create(Michigan, Indiana, MichSt, PennState, Iowa);
+            dict.Create(OhioSt, Michigan, Rutgers, Purdue, Minnesota);
+            dict.Create(PennState, Indiana, OhioSt, Minnesota, Illinois);
+            dict.Create(Rutgers, Indiana, MichSt, Michigan, PennState);
 
-        private static void Create(this Dictionary<int,int[]> dict, params int[] values)
+
+            dict.Create(Purdue, Michigan, Minnesota, Illinois, Northwestern);
+            dict.Create(Iowa, PennState, Rutgers, Purdue, Wisconsin);
+            dict.Create(Minnesota, Michigan, Iowa, Illinois, Northwestern);
+            dict.Create(Wisconsin, OhioSt, Purdue, Minnesota, Northwestern);
+            dict.Create(Illinois, Rutgers, Iowa, Wisconsin, Northwestern);
+            dict.Create(Northwestern, Indiana, MichSt, Rutgers, Iowa);
+            return dict;
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return null;
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return null;
+        }
+        public static Dictionary<int, int[]> CreateD()
+        {
+            return null;
+        }
+        public static Dictionary<int, int[]> CreateE()
+        {
+            return null;
+        }
+#endif
+
+        private static void Create(this Dictionary<int, int[]> dict, params int[] values)
         {
             dict[values[0]] = values.Skip(1).ToArray();
         }

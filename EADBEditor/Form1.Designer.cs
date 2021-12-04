@@ -61,6 +61,9 @@
             this.applyRecruitFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.applyRosterStatsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.randomizeNamesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.playbookToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.importToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.filterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.massToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.headerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -93,9 +96,7 @@
             this.pollPointsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.redshritFroshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.playbookToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exportToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.importToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.setSunBeltCCGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -357,6 +358,29 @@
             this.randomizeNamesToolStripMenuItem.Text = "Randomize Names";
             this.randomizeNamesToolStripMenuItem.Click += new System.EventHandler(this.randomizeNamesToolStripMenuItem_Click);
             // 
+            // playbookToolStripMenuItem
+            // 
+            this.playbookToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.exportToolStripMenuItem1,
+            this.importToolStripMenuItem1});
+            this.playbookToolStripMenuItem.Name = "playbookToolStripMenuItem";
+            this.playbookToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
+            this.playbookToolStripMenuItem.Text = "Playbook";
+            // 
+            // exportToolStripMenuItem1
+            // 
+            this.exportToolStripMenuItem1.Name = "exportToolStripMenuItem1";
+            this.exportToolStripMenuItem1.Size = new System.Drawing.Size(110, 22);
+            this.exportToolStripMenuItem1.Text = "Export";
+            this.exportToolStripMenuItem1.Click += new System.EventHandler(this.exportToolStripMenuItem1_Click);
+            // 
+            // importToolStripMenuItem1
+            // 
+            this.importToolStripMenuItem1.Name = "importToolStripMenuItem1";
+            this.importToolStripMenuItem1.Size = new System.Drawing.Size(110, 22);
+            this.importToolStripMenuItem1.Text = "Import";
+            this.importToolStripMenuItem1.Click += new System.EventHandler(this.importToolStripMenuItem1_Click);
+            // 
             // filterToolStripMenuItem
             // 
             this.filterToolStripMenuItem.Name = "filterToolStripMenuItem";
@@ -571,7 +595,8 @@
             this.postSeasonToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.lastWeekPollToolStripMenuItem,
             this.pollPointsToolStripMenuItem,
-            this.redshritFroshToolStripMenuItem});
+            this.redshritFroshToolStripMenuItem,
+            this.setSunBeltCCGToolStripMenuItem});
             this.postSeasonToolStripMenuItem.Name = "postSeasonToolStripMenuItem";
             this.postSeasonToolStripMenuItem.Size = new System.Drawing.Size(79, 20);
             this.postSeasonToolStripMenuItem.Text = "PostSeason";
@@ -579,21 +604,21 @@
             // lastWeekPollToolStripMenuItem
             // 
             this.lastWeekPollToolStripMenuItem.Name = "lastWeekPollToolStripMenuItem";
-            this.lastWeekPollToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+            this.lastWeekPollToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.lastWeekPollToolStripMenuItem.Text = "Last Week Poll";
             this.lastWeekPollToolStripMenuItem.Click += new System.EventHandler(this.lastWeekPollToolStripMenuItem_Click);
             // 
             // pollPointsToolStripMenuItem
             // 
             this.pollPointsToolStripMenuItem.Name = "pollPointsToolStripMenuItem";
-            this.pollPointsToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+            this.pollPointsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.pollPointsToolStripMenuItem.Text = "Poll Points";
             this.pollPointsToolStripMenuItem.Click += new System.EventHandler(this.pollPointsToolStripMenuItem_Click);
             // 
             // redshritFroshToolStripMenuItem
             // 
             this.redshritFroshToolStripMenuItem.Name = "redshritFroshToolStripMenuItem";
-            this.redshritFroshToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+            this.redshritFroshToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.redshritFroshToolStripMenuItem.Text = "Redshrit Frosh";
             this.redshritFroshToolStripMenuItem.Click += new System.EventHandler(this.redshritFroshToolStripMenuItem_Click);
             // 
@@ -618,28 +643,12 @@
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
-            // playbookToolStripMenuItem
+            // setSunBeltCCGToolStripMenuItem
             // 
-            this.playbookToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.exportToolStripMenuItem1,
-            this.importToolStripMenuItem1});
-            this.playbookToolStripMenuItem.Name = "playbookToolStripMenuItem";
-            this.playbookToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
-            this.playbookToolStripMenuItem.Text = "Playbook";
-            // 
-            // exportToolStripMenuItem1
-            // 
-            this.exportToolStripMenuItem1.Name = "exportToolStripMenuItem1";
-            this.exportToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
-            this.exportToolStripMenuItem1.Text = "Export";
-            this.exportToolStripMenuItem1.Click += new System.EventHandler(this.exportToolStripMenuItem1_Click);
-            // 
-            // importToolStripMenuItem1
-            // 
-            this.importToolStripMenuItem1.Name = "importToolStripMenuItem1";
-            this.importToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
-            this.importToolStripMenuItem1.Text = "Import";
-            this.importToolStripMenuItem1.Click += new System.EventHandler(this.importToolStripMenuItem1_Click);
+            this.setSunBeltCCGToolStripMenuItem.Name = "setSunBeltCCGToolStripMenuItem";
+            this.setSunBeltCCGToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.setSunBeltCCGToolStripMenuItem.Text = "Set Sun Belt CCG";
+            this.setSunBeltCCGToolStripMenuItem.Click += new System.EventHandler(this.setSunBeltCCGToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -728,6 +737,7 @@
         private System.Windows.Forms.ToolStripMenuItem playbookToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem setSunBeltCCGToolStripMenuItem;
     }
 }
 

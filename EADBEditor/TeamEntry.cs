@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace EA_DB_Editor
@@ -15,11 +9,16 @@ namespace EA_DB_Editor
 
         public int? CoachPosition { get; set; } = null;
 
-        public TeamEntry()
+        public TeamEntry(string label = null)
         {
             InitializeComponent();
             this.okBtn.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+
+            if( !string.IsNullOrWhiteSpace(label))
+            {
+                this.label1.Text = label;
+            }
         }
 
         private void okBtn_Click(object sender, EventArgs e)

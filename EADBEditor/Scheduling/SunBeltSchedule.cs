@@ -86,17 +86,56 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateB()
         {
-            return null;
+            return new Dictionary<int, int[]>()
+            {
+                {TexSt, new[]{UAB, ULL, ArkSt, WKU} },
+                {UTSA, new[]{TexSt, USM, ULM, NT} },
+                {UAB, new[]{UTSA, LT, ArkSt, MTSU} },
+                {USM, new[]{UAB, ULL, NT, WKU} },
+                {LT, new[]{TexSt, USM, ULM, MTSU} },
+                {ULL, new[]{ UTSA, LT, ArkSt, WKU} },
+                {ULM, new[]{TexSt, UAB, ULL, NT} },
+                {ArkSt, new[]{UTSA, USM, ULM, MTSU} },
+                {NT, new[]{UAB, LT, ArkSt, WKU} },
+                {MTSU, new[]{TexSt, USM, ULL, NT} },
+                {WKU, new[]{UTSA, LT, ULM ,MTSU} },
+            };
         }
 
         public static Dictionary<int, int[]> CreateC()
         {
-            return null;
+            return new Dictionary<int, int[]>()
+            {
+                {TexSt, new[]{UAB, ULL, NT, WKU} },
+                {UTSA, new[]{TexSt, USM, ULM, MTSU} },
+                {UAB, new[]{UTSA, LT ,ArkSt, WKU} },
+                {USM, new[]{TexSt, UAB, ULL, NT} },
+                {LT, new[]{UTSA, USM, ULM, MTSU} },
+                {ULL, new[]{ UAB, LT , ArkSt, WKU} },
+                {ULM, new[]{TexSt, USM, ULL, NT} },
+                {ArkSt, new[]{UTSA, LT , ULM, MTSU} },
+                {NT, new[]{UAB, ULL, ArkSt, WKU} },
+                {MTSU, new[]{TexSt, USM, ULM , NT} },
+                {WKU, new[]{UTSA, LT, ArkSt, MTSU} },
+            };
         }
 
         public static Dictionary<int, int[]> CreateD()
         {
-            return null;
+            return new Dictionary<int, int[]>()
+            {
+                {TexSt, new[]{UAB, LT, NT, WKU} },
+                {UTSA, new[]{TexSt, USM, ULL, MTSU} },
+                {UAB, new[]{UTSA, LT ,ULM, WKU} },
+                {USM, new[]{TexSt, UAB, ULL, ArkSt} },
+                {LT, new[]{UTSA, USM, ULM, NT} },
+                {ULL, new[]{ UAB, LT, ArkSt, MTSU} },
+                {ULM, new[]{USM, ULL, NT, WKU} },
+                {ArkSt, new[]{TexSt, LT, ULM, MTSU} },
+                {NT, new[]{UTSA, ULL, ArkSt, WKU} },
+                {MTSU, new[]{TexSt, UAB, ULM, NT} },
+                {WKU, new[]{UTSA, USM, ArkSt, MTSU} },
+            };
         }
 #endif
     }
