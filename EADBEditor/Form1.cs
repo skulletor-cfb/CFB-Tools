@@ -2152,19 +2152,19 @@ namespace EA_DB_Editor
             string ln = null;
             string fn = null;
             // hawaiian demographic
-            // 60% medium 105-159
-            // 20% light 1-99
-            // 20% dark  160-246
+            // 75% medium 105-159
+            // 12% light 1-99
+            // 12% dark  160-246
             // 67% last name change
-            if (IsMatch(60))
+            if (IsMatch(75))
             {
                 // medium
                 face = (105 + NamesFile.GetInt(45)).ToString();
 
-                if (IsMatch(75)) ln = names.GetName(names.HILN);
+                if (IsMatch(90)) ln = names.GetName(names.HILN);
                 else ln = recruit["PLNA"];
 
-                if (IsMatch(70))
+                if (IsMatch(90))
                 {
                     fn = names.GetName(names.HIFN);
                 }
@@ -3681,6 +3681,16 @@ PPOS = Position
                     awayTeamSchedule["THOA"] = "0";
                     awayTeamSchedule["SGNM"] = gameNum;
                 }
+            }
+        }
+
+        private void transferRuleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var transferTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "TRAN");
+
+            foreach( var mr in transferTable.lRecords)
+            {
+                mr["TRYR"] = "1";
             }
         }
     }

@@ -303,6 +303,7 @@ namespace EA_DB_Editor
         {
             return new Func<PreseasonScheduledGame, int?>[]
             {
+                game=> MatchTeams(13,game,143,235), //troy-USA
                 game=> MatchTeams(13,game,53,211), //mtsu-wku
                 game=> MatchTeams(13,game,85,98), //uab-usm
                 game=> MatchTeams(13,game,64,7), //nt-ark st
@@ -1268,7 +1269,7 @@ namespace EA_DB_Editor
 
         public bool IsG5Game()
         {
-            return !IsConferenceGame() && !AwayTeam.IsP5OrND() && !HomeTeam.IsP5OrND();
+            return !IsConferenceGame() && !AwayTeam.IsP5OrND() && !HomeTeam.IsP5OrND() && !AwayTeam.IsFcsTeam() && !HomeTeam.IsFcsTeam();
         }
 
         public bool IsAmericanGame()

@@ -6,7 +6,7 @@ namespace EA_DB_Editor
     public class CUSASchedule
     {
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB};
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA};
         public static Dictionary<int, HashSet<int>> CUSAConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
 
@@ -27,9 +27,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2395) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2420) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(12, RecruitingFixup.CUSAId, "CUSA");
+            result = result.Verify(9, RecruitingFixup.CUSAId, "CUSA");
             CUSAConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -220,7 +220,7 @@ namespace EA_DB_Editor
             };
         }
 
-#else
+#elif false
         public static Dictionary<int, int[]> CreateA()
         {
             return new Dictionary<int, int[]>()
@@ -260,6 +260,22 @@ namespace EA_DB_Editor
                 {FIU,new[] {GSU, Coastal, Navy, FAU} },
                 {Troy,new[] {GaSo, Army, FIU, USA} },
                 {USA,new[] {GSU, Coastal, Navy, FIU} },
+            };
+        }
+#else
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new Dictionary<int, int[]>()
+            {
+                {Army,new[] {ODU, GSU, Coastal, FIU } },
+                {Navy,new[] {Army, Charlotte, GaSo, FIU } },
+                {Charlotte,new[] {Army, ODU, AppSt, GSU} },
+                {ODU,new[] {Navy, GaSo, Coastal, FIU} },
+                {AppSt,new[] {Army, Navy, ODU, Coastal } },
+                {GSU,new[] {Navy, ODU, AppSt, GaSo } },
+                {GaSo,new[] {Army, Charlotte, AppSt, Coastal} },
+                {Coastal,new[] {Navy, Charlotte, GSU, FIU } },
+                {FIU,new[] {Charlotte, AppSt, GSU, GaSo} },
             };
         }
 #endif

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EA_DB_Editor
 {
     public class SunBeltSchedule
     {
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD };
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE, CreateF, CreateF };
         public static Dictionary<int, HashSet<int>> SunbeltConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
 
@@ -27,9 +28,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2393) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2420) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(11, RecruitingFixup.SBCId, "SunBelt");
+            result = result.Verify(14, RecruitingFixup.SBCId, "SunBelt");
             SunbeltConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -45,8 +46,9 @@ namespace EA_DB_Editor
         const int ULL = 86;
         const int WKU = 211;
         const int MTSU = 53;
-        const int Army = 8;
-        const int Navy = 57;
+        const int Troy = 143;
+        const int USA = 235;
+        const int FAU = 229;
 
 #if false
         public static Dictionary<int, int[]> CreateA()
@@ -65,7 +67,7 @@ namespace EA_DB_Editor
             };
         }
 
-#else
+#elif false
         public static Dictionary<int, int[]> CreateA()
         {
             return new Dictionary<int, int[]>()
@@ -136,6 +138,71 @@ namespace EA_DB_Editor
                 {MTSU, new[]{TexSt, UAB, ULM, NT} },
                 {WKU, new[]{UTSA, USM, ArkSt, MTSU} },
             };
+        }
+#else
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return Create(
+                new[]
+                {
+                Create(NT, LT, UTSA, ArkSt, USM),
+                Create(LT, ULM, UTSA, ArkSt, USM),
+                Create(ULM, NT, TexSt, ULL, WKU),
+                Create(UTSA, ULM, TexSt, ULL, UAB),
+                Create(ArkSt, ULM, UTSA, ULL, WKU),
+                Create(TexSt, NT, LT, ArkSt, FAU),
+                Create(ULL, NT, LT, TexSt, MTSU),
+
+                Create(MTSU, NT, FAU, Troy, USA),
+                Create(USM, MTSU, FAU, Troy, UAB),
+                Create(FAU, ULL, Troy, WKU, UAB),
+                Create(Troy, ArkSt, TexSt, WKU, USA),
+                Create(WKU, MTSU, USM, UAB, USA),
+                Create(UAB, ULM, MTSU, Troy, USA),
+                Create(USA, LT, UTSA, USM, FAU),
+                });
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return null;
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return null;
+        }
+
+        public static Dictionary<int, int[]> CreateD()
+        {
+            return null;
+        }
+
+        public static Dictionary<int, int[]> CreateE()
+        {
+            return null;
+        }
+
+        public static Dictionary<int, int[]> CreateF()
+        {
+            return null;
+        }
+
+        private static KeyValuePair<int, int[]> Create(params int[] values)
+        {
+            var key = values[0];
+            var value = values.Skip(1).ToArray();
+            return new KeyValuePair<int, int[]>(key, value);
+        }
+
+        private static Dictionary<int, int[]> Create(KeyValuePair<int, int[]>[] kvps)
+        {
+            var dict = new Dictionary<int, int[]>();
+            foreach( var kvp in kvps)
+            {
+                dict.Add(kvp.Key, kvp.Value);
+            }
+            return dict;
         }
 #endif
     }

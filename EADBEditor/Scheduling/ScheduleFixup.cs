@@ -413,13 +413,13 @@ namespace EA_DB_Editor
                     if (tsch.Key.IsP5())
                     {
                         P5Matchups += p5Opp;
-                        P5vsG5 += (ooc.Length - p5Opp);
+                        P5vsG5 += (ooc.Length - p5Opp -fcsOpp);
                     }
 
                     if (tsch.Key.IsG5())
                     {
                         G5Matchups += g5Opp;
-                        P5vsG5 += (ooc.Length - g5Opp);
+                        //P5vsG5 += (ooc.Length - g5Opp);
                     }
 
                     if(homeGames < 5)
@@ -531,7 +531,7 @@ namespace EA_DB_Editor
             sb.AppendLine(FCSGames + " FCS GAMES");
             sb.AppendLine(G5Matchups / 2 + " Group 5 GAMES");
             sb.AppendLine(P5Matchups / 2 + " Power 5 GAMES");
-            sb.AppendLine(P5vsG5 / 2 + " P5 vs G5 GAMES");
+            sb.AppendLine(P5vsG5 + " P5 vs G5 GAMES");
             sb.Append(allGames + " total games");
 
             try
@@ -1394,7 +1394,14 @@ namespace EA_DB_Editor
                     gameRecord["GTOD"] = "720";
                 }
 
-                // wsu-uw play on black friday 4pm
+                // wsu-uw play on black friday 4pm PST
+                else if (MatchTeams(homeTeam, awayTeam, new[] { 110, 111 }))
+                {
+                    gameRecord["GDAT"] = "4";
+                    gameRecord["GTOD"] = "1140";
+                }
+
+                // unc-ncsu play on black friday 4pm EST
                 else if (MatchTeams(homeTeam, awayTeam, new[] { 110, 111 }))
                 {
                     gameRecord["GDAT"] = "4";
@@ -1408,11 +1415,11 @@ namespace EA_DB_Editor
                     gameRecord["GTOD"] = "1200";
                 }
 
-                // egg bowl is on thursday
+                // egg bowl is on thursday 430
                 else if (MatchTeams(homeTeam, awayTeam, new[] { 55, 73 }))
                 {
                     gameRecord["GDAT"] = "3";
-                    gameRecord["GTOD"] = "1170";
+                    gameRecord["GTOD"] = "990";
                 }
 
 #if false

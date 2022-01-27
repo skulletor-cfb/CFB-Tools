@@ -95,8 +95,9 @@
             this.lastWeekPollToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pollPointsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.redshritFroshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.setSunBeltCCGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.transferRuleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -596,7 +597,8 @@
             this.lastWeekPollToolStripMenuItem,
             this.pollPointsToolStripMenuItem,
             this.redshritFroshToolStripMenuItem,
-            this.setSunBeltCCGToolStripMenuItem});
+            this.setSunBeltCCGToolStripMenuItem,
+            this.transferRuleToolStripMenuItem});
             this.postSeasonToolStripMenuItem.Name = "postSeasonToolStripMenuItem";
             this.postSeasonToolStripMenuItem.Size = new System.Drawing.Size(79, 20);
             this.postSeasonToolStripMenuItem.Text = "PostSeason";
@@ -622,6 +624,13 @@
             this.redshritFroshToolStripMenuItem.Text = "Redshrit Frosh";
             this.redshritFroshToolStripMenuItem.Click += new System.EventHandler(this.redshritFroshToolStripMenuItem_Click);
             // 
+            // setSunBeltCCGToolStripMenuItem
+            // 
+            this.setSunBeltCCGToolStripMenuItem.Name = "setSunBeltCCGToolStripMenuItem";
+            this.setSunBeltCCGToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.setSunBeltCCGToolStripMenuItem.Text = "Set Sun Belt CCG";
+            this.setSunBeltCCGToolStripMenuItem.Click += new System.EventHandler(this.setSunBeltCCGToolStripMenuItem_Click);
+            // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -643,12 +652,12 @@
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
-            // setSunBeltCCGToolStripMenuItem
+            // transferRuleToolStripMenuItem
             // 
-            this.setSunBeltCCGToolStripMenuItem.Name = "setSunBeltCCGToolStripMenuItem";
-            this.setSunBeltCCGToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.setSunBeltCCGToolStripMenuItem.Text = "Set Sun Belt CCG";
-            this.setSunBeltCCGToolStripMenuItem.Click += new System.EventHandler(this.setSunBeltCCGToolStripMenuItem_Click);
+            this.transferRuleToolStripMenuItem.Name = "transferRuleToolStripMenuItem";
+            this.transferRuleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.transferRuleToolStripMenuItem.Text = "Transfer Rule";
+            this.transferRuleToolStripMenuItem.Click += new System.EventHandler(this.transferRuleToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -738,6 +747,7 @@
         private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem setSunBeltCCGToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem transferRuleToolStripMenuItem;
     }
 }
 
