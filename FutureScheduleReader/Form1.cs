@@ -43,7 +43,7 @@ namespace FutureScheduleReader
             {
                 ExcelApp._Worksheet excelSheet = excelBook.Sheets["Schedule"];
                 var table = excelSheet.UsedRange;
-                var rows = 67;//  table.Rows.Count;
+                var rows = 69;//  table.Rows.Count;
                 var cols = table.Columns.Count;
                 list.Clear();
                 start = Convert.ToInt32(table.Cells[1, 2].Value2);

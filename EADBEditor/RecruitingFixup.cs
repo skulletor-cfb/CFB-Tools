@@ -232,6 +232,8 @@ namespace EA_DB_Editor
 
         const int NotreDameId = 68;
         const int BYUId = 16;
+        const int CincyId = 20;
+        const int UCFId = 18;
 
         static Lazy<Dictionary<int, int[]>> ConfStateAssignments = new Lazy<Dictionary<int, int[]>>(CreateConferenceAssignmentsForStates, true);
 
@@ -248,7 +250,7 @@ namespace EA_DB_Editor
             dict.Add(5, new int[] { TeamAndConferences[22], NotreDameId, BYUId }); //CO
             dict.Add(6, new int[] { ACCId,Big10Id , NotreDameId}); //CT
             dict.Add(7, new int[] { ACCId, Big10Id ,NotreDameId}); //DE
-            dict.Add(8, new int[] { SECId,ACCId , SECId, ACCId }); //FL
+            dict.Add(8, new int[] { SECId,ACCId , SECId, ACCId, UCFId }); //FL
             dict.Add(9, new int[] { SECId, ACCId }); //GA
             dict.Add(10, new int[] { Pac16Id, NotreDameId  }); //HI
             dict.Add(11, new int[] { Pac16Id, BYUId, Big12Id }); //ID
@@ -261,7 +263,7 @@ namespace EA_DB_Editor
             dict.Add(18, new int[] { ACCId,Big10Id,NotreDameId }); //ME
             dict.Add(19, new int[] {  ACCId,  NotreDameId }); //MD
             dict.Add(20, new int[] { ACCId, NotreDameId }); //MA
-            dict.Add(21, new int[] { Big10Id,NotreDameId }); //MI
+            dict.Add(21, new int[] { Big10Id,NotreDameId, CincyId }); //MI
             dict.Add(22, new int[] { Big10Id,NotreDameId }); //MN
             dict.Add(23, new int[] { SECId }); //MS
             dict.Add(24, new int[] { SECId,Big12Id}); //MO
@@ -274,10 +276,10 @@ namespace EA_DB_Editor
             dict.Add(31, new int[] { ACCId, Big10Id, NotreDameId }); //NY
             dict.Add(32, new int[] { ACCId }); //NC
             dict.Add(33, new int[] { Pac16Id,NotreDameId, BYUId }); //ND
-            dict.Add(34, new int[] { Big10Id,NotreDameId, Big10Id, NotreDameId, Big10Id, NotreDameId }); //OH
+            dict.Add(34, new int[] { Big10Id,NotreDameId, Big10Id, NotreDameId, Big10Id, NotreDameId, CincyId }); //OH
             dict.Add(35, new int[] { Big12Id }); //OK
             dict.Add(36, new int[] { Pac16Id }); //OR
-            dict.Add(37, new int[] { ACCId,Big10Id,NotreDameId }); //PA
+            dict.Add(37, new int[] { ACCId,Big10Id,NotreDameId, CincyId }); //PA
             dict.Add(38, new int[] { ACCId, Big10Id, NotreDameId }); //RI
             dict.Add(39, new int[] { ACCId,SECId }); //SC
             dict.Add(40, new int[] { Pac16Id,Big12Id,NotreDameId, BYUId }); //SD
@@ -328,6 +330,12 @@ namespace EA_DB_Editor
                             break;
                         case BYUId:
                             allTeams.AddRange(WeightedBYU);
+                            break;
+                        case CincyId:
+                            allTeams.AddRange(WeightedCincy);
+                            break;
+                        case UCFId:
+                            allTeams.AddRange(WeightedUCF);
                             break;
                         default:
                             break; 
@@ -781,7 +789,11 @@ namespace EA_DB_Editor
 
         static string[] academies = { "1", "8", "57" };
         public static int[] OnTheirOwn = TeamsOnTheirOwn();
+#if true
+        public static int[] DontFoolWith = new int[0];// American.ToArray();
+#else
         public static int[] DontFoolWith = American.ToArray();
+#endif
         static List<int> WeightedACC = null;
         static List<int> WeightedBig10 = null;
         static List<int> WeightedBig12 = null;
@@ -790,6 +802,8 @@ namespace EA_DB_Editor
         static List<int> WeightedBYU = null;
         static List<int> WeightedND = null;
         static List<int> WeightedBig16 = null;
+        static List<int> WeightedCincy = null;
+        static List<int> WeightedUCF = null;
 
         public static int[] TeamsOnTheirOwn()
         {
@@ -917,6 +931,13 @@ namespace EA_DB_Editor
 
             // Independent BYU gets to recruit
             WeightedBYU = TeamAndConferences[16] == IndId ? CreateWeightedList(new[] { 16 }) : new List<int>();
+#if true
+            WeightedUCF = CreateWeightedList(new[] { 18 });
+            WeightedCincy = CreateWeightedList(new[] { 20 });
+#else
+            WeightedUCF = CreateWeightedList(new int[0]);
+            WeightedCincy = CreateWeightedList(new int[0]);
+#endif
         }
 
         static List<int> CreateWeightedList(int[] teams, int modifier = 1)
