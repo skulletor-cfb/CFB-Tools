@@ -789,7 +789,7 @@ namespace EA_DB_Editor
 
         static string[] academies = { "1", "8", "57" };
         public static int[] OnTheirOwn = TeamsOnTheirOwn();
-#if true
+#if false
         public static int[] DontFoolWith = new int[0];// American.ToArray();
 #else
         public static int[] DontFoolWith = American.ToArray();
@@ -931,7 +931,7 @@ namespace EA_DB_Editor
 
             // Independent BYU gets to recruit
             WeightedBYU = TeamAndConferences[16] == IndId ? CreateWeightedList(new[] { 16 }) : new List<int>();
-#if true
+#if false
             WeightedUCF = CreateWeightedList(new[] { 18 });
             WeightedCincy = CreateWeightedList(new[] { 20 });
 #else

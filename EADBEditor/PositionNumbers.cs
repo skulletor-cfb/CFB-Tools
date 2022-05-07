@@ -427,7 +427,7 @@ namespace EA_DB_Editor
                         NumberLookup.Add(2, new PositionNumbers(2, Create(20, 49)));
 
                         //WR
-                        NumberLookup.Add(3, new PositionNumbers(3, Create(1, 9), Create(1, 19), Create(1, 9), Create(1, 19), Create(1, 19), Create(1, 19), Create(80, 89), Create(80, 89), Create(80, 89), Create(80, 89), Create(80, 89), Create(80, 89), Create(80, 89), Create(20, 39)));
+                        NumberLookup.Add(3, new PositionNumbers(3, Create(1, 9), Create(1, 19), Create(1, 9), Create(1, 19), Create(1, 19), Create(1, 19), Create(80, 89), Create(80, 89), Create(80, 89), Create(80, 89), Create(80, 89), Create(80, 89)));
 
                         //TE
                         NumberLookup.Add(4, new PositionNumbers(4, Create(11, 19), Create(80, 89), Create(80, 89), Create(11, 19), Create(80, 89), Create(80, 89), Create(40, 49)));
