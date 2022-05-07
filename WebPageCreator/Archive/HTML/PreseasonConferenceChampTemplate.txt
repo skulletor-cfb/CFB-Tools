@@ -1,0 +1,41 @@
+﻿
+<table>
+	<tr>
+		<td class=c8 colspan=9 width=40 height=40></td>
+	</tr>
+</table>
+
+<table>
+	<tr>
+		<td width=800 height=40></td>
+	</tr>
+</table>
+
+<table cellpadding=20 cellspacing=0>	
+	<tr>		
+		<td width=100% align=center colspan=4>			
+			<table cellpadding=0 cellspacing=0 width=100%>				
+				<tr>					
+					<td class=c8 width=100%>
+						<center><img id='ccChampLogo' border=0 src=../HTML/Logos/FCS.jpg></center>
+					</td>
+					<td class=c8>
+					</td>
+				</tr>			
+			</table>		
+		</td>	
+	</tr>	
+
+{TOC_TEMPLATE}
+
+	<tr>
+		<td width=800 align=center colspan=8>
+			<table id='ccTable' cellspacing=1 cellpadding=2 width=80% class=standard>
+				<tr>
+					<td class=c2 colspan=6>
+						<b>Predicted Conference Champions</b>
+					</td>
+				</tr>		
+			</table>
+		</td>							
+	</tr>

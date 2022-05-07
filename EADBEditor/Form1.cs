@@ -1705,6 +1705,8 @@ namespace EA_DB_Editor
         {
             ScheduleFixup.FixSchedule();
             ScheduleFixup.FixSchedule();
+            //ScheduleFixup.SetSunBeltChampionship();
+            ScheduleFixup.SetNeutralSiteLogos();
         }
 
         private void testCoachesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2150,19 +2152,19 @@ namespace EA_DB_Editor
             string ln = null;
             string fn = null;
             // hawaiian demographic
-            // 60% medium 105-159
-            // 20% light 1-99
-            // 20% dark  160-246
+            // 75% medium 105-159
+            // 12% light 1-99
+            // 12% dark  160-246
             // 67% last name change
-            if (IsMatch(60))
+            if (IsMatch(75))
             {
                 // medium
                 face = (105 + NamesFile.GetInt(45)).ToString();
 
-                if (IsMatch(75)) ln = names.GetName(names.HILN);
+                if (IsMatch(90)) ln = names.GetName(names.HILN);
                 else ln = recruit["PLNA"];
 
-                if (IsMatch(70))
+                if (IsMatch(90))
                 {
                     fn = names.GetName(names.HIFN);
                 }
@@ -2491,10 +2493,16 @@ namespace EA_DB_Editor
             }
         }
 
+        /* playbooks for 2013-2371
         private static HashSet<int> Style1Playbooks = new HashSet<int>(new[] { 174, 173, 135, 170, 169, 168, 167, 166, 164, 1, 2, 3, 4, 8, 9, 10, 14, 15, 16, 19, 20, 22, 23, 25, 29, 33, 36, 37, 42, 44, 45, 47, 49, 50, 54, 56, 57, 58, 61, 62, 63, 64, 65, 67, 68, 69, 70, 71, 72, 75, 79, 83, 85, 89, 90, 91, 92, 93, 94, 95, 97, 100, 102, 103, 107, 108, 112, 113, 115, 118, 130, 131, 133, 134 });
         private static HashSet<int> Style2Playbooks = new HashSet<int>(new[] { 5, 6, 11, 12, 13, 17, 18, 21, 24, 26, 27, 35, 39, 41, 46, 48, 53, 55, 60, 73, 76, 84, 88, 99, 101, 106, 109, 110, 129 });
         private static HashSet<int> Style3Playbooks = new HashSet<int>(new[] { 0, 7, 30, 59 });
         private static HashSet<int> Style4Playbooks = new HashSet<int>(new[] { 28, 31, 32, 34, 38, 40, 43, 51, 52, 66, 74, 77, 78, 80, 81, 82, 86, 87, 96, 98, 104, 105, 111, 114, 116, 117, 125, 132, 163, 165, 162 });
+        */
+        private static HashSet<int> Style1Playbooks = new HashSet<int>(new[] { 162, 163, 120, 135, 1, 2, 3, 4, 8, 9, 10, 14, 15, 16, 19, 20, 22, 23, 25, 29, 33, 36, 37, 42, 44, 45, 47, 49, 50, 54, 56, 57, 58, 61, 62, 63, 64, 65, 67, 68, 69, 70, 71, 72, 75, 79, 83, 85, 89, 90, 91, 92, 93, 94, 95, 97, 100, 102, 103, 107, 108, 112, 113, 115, 118, 130, 131, 133, 134 });
+        private static HashSet<int> Style2Playbooks = new HashSet<int>(new[] { 5, 6, 11, 12, 13, 17, 18, 21, 24, 26, 27, 35, 39, 41, 46, 48, 53, 55, 60, 73, 76, 84, 88, 99, 101, 106, 109, 110, 129 });
+        private static HashSet<int> Style3Playbooks = new HashSet<int>(new[] { 0, 7, 30, 59 });
+        private static HashSet<int> Style4Playbooks = new HashSet<int>(new[] { 28, 31, 32, 34, 38, 40, 43, 51, 52, 66, 74, 77, 78, 80, 81, 82, 86, 87, 96, 98, 104, 105, 111, 114, 116, 117, 125, 132 });
 
         private void createCAPToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -3467,6 +3475,17 @@ PPOS = Position
             // find all the freshman players
             var playerTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "PLAY");
 
+#if false
+            // any players without a redshirt are set to current season, allowing for 5 years of eligibility
+            var playersToRedshirt = playerTable.lRecords.Where(mr => mr["TGID"].ToInt32() != 1023 && mr["PRSD"].ToInt32() == 0).ToList();
+
+            foreach (var player in playersToRedshirt)
+            {
+                player["PRSD"] = "1";
+            }
+#else
+
+
             // find true frosh without redshirt on
             var trueFrosh = playerTable.lRecords.Where(mr => mr["TGID"].ToInt32() != 1023 && mr["PYEA"].ToInt32() == 0 && mr["PRSD"].ToInt32() == 0).ToList();
 
@@ -3484,6 +3503,7 @@ PPOS = Position
             {
                 playerDict[player.Key]["PRSD"] = "1";
             }
+#endif
         }
 
         static int? CurrentYear { get; set; } = null;
@@ -3612,6 +3632,65 @@ PPOS = Position
                         }
                     }
                 }
+            }
+        }
+
+        private void setSunBeltCCGToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TeamEntry homeEntry = new TeamEntry("Home team");
+            TeamEntry awayEntry = new TeamEntry("Away team");
+            if (homeEntry.ShowDialog() == DialogResult.OK)
+            {
+                if (awayEntry.ShowDialog() == DialogResult.OK)
+                {
+                    var home = homeEntry.TeamId;
+                    var away = awayEntry.TeamId;
+                    var week = "16";
+                    var gameNum = "43";
+
+                    //find stadium id for home team
+                    var teamQuery = new Dictionary<string, string>();
+                    teamQuery["TGID"] = home.ToString();
+                    var teamRecord = MaddenTable.Query(Form1.MainForm.maddenDB.lTables, "TEAM", teamQuery).SingleOrDefault();
+                    var teamStadium = teamRecord["SGID"];
+
+                    var query = new Dictionary<string, string>();
+                    query["SGNM"] = gameNum;
+                    query["SEWN"] = week;
+
+                    // get the team schedule
+                    var scheduleTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "SCHD");
+                    var ccg = MaddenTable.Query(scheduleTable, query).SingleOrDefault();
+                    ccg["GHTG"] = home.ToString();
+                    ccg["GATG"] = away.ToString();
+                    ccg["SGID"] = teamStadium;
+
+                    var teamScheduleTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "TSCH");
+                    query = new Dictionary<string, string>();
+                    query["TGID"] = home.ToString();
+                    query["SEWN"] = week;
+
+                    var homeTeamSchedule = MaddenTable.Query(teamScheduleTable, query).SingleOrDefault();
+                    homeTeamSchedule["OGID"] = away.ToString();
+                    homeTeamSchedule["THOA"] = "1";
+                    homeTeamSchedule["SGNM"] = gameNum;
+
+                    query["TGID"] = away.ToString();
+                    var awayTeamSchedule = MaddenTable.Query(teamScheduleTable, query).SingleOrDefault();
+                    awayTeamSchedule["OGID"] = home.ToString();
+                    awayTeamSchedule["THOA"] = "0";
+                    awayTeamSchedule["SGNM"] = gameNum;
+                }
+            }
+        }
+
+        private void transferRuleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var transferTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "TRAN");
+
+            foreach( var mr in transferTable.lRecords)
+            {
+                mr["TRYR"] = "1";
             }
         }
     }

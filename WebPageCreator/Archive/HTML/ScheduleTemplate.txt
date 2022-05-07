@@ -1,0 +1,11 @@
+﻿            <td class="c7" width="15%">
+              <center>
+                <b>Result</b>
+              </center>
+            </td>
+
+            <td class="c7" width="15%">
+              <center>
+                <b>Box Scores</b>
+              </center>
+            </td>
