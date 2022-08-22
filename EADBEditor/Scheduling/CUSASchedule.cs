@@ -1,12 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EA_DB_Editor
 {
+    public static class ScheduleHelper
+    {
+        public static KeyValuePair<int, int[]> Create(this int team, params int[] values)
+        {
+            return new KeyValuePair<int, int[]>(team, values);
+        }
+
+        public static Dictionary<int, int[]> Create(this IEnumerable<KeyValuePair<int, int[]>> values) => values.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+    }
+
     public class CUSASchedule
     {
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB };
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA };
         public static Dictionary<int, HashSet<int>> CUSAConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
 
@@ -27,30 +38,71 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2422) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2439) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(12, RecruitingFixup.CUSAId, "CUSA");
+            result = result.Verify(5, RecruitingFixup.CUSAId, "CUSA", expectedGames: 2);
             CUSAConferenceSchedule = result.BuildHashSet();
             return result;
         }
 
-        const int FAU = 229;
         const int FIU = 230;
-        const int Troy = 143;
-        const int USA = 235;
         const int WKU = 211;
         const int MTSU = 53;
-        const int GSU = 233;
-
         const int Army = 8;
         const int Navy = 57;
-        const int ODU = 234;
-        const int Charlotte = 100;
-        const int GaSo = 181;
-        const int AppSt = 34;
-        const int Coastal = 61;
 
-#if false
+#if true
+        // 5 team CUSA
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Army.Create(WKU, FIU),
+                Navy.Create(Army, MTSU),
+                FIU.Create(Navy, WKU),
+                WKU.Create(Navy, MTSU),
+                MTSU.Create(Army ,FIU),
+            }.Create();
+        }
+#elif false
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                GSU.Create(Marshall, GaSo, AppSt, WKU),
+                Marshall.Create(Coastal, GaSo, WKU, FAU),
+                Coastal.Create(GSU, GaSo, ODU, Troy),
+                GaSo.Create(AppSt, ODU, MTSU, FIU),
+                AppSt.Create(Marshall, Coastal, MTSU, FIU),
+                ODU.Create(GSU, Marshall, AppSt, USA),
+                MTSU.Create(ODU,FIU, USA, Troy),
+                FIU.Create(ODU, WKU, FAU, Troy),
+                USA.Create(GaSo,AppSt,FIU,FAU),
+                WKU.Create(Coastal,MTSU,USA,FAU),
+                FAU.Create(GSU, Coastal,MTSU,Troy),
+                Troy.Create(GSU, Marshall,USA,WKU)
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                GSU.Create(Marshall, GaSo, MTSU, FIU),
+                Marshall.Create(Coastal, AppSt, FIU, USA),
+                Coastal.Create(GSU, GaSo, ODU, USA),
+                GaSo.Create(Marshall, AppSt, ODU, WKU),
+                AppSt.Create(GSU, Coastal, WKU, FAU),
+                ODU.Create(GSU, Marshall, AppSt, Troy),
+                MTSU.Create(Marshall, Coastal, FIU, Troy),
+                FIU.Create(Coastal, USA, WKU, FAU),
+                USA.Create(GSU, MTSU, WKU, FAU),
+                WKU.Create(ODU, MTSU, FAU, Troy),
+                FAU.Create(GaSo, ODU, MTSU, Troy),
+                Troy.Create(GaSo, AppSt, FIU, USA)
+            }.Create();
+        }
+#elif false
         public static Dictionary<int, int[]> CreateA()
         {
             return new Dictionary<int, int[]>()
@@ -220,7 +272,7 @@ namespace EA_DB_Editor
             };
         }
 
-#elif true
+#elif false
         public static Dictionary<int, int[]> CreateA()
         {
             return new Dictionary<int, int[]>()

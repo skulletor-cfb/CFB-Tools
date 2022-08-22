@@ -357,6 +357,7 @@ namespace EA_DB_Editor
                 ConfScheduleFixer.SunBeltFix(teamSchedule);
                 ConfScheduleFixer.CUSAFix(teamSchedule);
                 ConfScheduleFixer.MWCFix(teamSchedule);
+                ConfScheduleFixer.MACFix(teamSchedule);
 
                 // move aerlier in the year to ensure more chance of replacement
                 ConfScheduleFixer.MoveReplaceableGames(teamSchedule, g => !g.IsAmericanGame());
@@ -852,7 +853,7 @@ namespace EA_DB_Editor
             }
 
             // clean up just that extrac acc game
-            foreach( var extraAcc in schedule.Where( g =>g!=null&& (g.IsExtraAccGame()||g.MustReplace)))
+            foreach (var extraAcc in schedule.Where(g => g != null && (g.IsExtraAccGame() || g.MustReplace)))
             {
                 var replacement = replacements.Pop(extraAcc);
 
@@ -1847,37 +1848,37 @@ namespace EA_DB_Editor
             rivalries.Add(new[] { 16, 81 });
 
             // uconn-su
-            rivalries.Add(new[] { 100, 88 });
+            //rivalries.Add(new[] { 100, 88 });
 
             // uconn-buffalo
-            rivalries.Add(new[] { 100, 15 });
+            //rivalries.Add(new[] { 100, 15 });
 
             // uconn-bc
-            rivalries.Add(new[] { 100, 13 });
+            //rivalries.Add(new[] { 100, 13 });
 
             // uconn-psu
-            rivalries.Add(new[] { 100, 76 });
+            //rivalries.Add(new[] { 100, 76 });
 
             // uconn-temple
-            rivalries.Add(new[] { 100, 90 });
+            //rivalries.Add(new[] { 100, 90 });
 
             // uconn-wvu
-            rivalries.Add(new[] { 100, 112 });
+            //rivalries.Add(new[] { 100, 112 });
 
             // uconn-duke
-            rivalries.Add(new[] { 100, 24 });
+            //rivalries.Add(new[] { 100, 24 });
 
             // uconn-indy
-            rivalries.Add(new[] { 100, 36 });
+            //rivalries.Add(new[] { 100, 36 });
 
             // uconn-unc
-            rivalries.Add(new[] { 100, 62 });
+            //rivalries.Add(new[] { 100, 62 });
 
             // uconn-ul
-            rivalries.Add(new[] { 100, 44 });
+            //rivalries.Add(new[] { 100, 44 });
 
             // uconn-uk
-            rivalries.Add(new[] { 100, 42 });
+            //rivalries.Add(new[] { 100, 42 });
 
             // usm-ecu
             rivalries.Add(new[] { 25, 85 });

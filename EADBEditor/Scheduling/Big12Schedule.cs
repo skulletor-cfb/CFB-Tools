@@ -6,24 +6,33 @@ namespace EA_DB_Editor
 {
     public static class Big12Schedule
     {
-        public const int OU = 71;
-        public const int OkSt = 72;
         public const int Nebraska = 58;
         public const int KSU = 40;
         public const int KU = 39;
         public const int ISU = 38;
+        public const int Cincy = 20;
+        public const int BSU = 12;
+        public const int Colorado = 22;
 
+        public const int OU = 71;
+        public const int OkSt = 72;
+        public const int UCF = 18;
         public const int Baylor = 11;
-        public const int SMU = 83;
         public const int Texas = 92;
         public const int TCU = 89;
         public const int TT = 94;
-        public const int Colorado = 22;
-        public const int UtahId = 103;
-        public const int BSUId = 12;
 
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateE, CreateE, CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD };
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[]
+        {
+            CreateA, CreateA,
+            CreateB, CreateB,
+            CreateC, CreateC,
+            CreateD, CreateD,
+            CreateE, CreateE,
+            CreateF, CreateF,
+        };
+
         public static Dictionary<int, HashSet<int>> Big12ConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
 
@@ -39,9 +48,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2211) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2439) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(12, RecruitingFixup.Big12Id, "Big12");
+            result = result.Verify(14, RecruitingFixup.Big12Id, "Big12");
             Big12ConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -73,6 +82,7 @@ namespace EA_DB_Editor
                 RecruitingFixup.Big12Id,
                 RecruitingFixup.Big12);
         }
+
 
         public static void ProcessSchedule(this Dictionary<int, PreseasonScheduledGame[]> schedule, Dictionary<int, int[]> homeSchedules, Dictionary<int, HashSet<int>> opponents, int confId, int[] conference)
         {
@@ -607,6 +617,35 @@ namespace EA_DB_Editor
         }
 #endif
 
+#if true
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Nebraska.Create(KU, ISU, Cincy , OU),
+                BSU.Create(Nebraska, KSU, Cincy, TCU),
+                KU.Create(BSU, ISU, Colorado,OkSt),
+                KSU.Create(Nebraska, KU, Colorado, UCF),
+                ISU.Create(BSU, KSU, Colorado, Baylor),
+                Colorado.Create(Nebraska, BSU, Cincy, TT),
+                Cincy.Create(KU, KSU, ISU, Texas),
+
+                OU.Create(Cincy, Texas, Baylor, OkSt ),
+                TCU.Create(Nebraska, OU, Baylor, UCF),
+                Texas.Create(Colorado, TCU, TT, OkSt),
+                TT.Create(ISU, OU, TCU, Baylor),
+                Baylor.Create(KU, Texas, OkSt, UCF),
+                OkSt.Create(KSU, TCU, TT, UCF),
+                UCF.Create(BSU, OU, Texas, TT),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB() => null;
+        public static Dictionary<int, int[]> CreateC() => null;
+        public static Dictionary<int, int[]> CreateD() => null;
+        public static Dictionary<int, int[]> CreateE() => null;
+        public static Dictionary<int, int[]> CreateF() => null;
+#elif false
         public static Dictionary<int, int[]> CreateA()
         {
             return new Dictionary<int, int[]>()
@@ -697,5 +736,6 @@ namespace EA_DB_Editor
                 { 92,new[]{ 22,39,94,89} },
             };
         }
+#endif
     }
 }

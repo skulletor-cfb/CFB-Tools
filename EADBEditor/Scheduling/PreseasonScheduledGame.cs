@@ -228,15 +228,18 @@ namespace EA_DB_Editor
                 {
                     lockChecks = new Func<PreseasonScheduledGame, int?>[]
                     {
-                        g=>MatchTeams(13+Is10TeamConf, g, 144, 18),
-                        g=>MatchTeams(13+Is10TeamConf, g, 20, 90),
-                        g=>MatchTeams(13+Is10TeamConf, g, 25, 46),
-                        g=>MatchTeams(13+Is10TeamConf, g, 33, 97),
-                        g=>MatchTeams(13+Is10TeamConf, g, 83, 79),
-                        g=>MatchTeams(13+Is10TeamConf, g, 48, 96),
-                        g=>MatchTeams(12+Is10TeamConf, g, 33, 83),
-                        g=>MatchTeams(8, g, 33, 79),
-                        g=>MatchTeams(7, g, 18, 25),
+                        g=>MatchTeams(12, g, 90, 144), // temple-usf
+                        g=>MatchTeams(13+Is10TeamConf, g, 33, 83), // hou-smu
+                        g=>MatchTeams(13+Is10TeamConf, g, 79, 97), // rice-tulsa
+                        g=>MatchTeams(13+Is10TeamConf, g, 48, 98), // memphis-uab
+                        g=>MatchTeams(13+Is10TeamConf, g, 25, 100), // charlotte-ecu
+                        g=>MatchTeams(13+Is10TeamConf, g, 85, 96), // usm-tulane
+                        g=>MatchTeams(6+Is10TeamConf, g, 79, 83), // rice-smu
+                        g=>MatchTeams(8, g, 33, 79), // hou-rice
+                        g=>MatchTeams(7, g, 144, 229), // usf-fau
+                        g=>MatchTeams(6, g, 85, 98), // usm-uab
+                        g=>MatchTeams(9, g, 48, 85), //memphis-usm
+                        g=>MatchTeams(7, g, 25, 85), //usm-ecu
                     };
                 }
 
@@ -303,17 +306,19 @@ namespace EA_DB_Editor
         {
             return new Func<PreseasonScheduledGame, int?>[]
             {
-                game=> MatchTeams(13,game,143,235), //troy-USA
-                game=> MatchTeams(13,game,53,211), //mtsu-wku
-                game=> MatchTeams(13,game,85,98), //uab-usm
                 game=> MatchTeams(13,game,64,7), //nt-ark st
-                game=> MatchTeams(13,game,232,218), //tex st-utsa
                 game=> MatchTeams(13,game,65,86), //ull-ulm
-                game=> MatchTeams(9,game,43,86), //lt-ull
+                game=> MatchTeams(13,game,181,233), //gaso-gsu
+                game=> MatchTeams(13,game,143,235), //troy-usa
+                game=> MatchTeams(13,game,34,61), //app st-coastal
+                game=> MatchTeams(13,game,46,234), //marshall-odu
+                game=> MatchTeams(7,game,43,86), //lt-ull
                 game=> MatchTeams(12,game,43,65), //lt-ulm
-                game=> MatchTeams(7,game,64,53), //nt-mtsu
-                game=> MatchTeams(7,game,43,85), //lt-usm
                 game=> MatchTeams(7,game,65,7), //ulm-ark st
+                game=> MatchTeams(6,game,61,181), //gaso-coastal
+                game=> MatchTeams(8,game,34,181), //gaso-app St
+                game=> MatchTeams(6,game,34,46), //marsh-app St
+                game=> MatchTeams(6,game,34,234), //odu-app St
             };
         }
     }
@@ -337,6 +342,47 @@ namespace EA_DB_Editor
         }
     }
 
+    public class MACLocks : ConferenceLocks
+    {
+        private Func<PreseasonScheduledGame, int?>[] lockChecks;
+
+        protected override Func<PreseasonScheduledGame, int?>[] LockChecks => lockChecks ?? (lockChecks = CreateChecks());
+
+        Func<PreseasonScheduledGame, int?>[] CreateChecks()
+        {
+            var list= new List<Func<PreseasonScheduledGame, int?>>
+            {
+                game=> MatchTeams(13,game,50,69), //miami-ohio
+                game=> MatchTeams(13,game,10,66), //ball st-niu
+            };
+
+            var seed = Guid.NewGuid().ToByteArray().First() % 3;
+
+            switch(seed)
+            {
+                case 0:
+                    list.Add(game => MatchTeams(13, game, 19, 113)); //cmu-wmu
+                    list.Add(game => MatchTeams(13, game, 14, 41)); //bgsu-kent st
+                    break;
+
+                case 1:
+                    list.Add(game => MatchTeams(13, game, 19, 26)); //cmu-emu
+                    list.Add(game => MatchTeams(13, game, 2, 41)); //akron-kent st
+                    break;
+
+                case 2:
+                    list.Add(game => MatchTeams(13, game, 26, 113)); //emu-wmu
+                    list.Add(game => MatchTeams(13, game, 14, 95)); //bgsu-toledo
+                    break;
+
+                default:
+                    break;
+            }
+
+            return list.ToArray();
+        }
+    }
+
 
     public class CUSALocks : ConferenceLocks
     {
@@ -349,19 +395,8 @@ namespace EA_DB_Editor
         {
             return new Func<PreseasonScheduledGame, int?>[]
             {
-                game=> MatchTeams(13,game,233,181), //ga st-gaso
-                game=> MatchTeams(13,game,100,234), //clt-odu
-                game=> MatchTeams(13,game,34,61), //appst-ccu
-                game=> MatchTeams(13,game,229,230), //fiu-fau
-                game=> MatchTeams(13,game,235,143), //troy-usa
+                game=> MatchTeams(13,game,53,211), //wku-mtsu
                 game=> MatchTeams(13,game,8,57), //army-navy
-
-                game=> MatchTeams(6,game,34,181), //app st-gaso
-                game=> MatchTeams(6,game,229,143), //troy-fau
-                game=> MatchTeams(8,game,57,234), //navy-odu
-                game=> MatchTeams(7,game,901,234), //appst-odu
-                game=> MatchTeams(7,game,61,100), //ccu-clt
-                game=> MatchTeams(8,game,61,181), //ccu-gaso
             };
         }
     }
@@ -905,6 +940,11 @@ namespace EA_DB_Editor
         public static void MWCFix(Dictionary<int, PreseasonScheduledGame[]> schedules)
         {
             Fix(schedules, new MWCLocks(), RecruitingFixup.MWCId);
+        }
+
+        public static void MACFix(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        {
+            Fix(schedules, new MACLocks(), RecruitingFixup.MACId);
         }
 
         public static void CUSAFix(Dictionary<int, PreseasonScheduledGame[]> schedules)

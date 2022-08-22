@@ -171,29 +171,33 @@ namespace EA_DB_Editor
         {
             var include = new[] { "SNAM", "SCIT", "STAT", "STNN", "TDNA", "SCAP", "STAA", "FLID", "WCLC", "STOF", "STRY", "STYP"  };
 
+#if false
             var sourceToDestinationMap = new Dictionary<int, int>();
 
             // for a straight map we just copy
-            var ids = new int[] { 242, 258, 261, 262, 263, 264, 265, 266, 267, 163, 259, 268 };
+            var ids = new int[] {3, 4, 97, 99, 31, 80, 175, 185, 251, 242, 258, 261, 262, 263, 264, 265, 266, 267, 163, 259, 268, 257, 258, 259, 261, 262, 263, 264, 265, 266, 267, 268, 274, 279, 245 };
             foreach(var id in ids)
             {
                 sourceToDestinationMap[id] = id;
             }
 
-            sourceToDestinationMap[279] = 278;
-            // sourceToDestinationMap[279] = 257;
-
-            // we need to know what destination to copy to 
             var destinationMap = sourceToDestinationMap.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
-            destinationMap[257] = 279;
 
 
             var sauce = source.CreateDictionary(mr => mr["SGID"].ToInt32(), mr => sourceToDestinationMap.ContainsKey(mr["SGID"].ToInt32()));
             var dest = destination.CreateDictionary(mr => mr["SGID"].ToInt32(), mr => destinationMap.ContainsKey(mr["SGID"].ToInt32()));
+#else
+            var sauce = source.CreateDictionary(mr => mr["SGID"].ToInt32(), mr=>true);
+            var dest = destination.CreateDictionary(mr => mr["SGID"].ToInt32(), mr => true);
+#endif
 
             foreach (var key in dest.Keys)
             {
+#if false
                 var sourceKey = destinationMap[key];
+#else
+                var sourceKey = key;
+#endif
                 var sourceRow = sauce[sourceKey];
                 var destRow = dest[key];
                 CopyRecordData(sourceRow, destRow, dataKey => include.Contains(dataKey));
@@ -209,6 +213,7 @@ namespace EA_DB_Editor
                         break;
 
                     case 268:
+                        // set the data for duke's mayo classic
                         destRow["FLID"].Data = "HSNESM";
                         break;
 
@@ -216,6 +221,7 @@ namespace EA_DB_Editor
                     case 266:
                     case 265:
                     case 264:
+                        // set the data for camping world kickoff
                         destRow["FLID"].Data = "HSNEMD";
                         break;
 
@@ -233,7 +239,7 @@ namespace EA_DB_Editor
                 action = SetTeamStatsToZero;
             }
 
-            var columnsToCopy = new[] { "PCHV", "PPFV", "PAFV", "PTDV", "TMAR", "TDPB", "TOPB", "PCLV", "PAPV", "PCPV", "PPSV", "PTVV", "TPRX", "TPST", "TPSL", "TPSW", "TCRK", "TMRK" , "TCHS"};
+            var columnsToCopy = new[] { "PCHV", "PPFV", "PAFV", "PTDV", "TMAR", "TDPB", "TOPB", "PCLV", "PAPV", "PCPV", "PPSV", "PTVV", "TPRX", "TPST", "TPSL", "TPSW", "TCRK", "TMRK" , "TCHS", "TRIV"};
 
             CopyTeamData(
                 teamSource.CreateDictionary(mr => mr["TGID"].ToInt32(), mr => mr.IsValidTeam()),
@@ -256,6 +262,8 @@ namespace EA_DB_Editor
             team["TCHW"].Data = "0";
             team["TCHL"].Data = "0";
             team["TCHT"].Data = "0";
+            team["FCYR"].Data = "262";
+            team["FNYR"].Data = "262";
         }
 
         /// <summary>
@@ -280,9 +288,11 @@ namespace EA_DB_Editor
                 if (key.IsValidTeam() == false)
                     continue;
 
+#if false
                 // uconn and nmsu are gone!
                 if (key == 61 || key == 100)
                     continue;
+#endif
 
                 var sourceId = key.SourceKeyFromDesintation(out var value) ? value : key;
 
@@ -437,11 +447,13 @@ namespace EA_DB_Editor
 
             foreach (var key in destinationTable.Keys)
             {
+#if false
                 // dont modify uncc/ccu, you dont have to do this for the next continuation
                 if (key.Team == 61 || key.Team == 100)
                 {
                     continue;
                 }
+#endif
 
                 // source key for gaso/appst are different
                 var sourceKey = key.Team.SourceKeyFromDesintation(out var value) ? new CoachKey { Team = value, Position = key.Position } : key;
@@ -484,9 +496,11 @@ namespace EA_DB_Editor
                         action(rowKey, sourceKey, row, destination[key]);
                     }
 
+#if false
                     // dont copy nmsu or uconn
                     if (key == 100 || key == 61)
                         continue;
+#endif
 
                     if (filter == null)
                         filter = columnKey => dontReplaceKeys.Contains(columnKey) == false;
@@ -603,13 +617,14 @@ namespace EA_DB_Editor
             return teamId.IsValidTeam();
         }
 
-        private static HashSet<int> TeamBuilderTeams = new HashSet<int>(new[] { 901, 902 });
+        // private static HashSet<int> TeamBuilderTeams = new HashSet<int>(new[] { 901, 902 });
 
 
         public static bool SourceKeyFromDesintation( this int teamId, out int sourceId)
         {
             sourceId = 0;
 
+#if false
             if (teamId == 34)
             {
                 sourceId = 901;
@@ -621,6 +636,7 @@ namespace EA_DB_Editor
                 sourceId = 902;
                 return true;
             }
+#endif
 
             return false;
         }
@@ -650,7 +666,8 @@ namespace EA_DB_Editor
             //return TeamBuilderTeams.Contains(teamId);
             //return TeamBuilderTeams.Contains(teamId) || teamId != 34 && teamId != 181 && teamId != 0 && teamId != 1023 && teamId != 300 && teamId < 600;
 
-            return TeamBuilderTeams.Contains(teamId) || (teamId != 0 && teamId != 1023 && teamId != 300 && teamId < 600);
+            // return TeamBuilderTeams.Contains(teamId) || (teamId != 0 && teamId != 1023 && teamId != 300 && teamId < 600);
+            return (teamId != 0 && teamId != 1023 && teamId != 300 && teamId < 600); ;
         }
 
         public static bool IsFcsTeam(this int teamId)

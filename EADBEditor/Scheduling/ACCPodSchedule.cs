@@ -94,7 +94,7 @@ namespace EA_DB_Editor
             return conf;
         }
 
-        public static Dictionary<int, int[]> Verify(this Dictionary<int, int[]> result, int teamLength, int confId, string confName, bool verifyMembership = true)
+        public static Dictionary<int, int[]> Verify(this Dictionary<int, int[]> result, int teamLength, int confId, string confName, bool verifyMembership = true, int expectedGames = 4)
         {
             // verify integrity
             var teams = result.Values.SelectMany(i => i).GroupBy(i => i).Select(g => new { Team = g.Key, Count = g.Count() }).ToArray();
@@ -102,7 +102,7 @@ namespace EA_DB_Editor
             if (teams.Length != teamLength)
                 throw new Exception("Wrong number of teams");
 
-            var badSchedule = teams.Where(t => t.Count != 4).ToArray();
+            var badSchedule = teams.Where(t => t.Count != expectedGames).ToArray();
 
             if (badSchedule.Any())
             {

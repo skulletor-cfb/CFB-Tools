@@ -687,6 +687,8 @@ namespace EA_DB_Editor
 
         private static int? accTeams = null;
 
+        public static int AmericanTeams => TeamAndConferences.Values.Count(v => v == AmericanId);
+
         public static int AccTeams
         {
             get
@@ -858,7 +860,7 @@ namespace EA_DB_Editor
             if (conf == SECId && current == 10)
                 return true;
 
-            if (conf == CUSAId && current != 8)
+            if (conf == CUSAId && current != 4)
                 return false;
             else if (CUSAId == conf)
                 return true;
@@ -867,6 +869,8 @@ namespace EA_DB_Editor
                 return current == 8;
 
             if (count == 16 && conf == ACCId)
+                expected = 8;
+            else if (count == 16 && conf == AmericanId)
                 expected = 8;
             else if (count >= 16)
                 expected = 9;
@@ -890,7 +894,7 @@ namespace EA_DB_Editor
 
             if (conf == Pac16Id) return true;
             if (conf == Big12Id && (Big12.Length == 16|| Big12.Length == 10)) return true;
-            if (conf == AmericanId && American.Length == 16) return true;
+            //if (conf == AmericanId && American.Length == 16) return true;
             if (conf == AmericanId && American.Length == 10) return true;
             if (conf == IndId) return true;
             if (conf == SBCId || conf==CUSAId) return true;
@@ -931,7 +935,7 @@ namespace EA_DB_Editor
 
             // Independent BYU gets to recruit
             WeightedBYU = TeamAndConferences[16] == IndId ? CreateWeightedList(new[] { 16 }) : new List<int>();
-#if false
+#if true
             WeightedUCF = CreateWeightedList(new[] { 18 });
             WeightedCincy = CreateWeightedList(new[] { 20 });
 #else

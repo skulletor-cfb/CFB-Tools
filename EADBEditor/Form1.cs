@@ -2566,6 +2566,8 @@ namespace EA_DB_Editor
 
             public string Position { get; set; }
 
+            public int PositionNumber { get; set; }
+
             public string ToCsvLine()
             {
                 return string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8}", Id, OVR, Position, First, Last, Team, TeamId, Year, State);
@@ -2609,6 +2611,48 @@ namespace EA_DB_Editor
 
         private static Dictionary<int, string> PlayerStates = new Dictionary<int, string>();
 
+        private void DumpRosters()
+        {
+            Dictionary<int, List<TransferCandidate>> GetRosters()
+            {
+                return MaddenTable.FindTable(maddenDB.lTables, "PLAY").lRecords.Where(mr => mr["TGID"].ToInt32() != 1023)
+                    .GroupBy(
+                        mr => mr["TGID"].ToInt32(),
+                        mr => new TransferCandidate
+                        {
+                            Id = mr["PGID"].ToInt32(),
+                            OVR = mr["POVR"].ToInt32(),
+                            Year = mr["PYEA"].ToInt32(),
+                            First = mr["PFNA"],
+                            Last = mr["PLNA"],
+//                            Team = RecruitingFixup.TeamNames[mr["TGID"].ToInt32()],
+                            TeamId = mr["TGID"].ToInt32(),
+                            Redshirted = mr["PRSD"].ToInt32() == 2,
+                            State = PlayerStates.TryGetValue(mr["RCHD"].ToInt32(), out var st) ? st : "unknown",
+                            Position = mr["PPOS"].ToInt32().ToPositionName(),
+                            PositionNumber = mr["PPOS"].ToInt32(),
+                        })
+                    .ToDictionary(g => g.Key, g => g.OrderBy(p => p.PositionNumber).ThenByDescending(p => p.OVR).ThenByDescending(p => p.Year).ToList());
+            }
+
+            var allRosters = GetRosters();
+            var dir = Directory.CreateDirectory("rosters");
+            foreach (var kvp in allRosters)
+            {
+                var roster = new StringBuilder();
+                kvp.Value.ForEach(p => roster.AppendLine(p.ToCsvLine()));
+
+                var file = Path.Combine(dir.FullName, $"{kvp.Key}.csv");
+
+                try
+                {
+                    File.WriteAllText(file, roster.ToString());
+                }
+                catch { }
+            }
+        }
+
+
         private void srTransferQBToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (PlayerStates.Count == 0)
@@ -2636,7 +2680,6 @@ PYEA - year (3) = senior
 POVR = overall
 PPOS = Position
              */
-
             Dictionary<int, TransferCandidate[]> GetPlayers(Func<int, bool> positionPredicate = null)
             {
                 if (positionPredicate == null) positionPredicate = i => true;
@@ -2659,6 +2702,8 @@ PPOS = Position
                         })
                     .ToDictionary(g => g.Key, g => g.OrderByDescending(p => p.OVR).ThenBy(p => p.Year).ToArray());
             }
+
+            DumpRosters();
 
             // each one with SR backup greater than 85
             // not Qbs, 3rd stringers
@@ -3692,6 +3737,11 @@ PPOS = Position
             {
                 mr["TRYR"] = "1";
             }
+        }
+
+        private void dumpRostersToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DumpRosters();
         }
     }
 

@@ -25,6 +25,7 @@ namespace RefreshRunner
         static int StartContinuation5 = 205; //this is 2255 , after this we need continuation 5
         static int StartContinuation6 = 263; //this is 2313 , after this we need continuation 6
         static int StartContinuation7 = 321; // this is 2371, after this we need continuation 7
+        static int StartContinuation8 = 379; // this is 2429, after this we need continuation 8
         static int ContinuationConfig1 = 55; //this is 2068-2125
         static int ContinuationConfig2 = 113; //this is 2126-2183
         static int ContinuationConfig3 = 171; //this is 2184-2197
@@ -32,6 +33,7 @@ namespace RefreshRunner
         static int ContinuationConfig5 = 243; //this is 2256-2313
         static int ContinuationConfig6 = 301; //this is 2314-2371
         static int ContinuationConfig7 = 359; //this is 2372-2429
+        static int ContinuationConfig8 = 417; //this is 2430-2487
         static string ContinationDir1 = @"e:\NCAA_2014\Archive\2067_Miami_HC_(15-0)_Week_EOY";
         static string ContinationDir2 = @"e:\NCAA_2014\Archive\2125_Season";
         static string ContinationDir3 = @"e:\NCAA_2014\Archive\2183_Season";
@@ -39,13 +41,15 @@ namespace RefreshRunner
         static string ContinationDir5 = @"e:\NCAA_2014\Archive\2255_Season";
         static string ContinationDir6 = @"e:\NCAA_2014\Archive\2313_Season";
         static string ContinationDir7 = @"e:\NCAA_2014\Archive\2371_Season";
+        static string ContinationDir8 = @"e:\NCAA_2014\Archive\2429_Season";
         static string CF1 = @"e:\NCAA_2014\Archive\Continuation68to125\continuationfile.txt";
         static string CF2 = @"e:\NCAA_2014\Archive\Continuation126to183\continuationfile.txt";
         static string CF3 = @"e:\NCAA_2014\Archive\Continuation184to197\continuationfile.txt";
         static string CF4 = @"e:\NCAA_2014\Archive\Continuation198to255\continuationfile.txt";
         static string CF5 = @"e:\NCAA_2014\Archive\Continuation256to313\continuationfile.txt";
         static string CF6 = @"e:\NCAA_2014\Archive\Continuation314to371\continuationfile.txt";
-        static string CF7 = @"e:\NCAA_2014\Archive\continuationfile.txt";
+        static string CF7 = @"e:\NCAA_2014\Archive\Continuation372to429\continuationfile.txt";
+        static string CF8 = @"e:\NCAA_2014\Archive\continuationfile.txt";
         static int SetNeutralSiteYear = 156; // the year 2206 in dynasty before this we need
         const string OldNeutralSiteValue = "271,272,276,273,{150;150},{275;277;186},{147;169;153;168},182,184,183";
         const string OldStadiumNickNameOverride = "Stadium=271,BeforeWeek=2,NickName=Cowboys Classic;Stadium=184,BeforeWeek=3,NickName=Rocky Mountain Showdown;Stadium=276,BeforeWeek=3,NickName=Chicago Kickoff;Stadium=183,BeforeWeek=16,NickName=World's Largest Outdoor Cocktail Party;Stadium=182,BeforeWeek=16,NickName=Red River Shootout;Stadium=150,BeforeWeek=2,NickName=Fiesta Kickoff;Stadium=275,BeforeWeek=2,NickName=Atlantic Kickoff;Stadium=186,BeforeWeek=2,NickName=Atlantic Kickoff;Stadium=277,BeforeWeek=2,NickName=Atlantic Kickoff;Stadium=147,BeforeWeek=2,NickName=Sunshine State Kickoff;Stadium=169,BeforeWeek=2,NickName=Sunshine State Kickoff;Stadium=153,BeforeWeek=2,NickName=Sunshine State Kickoff;Stadium=168,BeforeWeek=2,NickName=Sunshine State Kickoff;";
@@ -80,10 +84,15 @@ namespace RefreshRunner
         const string Phase7Override = "Stadium=272,BeforeWeek=2,NickName=Texas Kickoff;RivalryGame=33-79,Stadium=272,BeforeWeek=16,NickName=Bayou Bucket Classic;RivalryGame=83-89,Stadium=279,BeforeWeek=16,NickName=Iron Skillet Battle;Stadium=278,BeforeWeek=4,NickName=Cowboys Showdown;RivalryGame=11-94,Stadium=279,BeforeWeek=16,NickName=Texas Shootout;RivalryGame=6-93,Stadium=279,BeforeWeek=16,NickName=Southwest Classic;Stadium=271,BeforeWeek=2,NickName=Cowboys Classic;Stadium=184,BeforeWeek=4,NickName=Rocky Mountain Showdown;Stadium=276,BeforeWeek=3,NickName=Windy City Classic;Stadium=183,BeforeWeek=16,NickName=World's Largest Outdoor Cocktail Party;Stadium=182,BeforeWeek=16,NickName=Red River Shootout;Stadium=258,BeforeWeek=2,NickName=Cactus Kickoff Classic;Stadium=268,BeforeWeek=3,NickName=Duke's Mayo Classic;Stadium=267,BeforeWeek=3,NickName=Orlando Kickoff;Stadium=259,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=264,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=265,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=275,BeforeWeek=3,NickName=Pigskin Classic;Stadium=277,BeforeWeek=2,NickName=The Kickoff Classic;Stadium=144,BeforeWeek=2,NickName=Pigskin Classic;Stadium=185,BeforeWeek=2,NickName=Pigskin Classic;Stadium=180,BeforeWeek=2,NickName=Pigskin Classic;Stadium=176,BeforeWeek=2,NickName=Pigskin Classic;Stadium=251,BeforeWeek=2,NickName=Pigskin Classic;Stadium=165,BeforeWeek=3,NickName=Pigskin Classic;Stadium=173,BeforeWeek=2,NickName=Pigskin Classic;Stadium=145,BeforeWeek=2,NickName=Pigskin Classic;Stadium=253,BeforeWeek=2,NickName=Pigskin Classic;Stadium=254,BeforeWeek=2,NickName=Pigskin Classic;Stadium=160,BeforeWeek=2,NickName=Pigskin Classic;Stadium=164,BeforeWeek=2,NickName=Pigskin Classic;Stadium=159,BeforeWeek=2,NickName=Pigskin Classic;Stadium=266,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=242,BeforeWeek=2,NickName=Kickoff in the Capital;Stadium=158,BeforeWeek=2,NickName=Pigskin Classic;Stadium=262,BeforeWeek=8,NickName=Pigskin Classic;Stadium=263,BeforeWeek=3,NickName=Patriot Bowl;Stadium=261,BeforeWeek=2,NickName=Aer Lingus College Football Classic;";
         const string Phase7NeutralSiteValue = "{268;268},{258;258},262,261,263,278,279,271,272,276,273,184,183,182,{267;267},{277;277},{150;150},{264;265;266;259},{186;186},{275;158;144;185;180;176;251;165;173;145;253;254;160;164;159},{242;242}";
 
-        //2372 to ???
-        static Tuple<int, int> NeutralSitesPhase8 = new Tuple<int, int>(322, 999);
+        //2372 to 2432
+        static Tuple<int, int> NeutralSitesPhase8 = new Tuple<int, int>(322, 382);
         const string Phase8Override = "fill in from app.config";
         const string Phase8NeutralSiteValue = "fill in from app.config";
+
+        //2433 to ???
+        static Tuple<int, int> NeutralSitesPhase9 = new Tuple<int, int>(383, 999);
+        const string Phase9Override = "fill in from app.config";
+        const string Phase9NeutralSiteValue = "fill in from app.config";
 
 
         static string GetPreseasonFileName(string dir)
@@ -167,7 +176,7 @@ namespace RefreshRunner
                         continuationYear = ContinuationConfig2;
                         cf = CF2;
                     }
-                    else if( i <= StartContinuation4)
+                    else if (i <= StartContinuation4)
                     {
                         continuationDir = ContinationDir3;
                         continuationYear = ContinuationConfig3;
@@ -179,25 +188,32 @@ namespace RefreshRunner
                         continuationYear = ContinuationConfig4;
                         cf = CF4;
                     }
-                    else if( i<=StartContinuation6)
+                    else if (i <= StartContinuation6)
                     {
                         continuationDir = ContinationDir5;
                         continuationYear = ContinuationConfig5;
                         cf = CF5;
                     }
-                    else if(i<=StartContinuation7)
+                    else if (i <= StartContinuation7)
                     {
                         continuationDir = ContinationDir6;
                         continuationYear = ContinuationConfig6;
                         cf = CF6;
                     }
-                    else
+                    else if (i <= StartContinuation8)
                     {
                         continuationDir = ContinationDir7;
                         continuationYear = ContinuationConfig7;
                         cf = CF7;
                     }
+                    else
+                    {
+                        continuationDir = ContinationDir8;
+                        continuationYear = ContinuationConfig8;
+                        cf = CF8;
+                    }
                 }
+
                 Console.WriteLine("Going from {0} to {1}", dirs[i], reportDestinations[i]);
                 Console.WriteLine();
 
@@ -367,6 +383,9 @@ namespace RefreshRunner
 
                 // Mobile Alabama Bowl became the LA BOWL in 2357
                 form.SetBowlIdOverrides(dict => dict[0] = new Tuple<int, int>(8000, 344));
+
+                // San Fran Bowl became Boca Raton Bowl in 2433
+                form.SetBowlIdOverrides(dict => dict[3] = new Tuple<int, int>(9000, 420));
             }
         }
 
