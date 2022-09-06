@@ -75,7 +75,28 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-        public static Dictionary<int, int[]> CreateB()=>null;
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                USA.Create(ULL, LT, TexSt, ODU),
+                ULM.Create(USA, ULL, TexSt, GaSo),
+                ArkSt.Create(USA, ULM, TexSt, AppSt),
+                ULL.Create(ArkSt, NT, LT, GSU),
+                NT.Create(USA, ULM, ArkSt, Coastal),
+                LT.Create(ULM, ArkSt,NT, Troy),
+                TexSt.Create(ULL, NT, LT, Marshall),
+
+                Troy.Create(USA, Marshall, AppSt, GSU),
+                Marshall.Create(ArkSt, ODU, GSU, Coastal),
+                ODU.Create(ULL, Troy, GaSo, AppSt),
+                GaSo.Create(NT, Troy, Marshall, AppSt),
+                AppSt.Create(LT, Marshall, GSU, Coastal),
+                GSU.Create(TexSt, ODU, GaSo, Coastal),
+                Coastal.Create(ULM, Troy, ODU, GaSo),
+            }.Create();
+        }
+
         public static Dictionary<int, int[]> CreateC()=>null;
         public static Dictionary<int, int[]> CreateD()=>null;
         public static Dictionary<int, int[]> CreateE()=>null;

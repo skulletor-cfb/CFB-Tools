@@ -938,7 +938,7 @@ namespace EA_DB_Editor
 
             // Independent BYU gets to recruit
             WeightedBYU = TeamAndConferences[16] == IndId ? CreateWeightedList(new[] { 16 }) : new List<int>();
-#if true
+#if false // when cincy/ucf are in teh big12
             WeightedUCF = CreateWeightedList(new[] { 18 });
             WeightedCincy = CreateWeightedList(new[] { 20 });
 #else
