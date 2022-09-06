@@ -37,49 +37,31 @@ namespace EditorTest
         [TestMethod]
         public void Big12ScheduleA()
         {
-            Big12Schedule.CreateA().Verify(14, RecruitingFixup.AmericanId, "Big 12  ", false);
-            var hash = Big12Schedule.CreateA().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+            Big12Schedule.CreateA().Verify(12, RecruitingFixup.Big12Id, "Big12", false);
         }
 
         [TestMethod]
         public void Big12ScheduleB()
         {
-            Big12Schedule.CreateB().Verify(14, RecruitingFixup.AmericanId, "Big 12  ", false);
-            var hash = Big12Schedule.CreateB().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+            Big12Schedule.CreateB().Verify(12, RecruitingFixup.Big12Id, "Big12", false);
         }
 
         [TestMethod]
         public void Big12ScheduleC()
         {
-            Big12Schedule.CreateC().Verify(14, RecruitingFixup.AmericanId, "Big 12  ", false);
-            var hash = Big12Schedule.CreateC().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+            Big12Schedule.CreateC().Verify(12, RecruitingFixup.Big12Id, "Big12", false);
         }
 
         [TestMethod]
         public void Big12ScheduleD()
         {
-            Big12Schedule.CreateD().Verify(14, RecruitingFixup.AmericanId, "Big 12  ", false);
-            var hash = Big12Schedule.CreateD().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+            Big12Schedule.CreateD().Verify(12, RecruitingFixup.Big12Id, "Big12", false);
         }
 
         [TestMethod]
         public void Big12ScheduleE()
         {
-            Big12Schedule.CreateE().Verify(14, RecruitingFixup.AmericanId, "Big 12  ", false);
-            var hash = Big12Schedule.CreateE().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void Big12ScheduleF()
-        {
-            Big12Schedule.CreateF().Verify(14, RecruitingFixup.AmericanId, "Big 12  ", false);
-            var hash = Big12Schedule.CreateF().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+            Big12Schedule.CreateE().Verify(12, RecruitingFixup.Big12Id, "Big12", false);
         }
 
 

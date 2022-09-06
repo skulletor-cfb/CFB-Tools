@@ -467,7 +467,12 @@ namespace EA_DB_Editor
 
         public int? IsClemsonFSU(PreseasonScheduledGame game)
         {
-            return MatchTeams(12, game, 21, 28);
+
+            if (game.HomeTeam == 28 && game.AwayTeam == 21)
+                return 8;
+            if (game.HomeTeam == 21 && game.AwayTeam == 28)
+                return 12;
+            return default;
         }
 
         public int? IsUMDWVU(PreseasonScheduledGame game)

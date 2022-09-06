@@ -87,10 +87,11 @@ namespace EA_DB_Editor
             // find the last 5 guys in texas and cali
             int texasId = 42;
             int caliId = 4;
+            int floridaId = 8;
             var positionGroups = new int[] { 1, 2, 3, 4, 0, 1, 5, 6, 7, 0, 8, 0, 9, 10, 11, 12, 13, 14 };
             var recruitPitchTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPR");
-            // select 25 random positions:  5 from Texas, 15 from SEC country, 5 elsewhere
-            int[] positionsToLookFor = new int[36];
+            // select 25 random positions:  5 from Texas, 15 from SEC country, 5 elsewhere, 5 from florida
+            int[] positionsToLookFor = new int[41];
             for (int i = 0; i < positionsToLookFor.Length; i++)
             {
                 positionsToLookFor[i] = positionGroups[RAND.Next(0, positionGroups.Length)];
@@ -106,21 +107,23 @@ namespace EA_DB_Editor
             // get the lowest ranked freshman at the position we have selected
             var caliRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Take(5).Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == caliId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
             var texasRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(5).Take(5).Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == texasId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
-            var secRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(10).Take(20).Contains(r["RPGP"].ToInt32()) && SECStates.Contains(r["STAT"].ToInt32())).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
-            var nationalRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(30).Take(nationalTake).Contains(r["RPGP"].ToInt32()) && SECStates.Concat(new[] { texasId, caliId }).Contains(r["STAT"].ToInt32()) == false).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
+            var floridaRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(10).Take(5).Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == floridaId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
+            var secRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(15).Take(20).Contains(r["RPGP"].ToInt32()) && SECStates.Contains(r["STAT"].ToInt32())).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
+            var nationalRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(35).Take(nationalTake).Contains(r["RPGP"].ToInt32()) && SECStates.Concat(new[] { texasId, caliId }).Contains(r["STAT"].ToInt32()) == false).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
             var athRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && r["RPGP"].ToInt32() == 18).OrderByDescending(r => r["RCRK"].ToInt32()).Take(3).ToArray();
             MaddenRecord[] hawaiiRecruits = new MaddenRecord[0];
 
-            if( (DateTime.UtcNow.Ticks % 5 ) > 1)
+            if ((DateTime.UtcNow.Ticks % 5) > 1)
             {
-                 hawaiiRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(positionsToLookFor.Length-1).Take(1).Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == 10).OrderByDescending(r => r["RCRK"].ToInt32()).Take(2000).ToArray();
+                hawaiiRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(positionsToLookFor.Length - 1).Take(1).Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == 10).OrderByDescending(r => r["RCRK"].ToInt32()).Take(2000).ToArray();
             }
 
             List<MaddenRecord> records = new List<MaddenRecord>();
             FillList(records, caliRecruits, positionsToLookFor.Take(5).ToArray());
             FillList(records, texasRecruits, positionsToLookFor.Skip(5).Take(5).ToArray());
-            FillList(records, secRecruits, positionsToLookFor.Skip(10).Take(20).ToArray());
-            FillList(records, nationalRecruits, positionsToLookFor.Skip(30).Take(nationalTake).ToArray());
+            FillList(records, floridaRecruits, positionsToLookFor.Skip(10).Take(5).ToArray());
+            FillList(records, secRecruits, positionsToLookFor.Skip(15).Take(20).ToArray());
+            FillList(records, nationalRecruits, positionsToLookFor.Skip(35).Take(nationalTake).ToArray());
             FillList(records, hawaiiRecruits, positionsToLookFor.Skip(positionsToLookFor.Length - 1).Take(1).ToArray());
 
             // ATH recruits get a 5-20 adder to each stat
