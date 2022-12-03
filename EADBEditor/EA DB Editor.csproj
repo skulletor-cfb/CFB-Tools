@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Scheduling\AmericanPodSchedule.cs" />
     <Compile Include="RecruitAllAmericans.cs" />
     <Compile Include="Scheduling\ACCPodSchedule.cs" />
     <Compile Include="Scheduling\AmericanSchedule.cs" />
@@ -122,6 +123,7 @@
     <Compile Include="RosterCopy.cs" />
     <Compile Include="Scheduling\ScheduleFixup.cs" />
     <Compile Include="Scheduling\ScheduleReader.cs" />
+    <Compile Include="Scheduling\ScheduleUtility.cs" />
     <Compile Include="Scheduling\SunBeltSchedule.cs" />
     <Compile Include="TeamEntry.cs">
       <SubType>Form</SubType>

@@ -184,6 +184,10 @@ namespace EA_DB_Editor
                 {
                     game.SwapHomeAwayTeam(mr);
                 }
+                else if (false && game.IsConferenceGame() && RecruitingFixup.TeamAndConferences[homeTeam] == RecruitingFixup.AmericanId && game.ShouldFixSunBeltGame())
+                {
+                    game.SwapHomeAwayTeam(mr);
+                }
                 else if (false && game.IsConferenceGame() && RecruitingFixup.TeamAndConferences[homeTeam] == RecruitingFixup.Big12Id)
                 {
                     // FINDME : BIG 12 HOME/AWAY FIXES
@@ -288,7 +292,7 @@ namespace EA_DB_Editor
                 if (!RanReorder)
                 {
                     mr["GDAT"] = "5";
-                    if ((game.IsConferenceGame() && game.IsExtraAccGame() && weekNum > 0 && homeTeamFreeWeek1 && awayTeamFreeWeek1) ||
+                    if ((game.IsConferenceGame() && game.IsExtraConferenceGame() && weekNum > 0 && homeTeamFreeWeek1 && awayTeamFreeWeek1) ||
                         (game.IsP5Game() && !game.IsRivalryGame() && weekNum > 8 && !game.IsNotreDameGame() && homeTeamFreeWeek1 && awayTeamFreeWeek1) ||
                         (game.IsFCSGame() && game.IsG5Game() && weekNum > 0 && homeTeamFreeWeek1) ||
                         (game.IsG5Game() && !game.IsRivalryGame() && !game.IsFCSGame() && weekNum > 0 && homeTeamFreeWeek1 && awayTeamFreeWeek1) ||
@@ -296,7 +300,11 @@ namespace EA_DB_Editor
                         )
                     {
                         var weekMoveTo = 0;
-                        if (game.IsExtraAccGame() && teamSchedule[awayTeam][1] != null && teamSchedule[awayTeam][1].IsFCSGame() && teamSchedule[homeTeam][1] != null && teamSchedule[homeTeam][1].IsFCSGame())
+                        if (game.IsExtraConferenceGame() &&
+                            teamSchedule[awayTeam][1] != null &&
+                            teamSchedule[awayTeam][1].IsFCSGame() &&
+                            teamSchedule[homeTeam][1] != null &&
+                            teamSchedule[homeTeam][1].IsFCSGame())
                         {
                             weekMoveTo = 1;
                             teamSchedule[awayTeam][1].SetWeek(0);
@@ -335,7 +343,7 @@ namespace EA_DB_Editor
 
 
                 // move aerlier in the year to ensure more chance of replacement
-                ConfScheduleFixer.MoveReplaceableGames(teamSchedule, g => !g.IsAmericanGame());
+                ConfScheduleFixer.MoveReplaceableGames(teamSchedule, g => true);
 
                 // do power conf first
                 ConfScheduleFixer.ExtraConfGameSwap(teamSchedule, g => true, g => !g.IsAmericanGame());
@@ -360,7 +368,10 @@ namespace EA_DB_Editor
                 ConfScheduleFixer.MACFix(teamSchedule);
 
                 // move aerlier in the year to ensure more chance of replacement
-                ConfScheduleFixer.MoveReplaceableGames(teamSchedule, g => !g.IsAmericanGame());
+                for (int i = 0; i < 5; i++)
+                {
+                    ConfScheduleFixer.MoveReplaceableGames(teamSchedule, g => true);
+                }
             }
 
             RanReorder = true;
@@ -684,10 +695,26 @@ namespace EA_DB_Editor
 
         public static void FixPreseasonSchedule()
         {
+            bool G5GameThatCanBeReplace(PreseasonScheduledGame game)
+            {
+                return game.IsG5Game() || game.IsExtraConferenceGame();
+            }
+
+            bool NotConferenceGame(PreseasonScheduledGame game)
+            {
+                return !game.IsConferenceGame() || game.IsExtraConferenceGame(); 
+            }
+
             // Pitt-WVU , OU-NEB are week 14
             var schedules = ReadSchedule();
 
-            var gamesThatCanBeReplaced = schedules.Where(kvp => kvp.Value.Where(v => !kvp.Key.IsP5OrND() && v != null).Select(v => v.IsG5Game()).Count() > 0).SelectMany(kvp => kvp.Value.Where(v => v != null && v.IsG5Game() && !v.IsServiceAcademyGame() && !v.IsConferenceGame() && !v.IsRivalryGame())).OrderBy(g => g.Week).Distinct().ToList();
+            var gamesThatCanBeReplaced = 
+                schedules
+                .Where(kvp => kvp.Value.Where(v => !kvp.Key.IsP5OrND() && v != null)
+                .Select(v => G5GameThatCanBeReplace(v)).Count() > 0)
+                .SelectMany(kvp => kvp.Value.Where(v => v != null && G5GameThatCanBeReplace(v) && !v.IsServiceAcademyGame() && NotConferenceGame(v) && !v.IsRivalryGame()))
+                .OrderBy(g => g.Week).Distinct().ToList();
+
             var teams = schedules.Keys.Where(k => k.IsP5());
 
             // find user controlled teams and lock them
@@ -699,7 +726,11 @@ namespace EA_DB_Editor
             foreach (var team in teams.Where(t => !lockedTeamSchedules.Contains(t)).OrderByDescending(t => schedules[t].Count(g => g != null && g.IsP5Game())))
             {
                 schedules = ReadSchedule();
-                gamesThatCanBeReplaced = schedules.Where(kvp => kvp.Value.Where(v => !kvp.Key.IsP5OrND() && v != null).Select(v => v.IsG5Game()).Count() > 0).SelectMany(kvp => kvp.Value.Where(v => v != null && v.IsG5Game() && !v.IsServiceAcademyGame() && !v.IsConferenceGame() && !v.IsRivalryGame())).OrderBy(g => g.Week).Distinct().ToList();
+                gamesThatCanBeReplaced = schedules
+                    .Where(kvp => kvp.Value.Where(v => !kvp.Key.IsP5OrND() && v != null)
+                    .Select(v => G5GameThatCanBeReplace(v)).Count() > 0)
+                    .SelectMany(kvp => kvp.Value.Where(v => v != null && G5GameThatCanBeReplace(v) && !v.IsServiceAcademyGame() && NotConferenceGame(v) && !v.IsRivalryGame()))
+                    .OrderBy(g => g.Week).Distinct().ToList();
                 var gamesToAdd = CleanSchedule(team, schedules, new List<FutureGame>(), gamesThatCanBeReplaced);
                 futureGames.AddRange(gamesToAdd);
             }
@@ -853,9 +884,9 @@ namespace EA_DB_Editor
             }
 
             // clean up just that extrac acc game
-            foreach (var extraAcc in schedule.Where(g => g != null && (g.IsExtraAccGame() || g.MustReplace)))
+            foreach (var extraAcc in schedule.Where(g => g != null && (g.IsExtraConferenceGame() || g.MustReplace)))
             {
-                var replacement = replacements.Pop(extraAcc);
+                var replacement = replacements.Pop(extraAcc, true);
 
                 if (replacement != null)
                 {
@@ -881,7 +912,7 @@ namespace EA_DB_Editor
                 }
                 else if( oocGame.IsP5Game())
                 {
-                    var replacement = replacements.Pop(oocGame);
+                    var replacement = replacements.Pop(oocGame, true);
 
                     if (replacement != null)
                     {
@@ -2136,6 +2167,24 @@ namespace EA_DB_Editor
             var first = list.First();
             list.RemoveAt(0);
             return first;
+        }
+
+        public static PreseasonScheduledGame Pop(this List<PreseasonScheduledGame> list, PreseasonScheduledGame game, bool lookForExtraConfGame)
+        {
+            if(lookForExtraConfGame)
+            {
+                var weekIndex = game.WeekIndex;
+
+                var first = list.FirstOrDefault(g => g.WeekIndex == weekIndex && g.IsExtraConferenceGame() && !RecruitingFixup.TeamsInSameConference(game.HomeTeam, g.AwayTeam) && !RecruitingFixup.TeamsInSameConference(g.HomeTeam, game.AwayTeam));
+
+                if (first != null)
+                {
+                    list.Remove(first);
+                    return first;
+                }
+            }
+
+            return list.Pop(game);
         }
 
         public static PreseasonScheduledGame Pop(this List<PreseasonScheduledGame> list, PreseasonScheduledGame game)

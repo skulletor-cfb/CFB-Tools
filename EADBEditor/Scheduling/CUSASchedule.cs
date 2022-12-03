@@ -38,20 +38,41 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2439) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2445) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(5, RecruitingFixup.CUSAId, "CUSA", expectedGames: 2);
+            result = result.Verify(9, RecruitingFixup.CUSAId, "CUSA");
             CUSAConferenceSchedule = result.BuildHashSet();
             return result;
         }
 
         const int FIU = 230;
-        const int WKU = 211;
-        const int MTSU = 53;
         const int Army = 8;
         const int Navy = 57;
+        const int Coastal = 61;
+        const int ODU = 234;
+        const int Marshall = 46;
+        const int AppSt = 34;
+        const int GSU = 233;
+        const int GASO = 181;
 
 #if true
+        // 9 team CUSA eastern seaboard
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Army.Create(FIU, Coastal, ODU, GSU),
+                Navy.Create(Army, Marshall, AppSt, GASO),
+                FIU.Create(Navy, ODU, AppSt, GSU),
+                Coastal.Create(Navy, FIU, Marshall, GASO),
+                ODU.Create(Navy, Coastal, AppSt, GSU),
+                Marshall.Create(Army, FIU, ODU, GASO),
+                AppSt.Create(Army, Coastal, Marshall, GSU),
+                GSU.Create(Navy, Coastal, Marshall, GASO),
+                GASO.Create(Army, FIU, ODU, AppSt),
+            }.Create();
+        }
+#elif false
         // 5 team CUSA
         public static Dictionary<int, int[]> CreateA()
         {

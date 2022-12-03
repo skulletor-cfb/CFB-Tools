@@ -690,7 +690,7 @@ namespace EA_DB_Editor
 
         private static int? accTeams = null;
 
-        public static int AmericanTeams => TeamAndConferences.Values.Count(v => v == AmericanId);
+        public static int SunBeltTeams => TeamAndConferences.Values.Count(v => v == SBCId);
 
         public static int AccTeams
         {
@@ -842,6 +842,8 @@ namespace EA_DB_Editor
             return SEC.Contains(teamId);
         }
 
+        public static bool IsSunBeltTeam(this int teamId) => SBC.Contains(teamId);
+
         public static bool IsAccTeam(this int teamId)
         {
             return ACC.Contains(teamId) && teamId != 68;
@@ -874,6 +876,8 @@ namespace EA_DB_Editor
             if (count == 16 && conf == ACCId)
                 expected = 8;
             else if (count == 16 && conf == AmericanId)
+                expected = 8;
+            else if (count == 16 && conf == SBCId)
                 expected = 8;
             else if (count >= 16)
                 expected = 9;

@@ -19,19 +19,75 @@ namespace EditorTest
         [TestMethod]
         public void AccScheduleA()
         {
-            ACCPodSchedule.Verify(ACCPodSchedule.CreateA(), 16, RecruitingFixup.ACCId, "ACC", false);
+            ACCPodSchedule.CreateA().Verify(16, RecruitingFixup.ACCId, "ACC", false);
         }
 
         [TestMethod]
         public void AccScheduleB()
         {
-            ACCPodSchedule.Verify(ACCPodSchedule.CreateB(), 16, RecruitingFixup.ACCId, "ACC", false);
+            ACCPodSchedule.CreateB().Verify(16, RecruitingFixup.ACCId, "ACC", false);
         }
 
         [TestMethod]
         public void AccScheduleC()
         {
-            ACCPodSchedule.Verify(ACCPodSchedule.CreateC(), 16, RecruitingFixup.ACCId, "ACC", false);
+            ACCPodSchedule.CreateC().Verify(16, RecruitingFixup.ACCId, "ACC", false);
+        }
+
+        [TestMethod]
+        public void AmericanScheduleA()
+        {
+            AmericanSchedule.CreateA().Verify(14, RecruitingFixup.AmericanId, "American", false);
+            var hash = AmericanSchedule.CreateA().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void AmericanScheduleB()
+        {
+            AmericanSchedule.CreateB().Verify(14, RecruitingFixup.AmericanId, "American", false);
+            var hash = AmericanSchedule.CreateB().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void AmericanScheduleC()
+        {
+            AmericanSchedule.CreateC().Verify(14, RecruitingFixup.AmericanId, "American", false);
+            var hash = AmericanSchedule.CreateC().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void AmericanScheduleD()
+        {
+            AmericanSchedule.CreateD().Verify(14, RecruitingFixup.AmericanId, "American", false);
+            var hash = AmericanSchedule.CreateD().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void AmericanScheduleE()
+        {
+            AmericanSchedule.CreateE().Verify(14, RecruitingFixup.AmericanId, "American", false);
+            var hash = AmericanSchedule.CreateE().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void AmericanScheduleF()
+        {
+            AmericanSchedule.CreateF().Verify(14, RecruitingFixup.AmericanId, "American", false);
+            var hash = AmericanSchedule.CreateF().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void AmericanScheduleG()
+        {
+            AmericanSchedule.CreateG().Verify(14, RecruitingFixup.AmericanId, "American", false);
+            var hash = AmericanSchedule.CreateG().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
         [TestMethod]
@@ -87,55 +143,6 @@ namespace EditorTest
         public void MWCScheduleB()
         {
             MWCSchedule.CreateB().Verify(12, RecruitingFixup.MWCId, "MWC  ", false);
-        }
-
-
-        [TestMethod]
-        public void AmericanScheduleA()
-        {
-            AmericanSchedule.CreateA().Verify(14, RecruitingFixup.AmericanId, "American  ", false);
-            var hash = AmericanSchedule.CreateA().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void AmericanScheduleB()
-        {
-            AmericanSchedule.CreateB().Verify(14, RecruitingFixup.AmericanId, "American  ", false);
-            var hash = AmericanSchedule.CreateB().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void AmericanScheduleC()
-        {
-            AmericanSchedule.CreateC().Verify(14, RecruitingFixup.AmericanId, "American  ", false);
-            var hash = AmericanSchedule.CreateC().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void AmericanScheduleD()
-        {
-            AmericanSchedule.CreateD().Verify(14, RecruitingFixup.AmericanId, "American  ", false);
-            var hash = AmericanSchedule.CreateD().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void AmericanScheduleE()
-        {
-            AmericanSchedule.CreateE().Verify(14, RecruitingFixup.AmericanId, "American  ", false);
-            var hash = AmericanSchedule.CreateE().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void AmericanScheduleF()
-        {
-            AmericanSchedule.CreateF().Verify(14, RecruitingFixup.AmericanId, "American  ", false);
-            var hash = AmericanSchedule.CreateF().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
         [TestMethod]
@@ -253,7 +260,7 @@ namespace EditorTest
         [TestMethod]
         public void SBCScheduleA()
         {
-            SunBeltSchedule.CreateA().Verify(14, RecruitingFixup.SBCId, "SunBelt  ", false);
+            SunBeltSchedule.CreateA().Verify(16, RecruitingFixup.SBCId, "SunBelt  ", false);
             var hash = SunBeltSchedule.CreateA().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -261,7 +268,7 @@ namespace EditorTest
         [TestMethod]
         public void SBCScheduleB()
         {
-            SunBeltSchedule.CreateB().Verify(14, RecruitingFixup.SBCId, "SunBelt  ", false);
+            SunBeltSchedule.CreateB().Verify(16, RecruitingFixup.SBCId, "SunBelt  ", false);
             var hash = SunBeltSchedule.CreateB().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -269,7 +276,7 @@ namespace EditorTest
         [TestMethod]
         public void SBCScheduleC()
         {
-            SunBeltSchedule.CreateC().Verify(14, RecruitingFixup.SBCId, "SunBelt  ", false);
+            SunBeltSchedule.CreateC().Verify(16, RecruitingFixup.SBCId, "SunBelt  ", false);
             var hash = SunBeltSchedule.CreateC().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -277,7 +284,7 @@ namespace EditorTest
         [TestMethod]
         public void SBCScheduleD()
         {
-            SunBeltSchedule.CreateD().Verify(14, RecruitingFixup.SBCId, "SunBelt  ", false);
+            SunBeltSchedule.CreateD().Verify(16, RecruitingFixup.SBCId, "SunBelt  ", false);
             var hash = SunBeltSchedule.CreateD().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -286,16 +293,32 @@ namespace EditorTest
         [TestMethod]
         public void SBCScheduleE()
         {
-            SunBeltSchedule.CreateE().Verify(14, RecruitingFixup.SBCId, "SunBelt  ", false);
-            var hash = SunBeltSchedule.CreateC().BuildHashSet();
+            SunBeltSchedule.CreateE().Verify(16, RecruitingFixup.SBCId, "SunBelt  ", false);
+            var hash = SunBeltSchedule.CreateE().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
         [TestMethod]
         public void SBCScheduleF()
         {
-            SunBeltSchedule.CreateF().Verify(14, RecruitingFixup.SBCId, "SunBelt  ", false);
-            var hash = SunBeltSchedule.CreateC().BuildHashSet();
+            SunBeltSchedule.CreateF().Verify(16, RecruitingFixup.SBCId, "SunBelt  ", false);
+            var hash = SunBeltSchedule.CreateF().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void SBCScheduleG()
+        {
+            SunBeltSchedule.CreateG().Verify(16, RecruitingFixup.SBCId, "SunBelt  ", false);
+            var hash = SunBeltSchedule.CreateG().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void SBCScheduleH()
+        {
+            SunBeltSchedule.CreateH().Verify(16, RecruitingFixup.SBCId, "SunBelt  ", false);
+            var hash = SunBeltSchedule.CreateH().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
@@ -319,9 +342,9 @@ namespace EditorTest
         [TestMethod]
         public void CUSAScheduleA()
         {
-            CUSASchedule.CreateA().Verify(5, RecruitingFixup.CUSAId, "CUSA  ", false, expectedGames: 2);
+            CUSASchedule.CreateA().Verify(9, RecruitingFixup.CUSAId, "CUSA  ", false);
             var hash = CUSASchedule.CreateA().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 4));
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
         /*

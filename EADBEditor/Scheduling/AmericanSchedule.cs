@@ -6,10 +6,10 @@ namespace EA_DB_Editor
     public class AmericanSchedule
     {
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE, CreateF,CreateF };
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE, CreateF,CreateF, CreateG, CreateG, CreateA, CreateA, };
         public static Dictionary<int, HashSet<int>> AmericanConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
-
+        
         public static void Init()
         {
             if (!initRun)
@@ -27,7 +27,7 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2439) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2444) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(14, RecruitingFixup.AmericanId, "American");
             AmericanConferenceSchedule = result.BuildHashSet();
@@ -46,8 +46,6 @@ namespace EA_DB_Editor
         const int RiceId = 79;
         const int HoustonId = 33;
         const int TulaneId = 96;
-        const int UAB = 98;
-        const int USM = 85;
         const int FAU = 229;
         const int UTSA = 232;
 
@@ -56,29 +54,36 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                CharlotteId.Create(TulaneId, SMUId, RiceId, ECUId),
-                TulaneId.Create(UTSA, TulsaId, HoustonId, USM),
-                UTSA.Create(CharlotteId, SMUId, RiceId, FAU),
-                SMUId.Create(TulaneId, TulsaId, HoustonId, USFId),
-                TulsaId.Create(CharlotteId, UTSA, RiceId, TempleId),
-                RiceId.Create(TulaneId, SMUId, HoustonId, MemphisId),
-                HoustonId.Create(CharlotteId, UTSA, TulsaId, UAB),
-
-                ECUId.Create(HoustonId, UAB, TempleId, USFId),
-                USM.Create(CharlotteId, ECUId, UAB, FAU),
-                UAB.Create(RiceId, MemphisId, TempleId, USFId),
-                MemphisId.Create(TulsaId, ECUId, USM, FAU),
-                TempleId.Create(UTSA, USM, MemphisId, USFId),
-                FAU.Create(SMUId, ECUId, UAB, TempleId),
-                USFId.Create(TulaneId, USM, MemphisId, FAU),
             }.Create();
         }
 
-        public static Dictionary<int, int[]> CreateB() => null;
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                SMUId.Create(MemphisId, UTSA, HoustonId, UCFId),
+                TulsaId.Create(SMUId, RiceId, TulaneId, TempleId),
+                RiceId.Create(SMUId, MemphisId, HoustonId, USFId),
+                MemphisId.Create(TulsaId, UTSA, HoustonId, ECUId),
+                UTSA.Create(TulsaId, RiceId, TulaneId, CincyId),
+                HoustonId.Create(TulsaId, UTSA, TulaneId, FAU),
+                TulaneId.Create(SMUId, RiceId, MemphisId, CharlotteId),
+
+                CincyId.Create(HoustonId, CharlotteId, UCFId, TempleId),
+                FAU.Create(TulaneId, CincyId, USFId, ECUId),
+                CharlotteId.Create(SMUId, FAU, TempleId, USFId),
+                UCFId.Create(TulsaId, FAU, CharlotteId, ECUId),
+                TempleId.Create(RiceId, FAU, UCFId, ECUId),
+                USFId.Create(MemphisId, CincyId, UCFId, TempleId),
+                ECUId.Create(UTSA, CincyId, CharlotteId, USFId),
+            }.Create();
+        }
+
         public static Dictionary<int, int[]> CreateC() => null;
         public static Dictionary<int, int[]> CreateD() => null;
         public static Dictionary<int, int[]> CreateE() => null;
         public static Dictionary<int, int[]> CreateF() => null;
+        public static Dictionary<int, int[]> CreateG() => null;
 #elif false
         public static Dictionary<int, int[]> CreateA()
         {
