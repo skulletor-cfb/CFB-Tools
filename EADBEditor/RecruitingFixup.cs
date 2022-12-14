@@ -865,11 +865,6 @@ namespace EA_DB_Editor
             if (conf == SECId && current == 10)
                 return true;
 
-            if (conf == CUSAId && current != 4)
-                return false;
-            else if (CUSAId == conf)
-                return true;
-
             if (count == 12 && conf == Pac16Id)
                 return current == 8;
 
@@ -904,7 +899,6 @@ namespace EA_DB_Editor
             //if (conf == AmericanId && American.Length == 16) return true;
             if (conf == AmericanId && American.Length == 10) return true;
             if (conf == IndId) return true;
-            if (conf == SBCId || conf==CUSAId) return true;
             if (conf == MACId && MAC.Length == 16) return true;
             if (conf == MWCId /*&& MWC.Length == 10*/) return true;
             

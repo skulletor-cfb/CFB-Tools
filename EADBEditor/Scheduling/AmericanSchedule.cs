@@ -6,7 +6,7 @@ namespace EA_DB_Editor
     public class AmericanSchedule
     {
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE, CreateF,CreateF, CreateG, CreateG, CreateA, CreateA, };
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateC, CreateC, CreateD, CreateD, CreateE, CreateE, CreateA, CreateA, CreateB, CreateB, };
         public static Dictionary<int, HashSet<int>> AmericanConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
         
@@ -27,9 +27,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2444) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2446) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(14, RecruitingFixup.AmericanId, "American");
+            result = result.Verify(12, RecruitingFixup.AmericanId, "American");
             AmericanConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -49,7 +49,7 @@ namespace EA_DB_Editor
         const int FAU = 229;
         const int UTSA = 232;
 
-#if true
+#if false
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
