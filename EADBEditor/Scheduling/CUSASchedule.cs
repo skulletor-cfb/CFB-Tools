@@ -17,7 +17,7 @@ namespace EA_DB_Editor
     public class CUSASchedule
     {
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA };
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD };
         public static Dictionary<int, HashSet<int>> CUSAConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
 
@@ -38,9 +38,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2445) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2446) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(9, RecruitingFixup.CUSAId, "CUSA");
+            result = result.Verify(11, RecruitingFixup.CUSAId, "CUSA");
             CUSAConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -54,22 +54,47 @@ namespace EA_DB_Editor
         const int AppSt = 34;
         const int GSU = 233;
         const int GASO = 181;
+        const int FAU = 229;
+        const int WKU = 211;
 
 #if true
-        // 9 team CUSA eastern seaboard
+        // 11 team CUSA eastern seaboard
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Army.Create(FIU, Coastal, ODU, GSU),
-                Navy.Create(Army, Marshall, AppSt, GASO),
-                FIU.Create(Navy, ODU, AppSt, GSU),
-                Coastal.Create(Navy, FIU, Marshall, GASO),
-                ODU.Create(Navy, Coastal, AppSt, GSU),
-                Marshall.Create(Army, FIU, ODU, GASO),
-                AppSt.Create(Army, Coastal, Marshall, GSU),
-                GSU.Create(Navy, Coastal, Marshall, GASO),
-                GASO.Create(Army, FIU, ODU, AppSt),
+                FAU.Create(ODU, WKU, AppSt, GSU),
+                FIU.Create(FAU, Marshall, Coastal, GASO),
+                Army.Create(FIU, WKU, AppSt, GSU),
+                Navy.Create(FAU, Army, Coastal, GASO),
+                ODU.Create(FIU, Navy, AppSt, GSU),
+                Marshall.Create(FAU, Army, ODU, GASO),
+                WKU.Create(FIU, Navy, Marshall, GSU),
+                Coastal.Create(FAU, Army, ODU, WKU),
+                AppSt.Create(FIU, Navy, Marshall, Coastal),
+                GASO.Create(Army, ODU, WKU, AppSt),
+                GSU.Create(Navy, Marshall, Coastal, GASO),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateD()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
             }.Create();
         }
 #elif false

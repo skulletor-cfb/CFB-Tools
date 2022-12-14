@@ -257,31 +257,6 @@ namespace EditorTest
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
-        [TestMethod]
-        public void SBCScheduleC()
-        {
-            SunBeltSchedule.CreateC().Verify(12, RecruitingFixup.SBCId, "SunBelt  ", false);
-            var hash = SunBeltSchedule.CreateC().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void SBCScheduleD()
-        {
-            SunBeltSchedule.CreateD().Verify(12, RecruitingFixup.SBCId, "SunBelt  ", false);
-            var hash = SunBeltSchedule.CreateD().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-
-        [TestMethod]
-        public void SBCScheduleE()
-        {
-            SunBeltSchedule.CreateE().Verify(12, RecruitingFixup.SBCId, "SunBelt  ", false);
-            var hash = SunBeltSchedule.CreateE().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
 #if false
         [TestMethod]
         public void SBCScheduleA()
@@ -369,8 +344,32 @@ namespace EditorTest
         [TestMethod]
         public void CUSAScheduleA()
         {
-            CUSASchedule.CreateA().Verify(9, RecruitingFixup.CUSAId, "CUSA  ", false);
+            CUSASchedule.CreateA().Verify(11, RecruitingFixup.CUSAId, "CUSA  ", false);
             var hash = CUSASchedule.CreateA().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void CUSAScheduleB()
+        {
+            CUSASchedule.CreateB().Verify(11, RecruitingFixup.CUSAId, "CUSA  ", false);
+            var hash = CUSASchedule.CreateB().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void CUSAScheduleC()
+        {
+            CUSASchedule.CreateC().Verify(11, RecruitingFixup.CUSAId, "CUSA  ", false);
+            var hash = CUSASchedule.CreateC().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void CUSAScheduleD()
+        {
+            CUSASchedule.CreateD().Verify(11, RecruitingFixup.CUSAId, "CUSA  ", false);
+            var hash = CUSASchedule.CreateD().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 

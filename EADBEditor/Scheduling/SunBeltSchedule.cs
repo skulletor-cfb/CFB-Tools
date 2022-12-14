@@ -8,11 +8,11 @@ namespace EA_DB_Editor
     {
         private static bool initRun = false;
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
-            CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE};
+            CreateA, CreateA, CreateB, CreateB, };
         public static Dictionary<int, HashSet<int>> SunbeltConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
-        public static HashSet<int> East = new HashSet<int>() { WKU, MTSU, USM, UAB, Troy, USA };
-        public static HashSet<int> West = new HashSet<int>() { TexSt, ArkSt, NT, LT, ULM, ULL};
+        public static HashSet<int> East = new HashSet<int>() { LT, MTSU, USM, UAB, Troy, USA };
+        public static HashSet<int> West = new HashSet<int>() { TexSt, ArkSt, NT, UTSA, ULM, ULL};
 
         public static bool CrossDivision(int a, int b)
         {
@@ -37,7 +37,7 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2445) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2446) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(12, RecruitingFixup.SBCId, "SunBelt");
             SunbeltConferenceSchedule = result.BuildHashSet();
@@ -48,13 +48,13 @@ namespace EA_DB_Editor
         const int USA = 235;
         const int USM = 85;
         const int UAB = 98;
-        const int WKU = 211;
+        const int LT = 43;
         const int MTSU = 53;
 
+        const int UTSA = 232;
         const int TexSt = 218;
         const int ArkSt = 7;
         const int NT = 64;
-        const int LT = 43;
         const int ULM = 65;
         const int ULL = 86;
 
@@ -63,44 +63,23 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                NT.Create(ArkSt, LT, ULL, USA),
-                ArkSt.Create(TexSt, ULM, UAB, WKU),
-                LT.Create(ArkSt, ULM, MTSU, USM),
-                TexSt.Create(NT, LT, ULL, WKU),
-                ULL.Create(ArkSt, LT, MTSU, USM),
-                ULM.Create(NT, TexSt, ULL, Troy),
+                NT.Create(ULL, ArkSt, UTSA, USM),
+                ULL.Create(TexSt, ArkSt, Troy, LT),
+                TexSt.Create(NT, ArkSt, ULM, LT),
+                ArkSt.Create(UTSA, ULM, USA, MTSU),
+                UTSA.Create(ULL, TexSt, ULM, UAB),
+                ULM.Create(NT, ULL, USA, MTSU),
 
-                MTSU.Create(NT, USA, USM, Troy),
-                USA.Create(ArkSt, TexSt, UAB, WKU),
-                USM.Create(ULM, USA, UAB, Troy),
-                UAB.Create(TexSt, ULM, MTSU, Troy),
-                Troy.Create(NT, LT, USA, WKU),
-                WKU.Create(ULL, MTSU, USM, UAB),
+                USA.Create(UTSA, MTSU, UAB, USM),
+                MTSU.Create(UTSA, USM, Troy, LT),
+                UAB.Create(ArkSt, ULM, MTSU, Troy),
+                USM.Create(ULL, TexSt, UAB, Troy),
+                Troy.Create(NT, TexSt, USA, LT),
+                LT.Create(NT, USA, UAB, USM),
             }.Create();
         }
 
         public static Dictionary<int, int[]> CreateB()
-        {
-            return new List<KeyValuePair<int, int[]>>
-            {
-            }.Create();
-        }
-
-        public static Dictionary<int, int[]> CreateC()
-        {
-            return new List<KeyValuePair<int, int[]>>
-            {
-            }.Create();
-        }
-
-        public static Dictionary<int, int[]> CreateD()
-        {
-            return new List<KeyValuePair<int, int[]>>
-            {
-            }.Create();
-        }
-
-        public static Dictionary<int, int[]> CreateE()
         {
             return new List<KeyValuePair<int, int[]>>
             {
