@@ -298,6 +298,16 @@ namespace EA_DB_Editor
         {
             return new Func<PreseasonScheduledGame, int?>[]
             {
+                game=> MatchTeams(13,game,34,61), //ccu-app st
+                game=> MatchTeams(13, game, 181, 233), // gsu-gaso
+                game => MatchTeams(8, game, 57, 234), // navy-odu
+                game=> MatchTeams(13, game, 46, 234), // odu - marshall
+                game => MatchTeams( 7, game, 34,181), //gaso-app st
+                game => MatchTeams(7, game , 34, 46), // marsh-app st
+                game => MatchTeams(8, game, 61, 181), // coastal- gaso
+                game => MatchTeams(6, game, 34, 234), // app st - odu
+
+
                 game=> MatchTeams(13,game,64,7), //nt-ark st
                 game=> MatchTeams(13,game,65,86), //ull-ulm
                 game=> MatchTeams(13,game,143,235), //troy-usa
@@ -386,18 +396,11 @@ namespace EA_DB_Editor
             return new Func<PreseasonScheduledGame, int?>[]
             {
                 game=> MatchTeams(13,game,8,57), //army-navy
-                game=> MatchTeams(13, game, 46, 234), // odu - marshall
-                game=> MatchTeams(13, game, 229, 230), // fau-fiu
-                game=> MatchTeams(13,game,34,61), //ccu-app st
-                game=> MatchTeams(13, game, 181, 233), // gsu-gaso
-
-                game => MatchTeams(8, game, 57, 234), // navy-odu
-                game => MatchTeams( 7, game, 34,181), //gaso-app st
-                game => MatchTeams(7, game , 34, 46), // marsh-app st
-                game => MatchTeams(8, game, 61, 181), // coastal- gaso
-                game => MatchTeams(12, game, 46, 211), // marsh-wku
-                game => MatchTeams(7, game, 229, 233), // gsu-fau
-                game => MatchTeams(6, game, 34, 234), // app st - odu
+                game => MatchTeams(13, game, 53, 211), //wku-mtsu
+                game => MatchTeams(13, game, 85, 98), //uab-usm
+                game => MatchTeams(7, game, 43, 85), //usm-lt
+                game => MatchTeams(7, game, 53, 64), //nt-mtsu
+                game => MatchTeams(12, game, 43, 64), //LT-NT week 12
             };
         }
     }

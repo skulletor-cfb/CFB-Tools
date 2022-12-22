@@ -17,7 +17,7 @@ namespace EA_DB_Editor
     public class CUSASchedule
     {
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD };
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, };
         public static Dictionary<int, HashSet<int>> CUSAConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
 
@@ -38,9 +38,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2446) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2450) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(11, RecruitingFixup.CUSAId, "CUSA");
+            result = result.Verify(9, RecruitingFixup.CUSAId, "CUSA");
             CUSAConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -48,16 +48,32 @@ namespace EA_DB_Editor
         const int FIU = 230;
         const int Army = 8;
         const int Navy = 57;
-        const int Coastal = 61;
-        const int ODU = 234;
-        const int Marshall = 46;
-        const int AppSt = 34;
-        const int GSU = 233;
-        const int GASO = 181;
-        const int FAU = 229;
         const int WKU = 211;
+        const int LT = 43;
+        const int USM = 85;
+        const int UAB = 98;
+        const int MTSU = 53;
+        const int NT = 64;
 
 #if true
+        // 9 team CUSA all over
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Army.Create(LT, UAB, WKU, FIU),
+                Navy.Create(Army, USM, MTSU, NT),
+                LT.Create(Navy, USM, WKU, FIU),
+                USM.Create(Army, UAB, WKU, NT),
+                UAB.Create(Navy, LT, MTSU, FIU),
+                WKU.Create(Navy, UAB ,MTSU, NT),
+                MTSU.Create(Army, LT, USM, NT),
+                NT.Create(Army, LT, UAB, FIU),
+                FIU.Create(Navy, USM, WKU, MTSU),
+            }.Create();
+        }
+
+#elif false
         // 11 team CUSA eastern seaboard
         public static Dictionary<int, int[]> CreateA()
         {

@@ -6,7 +6,7 @@ namespace EA_DB_Editor
     public class AmericanSchedule
     {
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateC, CreateC, CreateD, CreateD, CreateE, CreateE, CreateA, CreateA, CreateB, CreateB, };
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {  CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE, CreateF, CreateF};
         public static Dictionary<int, HashSet<int>> AmericanConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
         
@@ -27,33 +27,48 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2446) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2450) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(12, RecruitingFixup.AmericanId, "American");
             AmericanConferenceSchedule = result.BuildHashSet();
             return result;
         }
 
-        const int CincyId = 20;
-        const int MemphisId = 48;
-        const int SMUId = 83;
-        const int CharlotteId = 100;
-        const int UCFId = 18;
-        const int USFId = 144;
-        const int ECUId = 25;
-        const int TempleId = 90;
-        const int TulsaId = 97;
-        const int RiceId = 79;
-        const int HoustonId = 33;
-        const int TulaneId = 96;
+        const int Cincy = 20;
+        const int Memphis = 48;
+        const int SMU = 83;
+        const int CLT = 100;
+        const int UCF = 18;
+        const int USF = 144;
+        const int ECU = 25;
+        const int Temple = 90;
+        const int Tulsa = 97;
+        const int Rice = 79;
+        const int Houston = 33;
+        const int Tulane = 96;
         const int FAU = 229;
         const int UTSA = 232;
 
-#if false
+#if true
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
             {
+                Tulsa.Create(SMU, Rice, Tulane, CLT),
+                SMU.Create(Memphis, UTSA, Houston, Temple),
+                Memphis.Create(Tulsa, Rice, UTSA, USF),
+                Rice.Create(SMU, Tulane, Houston, Cincy),
+                UTSA.Create(Tulsa, Rice, Tulane, ECU),
+                Tulane.Create(SMU, Memphis, Houston ,FAU),
+                Houston.Create(Tulsa, Memphis, UTSA, UCF),
+
+                UCF.Create(Tulsa, Temple, ECU, FAU),
+                CLT.Create(SMU, UCF, Cincy, FAU),
+                Temple.Create(Memphis, CLT, USF, FAU),
+                USF.Create(Rice, UCF, CLT, Cincy),
+                Cincy.Create(UTSA, UCF, Temple, ECU),
+                ECU.Create(Tulane, CLT, Temple, USF),
+                FAU.Create(Houston, USF, Cincy, ECU),
             }.Create();
         }
 
@@ -61,21 +76,6 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                SMUId.Create(MemphisId, UTSA, HoustonId, UCFId),
-                TulsaId.Create(SMUId, RiceId, TulaneId, TempleId),
-                RiceId.Create(SMUId, MemphisId, HoustonId, USFId),
-                MemphisId.Create(TulsaId, UTSA, HoustonId, ECUId),
-                UTSA.Create(TulsaId, RiceId, TulaneId, CincyId),
-                HoustonId.Create(TulsaId, UTSA, TulaneId, FAU),
-                TulaneId.Create(SMUId, RiceId, MemphisId, CharlotteId),
-
-                CincyId.Create(HoustonId, CharlotteId, UCFId, TempleId),
-                FAU.Create(TulaneId, CincyId, USFId, ECUId),
-                CharlotteId.Create(SMUId, FAU, TempleId, USFId),
-                UCFId.Create(TulsaId, FAU, CharlotteId, ECUId),
-                TempleId.Create(RiceId, FAU, UCFId, ECUId),
-                USFId.Create(MemphisId, CincyId, UCFId, TempleId),
-                ECUId.Create(UTSA, CincyId, CharlotteId, USFId),
             }.Create();
         }
 

@@ -7,12 +7,11 @@ namespace EA_DB_Editor
     public class SunBeltSchedule
     {
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
-            CreateA, CreateA, CreateB, CreateB, };
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB, };
         public static Dictionary<int, HashSet<int>> SunbeltConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
-        public static HashSet<int> East = new HashSet<int>() { LT, MTSU, USM, UAB, Troy, USA };
-        public static HashSet<int> West = new HashSet<int>() { TexSt, ArkSt, NT, UTSA, ULM, ULL};
+        public static HashSet<int> East = new HashSet<int>() { Coastal, ODU, UMarsh, AppSt, GSU, GASO  };
+        public static HashSet<int> West = new HashSet<int>() { TexSt, ArkSt, USA, Troy, ULM, ULL};
 
         public static bool CrossDivision(int a, int b)
         {
@@ -37,28 +36,68 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2446) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2450) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(12, RecruitingFixup.SBCId, "SunBelt");
             SunbeltConferenceSchedule = result.BuildHashSet();
             return result;
         }
 
+        const int Coastal = 61;
+        const int ODU = 234;
+        const int UMarsh = 46;
+        const int AppSt = 34;
+        const int GSU = 233;
+        const int GASO = 181;
+
         const int Troy = 143;
         const int USA = 235;
-        const int USM = 85;
-        const int UAB = 98;
-        const int LT = 43;
-        const int MTSU = 53;
-
-        const int UTSA = 232;
         const int TexSt = 218;
         const int ArkSt = 7;
-        const int NT = 64;
         const int ULM = 65;
         const int ULL = 86;
 
-#if true // sun belt is a southern eastern conference
+#if true // sun belt is real life-ish
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                ULL.Create(Troy, ArkSt, GSU, AppSt),
+                TexSt.Create(ULL, Troy, ArkSt, AppSt ),
+                Troy.Create(ULM, USA, UMarsh, GSU),
+                ArkSt.Create(Troy, ULM, ODU, Coastal),
+                ULM.Create(ULL, TexSt, USA, GASO),
+                USA.Create(ULL, TexSt, ArkSt, ODU),
+
+                UMarsh.Create(ULL, TexSt, GSU, ODU),
+                GSU.Create(TexSt, ODU, GASO, Coastal),
+                AppSt.Create(Troy, UMarsh, GSU, Coastal),
+                ODU.Create(ULM, AppSt, GASO, Coastal),
+                GASO.Create(ArkSt, USA, UMarsh, AppSt),
+                Coastal.Create(ULM, USA, UMarsh, GASO),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                ULL.Create(TexSt, Troy, GASO, Coastal),
+                TexSt.Create(ArkSt, ULM, USA, ODU ),
+                Troy.Create(TexSt, ULM , USA, ODU),
+                ArkSt.Create(ULL, Troy, ULM, GSU),
+                ULM.Create(ULL, USA, UMarsh, AppSt),
+                USA.Create(ULL, ArkSt, GSU, AppSt),
+
+                UMarsh.Create(ArkSt, USA, GSU, ODU),
+                GSU.Create(ULM, ODU, GASO, Coastal),
+                AppSt.Create(ArkSt, UMarsh, GSU, Coastal),
+                ODU.Create(ULL, AppSt, GASO, Coastal),
+                GASO.Create(TexSt, Troy, UMarsh, AppSt),
+                Coastal.Create(TexSt, Troy, UMarsh, GASO),
+            }.Create();
+        }
+#elif false // sun belt is a southern eastern conference
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
