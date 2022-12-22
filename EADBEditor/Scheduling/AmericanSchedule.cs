@@ -76,14 +76,112 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
+                Tulsa.Create(Temple,SMU, Rice, Tulane),
+                SMU.Create(USF,Memphis, UTSA, Houston),
+                Memphis.Create(Cincy,Tulsa, Rice, UTSA),
+                Rice.Create(ECU,SMU, Tulane, Houston),
+                UTSA.Create(FAU,Tulsa, Rice, Tulane),
+                Tulane.Create(UCF,SMU, Memphis, Houston),
+                Houston.Create(CLT,Tulsa, Memphis, UTSA),
+
+                UCF.Create(Tulsa,Temple, ECU, FAU),
+                CLT.Create(Memphis, UCF, Cincy, FAU),
+                Temple.Create(Rice,CLT, USF, FAU),
+                USF.Create(UTSA,UCF, CLT, Cincy),
+                Cincy.Create(Tulane,UCF, Temple, ECU),
+                ECU.Create(Houston,CLT, Temple, USF),
+                FAU.Create(SMU,USF, Cincy, ECU),
             }.Create();
         }
 
-        public static Dictionary<int, int[]> CreateC() => null;
-        public static Dictionary<int, int[]> CreateD() => null;
-        public static Dictionary<int, int[]> CreateE() => null;
-        public static Dictionary<int, int[]> CreateF() => null;
-        public static Dictionary<int, int[]> CreateG() => null;
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Tulsa.Create(USF,SMU, Rice, Tulane),
+                SMU.Create(Cincy,Memphis, UTSA, Houston),
+                Memphis.Create(ECU,Tulsa, Rice, UTSA),
+                Rice.Create(FAU,SMU, Tulane, Houston),
+                UTSA.Create(UCF,Tulsa, Rice, Tulane),
+                Tulane.Create(CLT,SMU, Memphis, Houston),
+                Houston.Create(Temple,Tulsa, Memphis, UTSA),
+
+                UCF.Create(Tulsa,Temple, ECU, FAU),
+                CLT.Create( Rice,UCF, Cincy, FAU),
+                Temple.Create(UTSA,CLT, USF, FAU),
+                USF.Create(Tulane,UCF, CLT, Cincy),
+                Cincy.Create(Houston,UCF, Temple, ECU),
+                ECU.Create(SMU,CLT, Temple, USF),
+                FAU.Create(Memphis,USF, Cincy, ECU),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateD()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Tulsa.Create(Cincy,SMU, Rice, Tulane),
+                SMU.Create(ECU,Memphis, UTSA, Houston),
+                Memphis.Create(FAU,Tulsa, Rice, UTSA),
+                Rice.Create(UCF,SMU, Tulane, Houston),
+                UTSA.Create(CLT,Tulsa, Rice, Tulane),
+                Tulane.Create(Temple,SMU, Memphis, Houston),
+                Houston.Create(USF,Tulsa, Memphis, UTSA),
+
+                UCF.Create(Tulsa,Temple, ECU, FAU),
+                CLT.Create( Houston,UCF, Cincy, FAU),
+                Temple.Create(SMU,CLT, USF, FAU),
+                USF.Create(Memphis,UCF, CLT, Cincy),
+                Cincy.Create(Rice,UCF, Temple, ECU),
+                ECU.Create(UTSA,CLT, Temple, USF),
+                FAU.Create(Tulane,USF, Cincy, ECU),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateE()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Tulsa.Create(ECU,SMU, Rice, Tulane),
+                SMU.Create(Memphis,FAU, UTSA, Houston),
+                Memphis.Create(Tulsa, UCF,Rice, UTSA),
+                Rice.Create(SMU, Tulane,CLT, Houston),
+                UTSA.Create(Tulsa, Rice, Temple,Tulane),
+                Tulane.Create(USF,SMU, Memphis, Houston),
+                Houston.Create(Cincy,Tulsa, Memphis, UTSA),
+
+                UCF.Create(Tulsa,Temple, ECU, FAU),
+                CLT.Create(Tulane, UCF, Cincy, FAU),
+                Temple.Create(Houston,CLT, USF, FAU),
+                USF.Create(SMU,UCF, CLT, Cincy),
+                Cincy.Create(Memphis,UCF, Temple, ECU),
+                ECU.Create(CLT, Temple,Rice, USF),
+                FAU.Create(USF, Cincy, ECU,UTSA),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateF()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Tulsa.Create(FAU,SMU, Rice, Tulane),
+                SMU.Create(Memphis,UCF, UTSA, Houston),
+                Memphis.Create(Tulsa, CLT,Rice, UTSA),
+                Rice.Create(SMU, Tulane,Temple, Houston),
+                UTSA.Create(Tulsa, Rice, Tulane,USF),
+                Tulane.Create(SMU, Memphis, Houston,Cincy),
+                Houston.Create(Tulsa, Memphis, UTSA,ECU),
+
+                UCF.Create(Temple, ECU, FAU,Tulsa),
+                CLT.Create( UCF, Cincy, FAU,UTSA),
+                Temple.Create(CLT, USF, FAU,Tulane),
+                USF.Create(UCF, CLT, Cincy, Houston),
+                Cincy.Create(UCF, Temple, ECU,SMU),
+                ECU.Create(CLT, Temple, USF,Memphis),
+                FAU.Create(USF, Cincy, ECU,Rice),
+            }.Create();
+        }
+
 #elif false
         public static Dictionary<int, int[]> CreateA()
         {
