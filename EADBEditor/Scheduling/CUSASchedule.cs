@@ -81,6 +81,17 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
+                FAU.Create(Army, ODU, WKU, GSU),
+                FIU.Create(FAU, Navy, Marshall, Coastal),
+                Army.Create(FIU, ODU, WKU, AppSt),
+                Navy.Create(Army, Marshall, Coastal, GASO),
+                ODU.Create(Navy, WKU, AppSt, GSU),
+                Marshall.Create(FAU, ODU, Coastal, GASO),
+                WKU.Create(FIU, Marshall, AppSt, GSU),
+                Coastal.Create(FAU, Army, WKU, GASO),
+                AppSt.Create(FIU, Navy, Coastal, GSU),
+                GASO.Create(FAU, Army, ODU, AppSt),
+                GSU.Create(FIU, Navy, Marshall,GASO),
             }.Create();
         }
 

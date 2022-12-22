@@ -83,6 +83,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
+                NT.Create(ULL, ArkSt, UTSA, USA),
+                ULL.Create(TexSt, ArkSt, MTSU, UAB),
+                TexSt.Create(NT, ArkSt, ULM, MTSU),
+                ArkSt.Create(UTSA, ULM, USM, Troy),
+                UTSA.Create(ULL, TexSt, ULM, LT),
+                ULM.Create(NT, ULL, USM, Troy),
+                USA.Create(ULL, TexSt, MTSU, UAB),
+                MTSU.Create(NT, USM, Troy, LT),
+                UAB.Create(NT, TexSt, MTSU, LT),
+                USM.Create(UTSA, USA, UAB, Troy),
+                Troy.Create(UTSA, USA, UAB, LT),
+                LT.Create(ArkSt, ULM, USA, USM),
             }.Create();
         }
 
