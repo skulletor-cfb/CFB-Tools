@@ -842,6 +842,8 @@ namespace EA_DB_Editor
             return SEC.Contains(teamId);
         }
 
+        public static bool IsPac12Team(this int teamId) => Pac12.Contains(teamId);
+
         public static bool IsSunBeltTeam(this int teamId) => SBC.Contains(teamId);
 
         public static bool IsAccTeam(this int teamId)

@@ -267,6 +267,8 @@ namespace EA_DB_Editor
 
         public static void FixSizes(List<MaddenRecord> records)
         {
+            // too many goofy big guys
+            if (true) return; 
             if (FixSizeRun) return;
 
             FixSizeRun = true;

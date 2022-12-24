@@ -330,7 +330,11 @@ namespace EA_DB_Editor
 
             if (!RanReorder)
             {
+                // try to put non conference games earlier in the season
+                ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule);
+
                 ConfScheduleFixer.FcsGamesEarly(teamSchedule);
+
                 Big12Schedule.ProcessBig12Schedule(teamSchedule);
                 Pac12Schedule.ProcessPac12Schedule(teamSchedule);
                 Big10Schedule.ProcessBig10Schedule(teamSchedule);
@@ -372,6 +376,9 @@ namespace EA_DB_Editor
                 {
                     ConfScheduleFixer.MoveReplaceableGames(teamSchedule, g => true);
                 }
+
+                // try to put non conference games earlier in the season
+                ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule, 4);
             }
 
             RanReorder = true;
@@ -1789,7 +1796,7 @@ namespace EA_DB_Editor
             rivalries.Add(new[] { 20, 76 });
 
             // NMSU - UNM
-            rivalries.Add(new[] { 60, 61 });
+            // rivalries.Add(new[] { 60, 61 });
 
             // GaSo-App St
             rivalries.Add(new[] { 901, 902 });
@@ -1832,6 +1839,9 @@ namespace EA_DB_Editor
 
             // wku-mtsu
             rivalries.Add(new[] { 211, 53 });
+
+            // wku-marsh
+            rivalries.Add(new[] { 46, 211 });
 
             // utsa-tex st
             rivalries.Add(new[] { 218, 232 });

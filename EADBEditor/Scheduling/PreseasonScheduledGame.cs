@@ -306,19 +306,21 @@ namespace EA_DB_Editor
                 game => MatchTeams(7, game , 34, 46), // marsh-app st
                 game => MatchTeams(8, game, 61, 181), // coastal- gaso
                 game => MatchTeams(6, game, 34, 234), // app st - odu
-
-
-                game=> MatchTeams(13,game,64,7), //nt-ark st
+                game=> MatchTeams(7,game,65,7), //ulm-ark st
+                game=> MatchTeams(12,game,7,218), //tsu-ark st
                 game=> MatchTeams(13,game,65,86), //ull-ulm
                 game=> MatchTeams(13,game,143,235), //troy-usa
-                game=> MatchTeams(13, game, 85, 98), // usm-uab
-                game=> MatchTeams(13, game, 218, 232), // tex st-utsa
+
+                /*
+                game=> MatchTeams(13,game,64,7), //nt-ark st
                 game=> MatchTeams(7,game,53,64), //mtsu-nt
                 game=> MatchTeams(7,game,53,143), //mtsu-troy
+                game=> MatchTeams(13, game, 85, 98), // usm-uab
+                game=> MatchTeams(13, game, 218, 232), // tex st-utsa
                 game=> MatchTeams(12,game,43,86), //lt-ull
                 game=> MatchTeams(12,game,43,65), //lt-ulm
                 game=> MatchTeams(7,game,43,85), //lt-usm
-                game=> MatchTeams(7,game,65,7), //ulm-ark st
+                */
             };
         }
     }
@@ -731,6 +733,89 @@ namespace EA_DB_Editor
             return result;
         }
 
+        static int monotronic = 200;
+
+        public static void MoveNonConfGamesEarly(Dictionary<int, PreseasonScheduledGame[]> schedules, int confWeek = 13)
+        {
+            // remove all fcs games from schedules
+            var fcs = schedules.Values.SelectMany(games => games.Where(g => g != null && g.IsFCSGame())).Distinct().OrderBy(g => g.WeekIndex).ToArray();
+            foreach (var game in fcs)
+            {
+                var gameIndex = game.WeekIndex;
+                var home = game.HomeTeam;
+                var homeSchd = schedules[home];
+                homeSchd[gameIndex] = null;
+            }
+
+            bool keepRunning = false;
+            do
+            {
+                var conf = schedules.Values.SelectMany(games => games.Where(g => g != null && g.IsConferenceGame() && !g.IsAccOrSecConfGame() && g.WeekIndex < confWeek)).Distinct().OrderBy(g => g.WeekIndex).ToArray();
+                var nonConf = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsRivalryGame() && !g.IsConferenceGame() && !g.IsFCSGame())).Distinct().OrderByDescending(g => g.WeekIndex).ToArray();
+
+                keepRunning = false;
+
+                // non conf go earlier
+                foreach (var game in nonConf)
+                {
+                    var gameIndex = game.WeekIndex;
+
+                    var home = game.HomeTeam;
+                    var away = game.AwayTeam;
+                    var homeSchd = schedules[home];
+                    var awaySchd = schedules[away];
+
+                    if (FindCommonOpenWeek(homeSchd.FindOpenWeeks(), awaySchd.FindOpenWeeks(), out var opening) &&
+                        opening < gameIndex)
+                    {
+                        keepRunning = true;
+                        game.SetWeek(opening);
+                        game.GameNumber = monotronic++;
+                        homeSchd[opening] = game;
+                        awaySchd[opening] = game;
+                        homeSchd[gameIndex] = null;
+                        awaySchd[gameIndex] = null;
+                    }
+                }
+
+                // conf games go later
+                foreach (var game in conf)
+                {
+                    var gameIndex = game.WeekIndex;
+
+                    var home = game.HomeTeam;
+                    var away = game.AwayTeam;
+                    var homeSchd = schedules[home];
+                    var awaySchd = schedules[away];
+
+                    if (FindCommonOpenWeek(homeSchd.FindOpenWeeks(), awaySchd.FindOpenWeeks(), out var opening) &&
+                        opening > gameIndex && opening < 14)
+                    {
+                        keepRunning = true;
+                        game.SetWeek(opening);
+                        game.GameNumber = monotronic++;
+                        homeSchd[opening] = game;
+                        awaySchd[opening] = game;
+                        homeSchd[gameIndex] = null;
+                        awaySchd[gameIndex] = null;
+                    }
+                }
+            } while (keepRunning);
+
+            // put the fcs game back for each team, sec gets them late
+            foreach (var game in fcs)
+            {
+                var home = game.HomeTeam;
+                var homeSchd = schedules[home];
+                var openWeek = home.IsSECTeam() || home == 68 ? homeSchd.FindLastOpenWeekForFcs() : homeSchd.FindOpenWeeks().First();
+
+                // set the game in the schedule
+                game.SetWeek(openWeek);
+                game.GameNumber = monotronic++;
+                homeSchd[openWeek] = game;
+            }
+        }
+
         public static void ReplaceFcsOnlyGames(Dictionary<int, PreseasonScheduledGame[]> schedules)
         {
             // find the games with fcs home team
@@ -745,8 +830,12 @@ namespace EA_DB_Editor
 
             // should not remove more than 8 games, but only 1 per team
             var extraConfGames = FindExtraSunBeltGames(schedules);
-            var replaceableGames = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsRivalryGame() && !g.IsConferenceGame() && !g.IsFCSGame()/* && g.IsP5Game()*/)).OrderByDescending(g => g.WeekIndex).Distinct().ToArray();
-            var oocGames = extraConfGames.Concat(replaceableGames);
+
+            // p5-p5 games late in the season
+            var replaceableGamesP5 = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsRivalryGame() && !g.IsConferenceGame() && !g.IsFCSGame() && g.IsP5Game() && g.WeekIndex > 4)).Distinct().OrderByDescending(g => g.WeekIndex).ToArray();
+            var replaceableGamesAny = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsRivalryGame() && !g.IsConferenceGame() && !g.IsFCSGame() && !g.IsP5Game() && g.WeekIndex > 4)).Distinct().OrderByDescending(g => g.WeekIndex).ToArray();
+            var replaceableGamesEarlyy = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsRivalryGame() && !g.IsConferenceGame() && !g.IsFCSGame() && g.WeekIndex <= 4)).Distinct().OrderByDescending(g => g.WeekIndex).ToArray();
+            var oocGames = extraConfGames.Concat(replaceableGamesP5).Concat(replaceableGamesAny).Concat(replaceableGamesEarlyy);
 
             foreach (var game in oocGames)
             {
@@ -1271,6 +1360,11 @@ namespace EA_DB_Editor
             return list;
         }
 
+        public static int FindLastOpenWeekForFcs(this PreseasonScheduledGame[] games)
+        {
+            return FindOpenWeeks(games, 14).Last();
+        }
+
         public static void MoveFcsGame(PreseasonScheduledGame[] schedule, int fromWeek, int toWeek)
         {
             schedule[fromWeek].SetWeek(toWeek);
@@ -1442,6 +1536,11 @@ namespace EA_DB_Editor
         public bool IsAccOrSecGame()
         {
             return this.HomeTeam.IsSECTeam() || this.HomeTeam.IsAccTeam() || this.AwayTeam.IsSECTeam() || this.AwayTeam.IsAccTeam();
+        }
+
+        public bool IsAccOrSecConfGame()
+        {
+            return (this.HomeTeam.IsSECTeam() && this.AwayTeam.IsSECTeam()) || (this.AwayTeam.IsAccTeam() && this.HomeTeam.IsAccTeam());
         }
 
         public bool IsSunBeltGame()
