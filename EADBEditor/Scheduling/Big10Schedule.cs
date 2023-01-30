@@ -22,7 +22,7 @@ namespace EA_DB_Editor
 
 
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateE, CreateE, CreateF, CreateF, CreateC, CreateC, CreateG, CreateG, CreateA, CreateA, CreateH, CreateH, CreateD, CreateD, CreateJ, CreateJ, CreateB, CreateB, CreateI, CreateI };
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateG, CreateG, CreateA, CreateA, CreateH, CreateH, CreateD, CreateD, CreateJ, CreateJ, CreateB, CreateB, CreateI, CreateI, CreateE, CreateE, CreateF, CreateF, CreateC, CreateC, };
         //public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE };
         public static Dictionary<int, HashSet<int>> Big10ConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
@@ -43,14 +43,55 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2456) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(12, RecruitingFixup.Big10Id, "Big10");
             Big10ConferenceSchedule = result.BuildHashSet();
             return result;
         }
 
-#if true
+#if false // east-west
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                OhioSt.Create(Michigan, Indiana, Rutgers, Illinois),
+                Michigan.Create(PennState, MichSt, Minnesota, Purdue),
+                Indiana.Create(Michigan, MichSt, Rutgers, Purdue),
+                PennState.Create(OhioSt, Indiana, Rutgers, Northwestern),
+                MichSt.Create(OhioSt, PennState, Illinois, Wisconsin),
+                Rutgers.Create(Michigan, MichSt, Iowa, Northwestern),
+
+                Illinois.Create(PennState, Minnesota, Iowa, Northwestern),
+                Minnesota.Create(OhioSt, MichSt, Northwestern, Wisconsin),
+                Purdue.Create(OhioSt, Illinois, Minnesota, Wisconsin),
+                Iowa.Create(Michigan, Indiana, Minnesota, Purdue),
+                Northwestern.Create(Indiana, Purdue, Iowa, Wisconsin),
+                Wisconsin.Create(PennState, Rutgers, Illinois, Iowa)
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return null;
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return null;
+        }
+
+        public static Dictionary<int, int[]> CreateD()
+        {
+            return null;
+        }
+
+        public static Dictionary<int, int[]> CreateE()
+        {
+            return null;
+        }
+
+#elif true // north-south
 
         public static Dictionary<int, int[]> CreateA()
         {
@@ -282,10 +323,5 @@ namespace EA_DB_Editor
             return null;
         }
 #endif
-
-        private static void Create(this Dictionary<int, int[]> dict, params int[] values)
-        {
-            dict[values[0]] = values.Skip(1).ToArray();
-        }
     }
 }

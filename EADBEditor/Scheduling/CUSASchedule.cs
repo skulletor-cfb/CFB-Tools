@@ -11,6 +11,12 @@ namespace EA_DB_Editor
             return new KeyValuePair<int, int[]>(team, values);
         }
 
+        public static void Create(this Dictionary<int, int[]> dict, int team, params int[] values)
+        {
+            var kvp = team.Create(values);
+            dict[kvp.Key] = kvp.Value;
+        }
+
         public static Dictionary<int, int[]> Create(this IEnumerable<KeyValuePair<int, int[]>> values) => values.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
     }
 

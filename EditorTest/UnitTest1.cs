@@ -177,7 +177,7 @@ namespace EditorTest
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
-#if false
+#if true
 
         [TestMethod]
         public void Big10ScheduleG()
