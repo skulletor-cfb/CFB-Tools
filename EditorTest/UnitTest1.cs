@@ -249,6 +249,7 @@ namespace EditorTest
             File.Copy(form.FilePath, @"d:\vso\test\test.mc02");
         }
 
+#if false
         [TestMethod]
         public void SBCScheduleA()
         {
@@ -265,7 +266,7 @@ namespace EditorTest
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
-#if false
+#elif true
         [TestMethod]
         public void SBCScheduleA()
         {
@@ -352,9 +353,9 @@ namespace EditorTest
         [TestMethod]
         public void CUSAScheduleA()
         {
-            CUSASchedule.CreateA().Verify(9, RecruitingFixup.CUSAId, "CUSA  ", false);
+            CUSASchedule.CreateA().Verify(5, RecruitingFixup.CUSAId, "CUSA  ", false, 2 );
             var hash = CUSASchedule.CreateA().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 4));
         }
 
         [TestMethod]
