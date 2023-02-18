@@ -897,17 +897,20 @@ namespace EA_DB_Editor
             var conf = TeamAndConferences[teamId];
 
             if (conf == Pac16Id) return true;
-            if (conf == Big12Id && (Big12.Length == 16|| Big12.Length == 10)) return true;
+            if (conf == Big12Id && (Big12.Length == 16 || Big12.Length == 10)) return true;
             //if (conf == AmericanId && American.Length == 16) return true;
             if (conf == AmericanId && American.Length == 10) return true;
             if (conf == IndId) return true;
             if (conf == MACId && MAC.Length == 16) return true;
             if (conf == MWCId /*&& MWC.Length == 10*/) return true;
-            
+
             //if (conf == ACCId && AccTeams > 14)
             //    return true;
 
             var confGames = schedule.Count(g => g != null && g.HomeTeam == teamId && teamAndConferences[g.AwayTeam] == conf);
+
+            if (conf == CUSAId && CUSA.Length == 5 && confGames == 2) return true;
+
             return confGames == 4;
         }
 
@@ -938,7 +941,7 @@ namespace EA_DB_Editor
 
             // Independent BYU gets to recruit
             WeightedBYU = TeamAndConferences[16] == IndId ? CreateWeightedList(new[] { 16 }) : new List<int>();
-#if false // when cincy/ucf are in teh big12
+#if true // when cincy/ucf are in teh big12
             WeightedUCF = CreateWeightedList(new[] { 18 });
             WeightedCincy = CreateWeightedList(new[] { 20 });
 #else

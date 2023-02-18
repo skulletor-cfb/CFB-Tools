@@ -701,7 +701,6 @@ namespace EA_DB_Editor
 
         private static List<PreseasonScheduledGame> FindExtraSunBeltGames(Dictionary<int, PreseasonScheduledGame[]> schedules)
         {
-            return new List<PreseasonScheduledGame>();
             var result = new List<PreseasonScheduledGame>();
             var normalized = new HashSet<int>();
 

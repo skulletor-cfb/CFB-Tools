@@ -7,8 +7,13 @@ namespace EA_DB_Editor
     public class SunBeltSchedule
     {
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
-            CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE, CreateF, CreateF, CreateG, CreateG, CreateH, CreateH,  CreateA, CreateA, };
+
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {
+            CreateE, CreateF, CreateG, CreateH, CreateB, CreateC, CreateD, CreateA,
+            CreateF, CreateE, CreateH, CreateG, CreateC, CreateB, CreateA, CreateD,
+            };
+
+
         public static Dictionary<int, HashSet<int>> SunbeltConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
         public static HashSet<int> East = new HashSet<int>() { Coastal, ODU, UMarsh, AppSt, GSU, GASO, Troy, USA  };
@@ -37,7 +42,7 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2456) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2457) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(16, RecruitingFixup.SBCId, "SunBelt");
             SunbeltConferenceSchedule = result.BuildHashSet();
