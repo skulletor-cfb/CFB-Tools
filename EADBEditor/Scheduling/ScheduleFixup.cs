@@ -1420,12 +1420,19 @@ namespace EA_DB_Editor
                 }
 
                 // colorado-nebraska play on black friday primetime
-                else if (MatchTeams(homeTeam, awayTeam, new[] { 22, 58 }))
+                else if (MatchTeams(homeTeam, awayTeam, new[] { 22, 58 }) && week == 13)
                 {
                     gameRecord["GDAT"] = "4";
                     gameRecord["GTOD"] = "1200";
                 }
-                
+
+                // ou-nebraska play on black friday primetime
+                else if (MatchTeams(homeTeam, awayTeam, new[] { 58, 71 }) && week == 13)
+                {
+                    gameRecord["GDAT"] = "4";
+                    gameRecord["GTOD"] = "1200";
+                }
+
                 // uva-vt play on black friday early
                 else if (MatchTeams(homeTeam, awayTeam, new[] { 107, 108 }))
                 {
@@ -1448,7 +1455,7 @@ namespace EA_DB_Editor
                 }
 
                 // usf-ucf play at 8pm too
-                else if (MatchTeams(homeTeam, awayTeam, new[] { 18, 144 }))
+                else if (MatchTeams(homeTeam, awayTeam, new[] { 18, 144 }) && week == 13)
                 {
                     gameRecord["GDAT"] = "4";
                     gameRecord["GTOD"] = "1200";

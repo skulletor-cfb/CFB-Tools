@@ -11,7 +11,7 @@ namespace EA_DB_Editor
         public const int KU = 39;
         public const int ISU = 38;
         public const int Cincy = 20;
-        public const int BSUId = 12;
+        public const int BSU = 12;
         public const int Colorado = 22;
 
         public const int OU = 71;
@@ -23,7 +23,7 @@ namespace EA_DB_Editor
         public const int TT = 94;
 
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateE, CreateE, CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD };
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE, CreateF, CreateF};
 
         public static Dictionary<int, HashSet<int>> Big12ConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
@@ -40,9 +40,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2211) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2358) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(12, RecruitingFixup.Big12Id, "Big12");
+            result = result.Verify(14, RecruitingFixup.Big12Id, "Big12");
             Big12ConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -609,35 +609,64 @@ namespace EA_DB_Editor
         }
 #endif
 
-#if false // 14 team big 12 with cincy+ucf
+#if true // 14 team big 12 with cincy+ucf
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Nebraska.Create(KU, ISU, Cincy , OU),
-                BSU.Create(Nebraska, KSU, Cincy, TCU),
-                KU.Create(BSU, ISU, Colorado,OkSt),
-                KSU.Create(Nebraska, KU, Colorado, UCF),
-                ISU.Create(BSU, KSU, Colorado, Baylor),
-                Colorado.Create(Nebraska, BSU, Cincy, TT),
-                Cincy.Create(KU, KSU, ISU, Texas),
+                OU.Create(Colorado, OkSt, ISU, TCU),
+                Colorado.Create(Nebraska, KU, OkSt, UCF),
+                Nebraska.Create(OU, ISU, KSU, BSU),
+                KU.Create(OU, Nebraska, ISU, Texas),
+                OkSt.Create(Nebraska, KU, KSU, Cincy),
+                ISU.Create(Colorado, OkSt, KSU, Baylor),
+                KSU.Create(OU, Colorado, KU, TT),
 
-                OU.Create(Cincy, Texas, Baylor, OkSt ),
-                TCU.Create(Nebraska, OU, Baylor, UCF),
-                Texas.Create(Colorado, TCU, TT, OkSt),
-                TT.Create(ISU, OU, TCU, Baylor),
-                Baylor.Create(KU, Texas, OkSt, UCF),
-                OkSt.Create(KSU, TCU, TT, UCF),
-                UCF.Create(BSU, OU, Texas, TT),
+                Texas.Create(OU, TCU, UCF, TT),
+                BSU.Create(Colorado, Texas, UCF, Baylor),
+                TCU.Create(Nebraska, BSU, Cincy, TT),
+                UCF.Create(ISU, TCU, Baylor, Cincy),
+                Baylor.Create(OkSt, Texas, TCU, Cincy),
+                Cincy.Create(KSU, Texas, BSU, TT),
+                TT.Create(KU, BSU, UCF, Baylor),
             }.Create();
         }
 
-        public static Dictionary<int, int[]> CreateB() => null;
-        public static Dictionary<int, int[]> CreateC() => null;
-        public static Dictionary<int, int[]> CreateD() => null;
-        public static Dictionary<int, int[]> CreateE() => null;
-        public static Dictionary<int, int[]> CreateF() => null;
-#elif true // big 12 with 12 teams
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateD()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateE()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+        public static Dictionary<int, int[]> CreateF()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+#elif else // big 12 with 12 teams
         public static Dictionary<int, int[]> CreateA()
         {
             return new Dictionary<int, int[]>()

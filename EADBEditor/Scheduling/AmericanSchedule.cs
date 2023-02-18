@@ -6,7 +6,7 @@ namespace EA_DB_Editor
     public class AmericanSchedule
     {
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {  CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE, CreateF, CreateF};
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {  CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE, CreateF, CreateF, CreateG, CreateG};
         public static Dictionary<int, HashSet<int>> AmericanConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
         
@@ -27,18 +27,18 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2450) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2458) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(14, RecruitingFixup.AmericanId, "American");
             AmericanConferenceSchedule = result.BuildHashSet();
             return result;
         }
 
-        const int Cincy = 20;
+        const int NT = 64;
+        const int UAB = 98;
         const int Memphis = 48;
         const int SMU = 83;
         const int CLT = 100;
-        const int UCF = 18;
         const int USF = 144;
         const int ECU = 25;
         const int Temple = 90;
@@ -49,7 +49,71 @@ namespace EA_DB_Editor
         const int FAU = 229;
         const int UTSA = 232;
 
-#if true
+#if true // memphis, nt are in the AAC, no more Cincy/UCF
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                NT.Create(Houston, Tulsa, SMU, CLT),
+                Houston.Create(Tulsa, UTSA, Tulane, Memphis),
+                Tulsa.Create(UTSA, SMU, Rice, USF),
+                UTSA.Create(NT, Rice, Tulane, Temple),
+                SMU.Create(Houston, UTSA, Tulane, ECU),
+                Rice.Create(NT, Houston, SMU, UAB),
+                Tulane.Create(NT, Tulsa, Rice, FAU),
+
+                CLT.Create(Tulane, Memphis, USF, Temple),
+                Memphis.Create(NT, USF, Temple, ECU),
+                USF.Create(Houston, Temple, ECU, UAB),
+                Temple.Create(Tulsa, ECU, UAB, FAU),
+                ECU.Create(UTSA, CLT, UAB, FAU),
+                UAB.Create(SMU, CLT, Memphis, FAU),
+                FAU.Create(Rice, CLT, Memphis,USF),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateD()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateE()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateF()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateG()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+#elif false
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>

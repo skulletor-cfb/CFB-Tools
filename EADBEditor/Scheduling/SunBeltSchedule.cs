@@ -9,15 +9,19 @@ namespace EA_DB_Editor
         private static bool initRun = false;
 
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {
-            CreateE, CreateF, CreateG, CreateH, CreateB, CreateC, CreateD, CreateA,
-            CreateF, CreateE, CreateH, CreateG, CreateC, CreateB, CreateA, CreateD,
+            CreateA, CreateA,
+            CreateB, CreateB,
+            CreateC, CreateC,
+            CreateD, CreateD,
+            CreateE, CreateE,
+            CreateF, CreateF
             };
 
 
         public static Dictionary<int, HashSet<int>> SunbeltConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
-        public static HashSet<int> East = new HashSet<int>() { Coastal, ODU, UMarsh, AppSt, GSU, GASO, Troy, USA  };
-        public static HashSet<int> West = new HashSet<int>() { TexSt, ArkSt, USM, NT, LT, UAB, ULM, ULL};
+        public static HashSet<int> East = new HashSet<int>() { Coastal, ODU, UMarsh, AppSt, GSU, GASO, Troy };
+        public static HashSet<int> West = new HashSet<int>() { TexSt, ArkSt, USM, LT, ULM, ULL, USA };
 
         public static bool CrossDivision(int a, int b)
         {
@@ -42,9 +46,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2457) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2458) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(16, RecruitingFixup.SBCId, "SunBelt");
+            result = result.Verify(14, RecruitingFixup.SBCId, "SunBelt");
             SunbeltConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -56,18 +60,75 @@ namespace EA_DB_Editor
         const int GSU = 233;
         const int GASO = 181;
         const int Troy = 143;
+        
+        
         const int USA = 235;
-
         const int LT = 43;
         const int USM = 85;
-        const int UAB = 98;
-        const int NT = 64;
         const int TexSt = 218;
         const int ArkSt = 7;
         const int ULM = 65;
         const int ULL = 86;
 
-#if false // sun belt is real life-ish
+#if true // sun belt is 14 teams, usa-troy cross over
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                USA.Create(ULL, USM, TexSt, UMarsh),
+                ULM.Create(USA, ULL, TexSt, ODU),
+                ArkSt.Create(USA, ULM, ULL, GASO),
+                ULL.Create(USM, LT, TexSt, AppSt),
+                USM.Create(ULM, ArkSt, LT, GSU),
+                LT.Create(USA, ULM, ArkSt, Coastal),
+                TexSt.Create(ArkSt, USM, LT, Troy),
+
+                Troy.Create(USA, UMarsh, GSU, Coastal),
+                UMarsh.Create(ULM, ODU, GASO, Coastal),
+                ODU.Create(ArkSt, Troy, AppSt, GSU),
+                GASO.Create(ULL, Troy, ODU, AppSt),
+                AppSt.Create(USM, Troy, UMarsh, Coastal),
+                GSU.Create(LT, UMarsh, GASO, AppSt),
+                Coastal.Create(TexSt, ODU, GASO, GSU),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateD()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateE()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateF()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+#elif false // sun belt is real life-ish
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
@@ -147,7 +208,7 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif true //uab and usm make 16, 8 conference games
+#elif false //uab and usm make 16, 8 conference games
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>

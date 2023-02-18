@@ -139,6 +139,8 @@ namespace EA_DB_Editor
                         IsTexasTT,
                         IsTexasOU,
                         g => MatchTeams(7,g,11,94), //BU-TT in week 7
+                        g => MatchTeams(13,g,38,72), //ISU-OK ST week 13
+                        g => MatchTeams(13,g,18,29), //cincy-ucf week 13
                     };
                 }
 
@@ -190,22 +192,22 @@ namespace EA_DB_Editor
 
         public int? IsBSUCU(PreseasonScheduledGame game)
         {
-            return MatchTeams(11, game, 22, 12);
+            return MatchTeams(13, game, 22, 12);
         }
 
         public int? IsNUCU(PreseasonScheduledGame game)
         {
-            return MatchTeams(13, game, 58, 22);
+            return MatchTeams(12, game, 58, 22);
         }
 
         public int? IsNUOU(PreseasonScheduledGame game)
         {
-            return MatchTeams(12 + Is10TeamBig12Modifier, game, 58, 71);
+            return MatchTeams(13 + Is10TeamBig12Modifier, game, 58, 71);
         }
 
         public int? IsOSUOU(PreseasonScheduledGame game)
         {
-            return MatchTeams(13 + Is10TeamBig12Modifier, game, 72, 71);
+            return MatchTeams(12 + Is10TeamBig12Modifier, game, 72, 71);
         }
 
     }
@@ -225,12 +227,11 @@ namespace EA_DB_Editor
                         g=>MatchTeams(13, g, 33, 83), // hou-smu
                         g=>MatchTeams(13, g, 79, 97), // rice-tulsa
                         g=>MatchTeams(13, g, 25, 100), // charlotte-ecu
-                        g=>MatchTeams(13, g, 48, 96), // memphis-tulane
+                        g=>MatchTeams(13, g, 48, 98), // memphis-UAB
+                        g=>MatchTeams(13, g, 64, 232), // NT-UTSA
                         g=>MatchTeams(6, g, 79, 83), // rice-smu
                         g=>MatchTeams(6, g, 33, 97), // hou-tulsa
-                        g=>MatchTeams(7, g, 18, 97), // ucf-tulsa
                         g=>MatchTeams(8, g, 33, 79), // hou-rice
-                        g=>MatchTeams(13, g, 18, 144), // ucf-usf
 
                     };
                 }
@@ -300,22 +301,20 @@ namespace EA_DB_Editor
             {
                 game=> MatchTeams(13,game,65,86), //ull-ulm
                 game=> MatchTeams(13,game,143,235), //troy-usa
-                game => MatchTeams(13, game, 85, 98), //uab-usm
-                game=> MatchTeams(13,game,64,7), //nt-ark st
                 game=> MatchTeams(13,game,34,61), //ccu-app st
                 game=> MatchTeams(13, game, 181, 233), // gsu-gaso
                 game=> MatchTeams(13, game, 46, 234), // odu - marshall
+                game=> MatchTeams(13,game,7,218), //tsu-ark st
+                game => MatchTeams(13, game, 43, 85), //usm-lt
                 game => MatchTeams(8, game, 57, 234), // navy-odu
                 game => MatchTeams( 7, game, 34,181), //gaso-app st
                 game => MatchTeams(7, game , 34, 46), // marsh-app st
                 game => MatchTeams(8, game, 61, 181), // coastal- gaso
                 game => MatchTeams(6, game, 34, 234), // app st - odu
                 game=> MatchTeams(7,game,65,7), //ulm-ark st
-                game=> MatchTeams(8,game,7,218), //tsu-ark st
-                game => MatchTeams(7, game, 43, 85), //usm-lt
                 game => MatchTeams(7, game, 53, 64), //nt-mtsu
-                game=> MatchTeams(12,game,43,86), //lt-ull
-                game=> MatchTeams(6,game,43,65), //lt-ulm
+                game=> MatchTeams(6,game,43,86), //lt-ull
+                game=> MatchTeams(12,game,43,65), //lt-ulm
                 
                 /*
                 game=> MatchTeams(7,game,53,64), //mtsu-nt
@@ -701,6 +700,7 @@ namespace EA_DB_Editor
 
         private static List<PreseasonScheduledGame> FindExtraSunBeltGames(Dictionary<int, PreseasonScheduledGame[]> schedules)
         {
+            return new List<PreseasonScheduledGame>();
             var result = new List<PreseasonScheduledGame>();
             var normalized = new HashSet<int>();
 
@@ -1681,7 +1681,7 @@ namespace EA_DB_Editor
 
         public bool ShouldFixSunBeltGame()
         {
-#if false
+#if true
             return false;
 #else
             if(RecruitingFixup.SunBeltTeams < 16)

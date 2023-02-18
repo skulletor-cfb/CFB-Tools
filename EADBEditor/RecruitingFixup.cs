@@ -107,9 +107,9 @@ namespace EA_DB_Editor
             // get the lowest ranked freshman at the position we have selected
             var caliRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Take(5).Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == caliId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
             var texasRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(5).Take(5).Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == texasId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
-            var floridaRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(10).Take(5).Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == floridaId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
-            var secRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(15).Take(20).Contains(r["RPGP"].ToInt32()) && SECStates.Contains(r["STAT"].ToInt32())).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
-            var nationalRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(35).Take(nationalTake).Contains(r["RPGP"].ToInt32()) && SECStates.Concat(new[] { texasId, caliId }).Contains(r["STAT"].ToInt32()) == false).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
+            var floridaRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(10).Take(10).Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == floridaId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
+            var secRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(20).Take(20).Contains(r["RPGP"].ToInt32()) && SECStates.Contains(r["STAT"].ToInt32())).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
+            var nationalRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(40).Take(nationalTake).Contains(r["RPGP"].ToInt32()) && SECStates.Concat(new[] { texasId, caliId }).Contains(r["STAT"].ToInt32()) == false).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
             var athRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && r["RPGP"].ToInt32() == 18).OrderByDescending(r => r["RCRK"].ToInt32()).Take(3).ToArray();
             MaddenRecord[] hawaiiRecruits = new MaddenRecord[0];
 
