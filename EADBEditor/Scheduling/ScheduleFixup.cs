@@ -126,18 +126,8 @@ namespace EA_DB_Editor
 
         public static bool RanG5Fixup = false;
 
-        public static Dictionary<int, PreseasonScheduledGame[]> ReadSchedule(bool runG5Fix = false)
+        public static (Dictionary<int, PreseasonScheduledGame[]> teamSchedule, MaddenRecord[] scheduleTable) FillSchedule()
         {
-            ACCPodSchedule.Init();
-            Big12Schedule.Init();
-            Pac12Schedule.Init();
-            AmericanSchedule.Init();
-            MWCSchedule.Init();
-            MACSchedule.Init();
-            Big10Schedule.Init();
-            CUSASchedule.Init();
-            SunBeltSchedule.Init();
-
             var scheduleTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "SCHD").lRecords.Where(r => r["SEYR"].ToInt32() == 0).ToArray();
             Dictionary<int, PreseasonScheduledGame[]> teamSchedule = new Dictionary<int, PreseasonScheduledGame[]>();
 
@@ -325,6 +315,23 @@ namespace EA_DB_Editor
                 }
             }
 
+            return (teamSchedule, scheduleTable);
+        }
+
+        public static Dictionary<int, PreseasonScheduledGame[]> ReadSchedule(bool runG5Fix = false)
+        {
+            ACCPodSchedule.Init();
+            Big12Schedule.Init();
+            Pac12Schedule.Init();
+            AmericanSchedule.Init();
+            MWCSchedule.Init();
+            MACSchedule.Init();
+            Big10Schedule.Init();
+            CUSASchedule.Init();
+            SunBeltSchedule.Init();
+
+            var (teamSchedule, scheduleTable) = FillSchedule();
+
             // fcs-fcs games need to find teams to set them to
             ConfScheduleFixer.ReplaceFcsOnlyGames(teamSchedule);
 
@@ -370,6 +377,7 @@ namespace EA_DB_Editor
                 ConfScheduleFixer.CUSAFix(teamSchedule);
                 ConfScheduleFixer.MWCFix(teamSchedule);
                 ConfScheduleFixer.MACFix(teamSchedule);
+                (teamSchedule, scheduleTable) = FillSchedule();
 
                 // move aerlier in the year to ensure more chance of replacement
                 for (int i = 0; i < 5; i++)
@@ -379,6 +387,13 @@ namespace EA_DB_Editor
 
                 // try to put non conference games earlier in the season
                 ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule, 4);
+                (teamSchedule, scheduleTable) = FillSchedule();
+
+                ConfScheduleFixer.SwapG5ForP5HomeTeam(teamSchedule);
+                (teamSchedule, scheduleTable) = FillSchedule();
+
+                ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule, 4);
+                (teamSchedule, scheduleTable) = FillSchedule();
             }
 
             RanReorder = true;
@@ -1381,7 +1396,7 @@ namespace EA_DB_Editor
                     teamScheduleRecord["THOA"] = "1";
                 }
                 // baylor-tt play at 279 - Texas Shootout
-                else if (false &&  MatchTeams(homeTeam, awayTeam, new[] { 11, 94 }))
+                else if (false && MatchTeams(homeTeam, awayTeam, new[] { 11, 94 }))
                 {
                     gameRecord["SGID"] = "279";
                     query["TGID"] = awayTeam.ToString();
@@ -1466,6 +1481,12 @@ namespace EA_DB_Editor
                 {
                     gameRecord["GDAT"] = "3";
                     gameRecord["GTOD"] = "990";
+                }
+
+                // red river shootout is at 330 (230 CT)
+                else if (MatchTeams(homeTeam, awayTeam, new[] { 71, 92 }))
+                {
+                    gameRecord["GTOD"] = "930";
                 }
 
 #if false
@@ -1638,7 +1659,7 @@ namespace EA_DB_Editor
 
 
             // ru-uconn
-            rivalries.Add(new[] { 80, 100 });
+            // rivalries.Add(new[] { 80, 100 });
 
             // gt-gsu
             rivalries.Add(new[] {31, 233 });

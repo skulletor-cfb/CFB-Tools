@@ -160,7 +160,11 @@ namespace EA_DB_Editor
 
         public int? IsTexasOU(PreseasonScheduledGame game)
         {
-            return MatchTeams(game.WeekIndex, game, 92, 71);
+            var week = game.WeekIndex;
+            if (game.WeekIndex != 5 && game.WeekIndex != 6)
+                week = DateTime.UtcNow.Second % 2 == 0 ? 5 : 6;
+
+            return MatchTeams(week, game, 92, 71);
         }
 
         public int? IsTexasTT(PreseasonScheduledGame game)
@@ -356,7 +360,7 @@ namespace EA_DB_Editor
 
         Func<PreseasonScheduledGame, int?>[] CreateChecks()
         {
-            var list= new List<Func<PreseasonScheduledGame, int?>>
+            var list = new List<Func<PreseasonScheduledGame, int?>>
             {
                 game=> MatchTeams(13,game,50,69), //miami-ohio
                 game=> MatchTeams(13,game,10,66), //ball st-niu
@@ -364,7 +368,7 @@ namespace EA_DB_Editor
 
             var seed = Guid.NewGuid().ToByteArray().First() % 3;
 
-            switch(seed)
+            switch (seed)
             {
                 case 0:
                     list.Add(game => MatchTeams(13, game, 19, 113)); //cmu-wmu
@@ -649,7 +653,7 @@ namespace EA_DB_Editor
         {
             try
             {
-                if(stack.Count == 0)
+                if (stack.Count == 0)
                 {
                     value = 0;
                     return false;
@@ -669,13 +673,13 @@ namespace EA_DB_Editor
         private static void RemoveFromQueue(this Queue<PreseasonScheduledGame> queue, int team)
         {
             var list = new List<PreseasonScheduledGame>();
-            int teamToLookFor = 0; 
+            int teamToLookFor = 0;
 
-            while(queue.Count > 0)
+            while (queue.Count > 0)
             {
                 var g = queue.Dequeue();
 
-                if(g.HomeTeam != team && g.AwayTeam != team)
+                if (g.HomeTeam != team && g.AwayTeam != team)
                 {
                     list.Add(g);
                     continue;
@@ -692,7 +696,7 @@ namespace EA_DB_Editor
                 queue.Enqueue(first);
             }
 
-            foreach( var l in list.Where(i =>  i != null))
+            foreach (var l in list.Where(i => i != null))
             {
                 queue.Enqueue(l);
             }
@@ -821,7 +825,7 @@ namespace EA_DB_Editor
             // find the games with fcs home team
             var fcsGames = schedules.Values.SelectMany(games => games.Where(g => g != null && g.HomeTeam.IsFcsTeam() && g.AwayTeam.IsFcsTeam())).Distinct().ToArray();
 
-            if(fcsGames.Length == 0)
+            if (fcsGames.Length == 0)
             {
                 return;
             }
@@ -908,9 +912,45 @@ namespace EA_DB_Editor
             }
         }
 
+        public static void SwapG5ForP5HomeTeam(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        {
+            // give me all g5 fcs games
+            var g5fcs = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsAmericanGame() && g.IsG5FCSGame())).Distinct().ToList();
+
+            // give me all p5 games
+            var gamesToReplace = schedules.Values
+                            .SelectMany(games => games.Where(g => g != null && !g.IsRivalryGame() && g.IsP5Game())).GroupBy(g => g.WeekIndex).ToDictionary(g => g.Key, g => g.Distinct().ToList());
+
+            if (gamesToReplace.Count == 0)
+                return;
+
+            for (int i = 0; i < g5fcs.Count; i++)
+            {
+                var game = g5fcs[i];
+                List<PreseasonScheduledGame> potentialGames = null;
+
+                if (gamesToReplace.TryGetValue(game.WeekIndex, out potentialGames) && potentialGames.Count > 0)
+                {
+                    for (int j = 0; j < potentialGames.Count; j++)
+                    {
+                        var swapee = potentialGames[j];
+
+                        // we successfully swapped teams, we can break out of the loop
+                        if (ScheduleFixup.SwapTeams(game, swapee))
+                        {
+                            potentialGames.RemoveAt(j);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
 
         public static void G5FCSSwap(Dictionary<int, PreseasonScheduledGame[]> schedules, bool anyP5Game = false)
         {
+            // this code has never been executed, not sure what happens when it does
+            return;
             // give me all g5 fcs games
             var g5fcs = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsAmericanGame() && g.IsG5Game() && g.IsFCSGame())).Distinct().ToList();
 
@@ -1215,7 +1255,7 @@ namespace EA_DB_Editor
         public static bool AssignGame(this PreseasonScheduledGame game, Dictionary<int, PreseasonScheduledGame[]> schedules, int week, bool postFix = false)
         {
             var homeSchedule = schedules[game.HomeTeam];
-            var awaySchedule = game.AwayTeam.IsFcsTeam() ? schedules[homeSchedule.Length] : schedules[game.AwayTeam];
+            var awaySchedule = game.AwayTeam.IsFcsTeam() ? new PreseasonScheduledGame[homeSchedule.Length] : schedules[game.AwayTeam];
 
             // we don't want 3 or 4 away games in a row, try to mitigate that
             if (postFix && !RejectedOnce.Contains(game) && game.IsConferenceGame())
@@ -1268,6 +1308,7 @@ namespace EA_DB_Editor
 
             if (awaySchedule[week] == null && homeSchedule[week] == null)
             {
+                // var currentWeek = game.WeekIndex;
                 game.SetWeek(week);
                 homeSchedule[week] = game;
                 awaySchedule[week] = game;
@@ -1501,6 +1542,11 @@ namespace EA_DB_Editor
         public bool IsP5FCSGame()
         {
             return HomeTeam.IsP5() && HomeTeam != 68 && AwayTeam.IsFcsTeam();
+        }
+
+        public bool IsG5FCSGame()
+        {
+            return HomeTeam.IsG5() && HomeTeam != 68 && AwayTeam.IsFcsTeam();
         }
 
         public bool IsP5Game()
