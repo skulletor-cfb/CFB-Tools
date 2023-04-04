@@ -126,7 +126,7 @@ namespace EA_DB_Editor
 
         public static bool RanG5Fixup = false;
 
-        public static (Dictionary<int, PreseasonScheduledGame[]> teamSchedule, MaddenRecord[] scheduleTable) FillSchedule()
+        public static (Dictionary<int, PreseasonScheduledGame[]> teamSchedule, MaddenRecord[] scheduleTable) FillSchedule(bool reorderNeedsToBeRun)
         {
             var scheduleTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "SCHD").lRecords.Where(r => r["SEYR"].ToInt32() == 0).ToArray();
             Dictionary<int, PreseasonScheduledGame[]> teamSchedule = new Dictionary<int, PreseasonScheduledGame[]>();
@@ -279,7 +279,7 @@ namespace EA_DB_Editor
 
                 awayTeamFreeWeek1 = schedule[0] == null;
 
-                if (!RanReorder)
+                if (reorderNeedsToBeRun)
                 {
                     mr["GDAT"] = "5";
                     if ((game.IsConferenceGame() && game.IsExtraConferenceGame() && weekNum > 0 && homeTeamFreeWeek1 && awayTeamFreeWeek1) ||
@@ -330,7 +330,7 @@ namespace EA_DB_Editor
             CUSASchedule.Init();
             SunBeltSchedule.Init();
 
-            var (teamSchedule, scheduleTable) = FillSchedule();
+            var (teamSchedule, scheduleTable) = FillSchedule(!RanReorder);
 
             // fcs-fcs games need to find teams to set them to
             ConfScheduleFixer.ReplaceFcsOnlyGames(teamSchedule);
@@ -377,7 +377,7 @@ namespace EA_DB_Editor
                 ConfScheduleFixer.CUSAFix(teamSchedule);
                 ConfScheduleFixer.MWCFix(teamSchedule);
                 ConfScheduleFixer.MACFix(teamSchedule);
-                (teamSchedule, scheduleTable) = FillSchedule();
+                (teamSchedule, scheduleTable) = FillSchedule(false);
 
                 // move aerlier in the year to ensure more chance of replacement
                 for (int i = 0; i < 5; i++)
@@ -387,13 +387,13 @@ namespace EA_DB_Editor
 
                 // try to put non conference games earlier in the season
                 ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule, 4);
-                (teamSchedule, scheduleTable) = FillSchedule();
+                (teamSchedule, scheduleTable) = FillSchedule(false);
 
                 ConfScheduleFixer.SwapG5ForP5HomeTeam(teamSchedule);
-                (teamSchedule, scheduleTable) = FillSchedule();
+                (teamSchedule, scheduleTable) = FillSchedule(false);
 
                 ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule, 4);
-                (teamSchedule, scheduleTable) = FillSchedule();
+                (teamSchedule, scheduleTable) = FillSchedule(false);
             }
 
             RanReorder = true;

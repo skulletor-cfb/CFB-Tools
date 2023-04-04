@@ -109,7 +109,7 @@ namespace EditorTest
         [TestMethod]
         public void Big12ScheduleC()
         {
-            Big12Schedule.CreateB().Verify(14, RecruitingFixup.Big12Id, "Big12", false);
+            Big12Schedule.CreateC().Verify(14, RecruitingFixup.Big12Id, "Big12", false);
             var hash = Big12Schedule.CreateC().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -117,7 +117,7 @@ namespace EditorTest
         [TestMethod]
         public void Big12ScheduleD()
         {
-            Big12Schedule.CreateB().Verify(14, RecruitingFixup.Big12Id, "Big12", false);
+            Big12Schedule.CreateD().Verify(14, RecruitingFixup.Big12Id, "Big12", false);
             var hash = Big12Schedule.CreateD().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
