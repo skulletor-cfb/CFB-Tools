@@ -6,7 +6,7 @@ namespace EA_DB_Editor
     public class AmericanSchedule
     {
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {  CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE, CreateF, CreateF, CreateG, CreateG};
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {  CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE};
         public static Dictionary<int, HashSet<int>> AmericanConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
         
@@ -27,9 +27,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2458) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2462) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(14, RecruitingFixup.AmericanId, "American");
+            result = result.Verify(12, RecruitingFixup.AmericanId, "American");
             AmericanConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -48,8 +48,21 @@ namespace EA_DB_Editor
         const int Tulane = 96;
         const int FAU = 229;
         const int UTSA = 232;
+        const int CincyId = 20;
+        const int MemphisId = 48;
+        const int SMUId = 83;
+        const int CharlotteId = 100;
+        const int UCFId = 18;
+        const int USFId = 144;
+        const int ECUId = 25;
+        const int TempleId = 90;
+        const int TulsaId = 97;
+        const int RiceId = 79;
+        const int HoustonId = 33;
+        const int TulaneId = 96;
 
-#if true // memphis, nt are in the AAC, no more Cincy/UCF
+
+#if false // memphis, nt are in the AAC, no more Cincy/UCF
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>

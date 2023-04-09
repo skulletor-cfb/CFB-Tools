@@ -42,7 +42,7 @@ namespace EA_DB_Editor
         {
             var idx = (Form1.DynastyYear - 2462) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(14, RecruitingFixup.Big12Id, "Big12");
+            result = result.Verify(12, RecruitingFixup.Big12Id, "Big12");
             Big12ConferenceSchedule = result.BuildHashSet();
             return result;
         }
