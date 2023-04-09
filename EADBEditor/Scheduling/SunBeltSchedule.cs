@@ -13,20 +13,19 @@ namespace EA_DB_Editor
             CreateB, CreateB,
             CreateC, CreateC,
             CreateD, CreateD,
-            CreateE, CreateE,
-            CreateF, CreateF
             };
 
 
         public static Dictionary<int, HashSet<int>> SunbeltConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
-        public static HashSet<int> East = new HashSet<int>() { Coastal, ODU, UMarsh, AppSt, GSU, GASO, Troy };
-        public static HashSet<int> West = new HashSet<int>() { TexSt, ArkSt, USM, LT, ULM, ULL, USA };
+      //  public static HashSet<int> East = new HashSet<int>() { Coastal, ODU, UMarsh, AppSt, GSU, GASO, Troy };
+    //    public static HashSet<int> West = new HashSet<int>() { TexSt, ArkSt, USM, LT, ULM, ULL, USA };
 
         public static bool CrossDivision(int a, int b)
         {
-            var sameDivision = (East.Contains(a) && East.Contains(b)) || (West.Contains(a) && West.Contains(b));
-            return !sameDivision;
+            return false; 
+//            var sameDivision = (East.Contains(a) && East.Contains(b)) || (West.Contains(a) && West.Contains(b));
+  //          return !sameDivision;
         }
 
         public static void Init()
@@ -46,9 +45,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2458) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2462) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(14, RecruitingFixup.SBCId, "SunBelt");
+            result = result.Verify(11, RecruitingFixup.SBCId, "SunBelt");
             SunbeltConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -69,8 +68,13 @@ namespace EA_DB_Editor
         const int ArkSt = 7;
         const int ULM = 65;
         const int ULL = 86;
+        const int Army = 8;
+        const int Navy = 57;
+        const int UTSA = 232;
+        const int NT = 64;
+        const int UAB = 98;
 
-#if true // sun belt is 14 teams, usa-troy cross over
+#if false // sun belt is 14 teams, usa-troy cross over
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
@@ -792,7 +796,7 @@ namespace EA_DB_Editor
             }
             return dict;
         }
-#elif false
+#elif true
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
