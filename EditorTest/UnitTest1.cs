@@ -357,9 +357,17 @@ namespace EditorTest
         [TestMethod]
         public void CUSAScheduleA()
         {
-            CUSASchedule.CreateA().Verify(5, RecruitingFixup.CUSAId, "CUSA  ", false, 2 );
+            CUSASchedule.CreateA().Verify(12, RecruitingFixup.CUSAId, "CUSA  ", false);
             var hash = CUSASchedule.CreateA().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 4));
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void CUSAScheduleB()
+        {
+            CUSASchedule.CreateB().Verify(12, RecruitingFixup.CUSAId, "CUSA  ", false);
+            var hash = CUSASchedule.CreateB().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
         [TestMethod]

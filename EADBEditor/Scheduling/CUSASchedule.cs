@@ -52,10 +52,17 @@ namespace EA_DB_Editor
         }
 
         const int FIU = 230;
-        const int Army = 8;
-        const int Navy = 57;
         const int WKU = 211;
         const int MTSU = 53;
+        const int FAU = 229;
+        const int Troy = 143;
+        const int USA = 235;
+        const int GSU = 233;
+        const int ODU = 234;
+        const int Marshall = 46;
+        const int GaSo = 181;
+        const int AppSt = 34;
+        const int Coastal = 61;
 
 #if false
         // 9 team CUSA all over
@@ -126,7 +133,7 @@ namespace EA_DB_Editor
             {
             }.Create();
         }
-#elif true
+#elif false
         // 5 team CUSA
         public static Dictionary<int, int[]> CreateA()
         {
@@ -139,7 +146,7 @@ namespace EA_DB_Editor
                 MTSU.Create(Army ,FIU),
             }.Create();
         }
-#elif false
+#elif true
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
