@@ -11,7 +11,7 @@ namespace EA_DB_Editor
         public const int KU = 39;
         public const int ISU = 38;
         public const int Cincy = 20;
-        public const int BSU = 12;
+        public const int BSUId = 12;
         public const int Colorado = 22;
 
         public const int OU = 71;
@@ -23,7 +23,7 @@ namespace EA_DB_Editor
         public const int TT = 94;
 
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE, CreateF, CreateF};
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE, CreateA, CreateA};
 
         public static Dictionary<int, HashSet<int>> Big12ConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
@@ -40,7 +40,7 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2458) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2462) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(14, RecruitingFixup.Big12Id, "Big12");
             Big12ConferenceSchedule = result.BuildHashSet();
@@ -609,7 +609,7 @@ namespace EA_DB_Editor
         }
 #endif
 
-#if true // 14 team big 12 with cincy+ucf
+#if false // 14 team big 12 with cincy+ucf
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
@@ -681,7 +681,7 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif else // big 12 with 12 teams
+#elif true // big 12 with 12 teams
         public static Dictionary<int, int[]> CreateA()
         {
             return new Dictionary<int, int[]>()
