@@ -229,6 +229,7 @@ namespace RefreshRunner
                 dynastyFile = Path.Combine(dirs[i], GetPreseasonFileName(dirs[i]));
                 if (File.Exists(dynastyFile))
                 {
+                    Console.WriteLine("Preseason");
                     appDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString());
                     form = CreateForm(appDomain);
                     form.SetContinuation(useContinuation, continuationDir, continuationYear, cf);
@@ -248,6 +249,7 @@ namespace RefreshRunner
                 if (!preseasonOnly && File.Exists(dynastyFile))
                 {
                     // do regular season
+                    Console.WriteLine("Regular season");
                     appDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString());
                     form = CreateForm(appDomain);
                     form.SetContinuation(useContinuation, continuationDir, continuationYear, cf);
@@ -257,6 +259,7 @@ namespace RefreshRunner
                     // AppDomain.Unload(appDomain);
 
                     // do recruit updates
+                    Console.WriteLine("Post season");
                     appDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString());
                     form = CreateForm(appDomain);
                     form.SetContinuation(useContinuation, continuationDir, continuationYear, cf);

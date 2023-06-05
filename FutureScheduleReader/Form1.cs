@@ -43,7 +43,7 @@ namespace FutureScheduleReader
             {
                 ExcelApp._Worksheet excelSheet = excelBook.Sheets["Schedule"];
                 var table = excelSheet.UsedRange;
-                var rows = 67;//  table.Rows.Count;
+                var rows = 69;//  table.Rows.Count;
                 var cols = table.Columns.Count;
                 list.Clear();
                 start = Convert.ToInt32(table.Cells[1, 2].Value2);
@@ -87,15 +87,221 @@ namespace FutureScheduleReader
 
         private void button1_Click(object sender, EventArgs e)
         {
-            var team = textBox1.Text;
-            this.Refresh(team);
+            if (lookup.TryGetValue(textBox1.Text, out var team))
+            {
+                this.Refresh(team);
+            }
+            else
+            {
+                this.Refresh(textBox1.Text);
+            }
         }
 
+        #region aliases
+
+        static readonly string BostonCollege = "	Boston College	".Trim();
+        static readonly string Clemson = "	Clemson	".Trim();
+        static readonly string Duke = "	Duke	".Trim();
+        static readonly string FloridaState = "	Florida State	".Trim();
+        static readonly string GeorgiaTech = "	Georgia Tech	".Trim();
+        static readonly string Louisville = "	Louisville	".Trim();
+        static readonly string Maryland = "	Maryland	".Trim();
+        static readonly string Miami = "	Miami	".Trim();
+        static readonly string NCState = "	NC State	".Trim();
+        static readonly string NorthCarolina = "	North Carolina	".Trim();
+        static readonly string Pittsburgh = "	Pittsburgh	".Trim();
+        static readonly string Syracuse = "	Syracuse	".Trim();
+        static readonly string Virginia = "	Virginia	".Trim();
+        static readonly string VirginiaTech = "	Virginia Tech	".Trim();
+        static readonly string WakeForest = "	Wake Forest	".Trim();
+        static readonly string WestVirginia = "	West Virginia	".Trim();
+        static readonly string Illinois = "	Illinois	".Trim();
+        static readonly string Indiana = "	Indiana	".Trim();
+        static readonly string Iowa = "	Iowa	".Trim();
+        static readonly string Michigan = "	Michigan	".Trim();
+        static readonly string MichiganState = "	Michigan State	".Trim();
+        static readonly string Minnesota = "	Minnesota	".Trim();
+        static readonly string Northwestern = "	Northwestern	".Trim();
+        static readonly string OhioState = "	Ohio State	".Trim();
+        static readonly string PennState = "	Penn State	".Trim();
+        static readonly string Purdue = "	Purdue	".Trim();
+        static readonly string Rutgers = "	Rutgers	".Trim();
+        static readonly string Wisconsin = "	Wisconsin	".Trim();
+        static readonly string Baylor = "	Baylor	".Trim();
+        static readonly string Colorado = "	Colorado	".Trim();
+        static readonly string IowaState = "	Iowa State	".Trim();
+        static readonly string Kansas = "	Kansas	".Trim();
+        static readonly string KansasState = "	Kansas State	".Trim();
+        static readonly string Nebraska = "	Nebraska	".Trim();
+        static readonly string Oklahoma = "	Oklahoma	".Trim();
+        static readonly string OklahomaState = "	Oklahoma State	".Trim();
+        static readonly string TCU = "	TCU	".Trim();
+        static readonly string Texas = "	Texas	".Trim();
+        static readonly string TexasTech = "	Texas Tech	".Trim();
+        static readonly string BoiseState = "	Boise State	".Trim();
+        static readonly string BYU = "	BYU	".Trim();
+        static readonly string Arizona = "	Arizona	".Trim();
+        static readonly string ArizonaState = "	Arizona State	".Trim();
+        static readonly string California = "	California	".Trim();
+        static readonly string Oregon = "	Oregon	".Trim();
+        static readonly string OregonState = "	Oregon State	".Trim();
+        static readonly string Stanford = "	Stanford	".Trim();
+        static readonly string UCLA = "	UCLA	".Trim();
+        static readonly string USC = "	USC	".Trim();
+        static readonly string Utah = "	Utah	".Trim();
+        static readonly string Washington = "	Washington	".Trim();
+        static readonly string WashingtonState = "	Washington State	".Trim();
+        static readonly string Alabama = "	Alabama	".Trim();
+        static readonly string Arkansas = "	Arkansas	".Trim();
+        static readonly string Auburn = "	Auburn	".Trim();
+        static readonly string Florida = "	Florida	".Trim();
+        static readonly string Georgia = "	Georgia	".Trim();
+        static readonly string Kentucky = "	Kentucky	".Trim();
+        static readonly string LSU = "	LSU	".Trim();
+        static readonly string MississippiState = "	Mississippi State	".Trim();
+        static readonly string Missouri = "	Missouri	".Trim();
+        static readonly string OleMiss = "	Ole Miss	".Trim();
+        static readonly string SouthCarolina = "	South Carolina	".Trim();
+        static readonly string Tennessee = "	Tennessee	".Trim();
+        static readonly string TexasAM = "	Texas A&M	".Trim();
+        static readonly string Vanderbilt = "	Vanderbilt	".Trim();
+
+        private static Dictionary<string, string> lookup = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            {"bc", BostonCollege },
+            {BostonCollege , BostonCollege },
+            {Clemson, Clemson },
+            {Duke, Duke },
+            { FloridaState, FloridaState },
+            { "fsu", FloridaState },
+            {"GT", GeorgiaTech },
+            {GeorgiaTech, GeorgiaTech },
+            {"UL", Louisville },
+            {Louisville, Louisville },
+            {Maryland, Maryland },
+            {"UMD", Maryland },
+            {Miami, Miami },
+            {NCState, NCState },
+            {"NCSU", NCState },
+            {NorthCarolina, NorthCarolina },
+            {"UNC", NorthCarolina },
+            {"Pitt", Pittsburgh },
+            { Pittsburgh, Pittsburgh },
+            {Syracuse, Syracuse },
+            {"SU", Syracuse },
+            {Virginia, Virginia },
+            {"UVA", Virginia },
+            {VirginiaTech, VirginiaTech },
+            {"VT", VirginiaTech },
+            {WakeForest, WakeForest },
+            {"WF", WakeForest },
+            {WestVirginia, WestVirginia },
+            {"WVU", WestVirginia },
+{   Illinois    ,   Illinois    },
+{ "Ill"    ,   Illinois    },
+{   Indiana ,   Indiana },
+{   "Indy",   Indiana },
+{   Iowa    ,   Iowa    },
+{   Michigan    ,   Michigan    },
+{   MichiganState  ,   MichiganState  },
+{   "MichSt"  ,   MichiganState  },
+{   Minnesota   ,   Minnesota   },
+{   "Minn"   ,   Minnesota   },
+{   Northwestern    ,   Northwestern    },
+{   "NW"    ,   Northwestern    },
+{   OhioState  ,   OhioState  },
+{   "OSU" ,   OhioState  },
+{   PennState  ,   PennState  },
+{   "PSU" ,   PennState  },
+{   Purdue  ,   Purdue  },
+{   "Pur"  ,   Purdue  },
+{   Rutgers ,   Rutgers },
+{   "RU" ,   Rutgers },
+{   Wisconsin   ,   Wisconsin   },
+{   "Wisc",   Wisconsin   },
+{   Baylor  ,   Baylor  },
+{   "bay" ,   Baylor  },
+{   "bu"  ,   Baylor  },
+{   Colorado    ,   Colorado    },
+{   "CU"    ,   Colorado    },
+{   IowaState  ,   IowaState  },
+{   "ISU" ,   IowaState  },
+{   Kansas  ,   Kansas  },
+{   "KU"  ,   Kansas  },
+{   KansasState    ,   KansasState    },
+{   "KSU"    ,   KansasState    },
+{   Nebraska    ,   Nebraska    },
+{   "Neb"    ,   Nebraska    },
+{   Oklahoma    ,   Oklahoma    },
+{   "OU"    ,   Oklahoma    },
+{   OklahomaState  ,   OklahomaState  },
+{   "OkSt"  ,   OklahomaState  },
+{   TCU ,   TCU },
+{   Texas   ,   Texas   },
+{   TexasTech  ,   TexasTech  },
+{   "TT"  ,   TexasTech  },
+{   BoiseState ,   BoiseState },
+{   "BSU" ,   BoiseState },
+{   BYU ,   BYU },
+{   Arizona ,   Arizona },
+{   "AU" ,   Arizona },
+{   ArizonaState   ,   ArizonaState   },
+{   "ASU" ,   ArizonaState   },
+{   California  ,   California  },
+{   "cal",   California  },
+{   Oregon  ,   Oregon  },
+{   "UO",   Oregon  },
+{   OregonState    ,   OregonState    },
+{   "orst",   OregonState    },
+{   Stanford    ,   Stanford    },
+{   "Stan",   Stanford    },
+{   UCLA    ,   UCLA    },
+{   USC ,   USC },
+{   Utah    ,   Utah    },
+{   Washington  ,   Washington  },
+{   "UW" ,   Washington  },
+{   WashingtonState    ,   WashingtonState    },
+{   "WSU",   WashingtonState    },
+{   Alabama ,   Alabama },
+{   "bama",   Alabama },
+{   Arkansas    ,   Arkansas    },
+{   "Ark",   Arkansas    },
+{   Auburn  ,   Auburn  },
+{   Florida ,   Florida },
+{   "UF",   Florida },
+{   Georgia ,   Georgia },
+{   "UGA",   Georgia },
+{   Kentucky    ,   Kentucky    },
+{   "UK",   Kentucky    },
+{   LSU ,   LSU },
+{   MississippiState   ,   MississippiState   },
+{   "MissSt",   MississippiState   },
+{   "Miss St",   MississippiState   },
+{   Missouri    ,   Missouri    },
+{   "mizzou",   Missouri    },
+{   OleMiss    ,   OleMiss    },
+{   SouthCarolina  ,   SouthCarolina  },
+{   "SCAR",   SouthCarolina  },
+{   Tennessee   ,   Tennessee   },
+{   "TENN",   Tennessee   },
+{   TexasAM   ,   TexasAM   },
+{   "TAMU",   TexasAM   },
+{   Vanderbilt  ,   Vanderbilt  },
+{   "VandY",   Vanderbilt  },
+        };
+        #endregion
         private void button2_Click(object sender, EventArgs e)
         {
             this.ReadExcel();
-            var team = textBox1.Text;
-            this.Refresh(team);
+
+            if (lookup.TryGetValue(textBox1.Text, out var team))
+            {
+                this.Refresh(team);
+            }
+            else
+            {
+                this.Refresh(textBox1.Text);
+            }
         }
 
         private void Refresh(string team)

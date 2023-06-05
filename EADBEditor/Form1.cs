@@ -3108,6 +3108,16 @@ PPOS = Position
 
                 try
                 {
+                    var sb2 = new StringBuilder();
+                    sb2.AppendLine($"Name: {table.Name}");
+                    sb2.AppendLine($"Abbreviation: {table.Abbreviation}");
+                    sb2.AppendLine($"Max Count: {table.Table.maxrecords}");
+                    File.WriteAllText(Path.Combine(dir, name + ".meta.txt"), sb2.ToString());
+                }
+                catch { }
+
+                try
+                {
                     File.WriteAllText(Path.Combine(dir, name + ".csv"), sb.ToString());
                 }
                 catch
@@ -3682,34 +3692,56 @@ PPOS = Position
 
         private void setSunBeltCCGToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            MessageBox.Show("FCYR should be the same as start of season", "decrement conference championships!!");
             TeamEntry homeEntry = new TeamEntry("Home team");
             TeamEntry awayEntry = new TeamEntry("Away team");
             if (homeEntry.ShowDialog() == DialogResult.OK)
             {
                 if (awayEntry.ShowDialog() == DialogResult.OK)
                 {
+                    //find stadium id for home team
                     var home = homeEntry.TeamId;
                     var away = awayEntry.TeamId;
-                    var week = "16";
                     var gameNum = "43";
-
-                    //find stadium id for home team
+                    var week = "16";
                     var teamQuery = new Dictionary<string, string>();
                     teamQuery["TGID"] = home.ToString();
                     var teamRecord = MaddenTable.Query(Form1.MainForm.maddenDB.lTables, "TEAM", teamQuery).SingleOrDefault();
                     var teamStadium = teamRecord["SGID"];
 
+                    // create a game 
+                    var schd = MaddenTable.FindTable(maddenDB.lTables, "SCHD");
+                    var currentSeason = schd.lRecords.Where(r => r["SEYR"].ToInt32() == 0).First()["SESI"];
+
+                    // create the record
+                    var mr = schd.AddNewRecord();
+                    mr["GSTA"] = "1";
+                    mr["GASC"] = "0";
+                    mr["GHSC"] = "0";
+                    mr["SGID"] = teamStadium.ToString();
+                    mr["GTOD"] = "780";
+                    mr["GUTE"] = "0";
+                    mr["GATG"] = away.ToString();
+                    mr["GHTG"] = home.ToString();
+                    mr["SESI"] = "0";
+                    mr["CPCK"] = "7";
+                    mr["HPCK"] = "7";
+                    mr["SGNM"] = gameNum;
+                    mr["SEWN"] = week.ToString();
+                    mr["SEWT"] = week.ToString();
+                    mr["SEYR"] = "0";
+                    mr["GDAT"] = "5";
+                    mr["GFOT"] = "0";
+                    mr["GFFU"] = "0";
+                    mr["GFHU"] = "0";
+                    mr["GMFX"] = "0";
+                    mr["SGID"] = teamStadium;
+
                     var query = new Dictionary<string, string>();
                     query["SGNM"] = gameNum;
                     query["SEWN"] = week;
 
-                    // get the team schedule
-                    var scheduleTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "SCHD");
-                    var ccg = MaddenTable.Query(scheduleTable, query).SingleOrDefault();
-                    ccg["GHTG"] = home.ToString();
-                    ccg["GATG"] = away.ToString();
-                    ccg["SGID"] = teamStadium;
-
+                    // set the team schedules
                     var teamScheduleTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "TSCH");
                     query = new Dictionary<string, string>();
                     query["TGID"] = home.ToString();
@@ -3723,8 +3755,18 @@ PPOS = Position
                     query["TGID"] = away.ToString();
                     var awayTeamSchedule = MaddenTable.Query(teamScheduleTable, query).SingleOrDefault();
                     awayTeamSchedule["OGID"] = home.ToString();
-                    awayTeamSchedule["THOA"] = "0";
+                    awayTeamSchedule["THOA"] = "1";
                     awayTeamSchedule["SGNM"] = gameNum;
+
+                    // modify the bowl game table
+                    // 42 is the sun belt ccg
+                    var bowlGameTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "BOWL");
+                    query = new Dictionary<string, string>();
+                    query["BIDX"] = "42";
+
+                    var ccg = MaddenTable.Query(bowlGameTable, query).SingleOrDefault();
+                    ccg["SGNM"] = gameNum;
+                    ccg["SGID"] = teamStadium;
                 }
             }
         }
@@ -3742,6 +3784,37 @@ PPOS = Position
         private void dumpRostersToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DumpRosters();
+        }
+
+        private void cleanupCCHHToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // conference in need of cleanup , sun belt = 13
+            var conf = 13;
+
+            // find the CCHH table
+            var table = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "CCHH");
+
+            TeamEntry champ = new TeamEntry("Conference Champ");
+            if (champ.ShowDialog() == DialogResult.OK)
+            {
+                var records = table.lRecords.OrderByDescending(mr => mr["SEYR"].ToInt32()).Where(mr => mr["CGID"].ToInt32() == conf).Take(2).ToArray();
+
+                // find the correct one
+                bool found = false;
+
+                foreach (var record in records)
+                {
+                    // once we find it, set the flag and continue
+                    if (record["CGID"].ToInt32() == conf && record["TGID"].ToInt32() == champ.TeamId && !found)
+                    {
+                        found = true;
+                        continue;
+                    }
+
+                    // remove the record
+                    table.RemoveRecord(record);
+                }
+            }
         }
     }
 
@@ -5186,6 +5259,18 @@ PPOS = Position
             }
             return false;
         }
+
+        public bool RemoveRecord(MaddenRecord mr)
+        {
+            if(lRecords.Remove(mr))
+            {
+                Table.currecords--;
+                return true;
+            }
+
+            return false;
+        }
+
 
         /// <summary>
         /// write a back out to the file

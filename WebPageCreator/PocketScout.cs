@@ -169,26 +169,33 @@ namespace EA_DB_Editor
                 if (TeamSchedule.TeamSchedules.ContainsKey(team.Id) == false)
                     continue;
 
-                var schedule = TeamSchedule.TeamSchedules[team.Id];
-                var teamBowlGames = schedule.FlattenedListOfGames.Where(g => g.Week > 16 && g.GameNumber < 127).ToArray();
-                var teamOOCGames = schedule.FlattenedListOfGames.Where(g => g.OpponentId != 1023 && g.Opponent.ConferenceId != team.ConferenceId).ToArray();
-                var teamPowerOpponentGames = teamOOCGames.Where(g => g.OpponentId != 1023 && (Conference.PowerConferences.Contains(g.Opponent.ConferenceId) || Conference.PowerIndependents.Contains(g.Opponent.Id))).ToArray();
-
-                Tuple<List<int>, List<int>, List<int>, List<int>, List<int>, List<int>, List<int>, Tuple<List<int>>> conf = null;
-                if (confRankings.TryGetValue(team.ConferenceId, out conf) == false)
+                try
                 {
-                    conf = new Tuple<List<int>, List<int>, List<int>, List<int>, List<int>, List<int>, List<int>, Tuple<List<int>>>(new List<int>(), new List<int>(), new List<int>(), new List<int>(), new List<int>(), new List<int>(), new List<int>(), new Tuple<List<int>>(new List<int>()));
-                    confRankings.Add(team.ConferenceId, conf);
-                }
+                    var schedule = TeamSchedule.TeamSchedules[team.Id];
+                    var teamBowlGames = schedule.FlattenedListOfGames.Where(g => g.Week > 16 && g.GameNumber < 127).ToArray();
+                    var teamOOCGames = schedule.FlattenedListOfGames.Where(g => g.OpponentId != 1023 && g.Opponent.ConferenceId != team.ConferenceId).ToArray();
+                    var teamPowerOpponentGames = teamOOCGames.Where(g => g.OpponentId != 1023 && (Conference.PowerConferences.Contains(g.Opponent.ConferenceId) || Conference.PowerIndependents.Contains(g.Opponent.Id))).ToArray();
 
-                conf.Item1.Add(team.CoachesPollRank);
-                conf.Item2.Add(team.MediaPollRank);
-                conf.Item3.Add(teamBowlGames.Count(g => g.DidIWin));
-                conf.Item4.Add(teamBowlGames.Count(g => !g.DidIWin));
-                conf.Item5.Add(teamOOCGames.Count(g => g.DidIWin));
-                conf.Item6.Add(teamOOCGames.Count(g => !g.DidIWin));
-                conf.Item7.Add(teamPowerOpponentGames.Count(g => g.DidIWin));
-                conf.Rest.Item1.Add(teamPowerOpponentGames.Count(g => !g.DidIWin));
+                    Tuple<List<int>, List<int>, List<int>, List<int>, List<int>, List<int>, List<int>, Tuple<List<int>>> conf = null;
+                    if (confRankings.TryGetValue(team.ConferenceId, out conf) == false)
+                    {
+                        conf = new Tuple<List<int>, List<int>, List<int>, List<int>, List<int>, List<int>, List<int>, Tuple<List<int>>>(new List<int>(), new List<int>(), new List<int>(), new List<int>(), new List<int>(), new List<int>(), new List<int>(), new Tuple<List<int>>(new List<int>()));
+                        confRankings.Add(team.ConferenceId, conf);
+                    }
+
+                    conf.Item1.Add(team.CoachesPollRank);
+                    conf.Item2.Add(team.MediaPollRank);
+                    conf.Item3.Add(teamBowlGames.Count(g => g.DidIWin));
+                    conf.Item4.Add(teamBowlGames.Count(g => !g.DidIWin));
+                    conf.Item5.Add(teamOOCGames.Count(g => g.DidIWin));
+                    conf.Item6.Add(teamOOCGames.Count(g => !g.DidIWin));
+                    conf.Item7.Add(teamPowerOpponentGames.Count(g => g.DidIWin));
+                    conf.Rest.Item1.Add(teamPowerOpponentGames.Count(g => !g.DidIWin));
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine($"{team.Id}: {team.Name}");
+                }
             }
 
             var conferences = confRankings.Select(

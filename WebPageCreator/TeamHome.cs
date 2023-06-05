@@ -1146,7 +1146,11 @@ namespace EA_DB_Editor
                 TeamSchedule.TeamSchedules.TryGetValue(this.Id, out schedule) &&
                 schedule.FlattenedListOfGames.Where(g => g.Week == 16 && g.GameNumber != 127).Any())
             {
-                this.ConferenceOrDivisionChampionship = string.Format("{0} {1} {2}", Conference.Conferences[this.ConferenceId].Name, Conference.FindDivision(this.DivisionId).SubName, "Champions");
+                // only conferences with 12+ teams have divisions
+                if (Conference.Conferences[this.ConferenceId].TeamCount >= 12)
+                {
+                    this.ConferenceOrDivisionChampionship = string.Format("{0} {1} {2}", Conference.Conferences[this.ConferenceId].Name, Conference.FindDivision(this.DivisionId).SubName, "Champions");
+                }
             }
 
 

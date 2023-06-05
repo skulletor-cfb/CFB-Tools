@@ -64,6 +64,7 @@
             this.playbookToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.importToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.dumpRostersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.filterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.massToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.headerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -98,7 +99,7 @@
             this.setSunBeltCCGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.transferRuleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.dumpRostersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cleanupCCHHToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -384,6 +385,13 @@
             this.importToolStripMenuItem1.Text = "Import";
             this.importToolStripMenuItem1.Click += new System.EventHandler(this.importToolStripMenuItem1_Click);
             // 
+            // dumpRostersToolStripMenuItem
+            // 
+            this.dumpRostersToolStripMenuItem.Name = "dumpRostersToolStripMenuItem";
+            this.dumpRostersToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
+            this.dumpRostersToolStripMenuItem.Text = "Dump Rosters";
+            this.dumpRostersToolStripMenuItem.Click += new System.EventHandler(this.dumpRostersToolStripMenuItem_Click);
+            // 
             // filterToolStripMenuItem
             // 
             this.filterToolStripMenuItem.Name = "filterToolStripMenuItem";
@@ -600,7 +608,8 @@
             this.pollPointsToolStripMenuItem,
             this.redshritFroshToolStripMenuItem,
             this.setSunBeltCCGToolStripMenuItem,
-            this.transferRuleToolStripMenuItem});
+            this.transferRuleToolStripMenuItem,
+            this.cleanupCCHHToolStripMenuItem});
             this.postSeasonToolStripMenuItem.Name = "postSeasonToolStripMenuItem";
             this.postSeasonToolStripMenuItem.Size = new System.Drawing.Size(79, 20);
             this.postSeasonToolStripMenuItem.Text = "PostSeason";
@@ -608,35 +617,35 @@
             // lastWeekPollToolStripMenuItem
             // 
             this.lastWeekPollToolStripMenuItem.Name = "lastWeekPollToolStripMenuItem";
-            this.lastWeekPollToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.lastWeekPollToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.lastWeekPollToolStripMenuItem.Text = "Last Week Poll";
             this.lastWeekPollToolStripMenuItem.Click += new System.EventHandler(this.lastWeekPollToolStripMenuItem_Click);
             // 
             // pollPointsToolStripMenuItem
             // 
             this.pollPointsToolStripMenuItem.Name = "pollPointsToolStripMenuItem";
-            this.pollPointsToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.pollPointsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.pollPointsToolStripMenuItem.Text = "Poll Points";
             this.pollPointsToolStripMenuItem.Click += new System.EventHandler(this.pollPointsToolStripMenuItem_Click);
             // 
             // redshritFroshToolStripMenuItem
             // 
             this.redshritFroshToolStripMenuItem.Name = "redshritFroshToolStripMenuItem";
-            this.redshritFroshToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.redshritFroshToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.redshritFroshToolStripMenuItem.Text = "Redshrit Frosh";
             this.redshritFroshToolStripMenuItem.Click += new System.EventHandler(this.redshritFroshToolStripMenuItem_Click);
             // 
             // setSunBeltCCGToolStripMenuItem
             // 
             this.setSunBeltCCGToolStripMenuItem.Name = "setSunBeltCCGToolStripMenuItem";
-            this.setSunBeltCCGToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.setSunBeltCCGToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.setSunBeltCCGToolStripMenuItem.Text = "Set Sun Belt CCG";
             this.setSunBeltCCGToolStripMenuItem.Click += new System.EventHandler(this.setSunBeltCCGToolStripMenuItem_Click);
             // 
             // transferRuleToolStripMenuItem
             // 
             this.transferRuleToolStripMenuItem.Name = "transferRuleToolStripMenuItem";
-            this.transferRuleToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.transferRuleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.transferRuleToolStripMenuItem.Text = "Transfer Rule";
             this.transferRuleToolStripMenuItem.Click += new System.EventHandler(this.transferRuleToolStripMenuItem_Click);
             // 
@@ -661,12 +670,12 @@
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
-            // dumpRostersToolStripMenuItem
+            // cleanupCCHHToolStripMenuItem
             // 
-            this.dumpRostersToolStripMenuItem.Name = "dumpRostersToolStripMenuItem";
-            this.dumpRostersToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
-            this.dumpRostersToolStripMenuItem.Text = "Dump Rosters";
-            this.dumpRostersToolStripMenuItem.Click += new System.EventHandler(this.dumpRostersToolStripMenuItem_Click);
+            this.cleanupCCHHToolStripMenuItem.Name = "cleanupCCHHToolStripMenuItem";
+            this.cleanupCCHHToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.cleanupCCHHToolStripMenuItem.Text = "Cleanup CCHH";
+            this.cleanupCCHHToolStripMenuItem.Click += new System.EventHandler(this.cleanupCCHHToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -758,6 +767,7 @@
         private System.Windows.Forms.ToolStripMenuItem setSunBeltCCGToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem transferRuleToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem dumpRostersToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cleanupCCHHToolStripMenuItem;
     }
 }
 
