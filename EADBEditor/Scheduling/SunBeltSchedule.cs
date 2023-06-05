@@ -9,10 +9,12 @@ namespace EA_DB_Editor
         private static bool initRun = false;
 
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {
-            CreateA, CreateA,
-            CreateB, CreateB,
             CreateC, CreateC,
             CreateD, CreateD,
+            CreateE, CreateE,
+            CreateF, CreateF,
+            CreateA, CreateA,
+            CreateB, CreateB,
             };
 
 
@@ -45,9 +47,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2462) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2468) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(11, RecruitingFixup.SBCId, "SunBelt");
+            result = result.Verify(14, RecruitingFixup.SBCId, "SunBelt");
             SunbeltConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -74,7 +76,7 @@ namespace EA_DB_Editor
         const int NT = 64;
         const int UAB = 98;
 
-#if false // sun belt is 14 teams, usa-troy cross over
+#if true // sun belt is 14 teams, usa-troy cross over
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
@@ -123,6 +125,21 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
+                USA.Create(ULL, USM, TexSt, GASO),
+                ULM.Create(USA, ULL, TexSt, AppSt),
+                ArkSt.Create(USA, ULM, ULL, GSU),
+                ULL.Create(USM, LT, TexSt, Coastal),
+                USM.Create(ULM, ArkSt, LT, Troy),
+                LT.Create(USA, ULM, ArkSt, UMarsh),
+                TexSt.Create(ArkSt, USM, LT, ODU),
+
+                Troy.Create(USA, UMarsh, GSU, Coastal),
+                UMarsh.Create(ULL, ODU, GASO, Coastal),
+                ODU.Create(USM, Troy, AppSt, GSU),
+                GASO.Create(LT, Troy, ODU, AppSt),
+                AppSt.Create(TexSt, Troy, UMarsh, Coastal),
+                GSU.Create(ULM, UMarsh, GASO, AppSt),
+                Coastal.Create(ArkSt, ODU, GASO, GSU),
             }.Create();
         }
 

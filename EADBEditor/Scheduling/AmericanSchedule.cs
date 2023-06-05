@@ -6,7 +6,16 @@ namespace EA_DB_Editor
     public class AmericanSchedule
     {
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {  CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE};
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {  
+            CreateC, CreateC, 
+            CreateD, CreateD, 
+            CreateE, CreateE, 
+            CreateF, CreateF, 
+            CreateG, CreateG, 
+            CreateA, CreateA, 
+            CreateB, CreateB, 
+        };
+
         public static Dictionary<int, HashSet<int>> AmericanConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
         
@@ -27,9 +36,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2462) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2468) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(12, RecruitingFixup.AmericanId, "American");
+            result = result.Verify(14, RecruitingFixup.AmericanId, "American");
             AmericanConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -62,7 +71,7 @@ namespace EA_DB_Editor
         const int TulaneId = 96;
 
 
-#if false // memphis, nt are in the AAC, no more Cincy/UCF
+#if true // memphis, nt are in the AAC, no more Cincy/UCF
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
@@ -111,6 +120,21 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
+                NT.Create(Houston, Tulsa, SMU, UAB),
+                Houston.Create(Tulsa, UTSA, Tulane, FAU),
+                Tulsa.Create(UTSA, SMU, Rice, CLT),
+                UTSA.Create(NT, Rice, Tulane, Memphis),
+                SMU.Create(Houston, UTSA, Tulane, USF),
+                Rice.Create(NT, Houston, SMU, Temple),
+                Tulane.Create(NT, Tulsa, Rice, ECU),
+
+                CLT.Create(UTSA, Memphis, USF, Temple),
+                Memphis.Create(SMU, USF, Temple, ECU),
+                USF.Create(Rice, Temple, ECU, UAB),
+                Temple.Create(Tulane, ECU, UAB, FAU),
+                ECU.Create(NT, CLT, UAB, FAU),
+                UAB.Create(Houston, CLT, Memphis, FAU),
+                FAU.Create(Tulsa, CLT, Memphis,USF),
             }.Create();
         }
 

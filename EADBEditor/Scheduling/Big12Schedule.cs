@@ -24,7 +24,7 @@ namespace EA_DB_Editor
         public const int TT = 94;
 
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateC, CreateC, CreateD, CreateD, CreateE, CreateE, CreateA, CreateA, CreateB, CreateB };
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateC, CreateC, CreateD, CreateD, CreateE, CreateE, CreateF, CreateF, CreateA, CreateA, CreateB, CreateB };
 
         public static Dictionary<int, HashSet<int>> Big12ConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
