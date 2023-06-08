@@ -303,12 +303,11 @@ namespace EA_DB_Editor
             return new Func<PreseasonScheduledGame, int?>[]
             {
                 game=> MatchTeams(6,game,43,86), //lt-ull
-                game => MatchTeams(7, game, 43, 85), //usm-lt
-                game=> MatchTeams(7,game,65,7), //ulm-ark st
-                game => MatchTeams( 8, game, 34,181), //gaso-app st
+                game => MatchTeams(6, game, 34, 234), // app st - odu
+                game=> MatchTeams(7,game,7,65), //ulm-ark st
                 game => MatchTeams(7, game , 34, 46), // marsh-app st
                 game => MatchTeams(7, game, 61, 181), // coastal- gaso
-                game => MatchTeams(6, game, 34, 234), // app st - odu
+                game => MatchTeams( 8, game, 34,181), //gaso-app st
                 game=> MatchTeams(12,game,43,65), //lt-ulm
                 game=> MatchTeams(13,game,65,86), //ull-ulm
                 game => MatchTeams(13, game, 143, 235), //usa-troy
