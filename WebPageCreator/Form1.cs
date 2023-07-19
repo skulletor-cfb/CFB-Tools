@@ -1705,6 +1705,8 @@ namespace EA_DB_Editor
             CreatePreseasonMagazine(true);
         }
 
+        public static int CalendarYear = 0;
+
         public void CreatePreseasonMagazine(bool showMessageBox)
         {
             Stopwatch sw = new Stopwatch();
@@ -1749,6 +1751,7 @@ namespace EA_DB_Editor
 
             // this is basically the new directory we create for the season, when creating a preseason magazine, we go ahead and do an "archive"
             var year = BowlChampion.CurrentYear + Utility.StartingYear;
+            CalendarYear = year;
             var dir = string.Format("{0}_Season", year);
 
             DirectoryCopyEx.DirectoryCopy("./Archive/Reports", "./Archive/" + dir + "", false, year.ToString(), true);

@@ -94,9 +94,25 @@ namespace EA_DB_Editor
             return new DivisionPrediction
             {
                 DivisionId = predictedWinner.DivisionId,
-                DivisionName = Conference.Conferences[conference.ConferenceId].Divisions.Where( d => d.Id==predictedWinner.DivisionId).First().Name,
+                DivisionName = Conference.Conferences[conference.ConferenceId].Divisions.Where(d => d.Id == predictedWinner.DivisionId).First().Name,
                 Teams = order.ToArray()
             };
+        }
+
+        private static Dictionary<int, (int start, int end)> NoDivisionConference = new Dictionary<int, (int start, int end)>()
+        {
+            {1, (2472, int.MaxValue)}, // big 10
+            {2, (2470, int.MaxValue)}, // big 12
+        };
+
+        public static bool ConferenceHasNoDivisions(int confId)
+        {
+            if(NoDivisionConference.TryGetValue(confId, out var year))
+            {
+                return Form1.CalendarYear >= year.start && Form1.CalendarYear < year.end;
+            }
+
+            return false;
         }
 
         public static void Create(MaddenDatabase db)
@@ -111,7 +127,9 @@ namespace EA_DB_Editor
 
                 // do we have a conference with less than 12 teams have a ccg?
                 // either the Sun Belt or CUSA will have a CCG with 11 team conference
-                if (conf.First().ConferenceId == 13 && conf.Count() == 11)
+                if (conf.First().ConferenceId == 13 && conf.Count() == 11 ||
+                    ConferenceHasNoDivisions(conf.First().ConferenceId)
+                    )
                 {
                     var top2 = FindTopTwo(conf);
                     var home = top2[0];

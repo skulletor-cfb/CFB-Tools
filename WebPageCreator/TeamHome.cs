@@ -1014,7 +1014,6 @@ namespace EA_DB_Editor
             Name = record.lEntries[7].Data;
             Mascot = record.lEntries[9].Data;
             ConferenceId = record.lEntries[36].Data.ToInt32();
-            DivisionId = record.lEntries[37].Data.ToInt32();
             var atw = record.lEntries[60].Data.ToInt32();
             var atl = record.lEntries[86].Data.ToInt32();
             var att = record.lEntries[58].Data.ToInt32();
@@ -1040,8 +1039,18 @@ namespace EA_DB_Editor
             var cts = record.GetInt(31);
             ConferenceWin = record.GetInt(193);
             ConferenceLoss = record.GetInt(181);
-            DivisionWin = record.GetInt(194);
-            DivisionLoss = record.GetInt(182);
+
+            if (!PredictionEngine.ConferenceHasNoDivisions(ConferenceId))
+            {
+                DivisionWin = record.GetInt(194);
+                DivisionLoss = record.GetInt(182);
+                DivisionId = record.lEntries[37].Data.ToInt32();
+            }
+            else
+            {
+                DivisionId = 30;
+            }
+
             AverageAttendance = record.GetInt(5);
             RecordAttendance = record.GetInt(119);
             StadiumId = record.GetInt(39);
@@ -1147,8 +1156,9 @@ namespace EA_DB_Editor
                 schedule.FlattenedListOfGames.Where(g => g.Week == 16 && g.GameNumber != 127).Any())
             {
                 // only conferences with 12+ teams have divisions
-                if (Conference.Conferences[this.ConferenceId].TeamCount >= 12)
+                if (!PredictionEngine.ConferenceHasNoDivisions(this.ConferenceId))
                 {
+                    // Console.WriteLine(string.Format("{0} {1} {2}", Conference.Conferences[this.ConferenceId].Name, Conference.FindDivision(this.DivisionId).SubName, "Champions"));
                     this.ConferenceOrDivisionChampionship = string.Format("{0} {1} {2}", Conference.Conferences[this.ConferenceId].Name, Conference.FindDivision(this.DivisionId).SubName, "Champions");
                 }
             }

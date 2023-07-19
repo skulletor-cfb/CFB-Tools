@@ -142,6 +142,21 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
+                NT.Create(Houston, Tulsa, SMU, FAU),
+                Houston.Create(Tulsa, UTSA, Tulane, CLT),
+                Tulsa.Create(UTSA, SMU, Rice, Memphis),
+                UTSA.Create(NT, Rice, Tulane, USF),
+                SMU.Create(Houston, UTSA, Tulane, Temple),
+                Rice.Create(NT, Houston, SMU, ECU),
+                Tulane.Create(NT, Tulsa, Rice, UAB),
+
+                CLT.Create(NT, Memphis, USF, Temple),
+                Memphis.Create(Houston, USF, Temple, ECU),
+                USF.Create(Tulsa, Temple, ECU, UAB),
+                Temple.Create(UTSA, ECU, UAB, FAU),
+                ECU.Create(SMU, CLT, UAB, FAU),
+                UAB.Create(Rice, CLT, Memphis, FAU),
+                FAU.Create(Tulane, CLT, Memphis,USF),
             }.Create();
         }
 
@@ -149,6 +164,21 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
+                NT.Create(Houston, Tulsa, SMU, Memphis),
+                Houston.Create(Tulsa, UTSA, Tulane, USF),
+                Tulsa.Create(UTSA, SMU, Rice, Temple),
+                UTSA.Create(NT, Rice, Tulane, ECU),
+                SMU.Create(Houston, UTSA, Tulane, UAB),
+                Rice.Create(NT, Houston, SMU, FAU),
+                Tulane.Create(NT, Tulsa, Rice, CLT),
+
+                CLT.Create(Rice, Memphis, USF, Temple),
+                Memphis.Create(Tulane, USF, Temple, ECU),
+                USF.Create(NT, Temple, ECU, UAB),
+                Temple.Create(Houston, ECU, UAB, FAU),
+                ECU.Create(Tulsa, CLT, UAB, FAU),
+                UAB.Create(UTSA, CLT, Memphis, FAU),
+                FAU.Create(SMU, CLT, Memphis,USF),
             }.Create();
         }
 
