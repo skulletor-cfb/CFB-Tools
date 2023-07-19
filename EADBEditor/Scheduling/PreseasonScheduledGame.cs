@@ -307,15 +307,16 @@ namespace EA_DB_Editor
                 game=> MatchTeams(7,game,7,65), //ulm-ark st
                 game => MatchTeams(7, game , 34, 46), // marsh-app st
                 game => MatchTeams(7, game, 61, 181), // coastal- gaso
-                game => MatchTeams( 8, game, 34,181), //gaso-app st
+                game=> MatchTeams(8, game, 181, 233), // gsu-gaso
+                game=> MatchTeams(8,game,34,61), //ccu-app st
                 game=> MatchTeams(12,game,43,65), //lt-ulm
+                game => MatchTeams( 13, game, 34,181), //gaso-app st
                 game=> MatchTeams(13,game,65,86), //ull-ulm
                 game => MatchTeams(13, game, 143, 235), //usa-troy
-                game=> MatchTeams(13,game,34,61), //ccu-app st
-                game=> MatchTeams(13, game, 181, 233), // gsu-gaso
                 game=> MatchTeams(13, game, 46, 234), // odu - marshall
                 game=> MatchTeams(13,game,7,218), //tsu-ark st
                 game=> MatchTeams(13,game,43,85), //lt-usm
+                game=> MatchTeams(13,game,61,233), //ccu-gsu
             };
         }
     }
