@@ -553,7 +553,7 @@ namespace EA_DB_Editor
             if (game == null)
                 return;
 
-            if (this.Name == null && game.IsNeutralSite)
+            if (this.Name == null && game.GameHasRecordBook)
             {
                 this.Name = game.GameSite;
             }

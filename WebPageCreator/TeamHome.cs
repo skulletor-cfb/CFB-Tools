@@ -86,7 +86,7 @@ namespace EA_DB_Editor
                 {
                     return Bowl.FindByKey(this.Week, this.GameNumber).Id;
                 }
-                else if (this.Week < 16 && this.ScheduledGame.IsNeutralSite)
+                else if (this.Week < 16 && this.ScheduledGame.GameHasRecordBook)
                 {
                     return this.ScheduledGame.SiteId;
                 }
@@ -103,7 +103,7 @@ namespace EA_DB_Editor
                     return Bowl.FindByKey(this.Week, this.GameNumber).Name;
                 }
 
-                if (this.ScheduledGame.IsNeutralSite)
+                if (this.ScheduledGame.GameHasRecordBook)
                 {
                     return this.ScheduledGame.GameSite;
                 }

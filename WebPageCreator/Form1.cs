@@ -1314,6 +1314,11 @@ namespace EA_DB_Editor
             // make sure we have a filled DB            
             ContinuationData.Create(maddenDB);
             BowlChampion.Create(maddenDB);
+
+            // this is basically the new directory we create for the season, when creating a preseason magazine, we go ahead and do an "archive"
+            var year = BowlChampion.CurrentYear + Utility.StartingYear;
+            CalendarYear = year;
+
             City.Create();
             TeamSchedule.Create(maddenDB, isPreseason);
             PlayerDB.Create(maddenDB);
@@ -1726,6 +1731,7 @@ namespace EA_DB_Editor
 
             // need to create all the team stuff to get a schedule, then predict CCG/Bowls and then redo team stuff
             Team.CreateMainPage(maddenDB, true);
+
             PredictionEngine.Create(maddenDB);
             Team.CreateMainPage(maddenDB, true);
             Conference.Create(maddenDB);
@@ -1751,7 +1757,7 @@ namespace EA_DB_Editor
 
             // this is basically the new directory we create for the season, when creating a preseason magazine, we go ahead and do an "archive"
             var year = BowlChampion.CurrentYear + Utility.StartingYear;
-            CalendarYear = year;
+
             var dir = string.Format("{0}_Season", year);
 
             DirectoryCopyEx.DirectoryCopy("./Archive/Reports", "./Archive/" + dir + "", false, year.ToString(), true);

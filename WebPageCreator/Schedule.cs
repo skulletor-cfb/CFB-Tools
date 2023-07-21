@@ -143,8 +143,8 @@ namespace EA_DB_Editor
     [DataContract]
     public class ScheduledGame
     {
-        public static Dictionary<int, int> GameIdFwder =ConfigurationManager.AppSettings["GameIdFwd"].Split(',').ToDictionary(s => s.Split('=').First().ToInt32(), s => s.Split('=')[1].ToInt32());
-        public static HashSet<NeutralSiteGame> KickOffGames = new HashSet<NeutralSiteGame>(ConfigurationManager.AppSettings["NeutralSiteGamesForRecords"].Split(',').Select(i =>NeutralSiteGame.Create(i, GameIdFwder)));
+        public static Dictionary<int, int> GameIdFwder = ConfigurationManager.AppSettings["GameIdFwd"].Split(',').ToDictionary(s => s.Split('=').First().ToInt32(), s => s.Split('=')[1].ToInt32());
+        public static HashSet<NeutralSiteGame> KickOffGames = new HashSet<NeutralSiteGame>(ConfigurationManager.AppSettings["NeutralSiteGamesForRecords"].Split(',').Select(i => NeutralSiteGame.Create(i, GameIdFwder)));
         public static Dictionary<string, ScheduledGame> Schedule;
 
         public static bool IsSeasonOver(MaddenDatabase db)
@@ -618,14 +618,14 @@ namespace EA_DB_Editor
         #endregion
         public static void CreateOpeningWeek(MaddenDatabase db, bool isPreseason)
         {
-            var power5 = new HashSet<int>(new[] { 0,1,2,10,11});
+            var power5 = new HashSet<int>(new[] { 0, 1, 2, 10, 11 });
             List<TopGame> games = new List<TopGame>();
 
             Create(db, isPreseason);
             foreach (var game in Schedule.Values.Where(g => g.HomeTeamId != 1023 && g.Week <= 2).OrderBy(g => g.Week).ThenBy(g => g.GameDay).ThenBy(g => g.TimeOfDay))
             {
                 // non neutral site games 
-                if (!game.IsNeutralSite)
+                if (!game.IsClassicGame)
                 {
                     if (game.Week > 0)
                     {
@@ -657,7 +657,7 @@ namespace EA_DB_Editor
                     HomeTeamId = game.HomeTeamId.GetRealTeamId(),
                     AwayTeamId = game.AwayTeamId.GetRealTeamId(),
                     IsConferenceGame = game.HomeTeam.ConferenceId == game.AwayTeam.ConferenceId,
-                    IsNeutral = game.IsNeutralSite,
+                    IsNeutral = game.IsClassicGame,
                     Week = game.Week + 1,
                     Day = game.GameDay,
                     Time = tod,
@@ -679,25 +679,25 @@ namespace EA_DB_Editor
         {
             List<TopGame> games = new List<TopGame>();
 
-            Create(db,isPreseason);
+            Create(db, isPreseason);
             foreach (var game in Schedule.Values)
             {
                 if (game.HomeTeamId == 1023)
                     continue;
 
                 var tg = new TopGame
-                    {
-                        SiteName = game.GameSite,
-                        HomeRank = game.HomeTeam.MediaPollRank,
-                        AwayRank = game.AwayTeam.MediaPollRank,
-                        HomeTeam = game.HomeTeam.Name,
-                        AwayTeam = game.AwayTeam.Name,
-                        HomeTeamId = game.HomeTeamId.GetRealTeamId(),
-                        AwayTeamId = game.AwayTeamId.GetRealTeamId(),
-                        IsConferenceGame = game.HomeTeam.ConferenceId == game.AwayTeam.ConferenceId,
-                        IsNeutral = game.IsNeutralSite,
-                        Week = game.Week + 1,
-                    };
+                {
+                    SiteName = game.GameSite,
+                    HomeRank = game.HomeTeam.MediaPollRank,
+                    AwayRank = game.AwayTeam.MediaPollRank,
+                    HomeTeam = game.HomeTeam.Name,
+                    AwayTeam = game.AwayTeam.Name,
+                    HomeTeamId = game.HomeTeamId.GetRealTeamId(),
+                    AwayTeamId = game.AwayTeamId.GetRealTeamId(),
+                    IsConferenceGame = game.HomeTeam.ConferenceId == game.AwayTeam.ConferenceId,
+                    IsNeutral = game.IsClassicGame,
+                    Week = game.Week + 1,
+                };
 
                 // score is the compositve ranks of the teams / 2.  If they are main rivals we subtract 5 points
                 tg.Score = game.HomeTeam.MediaPollRank + game.HomeTeam.CoachesPollRank + game.AwayTeam.CoachesPollRank + game.AwayTeam.MediaPollRank;
@@ -719,6 +719,64 @@ namespace EA_DB_Editor
         }
 
         public static string StadiumNickNameOverrides = ConfigurationManager.AppSettings["StadiumNickNameOverrides"];
+
+        public static Dictionary<int, (int id, string name)> ClassicGames = new Dictionary<int, (int id, string name)>
+        {
+
+        };
+
+        public static Func<ScheduledGame, bool>[] ClassicGameEvaluators = new Func<ScheduledGame, bool>[]       
+        {
+            IsAllstateCrossbarClassic,
+            IsJohnnyMajorsClassic,
+            IsShamrockSeries
+        };
+
+        private static bool IsShamrockSeries(ScheduledGame g)
+        {
+            const int id = 247568807;
+            KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
+            var tod = (60 * 20) + 7;
+            if (g.TimeOfDay == tod && (g.HomeTeamId == 68 || g.AwayTeamId==68) && g.Week > 3)
+            {
+                g.SiteId = id;
+                g.GameSite = "Shamrock Series";
+                return true;
+            }
+            
+            return false;
+        }
+
+        private static bool IsJohnnyMajorsClassic(ScheduledGame g)
+        {
+            const int id = 24907791;
+            KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
+            var tod = (60 * 19) + 37;
+            var teams = new HashSet<int>() { 77, 91 };
+            if (g.TimeOfDay == tod && teams.Contains(g.HomeTeamId) && teams.Contains(g.AwayTeamId))
+            {
+                g.SiteId = id;
+                g.GameSite = "Johnny Majors Classic";
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsAllstateCrossbarClassic(ScheduledGame g)
+        {
+            const int id = 24721827;
+            KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
+            var tod = (60 * 20) + 27;
+            if (g.TimeOfDay == tod && g.Week == 1)
+            {
+                g.SiteId = id;
+                g.GameSite = "Allstate Crossbar Classic";
+                return true;
+            }
+
+            return false;
+        }
 
         public static void Create(MaddenDatabase db, bool isPreseason)
         {
@@ -770,7 +828,11 @@ namespace EA_DB_Editor
                     awayTeamSchedule[game.Week].Count == 1)
                 {
                     // both teams are marked as home means its a neutral site game
-                    if (homeTeamSchedule[game.Week][0].IsHomeGame && awayTeamSchedule[game.Week][0].IsHomeGame)
+                    if (ClassicGameEvaluators.Any(e => e(game)))
+                    {
+                        game.IsClassicGame = true;
+                    }
+                    else if (homeTeamSchedule[game.Week][0].IsHomeGame && awayTeamSchedule[game.Week][0].IsHomeGame)
                     {
                         game.IsNeutralSite = true;
                         // check to see if we have an override
@@ -786,7 +848,7 @@ namespace EA_DB_Editor
 
                             if (stadiumOverride == null && currentNicknames.Count > 1)
                             {
-                                stadiumOverride = currentNicknames.Where(s => s.TryGetValue("RivalryGame", out var value) && value.Contains(Math.Min(game.HomeTeamId, game.AwayTeamId).ToString() + "-"+ Math.Max(game.HomeTeamId, game.AwayTeamId).ToString())).FirstOrDefault();
+                                stadiumOverride = currentNicknames.Where(s => s.TryGetValue("RivalryGame", out var value) && value.Contains(Math.Min(game.HomeTeamId, game.AwayTeamId).ToString() + "-" + Math.Max(game.HomeTeamId, game.AwayTeamId).ToString())).FirstOrDefault();
                             }
 
                             if (stadiumOverride != null)
@@ -1078,6 +1140,10 @@ namespace EA_DB_Editor
 
         [DataMember(EmitDefaultValue = false)]
         public bool IsNeutralSite { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public bool IsClassicGame { get; set; }
+
         [DataMember]
         public int AwayScore { get; set; }
         [DataMember]
@@ -1094,6 +1160,8 @@ namespace EA_DB_Editor
         public string HomeTeamMascot { get { return HomeTeam.Mascot; } set { } }
         [DataMember]
         public string AwayTeamMascot { get { return AwayTeam.Mascot; } set { } }
+
+        public bool GameHasRecordBook => IsNeutralSite || IsClassicGame;
 
         public Team WinningTeam
         {
