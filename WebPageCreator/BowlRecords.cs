@@ -307,7 +307,7 @@ namespace EA_DB_Editor
                     Instance.Records.Add(Instance.RecordsDict[ng.Id]);
                 }
 
-                foreach (var gamePlayed in ScheduledGame.Schedule.Values.Where(sg => sg.Week < 3 && ng.Id == sg.SiteId))
+                foreach (var gamePlayed in ScheduledGame.Schedule.Values.Where(sg => ng.Id == sg.SiteId && (sg.IsClassicGame || sg.Week < 3)))
                 {
                     Instance.RecordsDict[ng.Id].Prepare(gamePlayed);
                 }

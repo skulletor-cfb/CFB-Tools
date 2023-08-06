@@ -45,7 +45,7 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2472) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2474) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(12, RecruitingFixup.Big10Id, "Big10");
             Big10ConferenceSchedule = result.BuildHashSet();
@@ -57,18 +57,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Rutgers.Create(MichSt, OhioSt, Northwestern, Minnesota),
-                PennState.Create(Rutgers, Illinois, Indiana, Iowa),
-                MichSt.Create(PennState, Northwestern, Purdue, Wisconsin),
-                Michigan.Create(Rutgers, MichSt, Minnesota, Iowa),
-                OhioSt.Create(Michigan, Illinois, Indiana, Minnesota),
-                Illinois.Create(MichSt, Northwestern, Indiana, Iowa),
-                Northwestern.Create(PennState, Michigan, OhioSt, Wisconsin),
-                Purdue.Create(PennState, Michigan, OhioSt, Northwestern),
-                Indiana.Create(Rutgers, Michigan, Purdue, Wisconsin),
-                Wisconsin.Create(Rutgers, Illinois, Purdue, Iowa),
-                Minnesota.Create(PennState, MichSt, Illinois, Wisconsin),
-                Iowa.Create(OhioSt, Purdue, Indiana, Minnesota),
+                Rutgers.Create(Michigan, Indiana, Wisconsin, Iowa),
+                PennState.Create(Rutgers, OhioSt, Purdue, Wisconsin),
+                MichSt.Create(Rutgers, PennState, Illinois, Minnesota),
+                Michigan.Create(PennState, MichSt, Indiana, Iowa),
+                OhioSt.Create(Rutgers, Michigan, Illinois, Minnesota),
+                Illinois.Create(PennState, Northwestern, Indiana, Iowa),
+                Northwestern.Create(Rutgers, Michigan, OhioSt, Purdue),
+                Purdue.Create(MichSt, OhioSt, Illinois, Wisconsin),
+                Indiana.Create(MichSt, Northwestern, Purdue, Minnesota),
+                Wisconsin.Create(Michigan, OhioSt, Northwestern, Iowa),
+                Minnesota.Create(PennState, Illinois, Purdue, Wisconsin),
+                Iowa.Create(MichSt, Northwestern, Indiana, Minnesota),
             }.Create();
         }
 

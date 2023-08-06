@@ -14,6 +14,15 @@ namespace EA_DB_Editor
             CreateG, CreateG, 
             CreateA, CreateA, 
             CreateB, CreateB, 
+/*
+            CreateA, CreateB,
+            CreateC, CreateD,
+            CreateE, CreateF,
+            CreateG, CreateA,
+            CreateB, CreateC,
+            CreateD, CreateE,
+            CreateF, CreateG
+*/
         };
 
         public static Dictionary<int, HashSet<int>> AmericanConferenceSchedule = null;

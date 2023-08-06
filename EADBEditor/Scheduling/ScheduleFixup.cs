@@ -1355,6 +1355,11 @@ namespace EA_DB_Editor
                     teamScheduleRecord = MaddenTable.Query(teamSchedules, query).Single();
                     teamScheduleRecord["THOA"] = "1";
                 }
+                // check for Mayhem at MBS
+                else if (homeTeam == 31 && gameRecord["GTOD"].ToInt32() == ((60 * 19) + 33))
+                {
+                    gameRecord["SGID"] = "170";
+                }
                 // cu-csu play at 184
                 else if (MatchTeams(homeTeam, awayTeam, new[] { 22, 23 }))
                 {
@@ -1833,7 +1838,7 @@ namespace EA_DB_Editor
             rivalries.Add(new[] { 96, 85 });
 
             // UTEP-NMSU
-            rivalries.Add(new[] { 61, 105 });
+            // rivalries.Add(new[] { 61, 105 });
 
             // SDSU-FS
             rivalries.Add(new[] { 81, 29 });

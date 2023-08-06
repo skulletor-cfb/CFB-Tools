@@ -729,8 +729,41 @@ namespace EA_DB_Editor
         {
             IsAllstateCrossbarClassic,
             IsJohnnyMajorsClassic,
-            IsShamrockSeries
+            IsShamrockSeries,
+            IsOysterBowl,
+            IsErikSimpsonCFBClassic,
+            IsMayhemAtMBS,
         };
+
+        private static bool IsMayhemAtMBS(ScheduledGame g)
+        {
+            const int id = 247431733;
+            KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
+            var tod = (60 * 19) + 33;
+            if (g.TimeOfDay == tod && g.HomeTeamId == 31)
+            {
+                g.SiteId = id;
+                g.GameSite = "Mayhem at MBS";
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsOysterBowl(ScheduledGame g)
+        {
+            const int id = 473234717;
+            KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
+            var tod = (60 * 19) + 17;
+            if (g.TimeOfDay == tod && g.HomeTeamId == 234)
+            {
+                g.SiteId = id;
+                g.GameSite = "Oyster Bowl";
+                return true;
+            }
+
+            return false;
+        }
 
         private static bool IsShamrockSeries(ScheduledGame g)
         {
@@ -762,6 +795,22 @@ namespace EA_DB_Editor
 
             return false;
         }
+
+        private static bool IsErikSimpsonCFBClassic(ScheduledGame g)
+        {
+            const int id = 24732831;
+            KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
+            var tod = (60 * 20) + 31;
+            if (g.TimeOfDay == tod && g.Week == 2)
+            {
+                g.SiteId = id;
+                g.GameSite = "Erik Simpson College Football Classic";
+                return true;
+            }
+
+            return false;
+        }
+
 
         private static bool IsAllstateCrossbarClassic(ScheduledGame g)
         {
