@@ -322,7 +322,15 @@ namespace EditorTest
             File.Copy(form.FilePath, @"d:\vso\test\test.mc02");
         }
 
-#if true
+        [TestMethod]
+        public void SBCScheduleA()
+        {
+            SunBeltSchedule.CreateA().Verify(9, RecruitingFixup.SBCId, "SunBelt  ", false);
+            var hash = SunBeltSchedule.CreateA().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+#if false
         [TestMethod]
         public void SBCScheduleA()
         {

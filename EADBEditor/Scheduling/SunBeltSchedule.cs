@@ -9,12 +9,7 @@ namespace EA_DB_Editor
         private static bool initRun = false;
 
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {
-            CreateC, CreateC,
-            CreateD, CreateD,
-            CreateE, CreateE,
-            CreateF, CreateF,
             CreateA, CreateA,
-            CreateB, CreateB,
             };
 
 
@@ -47,9 +42,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2468) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2476) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(14, RecruitingFixup.SBCId, "SunBelt");
+            result = result.Verify(9, RecruitingFixup.SBCId, "SunBelt");
             SunbeltConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -76,7 +71,7 @@ namespace EA_DB_Editor
         const int NT = 64;
         const int UAB = 98;
 
-#if true // sun belt is 14 teams, usa-troy cross over
+#if false // sun belt is 14 teams, usa-troy cross over
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
@@ -704,7 +699,7 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif false
+#elif true
         public static Dictionary<int, int[]> CreateA()
         {
             return new Dictionary<int, int[]>()
@@ -858,7 +853,7 @@ namespace EA_DB_Editor
             }
             return dict;
         }
-#elif true
+#elif false
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
