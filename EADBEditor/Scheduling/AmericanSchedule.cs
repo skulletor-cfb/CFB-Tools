@@ -6,6 +6,8 @@ namespace EA_DB_Editor
     public class AmericanSchedule
     {
         private static bool initRun = false;
+
+        /* this order when you have 14 team conference with no cross div
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {  
             CreateA, CreateF,
             CreateG, CreateE,
@@ -14,7 +16,15 @@ namespace EA_DB_Editor
             CreateF, CreateG,
             CreateE, CreateC,
             CreateD, CreateB,
-        };
+        };*/
+
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
+            CreateA, CreateA, 
+            CreateB, CreateB, 
+            CreateC, CreateC, 
+            CreateD, CreateD, 
+            CreateE, CreateE };
+
 
         public static Dictionary<int, HashSet<int>> AmericanConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
@@ -41,21 +51,13 @@ namespace EA_DB_Editor
 
             switch (currYear)
             {
-                case 2476:
-                    result = CreateG();
-                    break;
-
-                case 2477:
-                    result = CreateG();
-                    break;
-
                 default:
-                    var idx = (Form1.DynastyYear - 2478) % Creators.Length;
+                    var idx = (Form1.DynastyYear - 2476) % Creators.Length;
                     result = Creators[idx]();
                     break;
             }
 
-            result = result.Verify(14, RecruitingFixup.AmericanId, "American");
+            result = result.Verify(12, RecruitingFixup.AmericanId, "American");
             AmericanConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -88,7 +90,7 @@ namespace EA_DB_Editor
         const int TulaneId = 96;
 
 
-#if true // memphis, nt are in the AAC, no more Cincy/UCF
+#if false // uab, nt are in the AAC, no more Cincy/UCF
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
