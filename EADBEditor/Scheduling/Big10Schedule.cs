@@ -76,6 +76,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
+                Rutgers.Create(Michigan, Illinois, Indiana , Iowa),
+                PennState.Create(Rutgers, OhioSt, Indiana, Wisconsin),
+                MichSt.Create(PennState, OhioSt, Illinois, Minnesota),
+                Michigan.Create(MichSt, Northwestern, Minnesota, Iowa),
+                OhioSt.Create(Rutgers, Michigan, Illinois, Indiana),
+                Illinois.Create(Michigan, Northwestern, Wisconsin, Minnesota),
+                Northwestern.Create(PennState, MichSt, Purdue, Iowa),
+                Purdue.Create(Rutgers, PennState, Michigan, Illinois),
+                Indiana.Create(MichSt, Northwestern, Purdue, Wisconsin),
+                Wisconsin.Create(MichSt, OhioSt, Purdue, Iowa),
+                Minnesota.Create(Rutgers, Northwestern, Indiana, Wisconsin),
+                Iowa.Create(PennState, OhioSt, Purdue, Minnesota),
             }.Create();
         }
 
@@ -83,6 +95,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
+                Rutgers.Create(MichSt, Illinois, Indiana, Wisconsin),
+                PennState.Create(Rutgers, Michigan, Northwestern, Iowa),
+                MichSt.Create(PennState, OhioSt, Wisconsin, Iowa),
+                Michigan.Create(MichSt, Illinois, Purdue, Minnesota),
+                OhioSt.Create(Michigan, Illinois, Indiana, Minnesota),
+                Illinois.Create(PennState, Northwestern, Indiana, Wisconsin),
+                Northwestern.Create(Rutgers, MichSt, OhioSt, Purdue),
+                Purdue.Create(Rutgers, MichSt, OhioSt, Minnesota),
+                Indiana.Create(PennState, Michigan, Purdue, Iowa),
+                Wisconsin.Create(Michigan, Northwestern, Indiana, Iowa),
+                Minnesota.Create(Rutgers, PennState, Northwestern, Wisconsin),
+                Iowa.Create(OhioSt, Illinois, Purdue, Minnesota),
             }.Create();
         }
 #elif false // east-west
