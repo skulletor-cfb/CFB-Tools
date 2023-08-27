@@ -941,13 +941,24 @@ namespace EA_DB_Editor
 
             // Independent BYU gets to recruit
             WeightedBYU = TeamAndConferences[16] == IndId ? CreateWeightedList(new[] { 16 }) : new List<int>();
-#if true // when cincy/ucf are in teh big12
-            WeightedUCF = CreateWeightedList(new[] { 18 });
-            WeightedCincy = CreateWeightedList(new[] { 20 });
-#else
-            WeightedUCF = CreateWeightedList(new int[0]);
-            WeightedCincy = CreateWeightedList(new int[0]);
-#endif
+
+            if(CincyId.IsP5())
+            {
+                WeightedCincy = CreateWeightedList(new[] { CincyId });
+            }
+            else
+            {
+                WeightedCincy = CreateWeightedList(new int[0]);
+            }
+
+            if (UCFId.IsP5())
+            {
+                WeightedUCF = CreateWeightedList(new[] { UCFId });
+            }
+            else
+            {
+                WeightedUCF = CreateWeightedList(new int[0]);
+            }
         }
 
         static List<int> CreateWeightedList(int[] teams, int modifier = 1)

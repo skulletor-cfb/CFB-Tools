@@ -102,14 +102,15 @@ namespace EA_DB_Editor
         private static Dictionary<int, (int start, int end)> NoDivisionConference = new Dictionary<int, (int start, int end)>()
         {
             {1, (2472, int.MaxValue)}, // big 10
-            {2, (2470, int.MaxValue)}, // big 12
+            {2, (2470, 2475)}, // big 12
+            {13, (2462, 2467) }, // Sun Belt
         };
 
         public static bool ConferenceHasNoDivisions(int confId)
         {
             if(NoDivisionConference.TryGetValue(confId, out var year))
             {
-                return Form1.CalendarYear >= year.start && Form1.CalendarYear < year.end;
+                return Form1.CalendarYear >= year.start && Form1.CalendarYear <= year.end;
             }
 
             return false;

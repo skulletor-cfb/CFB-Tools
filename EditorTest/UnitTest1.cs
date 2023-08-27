@@ -124,6 +124,22 @@ namespace EditorTest
             var hash = Big12Schedule.CreateB().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
+
+        [TestMethod]
+        public void Big12ScheduleX()
+        {
+            Big12Schedule.CreateX().Verify(14, RecruitingFixup.Big12Id, "Big12", false);
+            var hash = Big12Schedule.CreateX().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void Big12ScheduleY()
+        {
+            Big12Schedule.CreateY().Verify(14, RecruitingFixup.Big12Id, "Big12", false);
+            var hash = Big12Schedule.CreateY().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
         /*
         [TestMethod]
         public void Big12ScheduleC()
