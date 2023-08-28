@@ -225,12 +225,15 @@ namespace EA_DB_Editor
                 {
                     lockChecks = new Func<PreseasonScheduledGame, int?>[]
                     {
-                        g=>MatchTeams(13, g, 48, 98), // uab-memphis
-                        g=>MatchTeams(13, g, 64, 232), // nt-utsa
                         g=>MatchTeams(13, g, 33, 83), // hou-smu
                         g=>MatchTeams(13, g, 79, 97), // rice-tulsa
                         g=>MatchTeams(13, g, 25, 100), // charlotte-ecu
-                        g=>MatchTeams(12, g, 144, 229), // usf-fau
+                        g=>MatchTeams(13, g, 18, 144), // ucf-usf
+                        g=>MatchTeams(13, g, 48, 96), // memphis-tulane
+                        g=>MatchTeams(13, g, 20, 90), // cincy-temple
+
+                        g=>MatchTeams(7, g, 18, 97), // ucf-tulsa
+                        g=>MatchTeams(6, g, 18, 25), // ucf-ecu
                         g=>MatchTeams(6, g, 79, 83), // rice-smu
                         g=>MatchTeams(6, g, 33, 97), // hou-tulsa
                         g=>MatchTeams(6, g, 79, 96), // tulane-rice
@@ -302,21 +305,16 @@ namespace EA_DB_Editor
         {
             return new Func<PreseasonScheduledGame, int?>[]
             {
+
                 game=> MatchTeams(6,game,43,86), //lt-ull
-                game => MatchTeams(6, game, 34, 234), // app st - odu
+                game=> MatchTeams(7,game,43,85), //lt-usm
                 game=> MatchTeams(7,game,7,65), //ulm-ark st
-                game => MatchTeams(7, game , 34, 46), // marsh-app st
-                game => MatchTeams(7, game, 61, 181), // coastal- gaso
-                game=> MatchTeams(8, game, 181, 233), // gsu-gaso
-                game=> MatchTeams(8,game,34,61), //ccu-app st
                 game=> MatchTeams(12,game,43,65), //lt-ulm
-                game => MatchTeams( 13, game, 34,181), //gaso-app st
+                game=> MatchTeams(12,game,7,218), //tsu-ark st
                 game=> MatchTeams(13,game,65,86), //ull-ulm
-                game => MatchTeams(13, game, 143, 235), //usa-troy
-                game=> MatchTeams(13, game, 46, 234), // odu - marshall
-                game=> MatchTeams(13,game,7,218), //tsu-ark st
-                game=> MatchTeams(13,game,43,85), //lt-usm
-                game=> MatchTeams(13,game,61,233), //ccu-gsu
+                game=> MatchTeams(13,game,218,232), //tsu-utsa
+                game=> MatchTeams(13,game,7,64), //nt-ark st
+                game=> MatchTeams(13,game,85,98), //usm-uab
             };
         }
     }
@@ -394,7 +392,22 @@ namespace EA_DB_Editor
             return new Func<PreseasonScheduledGame, int?>[]
             {
                 game => MatchTeams(13, game, 53, 211), //wku-mtsu
-                game => MatchTeams(13, game, 8, 57), //army-navy
+                game => MatchTeams( 13, game, 34,181), //gaso-app st
+                game => MatchTeams(13, game, 143, 235), //usa-troy
+                game=> MatchTeams(13, game, 46, 234), // odu - marshall
+                game=> MatchTeams(13,game,61,233), //ccu-gsu
+                game=> MatchTeams(13,game,229,230), //fau-fiu
+                game=> MatchTeams(13,game,8,57), //army-navy
+
+                game => MatchTeams(6, game, 53, 143), //mtsu-troy
+                game => MatchTeams(7, game, 143, 229), //fau-troy
+                game => MatchTeams(7, game, 61, 181), // coastal- gaso
+                game=> MatchTeams(8, game, 181, 233), // gsu-gaso
+                game=> MatchTeams(8,game,34,61), //ccu-app st
+                game => MatchTeams(8, game , 46, 211), // marsh-wku
+                game => MatchTeams(7, game , 34, 46), // marsh-app st
+                game => MatchTeams(6, game, 34, 234), // app st - odu
+                game => MatchTeams(6, game, 143 ,233), //fau-gsu
 #if false
                 game => MatchTeams(7, game, 143 ,233), //fau-gsu
                 game => MatchTeams(6, game, 143 ,229), //fau-troy

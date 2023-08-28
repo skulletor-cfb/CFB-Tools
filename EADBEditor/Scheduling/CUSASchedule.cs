@@ -23,7 +23,14 @@ namespace EA_DB_Editor
     public class CUSASchedule
     {
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB };
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
+            CreateA, CreateA, 
+            CreateB, CreateB,
+            CreateC, CreateC,
+            CreateD, CreateD,
+            CreateE, CreateE,
+            CreateF, CreateF,
+        };
         public static Dictionary<int, HashSet<int>> CUSAConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
 
@@ -46,7 +53,7 @@ namespace EA_DB_Editor
         {
             var idx = (Form1.DynastyYear - 2476) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(12, RecruitingFixup.CUSAId, "CUSA", expectedGames: 2);
+            result = result.Verify(14, RecruitingFixup.CUSAId, "CUSA");
             CUSAConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -148,7 +155,65 @@ namespace EA_DB_Editor
                 MTSU.Create(Army ,FIU),
             }.Create();
         }
-#elif true  // when we have east/south schedules for CUSA
+#elif true // we have a 14 team CUSA , WKU/Marshall, Army/Navy cross
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Army.Create(WKU, USA, FIU, Marshall),
+                WKU.Create(FAU, MTSU, Troy, AppSt),
+                USA.Create(WKU, FAU, MTSU, Coastal),
+                FAU.Create(Army, MTSU, Troy, GaSo),
+                MTSU.Create(Army, Troy, FIU , ODU),
+                Troy.Create(Army, USA, FIU, GSU),
+                FIU.Create(WKU, USA, FAU, Navy),
+
+                Navy.Create(Army, Marshall, Coastal, AppSt),
+                Marshall.Create(WKU, ODU, Coastal , GaSo),
+                GSU.Create(FIU, Navy, Marshall, GaSo),
+                ODU.Create(Troy, Navy, GSU, AppSt),
+                Coastal.Create(MTSU, GSU, ODU, GaSo),
+                GaSo.Create(USA, Navy, ODU, AppSt),
+                AppSt.Create(FAU, Marshall, GSU, Coastal),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateD()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateE()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateF()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+#elif false // when we have east/south schedules for CUSA
+
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>

@@ -433,7 +433,7 @@ namespace EditorTest
         [TestMethod]
         public void CUSAScheduleA()
         {
-            CUSASchedule.CreateA().Verify(12, RecruitingFixup.CUSAId, "CUSA  ", false);
+            CUSASchedule.CreateA().Verify(14, RecruitingFixup.CUSAId, "CUSA  ", false);
             var hash = CUSASchedule.CreateA().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -441,8 +441,40 @@ namespace EditorTest
         [TestMethod]
         public void CUSAScheduleB()
         {
-            CUSASchedule.CreateB().Verify(12, RecruitingFixup.CUSAId, "CUSA  ", false);
+            CUSASchedule.CreateB().Verify(14, RecruitingFixup.CUSAId, "CUSA  ", false);
             var hash = CUSASchedule.CreateB().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void CUSAScheduleC()
+        {
+            CUSASchedule.CreateC().Verify(14, RecruitingFixup.CUSAId, "CUSA  ", false);
+            var hash = CUSASchedule.CreateC().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void CUSAScheduleD()
+        {
+            CUSASchedule.CreateD().Verify(14, RecruitingFixup.CUSAId, "CUSA  ", false);
+            var hash = CUSASchedule.CreateD().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void CUSAScheduleE()
+        {
+            CUSASchedule.CreateE().Verify(14, RecruitingFixup.CUSAId, "CUSA  ", false);
+            var hash = CUSASchedule.CreateE().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void CUSAScheduleF()
+        {
+            CUSASchedule.CreateF().Verify(14, RecruitingFixup.CUSAId, "CUSA  ", false);
+            var hash = CUSASchedule.CreateF().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
