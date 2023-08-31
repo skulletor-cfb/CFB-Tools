@@ -99,18 +99,25 @@ namespace EA_DB_Editor
             };
         }
 
-        private static Dictionary<int, (int start, int end)> NoDivisionConference = new Dictionary<int, (int start, int end)>()
+        private static Dictionary<int, (int start, int end)[]> NoDivisionConference = new Dictionary<int, (int start, int end)[]>()
         {
-            {1, (2472, int.MaxValue)}, // big 10
-            {2, (2470, 2475)}, // big 12
-            {13, (2462, 2467) }, // Sun Belt
+            {1, new[]{(2472, int.MaxValue) } }, // big 10
+            {2, new[]{(2470, 2475) } }, // big 12
+            {13, new[]{ (2462, 2467) } }, // Sun Belt
+            {0, new []{(2477, int.MaxValue )} }, // acc
         };
 
         public static bool ConferenceHasNoDivisions(int confId)
         {
-            if(NoDivisionConference.TryGetValue(confId, out var year))
+            if (NoDivisionConference.TryGetValue(confId, out var years))
             {
-                return Form1.CalendarYear >= year.start && Form1.CalendarYear <= year.end;
+                foreach (var year in years)
+                {
+                    if (Form1.CalendarYear >= year.start && Form1.CalendarYear <= year.end)
+                    {
+                        return true;
+                    }
+                }
             }
 
             return false;

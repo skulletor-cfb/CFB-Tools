@@ -234,6 +234,31 @@ namespace EditorTest
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
+        [TestMethod]
+        public void Big10ScheduleX()
+        {
+            Big10Schedule.CreateX().Verify(12, RecruitingFixup.Big10Id, "Big10 ", false);
+            var hash = Big10Schedule.CreateX().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+
+        [TestMethod]
+        public void Big10ScheduleY()
+        {
+            Big10Schedule.CreateY().Verify(12, RecruitingFixup.Big10Id, "Big10 ", false);
+            var hash = Big10Schedule.CreateY().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void Big10ScheduleZ()
+        {
+            Big10Schedule.CreateZ().Verify(12, RecruitingFixup.Big10Id, "Big10 ", false);
+            var hash = Big10Schedule.CreateZ().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
 #if false
         [TestMethod]
         public void Big10ScheduleE()

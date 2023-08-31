@@ -24,7 +24,14 @@ namespace EA_DB_Editor
         private static bool initRun = false;
         // public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateG, CreateG, CreateA, CreateA, CreateH, CreateH, CreateD, CreateD, CreateJ, CreateJ, CreateB, CreateB, CreateI, CreateI, CreateE, CreateE, CreateF, CreateF, CreateC, CreateC, };
         //public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE };
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB, CreateC, CreateC };
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
+            CreateB, CreateB,
+            CreateY, CreateY,
+            CreateC, CreateC, // no ohio st - penn st
+            CreateZ, CreateZ,
+            CreateA, CreateA,
+            CreateX, CreateX, //no ohio st- ill
+        };
 
         public static Dictionary<int, HashSet<int>> Big10ConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
@@ -45,7 +52,7 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2474) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2476) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(12, RecruitingFixup.Big10Id, "Big10");
             Big10ConferenceSchedule = result.BuildHashSet();
@@ -53,6 +60,27 @@ namespace EA_DB_Editor
         }
 
 #if true // no divisions
+        public static Dictionary<int, int[]> CreateX()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateY()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateZ()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
