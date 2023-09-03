@@ -20,18 +20,24 @@ namespace EditorTest
         public void AccScheduleA()
         {
             ACCPodSchedule.CreateA().Verify(16, RecruitingFixup.ACCId, "ACC", false);
+            var hash = ACCPodSchedule.CreateA().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
         [TestMethod]
         public void AccScheduleB()
         {
             ACCPodSchedule.CreateB().Verify(16, RecruitingFixup.ACCId, "ACC", false);
+            var hash = ACCPodSchedule.CreateB().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
         [TestMethod]
         public void AccScheduleC()
         {
             ACCPodSchedule.CreateC().Verify(16, RecruitingFixup.ACCId, "ACC", false);
+            var hash = ACCPodSchedule.CreateC().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
         [TestMethod]

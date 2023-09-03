@@ -452,7 +452,11 @@ namespace EA_DB_Editor
                         IsUNCDuke,
                         IsPittWVU,
                         IsVTUVA,
-                        IsUNCNCSU
+                        IsUNCNCSU,
+                        IsWVUVT,
+                        IsBCSU,
+                        IsClemsonGT,
+                        IsWFDuke,
                     };
                 }
 
@@ -473,7 +477,28 @@ namespace EA_DB_Editor
 
         public int? IsMiamiBC(PreseasonScheduledGame game)
         {
-            return MatchTeams(13, game, 49, 13);
+            var value = MatchTeams(13, game, 49, 13);
+
+            if (value.HasValue)
+            {
+                // end of season for miami if at home
+                return game.HomeTeam == 49 ? 13 : 7;
+            }
+
+            return value;
+        }
+
+        public int? IsBCSU(PreseasonScheduledGame game)
+        {
+            var value = MatchTeams(13, game, 13, 88);
+
+            if (value.HasValue)
+            {
+                // end of season for miami if at home
+                return game.HomeTeam == 88 ? 13 : 8;
+            }
+
+            return value;
         }
 
         public int? IsMiamiVT(PreseasonScheduledGame game)
@@ -489,6 +514,11 @@ namespace EA_DB_Editor
         public int? IsSyracusePitt(PreseasonScheduledGame game)
         {
             return MatchTeams(12, game, 88, 77);
+        }
+
+        public int? IsClemsonGT(PreseasonScheduledGame game)
+        {
+            return MatchTeams(6, game, 21, 31);
         }
 
         public int? IsClemsonFSU(PreseasonScheduledGame game)
@@ -526,6 +556,11 @@ namespace EA_DB_Editor
             return MatchTeams(8, game, 62, 24);
         }
 
+        public int? IsWFDuke(PreseasonScheduledGame game)
+        {
+            return MatchTeams(13, game, 24, 109);
+        }
+
         public int? IsPittWVU(PreseasonScheduledGame game)
         {
             var value = MatchTeams(13, game, 77, 112);
@@ -535,6 +570,11 @@ namespace EA_DB_Editor
         public int? IsVTUVA(PreseasonScheduledGame game)
         {
             return MatchTeams(13, game, 107, 108);
+        }
+
+        public int? IsWVUVT(PreseasonScheduledGame game)
+        {
+            return MatchTeams(7, game, 108, 112);
         }
 
         public int? IsUNCNCSU(PreseasonScheduledGame game)
@@ -718,6 +758,40 @@ namespace EA_DB_Editor
             }
         }
 
+        private static List<PreseasonScheduledGame> FindExtraAccGames(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        {
+            var result = new List<PreseasonScheduledGame>();
+            var normalized = new HashSet<int>();
+
+            // take away one conference game per team
+            var found = schedules.Values.SelectMany(games => games.Where(g => g != null && g.IsAccConfGame()))
+                .OrderBy(g => g.WeekIndex)
+                .Distinct().ToArray();
+            var queue = new Queue<PreseasonScheduledGame>(found);
+
+
+            while (result.Count < 8)
+            {
+                var game = queue.Dequeue();
+
+                // we haven't seen these teams before, easy add them
+                if (!normalized.Contains(game.HomeTeam) && !normalized.Contains(game.AwayTeam))
+                {
+                    result.Add(game);
+                    normalized.Add(game.HomeTeam);
+                    normalized.Add(game.AwayTeam);
+                    queue.RemoveFromQueue(game.HomeTeam);
+                    queue.RemoveFromQueue(game.AwayTeam);
+                }
+                else
+                {
+                    queue.Enqueue(game);
+                }
+            }
+
+            return result;
+        }
+
         private static List<PreseasonScheduledGame> FindExtraSunBeltGames(Dictionary<int, PreseasonScheduledGame[]> schedules)
         {
             return new List<PreseasonScheduledGame>();
@@ -849,7 +923,7 @@ namespace EA_DB_Editor
             var stack = new Stack<PreseasonScheduledGame>(fcsGames);
 
             // should not remove more than 8 games, but only 1 per team
-            var extraConfGames = FindExtraSunBeltGames(schedules);
+            var extraConfGames = FindExtraSunBeltGames(schedules).Concat(FindExtraAccGames(schedules));
 
             // p5-p5 games late in the season
             var replaceableGamesP5 = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsRivalryGame() && !g.IsConferenceGame() && !g.IsFCSGame() && g.IsP5Game() && g.WeekIndex > 4)).Distinct().OrderByDescending(g => g.WeekIndex).ToArray();
@@ -1037,10 +1111,33 @@ namespace EA_DB_Editor
                 G5FCSSwap(schedules, true);
             }
         }
+        
+        static Random _random = new Random();
+
+        /// <summary>
+        /// Shuffle the array.
+        /// </summary>
+        /// <typeparam name="T">Array element type.</typeparam>
+        /// <param name="array">Array to shuffle.</param>
+        static void Shuffle(int[] array)
+        {
+            int n = array.Length;
+            for (int i = 0; i < (n - 1); i++)
+            {
+                // Use Next on random instance with an argument.
+                // ... The argument is an exclusive bound.
+                //     So we will not go past the end of the array.
+                int r = i + _random.Next(n - i);
+                var t = array[r];
+                array[r] = array[i];
+                array[i] = t;
+            }
+        }
 
         public static void Fix(Dictionary<int, PreseasonScheduledGame[]> schedules, ConferenceLocks confLocks, int confId, Action<Dictionary<int, PreseasonScheduledGame[]>> special = null)
         {
             var teams = RecruitingFixup.TeamAndConferences.Where(kvp => kvp.Value == confId).Select(kvp => kvp.Key).ToArray();
+            Shuffle(teams);
             var allConfGames = new Dictionary<long, PreseasonScheduledGame>();
 
             // remove all games and put them into a dictionary
@@ -1595,6 +1692,11 @@ namespace EA_DB_Editor
             return ScheduleFixup.IsServiceAcademyGame(HomeTeam, AwayTeam);
         }
 
+        public bool IsAccConfGame()
+        {
+            return this.HomeTeam.IsAccTeam()  && this.AwayTeam.IsAccTeam();
+        }
+
         public bool IsAccOrSecGame()
         {
             return this.HomeTeam.IsSECTeam() || this.HomeTeam.IsAccTeam() || this.AwayTeam.IsSECTeam() || this.AwayTeam.IsAccTeam();
@@ -1688,6 +1790,9 @@ namespace EA_DB_Editor
 
         public bool IsExtraAccGame()
         {
+
+            // !!!!!!!!ACC POD!!!!!! if we ever go back to pods, let this function run
+            return false; 
             if (ACCPodSchedule.ACCConferenceSchedule != null &&
                 ACCPodSchedule.ACCConferenceSchedule.ContainsKey(this.HomeTeam) &&
                 ACCPodSchedule.ACCConferenceSchedule.ContainsKey(this.AwayTeam) &&

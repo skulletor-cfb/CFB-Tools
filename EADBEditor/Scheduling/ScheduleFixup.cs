@@ -338,11 +338,17 @@ namespace EA_DB_Editor
             if (!RanReorder)
             {
                 // try to put non conference games earlier in the season
+                (teamSchedule, scheduleTable) = FillSchedule(false);
                 ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule);
-
                 ConfScheduleFixer.FcsGamesEarly(teamSchedule);
 
-                Big12Schedule.ProcessBig12Schedule(teamSchedule);
+                (teamSchedule, scheduleTable) = FillSchedule(false);
+                ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule);
+                ConfScheduleFixer.FcsGamesEarly(teamSchedule);
+
+                (teamSchedule, scheduleTable) = FillSchedule(false);
+                ACCPodSchedule.ProcessACCSchedule(teamSchedule);
+                Big12Schedule.ProcessACCSchedule(teamSchedule);
                 Pac12Schedule.ProcessPac12Schedule(teamSchedule);
                 Big10Schedule.ProcessBig10Schedule(teamSchedule);
                 AmericanSchedule.ProcessAmericanSchedule(teamSchedule);
@@ -351,6 +357,7 @@ namespace EA_DB_Editor
                 CUSASchedule.ProcessCUSASchedule(teamSchedule);
                 SunBeltSchedule.ProcessSunbeltSchedule(teamSchedule);
                 ConfScheduleFixer.G5FCSSwap(teamSchedule);
+                (teamSchedule, scheduleTable) = FillSchedule(false);
 
 
                 // move aerlier in the year to ensure more chance of replacement
@@ -367,6 +374,7 @@ namespace EA_DB_Editor
 
                 ConfScheduleFixer.G5FCSSwap(teamSchedule);
 
+                (teamSchedule, scheduleTable) = FillSchedule(false);
                 ConfScheduleFixer.SecFix(teamSchedule);
                 ConfScheduleFixer.AccFix(teamSchedule);
                 ConfScheduleFixer.Big10Fix(teamSchedule);

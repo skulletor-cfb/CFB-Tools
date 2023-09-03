@@ -44,8 +44,26 @@ namespace EA_DB_Editor
             }
         }
 
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {
+            CreateA, CreateB,
+            CreateC, CreateA,
+            CreateB, CreateC,
+        };
+
+        public static void ProcessACCSchedule(Dictionary<int, PreseasonScheduledGame[]> schedule)
+        {
+            schedule.ProcessSchedule(
+                ScenarioForSeason,
+                ACCConferenceSchedule,
+                RecruitingFixup.ACCId,
+                RecruitingFixup.ACC,
+                68);
+        }
+
+
         private static Dictionary<int, int[]> CreateScenarioForSeason()
         {
+#if false
             Dictionary<int, int[]> result = null;
             if (RecruitingFixup.TeamAndDivision[49] == RecruitingFixup.TeamAndDivision[24])
                 result = CreateA();
@@ -55,6 +73,9 @@ namespace EA_DB_Editor
                 result = CreateC();
             else
                 throw new Exception("THIS SHOULDNT HAPPEN");
+#endif
+            var idx = (Form1.DynastyYear - 2477) % Creators.Length;
+            var result = Creators[idx]();
 
             var dict = result.Verify(16, RecruitingFixup.ACCId, "ACC");
 
@@ -62,6 +83,7 @@ namespace EA_DB_Editor
             return dict;
         }
 
+#if false // the old acc pods
         public static Dictionary<int, int[]> CreateA()
         {
             var dict= new Dictionary<int, int[]>();
@@ -133,6 +155,45 @@ namespace EA_DB_Editor
 
             return dict;
         }
+#else
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Miami.Create(NCSU, FSU, SU, UMD),
+                BC.Create(Miami, WVU, VT, WF),
+                WVU.Create(Miami, VT, UL, Pitt),
+                VT.Create(Miami, SU, UVA, UNC),
+                NCSU.Create(VT, Duke, WF, WVU),
+                Clemson.Create(BC, VT, NCSU, Pitt),
+                Duke.Create(Miami, Pitt, UMD, UNC),
+                WF.Create(Clemson, Duke, UL, UNC),
+                FSU.Create(Clemson, WF, Pitt, GT),
+                SU.Create(BC, WVU, Clemson, GT),
+                Pitt.Create(BC, SU, UMD, UL),
+                UVA.Create(BC, Duke, FSU, UMD),
+                UMD.Create(WVU, FSU, GT, UNC),
+                GT.Create(Clemson, WF, UVA, UL),
+                UL.Create(NCSU, Duke, FSU, UVA),
+                UNC.Create(NCSU, SU, UVA, GT),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+#endif
 
         public static void Add(this Dictionary<int,int[]> dict,int key,params int[] values)
         {
