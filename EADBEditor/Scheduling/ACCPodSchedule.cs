@@ -45,9 +45,9 @@ namespace EA_DB_Editor
         }
 
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {
+            CreateB, CreateC,
             CreateA, CreateB,
             CreateC, CreateA,
-            CreateB, CreateC,
         };
 
         public static void ProcessACCSchedule(Dictionary<int, PreseasonScheduledGame[]> schedule)
@@ -74,7 +74,7 @@ namespace EA_DB_Editor
             else
                 throw new Exception("THIS SHOULDNT HAPPEN");
 #endif
-            var idx = (Form1.DynastyYear - 2477) % Creators.Length;
+            var idx = Form1.DynastyYear == 2478 ? 5 : (Form1.DynastyYear - 2479) % Creators.Length;
             var result = Creators[idx]();
 
             var dict = result.Verify(16, RecruitingFixup.ACCId, "ACC");
@@ -181,6 +181,7 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateB()
         {
+            // redo home/away for ACC rivalries
             return new List<KeyValuePair<int, int[]>>
             {
             }.Create();

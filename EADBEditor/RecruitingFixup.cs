@@ -257,7 +257,7 @@ namespace EA_DB_Editor
             dict.Add(8, new int[] { SECId,ACCId , SECId, ACCId, UCFId }); //FL
             dict.Add(9, new int[] { SECId, ACCId }); //GA
             dict.Add(10, new int[] { Pac16Id, NotreDameId  }); //HI
-            dict.Add(11, new int[] { Pac16Id, BYUId, Big12Id }); //ID
+            dict.Add(11, new int[] { Pac16Id, BYUId }); //ID
             dict.Add(12, new int[] { Big10Id,NotreDameId }); //IL
             dict.Add(13, new int[] { Big10Id, NotreDameId }); //IN
             dict.Add(14, new int[] { Big10Id, NotreDameId,Big12Id }); //IA

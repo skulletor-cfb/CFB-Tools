@@ -25,11 +25,6 @@ namespace EA_DB_Editor
         private static bool initRun = false;
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
             CreateA, CreateA, 
-            CreateB, CreateB,
-            CreateC, CreateC,
-            CreateD, CreateD,
-            CreateE, CreateE,
-            CreateF, CreateF,
         };
         public static Dictionary<int, HashSet<int>> CUSAConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
@@ -51,7 +46,7 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2476) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2478) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(14, RecruitingFixup.CUSAId, "CUSA");
             CUSAConferenceSchedule = result.BuildHashSet();
@@ -72,6 +67,9 @@ namespace EA_DB_Editor
         const int Coastal = 61;
         const int Army = 8;
         const int Navy=  57;
+        const int LT = 43;
+        const int UTEP = 105;
+        const int NT = 64;
 
 #if false
         // 9 team CUSA all over
@@ -155,7 +153,23 @@ namespace EA_DB_Editor
                 MTSU.Create(Army ,FIU),
             }.Create();
         }
-#elif true // we have a 14 team CUSA , WKU/Marshall, Army/Navy cross
+#elif true // 9 team CUSA of randoms
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Army.Create(WKU, NT , FIU, LT),
+                Navy.Create(Army, MTSU, FAU, UTEP),
+                WKU.Create(Navy, MTSU, FAU, UTEP),
+                MTSU.Create(Army, NT, FIU, LT),
+                NT.Create(Navy, WKU, FIU , UTEP),
+                FAU.Create(Army, MTSU, NT, LT),
+                FIU.Create(Navy, WKU, FAU , UTEP),
+                LT.Create(Navy, WKU, NT, FIU),
+                UTEP.Create(Army, MTSU, FAU, LT),
+            }.Create();
+        }
+#elif false // we have a 14 team CUSA , WKU/Marshall, Army/Navy cross
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>

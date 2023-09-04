@@ -25,12 +25,10 @@ namespace EA_DB_Editor
 
         private static bool initRun = false;
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] 
-        { 
-            CreateA, CreateA,
-            CreateB, CreateB,
-            CreateC, CreateC,
-            CreateD, CreateD,
-            CreateE, CreateE,
+        {
+            CreateA, CreateB,
+            CreateC, CreateA,
+            CreateB, CreateC,
         };
 
         public static Dictionary<int, HashSet<int>> Big12ConferenceSchedule = null;
@@ -54,7 +52,7 @@ namespace EA_DB_Editor
             switch (currYear)
             {
                 default:
-                    var idx = (Form1.DynastyYear - 2476) % Creators.Length;
+                    var idx = (Form1.DynastyYear - 2478) % Creators.Length;
                     result = Creators[idx]();
                     break;
             }
@@ -416,7 +414,40 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif true // big 12 with 12 teams
+#elif true // big 12 with no divisoins and cincy in it instead of bsu
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                TT.Create(OkSt , Baylor, Colorado, KSU),
+                Texas.Create(TT, Nebraska, ISU, KU),
+                OU.Create(Texas, OkSt, Baylor, Colorado),
+                OkSt.Create(Texas, TCU, Nebraska, KSU),
+                TCU.Create(Texas, OU, Cincy, ISU),
+                Baylor.Create(OkSt, TCU, Cincy, KU),
+                Nebraska.Create(TT, Baylor, Cincy, KSU),
+                Colorado.Create(TCU, Nebraska, ISU, KU),
+                Cincy.Create(TT, OU, OkSt, Colorado),
+                ISU.Create(TT, OU, Nebraska, KSU),
+                KU.Create(OU, TCU, Cincy, ISU),
+                KSU.Create(Texas, Baylor, Colorado, KU),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+#elif false // big 12 with 12 teams
         public static Dictionary<int, int[]> CreateA()
         {
             return new Dictionary<int, int[]>()
