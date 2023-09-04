@@ -21,9 +21,7 @@ namespace EA_DB_Editor
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
             CreateA, CreateA, 
             CreateB, CreateB, 
-            CreateC, CreateC, 
-            CreateD, CreateD, 
-            CreateE, CreateE };
+        };
 
 
         public static Dictionary<int, HashSet<int>> AmericanConferenceSchedule = null;
@@ -52,7 +50,7 @@ namespace EA_DB_Editor
             switch (currYear)
             {
                 default:
-                    var idx = (Form1.DynastyYear - 2476) % Creators.Length;
+                    var idx = (Form1.DynastyYear - 2478) % Creators.Length;
                     result = Creators[idx]();
                     break;
             }
@@ -62,6 +60,7 @@ namespace EA_DB_Editor
             return result;
         }
 
+        const int USM = 85;
         const int NT = 64;
         const int UAB = 98;
         const int Memphis = 48;
@@ -505,7 +504,35 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#else
+#elif true //14 team with no cincy, utsa/uab/usm no div!
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                UTSA.Create(CLT, UCFId, USM, UAB),
+                SMU.Create(UTSA, Houston, USF, Tulane),
+                Houston.Create(UTSA, Tulsa, CLT, Memphis),
+                Rice.Create(SMU, Houston, ECU, Temple),
+                Tulsa.Create(Rice, Temple, USM, UAB),
+                CLT.Create(SMU, Tulsa, UCFId, Memphis),
+                ECU.Create(UTSA, CLT, UAB, Tulane),
+                UCFId.Create(Houston, Tulsa, ECU, Temple),
+                USF.Create(Rice, CLT, UCFId, Tulane),
+                Temple.Create(SMU, ECU, USF, Memphis),
+                Memphis.Create(SMU, Tulsa, USF, USM),
+                USM.Create(Rice, ECU, UCFId, UAB),
+                UAB.Create(Rice, USF, Memphis, Tulane),
+                Tulane.Create(UTSA, Houston, Temple, USM),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+#elif false // 12 team with cincy/ucf
         public static Dictionary<int, int[]> CreateA()
         {
             return new Dictionary<int, int[]>()
