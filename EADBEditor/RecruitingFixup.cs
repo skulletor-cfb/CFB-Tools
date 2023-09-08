@@ -946,7 +946,6 @@ namespace EA_DB_Editor
             if(CincyId.IsP5())
             {
                 WeightedCincy = CreateWeightedList(new[] { CincyId });
-                MessageBox.Show("Cincy is p5!");
             }
             else
             {

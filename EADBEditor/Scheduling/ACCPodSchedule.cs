@@ -63,8 +63,8 @@ namespace EA_DB_Editor
 
         private static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-#if false
             Dictionary<int, int[]> result = null;
+#if true
             if (RecruitingFixup.TeamAndDivision[49] == RecruitingFixup.TeamAndDivision[24])
                 result = CreateA();
             else if (RecruitingFixup.TeamAndDivision[49] == RecruitingFixup.TeamAndDivision[31])
@@ -73,17 +73,17 @@ namespace EA_DB_Editor
                 result = CreateC();
             else
                 throw new Exception("THIS SHOULDNT HAPPEN");
-#endif
+#else
             var idx = Form1.DynastyYear == 2478 ? 5 : (Form1.DynastyYear - 2479) % Creators.Length;
-            var result = Creators[idx]();
-
+            result = Creators[idx]();
+#endif
             var dict = result.Verify(16, RecruitingFixup.ACCId, "ACC");
 
             ACCConferenceSchedule = dict.BuildHashSet();
             return dict;
         }
 
-#if false // the old acc pods
+#if true // the old acc pods
         public static Dictionary<int, int[]> CreateA()
         {
             var dict= new Dictionary<int, int[]>();

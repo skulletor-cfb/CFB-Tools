@@ -131,13 +131,14 @@ namespace EA_DB_Editor
                         IsOSUOU,
                         IsNUOU,
                         IsNUCU,
-                        IsBSUCU,
-                        IsBSUTCU,
+                        // IsBSUCU,
+                        // IsBSUTCU,
                         IsBaylorTCU,
                         IsISUKSU,
                         IsKUKSU,
                         IsTexasTT,
                         IsTexasOU,
+                        g => MatchTeams(13, g, 20, 38), // ISU-Cincy end the season when they play
                         g => MatchTeams(7,g,11,94), //BU-TT in week 7
                     };
                 }
@@ -229,16 +230,19 @@ namespace EA_DB_Editor
                         g=>MatchTeams(13, g, 79, 97), // rice-tulsa
                         g=>MatchTeams(13, g, 25, 100), // charlotte-ecu
                         g=>MatchTeams(13, g, 18, 144), // ucf-usf
-                        g=>MatchTeams(13, g, 48, 96), // memphis-tulane
-                        g=>MatchTeams(13, g, 20, 90), // cincy-temple
+                        g=>MatchTeams(13, g, 48, 98), // memphis-uab
+                        g=>MatchTeams(13, g, 85, 96), // usm-tulane
+                        g=>MatchTeams(12, g, 85, 98), // usm-uab
 
+                        g=>MatchTeams(12, g, 90, 232), // utsa-temple
+                        g=>MatchTeams(6, g, 48, 85), // usm-memphis
                         g=>MatchTeams(7, g, 18, 97), // ucf-tulsa
                         g=>MatchTeams(6, g, 18, 25), // ucf-ecu
+                        g=>MatchTeams(7, g, 25, 85), // usm-ecu
                         g=>MatchTeams(6, g, 79, 83), // rice-smu
                         g=>MatchTeams(6, g, 33, 97), // hou-tulsa
                         g=>MatchTeams(6, g, 79, 96), // tulane-rice
                         g=>MatchTeams(8, g, 33, 79), // hou-rice
-                        g=>MatchTeams(7, g, 64, 83), // nt-smu
                     };
                 }
 
@@ -305,16 +309,27 @@ namespace EA_DB_Editor
         {
             return new Func<PreseasonScheduledGame, int?>[]
             {
+                game => MatchTeams( 13, game, 34,181), //gaso-app st
+                game => MatchTeams(13, game, 143, 235), //usa-troy
+                game=> MatchTeams(13, game, 46, 234), // odu - marshall
+                game=> MatchTeams(13,game,61,233), //ccu-gsu
+                game=> MatchTeams(13,game,65,86), //ull-ulm
+                game=> MatchTeams(12,game,7,218), //tsu-ark st
+                game => MatchTeams(7, game, 61, 181), // coastal- gaso
+                game=> MatchTeams(8, game, 181, 233), // gsu-gaso
+                game=> MatchTeams(8,game,34,61), //ccu-app st
+                game => MatchTeams(7, game , 34, 46), // marsh-app st
+                game => MatchTeams(6, game, 34, 234), // app st - odu
+                game=> MatchTeams(7,game,7,65), //ulm-ark st
 
+                /*
+                game=> MatchTeams(13,game,85,98), //usm-uab
+                game=> MatchTeams(13,game,7,64), //nt-ark st
+                game=> MatchTeams(13,game,218,232), //tsu-utsa
                 game=> MatchTeams(6,game,43,86), //lt-ull
                 game=> MatchTeams(7,game,43,85), //lt-usm
-                game=> MatchTeams(7,game,7,65), //ulm-ark st
                 game=> MatchTeams(12,game,43,65), //lt-ulm
-                game=> MatchTeams(12,game,7,218), //tsu-ark st
-                game=> MatchTeams(13,game,65,86), //ull-ulm
-                game=> MatchTeams(13,game,218,232), //tsu-utsa
-                game=> MatchTeams(13,game,7,64), //nt-ark st
-                game=> MatchTeams(13,game,85,98), //usm-uab
+                 */
             };
         }
     }
@@ -392,23 +407,16 @@ namespace EA_DB_Editor
             return new Func<PreseasonScheduledGame, int?>[]
             {
                 game => MatchTeams(13, game, 53, 211), //wku-mtsu
-                game => MatchTeams( 13, game, 34,181), //gaso-app st
-                game => MatchTeams(13, game, 143, 235), //usa-troy
-                game=> MatchTeams(13, game, 46, 234), // odu - marshall
-                game=> MatchTeams(13,game,61,233), //ccu-gsu
                 game=> MatchTeams(13,game,229,230), //fau-fiu
                 game=> MatchTeams(13,game,8,57), //army-navy
+                game=> MatchTeams(13,game,43,105), //lt-utep
+                game => MatchTeams(7, game, 53, 64), //nt-mtsu
 
+#if false
                 game => MatchTeams(6, game, 53, 143), //mtsu-troy
                 game => MatchTeams(7, game, 143, 229), //fau-troy
-                game => MatchTeams(7, game, 61, 181), // coastal- gaso
-                game=> MatchTeams(8, game, 181, 233), // gsu-gaso
-                game=> MatchTeams(8,game,34,61), //ccu-app st
                 game => MatchTeams(8, game , 46, 211), // marsh-wku
-                game => MatchTeams(7, game , 34, 46), // marsh-app st
-                game => MatchTeams(6, game, 34, 234), // app st - odu
                 game => MatchTeams(6, game, 143 ,233), //fau-gsu
-#if false
                 game => MatchTeams(7, game, 143 ,233), //fau-gsu
                 game => MatchTeams(6, game, 143 ,229), //fau-troy
                 game => MatchTeams(8, game, 46, 211), //wku-marsh
@@ -453,8 +461,6 @@ namespace EA_DB_Editor
                         IsPittWVU,
                         IsVTUVA,
                         IsUNCNCSU,
-                        IsWVUVT,
-                        IsBCSU,
                         IsClemsonGT,
                         IsWFDuke,
                     };
@@ -463,6 +469,7 @@ namespace EA_DB_Editor
                 return lockChecks;
             }
         }
+
 
         public int? IsFSUatMiami(PreseasonScheduledGame game)
         {
@@ -477,29 +484,9 @@ namespace EA_DB_Editor
 
         public int? IsMiamiBC(PreseasonScheduledGame game)
         {
-            var value = MatchTeams(13, game, 49, 13);
-
-            if (value.HasValue)
-            {
-                // end of season for miami if at home
-                return game.HomeTeam == 49 ? 13 : 7;
-            }
-
-            return value;
+            return MatchTeams(13, game, 49, 13);
         }
 
-        public int? IsBCSU(PreseasonScheduledGame game)
-        {
-            var value = MatchTeams(13, game, 13, 88);
-
-            if (value.HasValue)
-            {
-                // end of season for miami if at home
-                return game.HomeTeam == 88 ? 13 : 8;
-            }
-
-            return value;
-        }
 
         public int? IsMiamiVT(PreseasonScheduledGame game)
         {
@@ -533,7 +520,8 @@ namespace EA_DB_Editor
 
         public int? IsUMDWVU(PreseasonScheduledGame game)
         {
-            return MatchTeams(3, game, 47, 112);
+            // set to week 3 if this is ever neutral again
+            return MatchTeams(game.Week, game, 47, 112);
         }
 
         public int? IsFSUUMD(PreseasonScheduledGame game)
@@ -570,11 +558,6 @@ namespace EA_DB_Editor
         public int? IsVTUVA(PreseasonScheduledGame game)
         {
             return MatchTeams(13, game, 107, 108);
-        }
-
-        public int? IsWVUVT(PreseasonScheduledGame game)
-        {
-            return MatchTeams(7, game, 108, 112);
         }
 
         public int? IsUNCNCSU(PreseasonScheduledGame game)
@@ -1412,7 +1395,7 @@ namespace EA_DB_Editor
                     RejectedOnce.Add(game);
 
                     var conf = RecruitingFixup.TeamAndConferences[awayTeam];
-                    var findLate = conf == RecruitingFixup.Pac16Id || conf == RecruitingFixup.Big10Id || conf == RecruitingFixup.MACId || conf == RecruitingFixup.SBCId || conf == RecruitingFixup.CUSAId || conf == RecruitingFixup.AmericanId;
+                    var findLate = conf == RecruitingFixup.Pac16Id || conf == RecruitingFixup.Big10Id || conf == RecruitingFixup.MACId || conf == RecruitingFixup.SBCId || conf == RecruitingFixup.CUSAId || conf == RecruitingFixup.AmericanId || conf == RecruitingFixup.MWCId;
 
                     var finalTry = FindCommonOpenWeek(homeSchedule.FindOpenWeeks(week), awaySchedule.FindOpenWeeks(week), findLate, out var nextOpen) ? nextOpen : week;
                     return AssignGame(game, schedules, finalTry);

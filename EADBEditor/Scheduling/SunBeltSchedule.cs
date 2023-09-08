@@ -10,19 +10,16 @@ namespace EA_DB_Editor
 
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {
             CreateA, CreateA,
+            CreateB, CreateB,
             };
 
 
         public static Dictionary<int, HashSet<int>> SunbeltConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
-      //  public static HashSet<int> East = new HashSet<int>() { Coastal, ODU, UMarsh, AppSt, GSU, GASO, Troy };
-    //    public static HashSet<int> West = new HashSet<int>() { TexSt, ArkSt, USM, LT, ULM, ULL, USA };
 
         public static bool CrossDivision(int a, int b)
         {
             return false; 
-//            var sameDivision = (East.Contains(a) && East.Contains(b)) || (West.Contains(a) && West.Contains(b));
-  //          return !sameDivision;
         }
 
         public static void Init()
@@ -42,9 +39,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2476) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2478) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(9, RecruitingFixup.SBCId, "SunBelt");
+            result = result.Verify(12, RecruitingFixup.SBCId, "SunBelt");
             SunbeltConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -204,7 +201,7 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif false // sun belt is real life-ish
+#elif true // sun belt is real life-ish
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
@@ -699,7 +696,7 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif true
+#elif false
         public static Dictionary<int, int[]> CreateA()
         {
             return new Dictionary<int, int[]>()

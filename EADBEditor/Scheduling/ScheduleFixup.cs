@@ -129,6 +129,18 @@ namespace EA_DB_Editor
         public static (Dictionary<int, PreseasonScheduledGame[]> teamSchedule, MaddenRecord[] scheduleTable) FillSchedule(bool reorderNeedsToBeRun)
         {
             var scheduleTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "SCHD").lRecords.Where(r => r["SEYR"].ToInt32() == 0).ToArray();
+
+            var groups = scheduleTable.GroupBy(mr => mr["SEWN"].ToInt32()).ToDictionary(g => g.Key, g => g.ToArray().OrderBy(r => r["GTOD"].ToInt32()).ToArray());
+            foreach (var week in groups)
+            {
+                int gameNum = 0;
+                foreach (var g in week.Value)
+                {
+                    g["SGNM"] = gameNum.ToString();
+                    gameNum++;
+                }
+            }
+
             Dictionary<int, PreseasonScheduledGame[]> teamSchedule = new Dictionary<int, PreseasonScheduledGame[]>();
 
             foreach (var mr in scheduleTable.OrderBy(mr => mr["SEWN"].ToInt32()))
@@ -356,6 +368,7 @@ namespace EA_DB_Editor
                 MACSchedule.ProcessMACSchedule(teamSchedule);
                 CUSASchedule.ProcessCUSASchedule(teamSchedule);
                 SunBeltSchedule.ProcessSunbeltSchedule(teamSchedule);
+                (teamSchedule, scheduleTable) = FillSchedule(false);
                 ConfScheduleFixer.G5FCSSwap(teamSchedule);
                 (teamSchedule, scheduleTable) = FillSchedule(false);
 
@@ -582,6 +595,7 @@ namespace EA_DB_Editor
             }
             catch { }
 
+            /*
             var groups = scheduleTable.GroupBy(mr => mr["SEWN"].ToInt32()).ToDictionary(g => g.Key, g => g.ToArray().OrderBy(r => r["GTOD"].ToInt32()).ToArray());
             foreach (var week in groups)
             {
@@ -592,6 +606,7 @@ namespace EA_DB_Editor
                     gameNum++;
                 }
             }
+            */
                                    
             return teamSchedule;
         }
@@ -1393,7 +1408,8 @@ namespace EA_DB_Editor
                     teamScheduleRecord["THOA"] = "1";
                 }
                 // wvu-umd play at 275
-                else if (MatchTeams(homeTeam, awayTeam, new[] { 112, 47 }))
+                // wvu-umd are now home-home
+                else if (false && MatchTeams(homeTeam, awayTeam, new[] { 112, 47 }))
                 {
                     gameRecord["SGID"] = "275";
                     query["TGID"] = awayTeam.ToString();
