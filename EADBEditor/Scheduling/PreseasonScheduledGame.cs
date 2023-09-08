@@ -743,6 +743,7 @@ namespace EA_DB_Editor
 
         private static List<PreseasonScheduledGame> FindExtraAccGames(Dictionary<int, PreseasonScheduledGame[]> schedules)
         {
+#if false
             var result = new List<PreseasonScheduledGame>();
             var normalized = new HashSet<int>();
 
@@ -773,6 +774,9 @@ namespace EA_DB_Editor
             }
 
             return result;
+#else
+            return new List<PreseasonScheduledGame>();
+#endif
         }
 
         private static List<PreseasonScheduledGame> FindExtraSunBeltGames(Dictionary<int, PreseasonScheduledGame[]> schedules)
@@ -1774,8 +1778,6 @@ namespace EA_DB_Editor
         public bool IsExtraAccGame()
         {
 
-            // !!!!!!!!ACC POD!!!!!! if we ever go back to pods, let this function run
-            return false; 
             if (ACCPodSchedule.ACCConferenceSchedule != null &&
                 ACCPodSchedule.ACCConferenceSchedule.ContainsKey(this.HomeTeam) &&
                 ACCPodSchedule.ACCConferenceSchedule.ContainsKey(this.AwayTeam) &&
