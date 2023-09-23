@@ -410,7 +410,10 @@ namespace EA_DB_Editor
                 game=> MatchTeams(13,game,229,230), //fau-fiu
                 game=> MatchTeams(13,game,8,57), //army-navy
                 game=> MatchTeams(13,game,43,105), //lt-utep
+                game=> MatchTeams(13,game,85,98), //usm-uab
+                game=> MatchTeams(12,game,64,232), //nt-utsa
                 game => MatchTeams(7, game, 53, 64), //nt-mtsu
+                game => MatchTeams(6, game, 43, 85), //lt-usm
 
 #if false
                 game => MatchTeams(6, game, 53, 143), //mtsu-troy

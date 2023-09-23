@@ -25,6 +25,7 @@ namespace EA_DB_Editor
         private static bool initRun = false;
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
             CreateA, CreateA, 
+            CreateB, CreateB,
         };
         public static Dictionary<int, HashSet<int>> CUSAConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
@@ -46,9 +47,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2478) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2480) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(9, RecruitingFixup.CUSAId, "CUSA");
+            result = result.Verify(12, RecruitingFixup.CUSAId, "CUSA");
             CUSAConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -70,6 +71,9 @@ namespace EA_DB_Editor
         const int LT = 43;
         const int UTEP = 105;
         const int NT = 64;
+        const int UTSA = 232;
+        const int UAB = 98;
+        const int USM = 85;
 
 #if false
         // 9 team CUSA all over
@@ -153,7 +157,47 @@ namespace EA_DB_Editor
                 MTSU.Create(Army ,FIU),
             }.Create();
         }
-#elif true // 9 team CUSA of randoms
+#elif true // 12 team CUSA west/east
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Army.Create(WKU, FAU, USM, NT),
+                WKU.Create(Navy, MTSU, FIU, UAB),
+                FAU.Create(WKU, MTSU, USM, NT),
+                Navy.Create(Army, FAU, MTSU, UTSA),
+                MTSU.Create(Army, FIU, LT  , UTEP),
+                FIU.Create(Army, FAU, Navy, UTSA),
+
+                UTSA.Create(MTSU, LT, NT , UAB),
+                LT.Create(Navy, FIU, UTEP, USM),
+                UTEP.Create(Navy, FIU , UTSA, USM),
+                USM.Create(WKU, UTSA, NT, UAB),
+                NT.Create(WKU, LT, UTEP, UAB),
+                UAB.Create(Army, FAU, LT, UTEP),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Army.Create(WKU, FAU, UTSA, LT),
+                WKU.Create(Navy, MTSU, FIU, UTEP),
+                FAU.Create(WKU, MTSU, UTSA, LT),
+                Navy.Create(Army, FAU, MTSU, USM ),
+                MTSU.Create(Army, FIU, NT, UAB),
+                FIU.Create(Army, FAU, Navy, USM),
+
+                UTSA.Create(WKU, LT, NT, UAB),
+                LT.Create(WKU, UTEP, USM, UAB),
+                UTEP.Create(Army, FAU, UTSA, USM),
+                USM.Create(MTSU, UTSA, NT, UAB),
+                NT.Create(Navy, FIU , LT, UTEP),
+                UAB.Create(Navy, FIU, UTEP, NT),
+            }.Create();
+        }
+#elif false // 9 team CUSA of randoms
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
