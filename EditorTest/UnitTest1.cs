@@ -43,7 +43,7 @@ namespace EditorTest
         [TestMethod]
         public void AmericanScheduleA()
         {
-            AmericanSchedule.CreateA().Verify(14, RecruitingFixup.AmericanId, "American", false);
+            AmericanSchedule.CreateA().Verify(11, RecruitingFixup.AmericanId, "American", false);
             var hash = AmericanSchedule.CreateA().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -51,16 +51,15 @@ namespace EditorTest
         [TestMethod]
         public void AmericanScheduleB()
         {
-            AmericanSchedule.CreateB().Verify(14, RecruitingFixup.AmericanId, "American", false);
+            AmericanSchedule.CreateB().Verify(11, RecruitingFixup.AmericanId, "American", false);
             var hash = AmericanSchedule.CreateB().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
-        /*
         [TestMethod]
         public void AmericanScheduleC()
         {
-            AmericanSchedule.CreateC().Verify(12, RecruitingFixup.AmericanId, "American", false);
+            AmericanSchedule.CreateC().Verify(11, RecruitingFixup.AmericanId, "American", false);
             var hash = AmericanSchedule.CreateC().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -68,7 +67,7 @@ namespace EditorTest
         [TestMethod]
         public void AmericanScheduleD()
         {
-            AmericanSchedule.CreateD().Verify(12, RecruitingFixup.AmericanId, "American", false);
+            AmericanSchedule.CreateD().Verify(11, RecruitingFixup.AmericanId, "American", false);
             var hash = AmericanSchedule.CreateD().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -76,7 +75,7 @@ namespace EditorTest
         [TestMethod]
         public void AmericanScheduleE()
         {
-            AmericanSchedule.CreateE().Verify(12, RecruitingFixup.AmericanId, "American", false);
+            AmericanSchedule.CreateE().Verify(11, RecruitingFixup.AmericanId, "American", false);
             var hash = AmericanSchedule.CreateE().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }

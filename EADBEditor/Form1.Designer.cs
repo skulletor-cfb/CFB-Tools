@@ -639,7 +639,7 @@
             // 
             this.setSunBeltCCGToolStripMenuItem.Name = "setSunBeltCCGToolStripMenuItem";
             this.setSunBeltCCGToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.setSunBeltCCGToolStripMenuItem.Text = "Set Sun Belt CCG";
+            this.setSunBeltCCGToolStripMenuItem.Text = "Set AAC CCG";
             this.setSunBeltCCGToolStripMenuItem.Click += new System.EventHandler(this.setSunBeltCCGToolStripMenuItem_Click);
             // 
             // transferRuleToolStripMenuItem

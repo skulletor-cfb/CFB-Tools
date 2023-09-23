@@ -20,7 +20,10 @@ namespace EA_DB_Editor
 
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
             CreateA, CreateA, 
-            CreateB, CreateB, 
+            CreateB, CreateB,
+            CreateC, CreateC,
+            CreateD, CreateD,
+            CreateE, CreateE,
         };
 
 
@@ -50,12 +53,12 @@ namespace EA_DB_Editor
             switch (currYear)
             {
                 default:
-                    var idx = (Form1.DynastyYear - 2478) % Creators.Length;
+                    var idx = (Form1.DynastyYear - 2480) % Creators.Length;
                     result = Creators[idx]();
                     break;
             }
 
-            result = result.Verify(14, RecruitingFixup.AmericanId, "American");
+            result = result.Verify(11, RecruitingFixup.AmericanId, "American");
             AmericanConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -504,7 +507,97 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif true //14 team with no cincy, utsa/uab/usm no div!
+#elif true // 11 team AAC
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                USF.Create(Rice, CLT, Tulsa, UCFId),
+                Rice.Create(UCFId, SMU, Temple, Houston),
+                CLT.Create(Rice, Tulsa, UCFId, Memphis),
+                Tulsa.Create(Rice, Temple, ECU, Tulane),
+                UCFId.Create(SMU, Memphis, ECU, Tulane),
+                SMU.Create(USF, Houston, Memphis, ECU),
+                Temple.Create(USF, SMU, Houston, Memphis),
+                Houston.Create(CLT, Tulsa, UCFId, Tulane),
+                Memphis.Create(Rice, Tulsa, ECU, Tulane),
+                ECU.Create(USF, CLT, Temple, Houston),
+                Tulane.Create(USF, CLT, SMU, Temple),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                USF.Create(),
+                Rice.Create(),
+                CLT.Create(),
+                Tulsa.Create(),
+                UCFId.Create(),
+                SMU.Create(),
+                Temple.Create(),
+                Houston.Create(),
+                Memphis.Create(),
+                ECU.Create(),
+                Tulane.Create(),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                USF.Create(),
+                Rice.Create(),
+                CLT.Create(),
+                Tulsa.Create(),
+                UCFId.Create(),
+                SMU.Create(),
+                Temple.Create(),
+                Houston.Create(),
+                Memphis.Create(),
+                ECU.Create(),
+                Tulane.Create(),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateD()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                USF.Create(),
+                Rice.Create(),
+                CLT.Create(),
+                Tulsa.Create(),
+                UCFId.Create(),
+                SMU.Create(),
+                Temple.Create(),
+                Houston.Create(),
+                Memphis.Create(),
+                ECU.Create(),
+                Tulane.Create(),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateE()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                USF.Create(),
+                Rice.Create(),
+                CLT.Create(),
+                Tulsa.Create(),
+                UCFId.Create(),
+                SMU.Create(),
+                Temple.Create(),
+                Houston.Create(),
+                Memphis.Create(),
+                ECU.Create(),
+                Tulane.Create(),
+            }.Create();
+        }
+#elif false //14 team with no cincy, utsa/uab/usm no div!
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>

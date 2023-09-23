@@ -3690,6 +3690,14 @@ PPOS = Position
             }
         }
 
+        // 42 is the sun belt ccg
+        // 41 is the AAC ccg
+        const int ElevenTeamCCGId = 41;
+
+        // 3 is the AAC id
+        // 13 is the Sun Belt id
+        const int ConferenceThatHas11Teams = 3;
+
         private void setSunBeltCCGToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show("FCYR should be the same as start of season", "decrement conference championships!!");
@@ -3759,10 +3767,9 @@ PPOS = Position
                     awayTeamSchedule["SGNM"] = gameNum;
 
                     // modify the bowl game table
-                    // 42 is the sun belt ccg
                     var bowlGameTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "BOWL");
                     query = new Dictionary<string, string>();
-                    query["BIDX"] = "42";
+                    query["BIDX"] = ElevenTeamCCGId.ToString();
 
                     var ccg = MaddenTable.Query(bowlGameTable, query).SingleOrDefault();
                     ccg["SGNM"] = gameNum;
@@ -3788,16 +3795,13 @@ PPOS = Position
 
         private void cleanupCCHHToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // conference in need of cleanup , sun belt = 13
-            var conf = 13;
-
             // find the CCHH table
             var table = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "CCHH");
 
             TeamEntry champ = new TeamEntry("Conference Champ");
             if (champ.ShowDialog() == DialogResult.OK)
             {
-                var records = table.lRecords.OrderByDescending(mr => mr["SEYR"].ToInt32()).Where(mr => mr["CGID"].ToInt32() == conf).Take(2).ToArray();
+                var records = table.lRecords.OrderByDescending(mr => mr["SEYR"].ToInt32()).Where(mr => mr["CGID"].ToInt32() == ConferenceThatHas11Teams).Take(2).ToArray();
 
                 // find the correct one
                 bool found = false;
@@ -3805,7 +3809,7 @@ PPOS = Position
                 foreach (var record in records)
                 {
                     // once we find it, set the flag and continue
-                    if (record["CGID"].ToInt32() == conf && record["TGID"].ToInt32() == champ.TeamId && !found)
+                    if (record["CGID"].ToInt32() == ConferenceThatHas11Teams && record["TGID"].ToInt32() == champ.TeamId && !found)
                     {
                         found = true;
                         continue;

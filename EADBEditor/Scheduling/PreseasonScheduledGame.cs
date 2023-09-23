@@ -230,15 +230,15 @@ namespace EA_DB_Editor
                         g=>MatchTeams(13, g, 79, 97), // rice-tulsa
                         g=>MatchTeams(13, g, 25, 100), // charlotte-ecu
                         g=>MatchTeams(13, g, 18, 144), // ucf-usf
-                        g=>MatchTeams(13, g, 48, 98), // memphis-uab
-                        g=>MatchTeams(13, g, 85, 96), // usm-tulane
-                        g=>MatchTeams(12, g, 85, 98), // usm-uab
+//                        g=>MatchTeams(13, g, 48, 98), // memphis-uab
+  //                      g=>MatchTeams(13, g, 85, 96), // usm-tulane
+    //                    g=>MatchTeams(12, g, 85, 98), // usm-uab
 
-                        g=>MatchTeams(12, g, 90, 232), // utsa-temple
-                        g=>MatchTeams(6, g, 48, 85), // usm-memphis
+      //                  g=>MatchTeams(12, g, 90, 232), // utsa-temple
+        //                g=>MatchTeams(6, g, 48, 85), // usm-memphis
                         g=>MatchTeams(7, g, 18, 97), // ucf-tulsa
                         g=>MatchTeams(6, g, 18, 25), // ucf-ecu
-                        g=>MatchTeams(7, g, 25, 85), // usm-ecu
+          //              g=>MatchTeams(7, g, 25, 85), // usm-ecu
                         g=>MatchTeams(6, g, 79, 83), // rice-smu
                         g=>MatchTeams(6, g, 33, 97), // hou-tulsa
                         g=>MatchTeams(6, g, 79, 96), // tulane-rice
