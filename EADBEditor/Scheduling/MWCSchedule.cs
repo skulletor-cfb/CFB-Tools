@@ -79,6 +79,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
+                Wyoming.Create(AF, Nevada, UtahSt, FS),
+                CSU.Create(Wyoming, BSU, UtahSt, FS),
+                AF.Create(CSU, UNLV, UNM, SJSU),
+                Hawaii.Create(AF, UNLV, UNM, SDSU),
+                BSU.Create(Wyoming, AF, Hawaii, FS),
+                Nevada.Create(CSU,  Hawaii, BSU, SDSU),
+                UNLV.Create(Wyoming, Nevada, UtahSt, SDSU),
+                UNM.Create(CSU, BSU, UNLV, SJSU),
+                UtahSt.Create(Hawaii, Nevada, UNM, SJSU),
+                FS.Create(Hawaii, UNLV, UNM, SDSU),
+                SJSU.Create(CSU, BSU,  Nevada, FS),
+                SDSU.Create(Wyoming, AF, UtahSt, SJSU),
             }.Create();
         }
 
@@ -86,6 +98,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
+                Wyoming.Create(BSU, UNLV, UtahSt, SJSU),
+                CSU.Create(Wyoming, Hawaii, Nevada,SDSU),
+                AF.Create(CSU, UNM, UtahSt, FS),
+                Hawaii.Create(Wyoming, AF, UNLV, SJSU),
+                BSU.Create(AF, Hawaii, UtahSt, SDSU),
+                Nevada.Create(AF, BSU, UNM, FS),
+                UNLV.Create(CSU, BSU, Nevada, SJSU),
+                UNM.Create(Wyoming, Hawaii, UNLV, SDSU),
+                UtahSt.Create(CSU, Nevada, UNM, FS),
+                FS.Create(Wyoming, Hawaii, UNLV, SDSU),
+                SJSU.Create(CSU, BSU, UNM, FS),
+                SDSU.Create(AF, Nevada, UtahSt, SJSU),
             }.Create();
         }
 

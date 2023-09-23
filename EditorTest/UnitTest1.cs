@@ -167,10 +167,26 @@ namespace EditorTest
         }
 
         [TestMethod]
-        public void Big12ScheduleC()
+        public void Big12ScheduleX()
         {
-            Big12Schedule.CreateC().Verify(12, RecruitingFixup.Big12Id, "Big12", false);
-            var hash = Big12Schedule.CreateC().BuildHashSet();
+            Big12Schedule.CreateX().Verify(12, RecruitingFixup.Big12Id, "Big12", false);
+            var hash = Big12Schedule.CreateX().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void Big12ScheduleY()
+        {
+            Big12Schedule.CreateY().Verify(12, RecruitingFixup.Big12Id, "Big12", false);
+            var hash = Big12Schedule.CreateY().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void Big12ScheduleZ()
+        {
+            Big12Schedule.CreateZ().Verify(12, RecruitingFixup.Big12Id, "Big12", false);
+            var hash = Big12Schedule.CreateZ().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
         /*
