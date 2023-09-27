@@ -9,17 +9,14 @@ namespace EA_DB_Editor
         private static bool initRun = false;
 
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {
-            CreateA, CreateB,
-            CreateC, CreateD,
-
-            CreateW, CreateX,
-            CreateY, CreateZ,
-
-            CreateB, CreateA,
-            CreateD, CreateC,
-
-            CreateX, CreateW,
-            CreateZ, CreateY
+            CreateA, CreateA,
+            CreateB, CreateB,
+            CreateC, CreateC,
+            CreateD, CreateD,
+            CreateW, CreateW,
+            CreateX, CreateX,
+            CreateY, CreateY,
+            CreateZ, CreateZ,
             };
 
 

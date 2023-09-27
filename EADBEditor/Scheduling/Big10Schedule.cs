@@ -102,18 +102,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Rutgers.Create(),
-                PennState.Create(),
-                OhioSt.Create(),
-                Michigan.Create(),
-                MichSt.Create(),
-                Indiana.Create(),
-                Purdue.Create(),
-                Illinois.Create(),
-                Northwestern.Create(),
-                Wisconsin.Create(),
-                Minnesota.Create(),
-                Iowa.Create(),
+                Rutgers.Create(Michigan, Purdue, Northwestern, Wisconsin),
+                PennState.Create(Rutgers, OhioSt, Indiana, Illinois),
+                OhioSt.Create(Michigan, Indiana, Illinois, Iowa),
+                Michigan.Create(PennState, MichSt, Northwestern, Minnesota),
+                MichSt.Create(Rutgers, OhioSt, Purdue, Minnesota),
+                Indiana.Create(MichSt, Purdue, Northwestern, Iowa),
+                Purdue.Create(PennState, Michigan, Illinois, Wisconsin),
+                Illinois.Create(Rutgers, Indiana, Northwestern, Minnesota),
+                Northwestern.Create(OhioSt, MichSt, Wisconsin, Iowa),
+                Wisconsin.Create(OhioSt, Michigan, Indiana, Iowa),
+                Minnesota.Create(Rutgers, PennState, Purdue, Wisconsin),
+                Iowa.Create(PennState, MichSt, Illinois, Minnesota),
             }.Create();
         }
 
