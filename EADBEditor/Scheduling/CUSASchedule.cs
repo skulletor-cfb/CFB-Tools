@@ -25,7 +25,6 @@ namespace EA_DB_Editor
         private static bool initRun = false;
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
             CreateA, CreateA, 
-            CreateB, CreateB,
         };
         public static Dictionary<int, HashSet<int>> CUSAConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
@@ -47,9 +46,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2480) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2482) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(12, RecruitingFixup.CUSAId, "CUSA");
+            result = result.Verify(7, RecruitingFixup.CUSAId, "CUSA", expectedGames: 3);
             CUSAConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -157,7 +156,21 @@ namespace EA_DB_Editor
                 MTSU.Create(Army ,FIU),
             }.Create();
         }
-#elif true // 12 team CUSA west/east
+#elif true // 7 team CUSA
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Army.Create(MTSU, FIU, UTEP),
+                Navy.Create(Army, WKU, FAU),
+                MTSU.Create(Navy, FIU, UTEP),
+                WKU.Create(Army, MTSU, FIU),
+                FIU.Create(Navy, FAU, UTEP),
+                FAU.Create(Army, MTSU, WKU),
+                UTEP.Create(Navy, WKU, FAU),
+            }.Create();
+        }
+#elif false // 12 team CUSA west/east
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
