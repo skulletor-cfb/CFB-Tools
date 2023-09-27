@@ -230,7 +230,7 @@ namespace EA_DB_Editor
                         g=>MatchTeams(13, g, 79, 97), // rice-tulsa
                         g=>MatchTeams(13, g, 25, 100), // charlotte-ecu
                         g=>MatchTeams(13, g, 18, 144), // ucf-usf
-//                        g=>MatchTeams(13, g, 48, 98), // memphis-uab
+                        g=>MatchTeams(13, g, 48, 98), // memphis-uab
   //                      g=>MatchTeams(13, g, 85, 96), // usm-tulane
     //                    g=>MatchTeams(12, g, 85, 98), // usm-uab
 
@@ -314,6 +314,11 @@ namespace EA_DB_Editor
                 game=> MatchTeams(13, game, 46, 234), // odu - marshall
                 game=> MatchTeams(13,game,61,233), //ccu-gsu
                 game=> MatchTeams(13,game,65,86), //ull-ulm
+                game=> MatchTeams(13,game,7,64), //ark st - nt
+                game=> MatchTeams(13,game,218,232), //texst-utsa
+                game=> MatchTeams(13,game,43,85), //usm-lt
+
+
                 game=> MatchTeams(12,game,7,218), //tsu-ark st
                 game => MatchTeams(7, game, 61, 181), // coastal- gaso
                 game=> MatchTeams(8, game, 181, 233), // gsu-gaso
@@ -321,6 +326,7 @@ namespace EA_DB_Editor
                 game => MatchTeams(7, game , 34, 46), // marsh-app st
                 game => MatchTeams(6, game, 34, 234), // app st - odu
                 game=> MatchTeams(7,game,7,65), //ulm-ark st
+                game=> MatchTeams(6,game,64,232), //nt-utsa
 
                 /*
                 game=> MatchTeams(13,game,85,98), //usm-uab
@@ -409,11 +415,11 @@ namespace EA_DB_Editor
                 game => MatchTeams(13, game, 53, 211), //wku-mtsu
                 game=> MatchTeams(13,game,229,230), //fau-fiu
                 game=> MatchTeams(13,game,8,57), //army-navy
-                game=> MatchTeams(13,game,43,105), //lt-utep
-                game=> MatchTeams(13,game,85,98), //usm-uab
-                game=> MatchTeams(12,game,64,232), //nt-utsa
-                game => MatchTeams(7, game, 53, 64), //nt-mtsu
-                game => MatchTeams(6, game, 43, 85), //lt-usm
+                //game=> MatchTeams(13,game,43,105), //lt-utep
+                //game=> MatchTeams(13,game,85,98), //usm-uab
+                //game=> MatchTeams(12,game,64,232), //nt-utsa
+                //game => MatchTeams(7, game, 53, 64), //nt-mtsu
+                //game => MatchTeams(6, game, 43, 85), //lt-usm
 
 #if false
                 game => MatchTeams(6, game, 53, 143), //mtsu-troy

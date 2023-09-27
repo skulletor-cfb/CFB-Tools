@@ -9,8 +9,17 @@ namespace EA_DB_Editor
         private static bool initRun = false;
 
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {
-            CreateA, CreateA,
-            CreateB, CreateB,
+            CreateA, CreateB,
+            CreateC, CreateD,
+
+            CreateW, CreateX,
+            CreateY, CreateZ,
+
+            CreateB, CreateA,
+            CreateD, CreateC,
+
+            CreateX, CreateW,
+            CreateZ, CreateY
             };
 
 
@@ -39,9 +48,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2478) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2482) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(12, RecruitingFixup.SBCId, "SunBelt");
+            result = result.Verify(16, RecruitingFixup.SBCId, "SunBelt");
             SunbeltConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -201,7 +210,7 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif true // sun belt is real life-ish
+#elif false // sun belt is real life-ish
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
@@ -281,6 +290,198 @@ namespace EA_DB_Editor
             }.Create();
         }
 
+#elif true // 16 team, 8 conference games with classic SBC minus UAB + USA, Troy, east coast teams
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                UTSA.Create(LT, NT, ArkSt, Troy),
+                LT.Create(NT, ULM, ArkSt, USM),
+                NT.Create(ULL, ArkSt, USM, GSU),
+                ULL.Create(UTSA, LT, TexSt, ArkSt),
+                TexSt.Create(UTSA, LT, NT, USA),
+                ULM.Create(UTSA, NT, ULL, TexSt),
+                ArkSt.Create(TexSt, ULM, USM, AppSt),
+                USM.Create(UTSA, ULL, TexSt, ULM),
+
+                Troy.Create(GSU, ODU, USA, Coastal),
+                UMarsh.Create(Troy, GSU, ODU, LT),
+                GSU.Create(ODU,  USA, GASO, Coastal),
+                ODU.Create(USA, GASO, AppSt, ULL),
+                USA.Create(UMarsh, GASO, AppSt, Coastal),
+                GASO.Create(Troy, UMarsh, AppSt, ULM),
+                AppSt.Create(Troy, UMarsh, GSU, Coastal),
+                Coastal.Create(UMarsh, ODU, GASO, USM),
+
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                UTSA.Create(LT, NT, ArkSt, GSU),
+                LT.Create(NT, ULM, ArkSt, USM),
+                NT.Create(ULL, ArkSt, USM, USA),
+                ULL.Create(UTSA, LT, TexSt, ArkSt),
+                TexSt.Create(UTSA, LT, NT, AppSt),
+                ULM.Create(UTSA, NT, ULL, TexSt),
+                ArkSt.Create(TexSt, ULM, USM, Troy),
+                USM.Create(UTSA, ULL, TexSt, ULM),
+
+                Troy.Create(GSU, ODU, USA, Coastal),
+                UMarsh.Create(Troy, GSU, ODU, USM),
+                GSU.Create(ODU,  USA, GASO, Coastal),
+                ODU.Create(USA, GASO, AppSt, LT),
+                USA.Create(UMarsh, GASO, AppSt, Coastal),
+                GASO.Create(Troy, UMarsh, AppSt, ULL),
+                AppSt.Create(Troy, UMarsh, GSU, Coastal),
+                Coastal.Create(UMarsh, ODU, GASO, ULM),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                UTSA.Create(LT, NT, ArkSt, USA),
+                LT.Create(NT, ULM, ArkSt, USM),
+                NT.Create(ULL, ArkSt, USM, AppSt),
+                ULL.Create(UTSA, LT, TexSt, ArkSt),
+                TexSt.Create(UTSA, LT, NT, Troy),
+                ULM.Create(UTSA, NT, ULL, TexSt),
+                ArkSt.Create(TexSt, ULM, USM, GSU),
+                USM.Create(UTSA, ULL, TexSt, ULM),
+
+                Troy.Create(GSU, ODU, USA, Coastal),
+                UMarsh.Create(Troy, GSU, ODU, ULM),
+                GSU.Create(ODU,  USA, GASO, Coastal),
+                ODU.Create(USA, GASO, AppSt, USM),
+                USA.Create(UMarsh, GASO, AppSt, Coastal),
+                GASO.Create(Troy, UMarsh, AppSt, LT),
+                AppSt.Create(Troy, UMarsh, GSU, Coastal),
+                Coastal.Create(UMarsh, ODU, GASO, ULL),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateD()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                UTSA.Create(LT, NT, ArkSt, AppSt),
+                LT.Create(NT, ULM, ArkSt, USM),
+                NT.Create(ULL, ArkSt, USM, Troy),
+                ULL.Create(UTSA, LT, TexSt, ArkSt),
+                TexSt.Create(UTSA, LT, NT, GSU),
+                ULM.Create(UTSA, NT, ULL, TexSt),
+                ArkSt.Create(TexSt, ULM, USM, USA),
+                USM.Create(UTSA, ULL, TexSt, ULM),
+
+                Troy.Create(GSU, ODU, USA, Coastal),
+                UMarsh.Create(Troy, GSU, ODU, ULL),
+                GSU.Create(ODU,  USA, GASO, Coastal),
+                ODU.Create(USA, GASO, AppSt, ULM),
+                USA.Create(UMarsh, GASO, AppSt, Coastal),
+                GASO.Create(Troy, UMarsh, AppSt, USM),
+                AppSt.Create(Troy, UMarsh, GSU, Coastal),
+                Coastal.Create(UMarsh, ODU, GASO, LT),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateW()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                UTSA.Create(LT, NT, ArkSt, Coastal),
+                LT.Create(NT, ULM, ArkSt, USM),
+                NT.Create(ULL, ArkSt, USM, UMarsh),
+                ULL.Create(UTSA, LT, TexSt, ArkSt),
+                TexSt.Create(UTSA, LT, NT, ODU),
+                ULM.Create(UTSA, NT, ULL, TexSt),
+                ArkSt.Create(TexSt, ULM, USM, GASO),
+                USM.Create(UTSA, ULL, TexSt, ULM),
+
+                Troy.Create(GSU, USA, AppSt, LT),
+                UMarsh.Create(Troy, GSU, ODU, Coastal),
+                GSU.Create(ODU, USA, GASO, ULL),
+                ODU.Create(Troy, GASO, AppSt, Coastal),
+                USA.Create(UMarsh, ODU, AppSt, ULM),
+                GASO.Create(Troy, UMarsh, USA, AppSt),
+                AppSt.Create(UMarsh, GSU, Coastal, USM),
+                Coastal.Create(Troy, GSU, USA, GASO),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateX()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                UTSA.Create(LT, NT, ArkSt, UMarsh),
+                LT.Create(NT, ULM, ArkSt, USM),
+                NT.Create(ULL, ArkSt, USM, ODU),
+                ULL.Create(UTSA, LT, TexSt, ArkSt),
+                TexSt.Create(UTSA, LT, NT, GASO),
+                ULM.Create(UTSA, NT, ULL, TexSt),
+                ArkSt.Create(TexSt, ULM, USM, Coastal),
+                USM.Create(UTSA, ULL, TexSt, ULM),
+
+                Troy.Create(GSU, USA, AppSt, USM),
+                UMarsh.Create(Troy, GSU, ODU, Coastal),
+                GSU.Create(ODU, USA, GASO, LT),
+                ODU.Create(Troy, GASO, AppSt, Coastal),
+                USA.Create(UMarsh, ODU, AppSt, ULL),
+                GASO.Create(Troy, UMarsh, USA, AppSt),
+                AppSt.Create(UMarsh, GSU, Coastal, ULM),
+                Coastal.Create(Troy, GSU, USA, GASO),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateY()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                UTSA.Create(LT, NT, ArkSt, ODU),
+                LT.Create(NT, ULM, ArkSt, USM),
+                NT.Create(ULL, ArkSt, USM, GASO),
+                ULL.Create(UTSA, LT, TexSt, ArkSt),
+                TexSt.Create(UTSA, LT, NT, Coastal),
+                ULM.Create(UTSA, NT, ULL, TexSt),
+                ArkSt.Create(TexSt, ULM, USM, UMarsh),
+                USM.Create(UTSA, ULL, TexSt, ULM),
+
+                Troy.Create(GSU, USA, AppSt, ULM),
+                UMarsh.Create(Troy, GSU, ODU, Coastal),
+                GSU.Create(ODU, USA, GASO, USM),
+                ODU.Create(Troy, GASO, AppSt, Coastal),
+                USA.Create(UMarsh, ODU, AppSt, LT),
+                GASO.Create(Troy, UMarsh, USA, AppSt),
+                AppSt.Create(UMarsh, GSU, Coastal, ULL),
+                Coastal.Create(Troy, GSU, USA, GASO),
+            }.Create();
+        }
+        public static Dictionary<int, int[]> CreateZ()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                UTSA.Create(LT, NT, ArkSt, GASO),
+                LT.Create(NT, ULM, ArkSt, USM),
+                NT.Create(ULL, ArkSt, USM, Coastal),
+                ULL.Create(UTSA, LT, TexSt, ArkSt),
+                TexSt.Create(UTSA, LT, NT, UMarsh),
+                ULM.Create(UTSA, NT, ULL, TexSt),
+                ArkSt.Create(TexSt, ULM, USM, ODU),
+                USM.Create(UTSA, ULL, TexSt, ULM),
+
+                Troy.Create(GSU, USA, AppSt, ULL),
+                UMarsh.Create(Troy, GSU, ODU, Coastal),
+                GSU.Create(ODU, USA, GASO, ULM),
+                ODU.Create(Troy, GASO, AppSt, Coastal),
+                USA.Create(UMarsh, ODU, AppSt, USM),
+                GASO.Create(Troy, UMarsh, USA, AppSt),
+                AppSt.Create(UMarsh, GSU, Coastal, LT),
+                Coastal.Create(Troy, GSU, USA, GASO),
+            }.Create();
+        }
 #elif false //uab and usm make 16, 8 conference games
         public static Dictionary<int, int[]> CreateA()
         {
