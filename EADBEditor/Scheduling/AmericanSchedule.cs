@@ -22,8 +22,6 @@ namespace EA_DB_Editor
             CreateA, CreateA, 
             CreateB, CreateB,
             CreateC, CreateC,
-            CreateD, CreateD,
-            CreateE, CreateE,
         };
 
 
@@ -53,12 +51,12 @@ namespace EA_DB_Editor
             switch (currYear)
             {
                 default:
-                    var idx = (Form1.DynastyYear - 2480) % Creators.Length;
+                    var idx = (Form1.DynastyYear - 2482) % Creators.Length;
                     result = Creators[idx]();
                     break;
             }
 
-            result = result.Verify(11, RecruitingFixup.AmericanId, "American");
+            result = result.Verify(12, RecruitingFixup.AmericanId, "American");
             AmericanConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -507,7 +505,65 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif true // 11 team AAC
+#elif true // 12 team AAC with no div
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                ECU.Create(Tulane, Memphis, CLT, Rice),
+                Tulane.Create(UAB, USF, CLT, SMU),
+                UAB.Create(Memphis, UCFId, CLT, SMU),
+                Memphis.Create(Temple, UCFId, Tulsa, Rice),
+                Temple.Create(ECU, Tulane, USF, Houston),
+                USF.Create(UAB, Memphis, UCFId, Rice),
+                UCFId.Create(ECU, Temple, Tulsa, Houston),
+                Tulsa.Create(ECU, Tulane, UAB, Houston),
+                CLT.Create(Temple, USF, Tulsa, SMU),
+                SMU.Create(Temple, USF, Tulsa, Houston),
+                Rice.Create(UAB, UCFId, CLT, SMU),
+                Houston.Create(ECU, Tulane, Memphis, Rice),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                ECU.Create(),
+                Tulane.Create(),
+                UAB.Create(),
+                Memphis.Create(),
+                Temple.Create(),
+                USF.Create(),
+                UCFId.Create(),
+                Tulsa.Create(),
+                CLT.Create(),
+                SMU.Create(),
+                Rice.Create(),
+                Houston.Create(),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                ECU.Create(),
+                Tulane.Create(),
+                UAB.Create(),
+                Memphis.Create(),
+                Temple.Create(),
+                USF.Create(),
+                UCFId.Create(),
+                Tulsa.Create(),
+                CLT.Create(),
+                SMU.Create(),
+                Rice.Create(),
+                Houston.Create(),
+            }.Create();
+        }
+
+#elif false // 11 team AAC
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
