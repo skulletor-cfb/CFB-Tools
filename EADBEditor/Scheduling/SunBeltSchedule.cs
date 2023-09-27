@@ -68,7 +68,7 @@ namespace EA_DB_Editor
         const int NT = 64;
         const int UAB = 98;
 
-#if false // sun belt is 14 teams, usa-troy cross over
+#if false // sun belt is 14 teams, usa-troy cross over with LT/USM in the west
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>

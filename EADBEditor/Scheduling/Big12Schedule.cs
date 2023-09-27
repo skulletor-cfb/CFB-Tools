@@ -441,19 +441,19 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Nebraska.Create(),
-                ISU.Create(),
-                KU.Create(),
-                Colorado.Create(),
-                KSU.Create(),
-                Cincy.Create(),
+                Nebraska.Create(KU, Cincy, OU, TT),
+                ISU.Create(Nebraska, KSU, Cincy, Baylor),
+                KU.Create(ISU, Colorado, Texas, OkSt),
+                Colorado.Create(Nebraska, ISU, KSU, Texas),
+                KSU.Create(Nebraska, KU, Cincy, OU),
+                Cincy.Create(KU, Colorado, TCU, Baylor),
 
-                OU.Create(),
-                Texas.Create(),
-                TCU.Create(),
-                OkSt.Create(),
-                TT.Create(),
-                Baylor.Create(),
+                OU.Create(Colorado, Texas, TCU, OkSt),
+                Texas.Create(Cincy, TCU, OkSt, TT),
+                TCU.Create(KSU, KU, OkSt, TT),
+                OkSt.Create(Nebraska, ISU, TT, Baylor),
+                TT.Create(ISU, KSU, OU, Baylor),
+                Baylor.Create(Colorado, OU, Texas, TCU),
             }.Create();
         }
 
@@ -461,19 +461,19 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Nebraska.Create(),
-                ISU.Create(),
-                KU.Create(),
-                Colorado.Create(),
-                KSU.Create(),
-                Cincy.Create(),
+                Nebraska.Create(KU, Cincy, OU, Baylor),
+                ISU.Create(Nebraska, KSU, Cincy, TT),
+                KU.Create(ISU, Colorado, OU, OkSt),
+                Colorado.Create(Nebraska, ISU, KSU, Texas),
+                KSU.Create(Nebraska, KU, Cincy, Baylor),
+                Cincy.Create(KU, Colorado, TCU, Texas),
 
-                OU.Create(),
-                Texas.Create(),
-                TCU.Create(),
-                OkSt.Create(),
-                TT.Create(),
-                Baylor.Create(),
+                OU.Create(Colorado, Texas, TCU, OkSt),
+                Texas.Create(KSU, TCU, OkSt, TT),
+                TCU.Create(Nebraska, KU, OkSt, TT),
+                OkSt.Create(Cincy, ISU, TT, Baylor),
+                TT.Create(Colorado, KSU, OU, Baylor),
+                Baylor.Create(ISU, OU, Texas, TCU),
             }.Create();
         }
 

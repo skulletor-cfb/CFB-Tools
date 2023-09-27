@@ -3697,6 +3697,10 @@ PPOS = Position
         // 3 is the AAC id
         // 13 is the Sun Belt id
         const int ConferenceThatHas11Teams = 3;
+        
+        // 900 is start time for AAC
+        // 780 is start time for SBC
+        const string StartTime = "900";
 
         private void setSunBeltCCGToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -3727,7 +3731,7 @@ PPOS = Position
                     mr["GASC"] = "0";
                     mr["GHSC"] = "0";
                     mr["SGID"] = teamStadium.ToString();
-                    mr["GTOD"] = "780";
+                    mr["GTOD"] = StartTime;
                     mr["GUTE"] = "0";
                     mr["GATG"] = away.ToString();
                     mr["GHTG"] = home.ToString();
