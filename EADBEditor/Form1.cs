@@ -3293,8 +3293,18 @@ PPOS = Position
                 i++;
             }*/
 
+            var bowlTeams = teams.Values.Where(t => teamIds.Contains(t.Id) && t.Rank > 25).OrderBy(t => t.Rank).ToArray();
+            
             var sb = new StringBuilder();
-            foreach (var team in teams.Values.Where(t => teamIds.Contains(t.Id) && t.Rank > 25).OrderBy(t => t.Rank))
+            foreach (var team in bowlTeams)
+            {
+                matchups.Add(string.Join(",", RecruitingFixup.TeamNames[team.Id], RecruitingFixup.ConferenceNames[team.ConfId], string.Format("{0} -- {1}", team.Win, team.Loss)));
+            }
+
+            matchups.Add("************");
+
+            var bowlEligibleTeams = teams.Values.Where(t => !teamIds.Contains(t.Id) && t.Rank > 25 && t.Win >= 5).OrderByDescending(t=>t.Win).ThenBy(t=>t.Loss).ThenBy(t => t.Rank).ToArray();
+            foreach (var team in bowlEligibleTeams)
             {
                 matchups.Add(string.Join(",", RecruitingFixup.TeamNames[team.Id], RecruitingFixup.ConferenceNames[team.ConfId], string.Format("{0} -- {1}", team.Win, team.Loss)));
             }
