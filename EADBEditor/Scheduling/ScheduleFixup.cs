@@ -1408,8 +1408,8 @@ namespace EA_DB_Editor
                     teamScheduleRecord["THOA"] = "1";
                 }
                 // wvu-umd play at 275
-                // wvu-umd are now home-home
-                else if (false && MatchTeams(homeTeam, awayTeam, new[] { 112, 47 }))
+                // wvu-umd are now home-home, except every 5 years they should play at M&T
+                else if (MatchTeams(homeTeam, awayTeam, new[] { 112, 47 }) && Form1.DynastyYear % 5 == 0)
                 {
                     gameRecord["SGID"] = "275";
                     query["TGID"] = awayTeam.ToString();

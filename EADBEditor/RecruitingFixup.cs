@@ -912,6 +912,8 @@ namespace EA_DB_Editor
 
             if (conf == CUSAId && CUSA.Length == 5 && confGames == 2) return true;
 
+            if (conf == CUSAId && CUSA.Length == 7 && confGames == 3) return true;
+
             return confGames == 4;
         }
 

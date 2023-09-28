@@ -2791,6 +2791,27 @@ PPOS = Position
                     var lines = File.ReadAllLines("from.txt");
                     var offset = lines.Length / 2;
 
+                    var fromLines = lines.Take(lines.Length / 2).ToArray();
+                    var toLines = lines.Skip(lines.Length / 2).ToArray();
+
+                    // check to make sure we don't have duplicates
+                    void CheckForUniqueness(string[] linesToCheck, string scenario)
+                    {
+                        var set = new HashSet<string>();
+
+                        foreach (var line in lines)
+                        {
+                            if (!set.Add(line))
+                            {
+                                MessageBox.Show($"Duplicate value in {scenario}", line);
+                                return;
+                            }
+                        }
+                    }
+
+                    CheckForUniqueness(fromLines, "from");
+                    CheckForUniqueness(toLines, "to");
+
                     for (int i = 0; i < offset; i++)
                     {
                         var from = Convert.ToInt32(lines[i]);
@@ -3821,6 +3842,32 @@ PPOS = Position
 
                     // remove the record
                     table.RemoveRecord(record);
+                }
+            }
+        }
+
+        private void customFixToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            const int from = 2425;
+            const int to = 2449;
+            const string id = "PGID";
+
+            List<MaddenTable> playerTables = new List<MaddenTable>();
+            foreach (var table in maddenDB.lTables)
+            {
+                if (table.lFields.Any(f => f.Abbreviation == id))
+                {
+                    playerTables.Add(table);
+                }
+            }
+
+            foreach (var table in playerTables)
+            {
+                var player = table.lRecords.Where(mr => mr[id].ToInt32() == from).FirstOrDefault();
+
+                if (player != null)
+                {
+                    player[id] = to.ToString();
                 }
             }
         }

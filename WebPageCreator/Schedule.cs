@@ -735,6 +735,30 @@ namespace EA_DB_Editor
             IsMayhemAtMBS,
         };
 
+        public static string SiteIdSuffix(ScheduledGame g)
+        {
+            return SiteIdSuffix(g.StadiumId);
+        }
+
+        public static string SiteIdSuffix(int siteId)
+        {
+            var stadiumTable = Form1.MainForm.maddenDB.lTables.Where(tbl => tbl.Abbreviation == "STAD").SingleOrDefault();
+            var stadium = stadiumTable.lRecords.Where(record => record["SGID"].ToInt32() == siteId).SingleOrDefault();
+            return stadium.lEntries[56].Data;
+        }
+
+        private static bool IsPigskinClassic(ScheduledGame g)
+        {
+            const int id = 71041024;
+
+            if(g.SiteId == id)
+            {
+                g.GameSite += " " + SiteIdSuffix(g);
+            }
+
+            return false;
+        }
+
         private static bool IsMayhemAtMBS(ScheduledGame g)
         {
             const int id = 247431733;
@@ -772,8 +796,8 @@ namespace EA_DB_Editor
             var tod = (60 * 20) + 7;
             if (g.TimeOfDay == tod && (g.HomeTeamId == 68 || g.AwayTeamId==68) && g.Week > 3)
             {
+                g.GameSite = $"Shamrock Series ({SiteIdSuffix(g)})";
                 g.SiteId = id;
-                g.GameSite = "Shamrock Series";
                 return true;
             }
             
@@ -788,8 +812,8 @@ namespace EA_DB_Editor
             var teams = new HashSet<int>() { 77, 91 };
             if (g.TimeOfDay == tod && teams.Contains(g.HomeTeamId) && teams.Contains(g.AwayTeamId))
             {
+                g.GameSite = $"Johnny Majors Classic ({SiteIdSuffix(g)})";
                 g.SiteId = id;
-                g.GameSite = "Johnny Majors Classic";
                 return true;
             }
 
@@ -803,8 +827,8 @@ namespace EA_DB_Editor
             var tod = (60 * 20) + 31;
             if (g.TimeOfDay == tod && g.Week == 2)
             {
+                g.GameSite = $"Erik Simpson College Football Classic ({SiteIdSuffix(g)})";
                 g.SiteId = id;
-                g.GameSite = "Erik Simpson College Football Classic";
                 return true;
             }
 
@@ -819,13 +843,15 @@ namespace EA_DB_Editor
             var tod = (60 * 20) + 27;
             if (g.TimeOfDay == tod && g.Week == 1)
             {
+                g.GameSite = $"Allstate Crossbar Classic ({SiteIdSuffix(g)})";
                 g.SiteId = id;
-                g.GameSite = "Allstate Crossbar Classic";
                 return true;
             }
 
             return false;
         }
+
+        public int StadiumId { get; set; }
 
         public static void Create(MaddenDatabase db, bool isPreseason)
         {
@@ -851,6 +877,7 @@ namespace EA_DB_Editor
                     WentToOvertime = table.lRecords[i].lEntries[15].Data.ToInt32(),
                     GameDay = table.lRecords[i]["GDAT"].ToInt32(),
                     TimeOfDay = table.lRecords[i]["GTOD"].ToInt32(),
+                    StadiumId = table.lRecords[i]["SGID"].ToInt32(),
                 };
 
                 // stadium id
@@ -909,6 +936,12 @@ namespace EA_DB_Editor
                                 if (koGame != null)
                                 {
                                     game.SiteId = koGame.Id;
+                                    const int PigskinClassicKickoff = 71041024;
+
+                                    if (koGame.Id == PigskinClassicKickoff)
+                                    {
+                                        game.GameSite += $" ({ScheduledGame.SiteIdSuffix(stadiumId)})";
+                                    }
                                 }
                                 else
                                 {
