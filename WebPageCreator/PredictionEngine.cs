@@ -102,11 +102,12 @@ namespace EA_DB_Editor
         private static Dictionary<int, (int start, int end)[]> NoDivisionConference = new Dictionary<int, (int start, int end)[]>()
         {
             {1, new[]{(2472, int.MaxValue) } }, // big 10
-            {2, new[]{(2470, 2475), (2478, 2479) } }, // big 12
+            {2, new[]{(2470, 2475), (2478, 2479), (2486, int.MaxValue) } }, // big 12
             {13, new[]{ (2462, 2467) } }, // Sun Belt
             {0, new []{(2477, 2478 )} }, // acc
             {3, new []{(2478, int.MaxValue )} }, // american
             {9, new []{(2478, int.MaxValue )} }, // mountain west
+            {10, new []{(2483, int.MaxValue )} }, // pac-12
         };
 
         public static bool ConferenceHasNoDivisions(int confId)

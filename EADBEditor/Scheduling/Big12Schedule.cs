@@ -26,11 +26,12 @@ namespace EA_DB_Editor
         private static bool initRun = false;
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] 
         {
-            CreateA, CreateB, 
-            CreateX, CreateY,
-            CreateZ, CreateA,
-            CreateB, CreateX,
-            CreateY, CreateZ,
+            CreateNDY, CreateNDY,
+            CreateNDZ, CreateNDZ,
+            CreateNDAPrime, CreateNDAPrime,
+            CreateNDY, CreateNDY,
+            CreateNDZ, CreateNDZ,
+            CreateNDA, CreateNDA,
         };
 
         public static Dictionary<int, HashSet<int>> Big12ConferenceSchedule = null;
@@ -53,8 +54,20 @@ namespace EA_DB_Editor
 
             switch (currYear)
             {
+                case 2483:
+                    result = CreateX();
+                    break;
+
+                case 2484:
+                    result = CreateB();
+                    break;
+
+                case 2485:
+                    result = CreateA();
+                    break;
+
                 default:
-                    var idx = (Form1.DynastyYear - 2480) % Creators.Length;
+                    var idx = (Form1.DynastyYear - 2486) % Creators.Length;
                     result = Creators[idx]();
                     break;
             }
@@ -416,7 +429,84 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif true // big 12 with north/south cincy in it instead of bsu
+#elif true // big 12 with north/south cincy in it instead of bsu.  No divisions
+        public static Dictionary<int, int[]> CreateNDY()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                TT.Create(OU, Baylor, ISU, KU),
+                Texas.Create(TT, TCU, Colorado, Cincy),
+                OU.Create(Texas, OkSt, Baylor, KU),
+                OkSt.Create(TT, Nebraska, Colorado, ISU),
+                TCU.Create(TT, OkSt, Cincy, KSU),
+                Baylor.Create(Texas, TCU, Colorado, KSU),
+                Nebraska.Create(Texas, OU, TCU, Cincy),
+                Colorado.Create(TT, Nebraska, Cincy, KU),
+                Cincy.Create(OkSt, Baylor, ISU, KSU),
+                ISU.Create(OU, Baylor, Nebraska, KSU),
+                KU.Create(OkSt, TCU, Nebraska, ISU),
+                KSU.Create(Texas, OU, Colorado, KU),
+
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateNDZ()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                TT.Create(),
+                Texas.Create(),
+                OU.Create(),
+                OkSt.Create(),
+                TCU.Create(),
+                Baylor.Create(),
+                Nebraska.Create(),
+                Colorado.Create(),
+                Cincy.Create(),
+                ISU.Create(),
+                KU.Create(),
+                KSU.Create(),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateNDA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                TT.Create(),
+                Texas.Create(),
+                OU.Create(),
+                OkSt.Create(),
+                TCU.Create(),
+                Baylor.Create(),
+                Nebraska.Create(),
+                Colorado.Create(),
+                Cincy.Create(),
+                ISU.Create(),
+                KU.Create(),
+                KSU.Create(),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateNDAPrime()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                TT.Create(),
+                Texas.Create(),
+                OU.Create(),
+                OkSt.Create(),
+                TCU.Create(),
+                Baylor.Create(),
+                Nebraska.Create(),
+                Colorado.Create(),
+                Cincy.Create(),
+                ISU.Create(),
+                KU.Create(),
+                KSU.Create(),
+            }.Create();
+        }
+
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
@@ -474,46 +564,6 @@ namespace EA_DB_Editor
                 OkSt.Create(Cincy, ISU, TT, Baylor),
                 TT.Create(Colorado, KSU, OU, Baylor),
                 Baylor.Create(ISU, OU, Texas, TCU),
-            }.Create();
-        }
-
-        public static Dictionary<int, int[]> CreateY()
-        {
-            return new List<KeyValuePair<int, int[]>>
-            {
-                Nebraska.Create(),
-                ISU.Create(),
-                KU.Create(),
-                Colorado.Create(),
-                KSU.Create(),
-                Cincy.Create(),
-
-                OU.Create(),
-                Texas.Create(),
-                TCU.Create(),
-                OkSt.Create(),
-                TT.Create(),
-                Baylor.Create(),
-            }.Create();
-        }
-
-        public static Dictionary<int, int[]> CreateZ()
-        {
-            return new List<KeyValuePair<int, int[]>>
-            {
-                Nebraska.Create(),
-                ISU.Create(),
-                KU.Create(),
-                Colorado.Create(),
-                KSU.Create(),
-                Cincy.Create(),
-
-                OU.Create(),
-                Texas.Create(),
-                TCU.Create(),
-                OkSt.Create(),
-                TT.Create(),
-                Baylor.Create(),
             }.Create();
         }
 #elif false // big 12 with 12 teams
