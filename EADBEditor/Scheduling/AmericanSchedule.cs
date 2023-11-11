@@ -529,18 +529,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                ECU.Create(),
-                Tulane.Create(),
-                UAB.Create(),
-                Memphis.Create(),
-                Temple.Create(),
-                USF.Create(),
-                UCFId.Create(),
-                Tulsa.Create(),
-                CLT.Create(),
-                SMU.Create(),
-                Rice.Create(),
-                Houston.Create(),
+                ECU.Create(Tulane, USF, CLT, Houston),
+                Tulane.Create(Memphis, UCFId, CLT, Rice),
+                UAB.Create(ECU, Tulane, Memphis, Rice),
+                Memphis.Create(Temple, Tulsa, CLT, Houston),
+                Temple.Create(ECU, UAB, USF, SMU),
+                USF.Create(Tulane, Memphis, UCFId, Houston),
+                UCFId.Create(UAB, Temple, Tulsa, SMU),
+                Tulsa.Create(ECU, Temple, USF, SMU),
+                CLT.Create(UAB, UCFId, Tulsa, Rice),
+                SMU.Create(ECU, Tulane, Memphis, Houston),
+                Rice.Create(Temple, USF, Tulsa, SMU),
+                Houston.Create(UAB, UCFId, CLT, Rice),
             }.Create();
         }
 

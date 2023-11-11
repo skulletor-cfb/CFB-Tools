@@ -11,7 +11,7 @@ namespace EA_DB_Editor
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] 
         {
             CreateX, CreateX,
-            CreateA, CreateA, 
+            CreateA, CreateA,
             CreateY, CreateY,
             CreateB, CreateB,
         };

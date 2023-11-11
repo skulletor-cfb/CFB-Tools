@@ -46,9 +46,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2482) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2484) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(7, RecruitingFixup.CUSAId, "CUSA", expectedGames: 3);
+            result = result.Verify(9, RecruitingFixup.CUSAId, "CUSA", expectedGames: 3);
             CUSAConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -161,13 +161,15 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Army.Create(MTSU, FIU, UTEP),
-                Navy.Create(Army, WKU, FAU),
-                MTSU.Create(Navy, FIU, UTEP),
-                WKU.Create(Army, MTSU, FIU),
-                FIU.Create(Navy, FAU, UTEP),
-                FAU.Create(Army, MTSU, WKU),
-                UTEP.Create(Navy, WKU, FAU),
+                Army.Create(MTSU, FIU, UTEP, UTSA),
+                Navy.Create(Army, WKU, FAU, NT),
+                MTSU.Create(Navy, FIU, UTEP, NT),
+                WKU.Create(Army, MTSU, FIU, UTSA),
+                FIU.Create(Navy, FAU, UTEP, UTSA),
+                FAU.Create(Army, MTSU, WKU, NT),
+                UTEP.Create(Navy, WKU, FAU, UTSA),
+                UTSA.Create(Navy, MTSU, FAU, NT),
+                NT.Create(Army, WKU, FIU, UTEP),
             }.Create();
         }
 #elif false // 12 team CUSA west/east

@@ -13,19 +13,26 @@ namespace EA_DB_Editor
             CreateB, CreateB,
             CreateC, CreateC,
             CreateD, CreateD,
-            CreateW, CreateW,
-            CreateX, CreateX,
-            CreateY, CreateY,
-            CreateZ, CreateZ,
+            CreateE, CreateE,
+            CreateF, CreateF
             };
 
 
         public static Dictionary<int, HashSet<int>> SunbeltConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
 
+        static HashSet<int> West = new HashSet<int>() 
+        { NT, UTSA, TexSt, ArkSt, ULM, ULL, LT, USM};
+
+        static HashSet<int> East = new HashSet<int>()
+        {
+            USA, Troy, Coastal, ODU, GASO, GSU, AppSt, UMarsh
+        };
+
         public static bool CrossDivision(int a, int b)
         {
-            return false; 
+            var intraDivision = (West.Contains(a) && West.Contains(b)) || (East.Contains(a) && East.Contains(b));
+            return !intraDivision;
         }
 
         public static void Init()
@@ -45,9 +52,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2482) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2484) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(16, RecruitingFixup.SBCId, "SunBelt");
+            result = result.Verify(14, RecruitingFixup.SBCId, "SunBelt");
             SunbeltConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -74,7 +81,7 @@ namespace EA_DB_Editor
         const int NT = 64;
         const int UAB = 98;
 
-#if false // sun belt is 14 teams, usa-troy cross over with LT/USM in the west
+#if true // sun belt is 14 teams, usa-troy cross over with LT/USM in the west
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
@@ -287,7 +294,7 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif true // 16 team, 8 conference games with classic SBC minus UAB + USA, Troy, east coast teams
+#elif false // 16 team, 8 conference games with classic SBC minus UAB + USA, Troy, east coast teams
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
