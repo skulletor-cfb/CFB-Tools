@@ -335,16 +335,20 @@ namespace EA_DB_Editor
                 RecruitRankings.Add(recruit.RecruitId, recruit);
             }
 
-            for (int i = 0; i < NCAADB.lTables[95].Table.currecords; i++)
+            try
             {
-                var id = NCAADB.lTables[95].lRecords[i].lEntries[34].Data.ToInt32();
-                var recruit = RecruitRankings[id];
-                recruit.CommittedTeam = NCAADB.lTables[95].lRecords[i].lEntries[35].Data.ToInt32().GetRealTeamId();
-                recruit.Team1 = NCAADB.lTables[95].lRecords[i].lEntries[6].Data.ToInt32().GetRealTeamId();
-                recruit.Team2 = NCAADB.lTables[95].lRecords[i].lEntries[10].Data.ToInt32().GetRealTeamId();
-                recruit.Team3 = NCAADB.lTables[95].lRecords[i].lEntries[13].Data.ToInt32().GetRealTeamId();
-                RecruitRankings[10000 + recruit.Rank] = recruit;
+                for (int i = 0; i < NCAADB.lTables[95].Table.currecords; i++)
+                {
+                    var id = NCAADB.lTables[95].lRecords[i].lEntries[34].Data.ToInt32();
+                    var recruit = RecruitRankings[id];
+                    recruit.CommittedTeam = NCAADB.lTables[95].lRecords[i].lEntries[35].Data.ToInt32().GetRealTeamId();
+                    recruit.Team1 = NCAADB.lTables[95].lRecords[i].lEntries[6].Data.ToInt32().GetRealTeamId();
+                    recruit.Team2 = NCAADB.lTables[95].lRecords[i].lEntries[10].Data.ToInt32().GetRealTeamId();
+                    recruit.Team3 = NCAADB.lTables[95].lRecords[i].lEntries[13].Data.ToInt32().GetRealTeamId();
+                    RecruitRankings[10000 + recruit.Rank] = recruit;
+                }
             }
+            catch { }
         }
 
         public static void ToCsvFile(IEnumerable<Recruit> recruits, string filename, bool showLogo = false)

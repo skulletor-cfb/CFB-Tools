@@ -412,9 +412,11 @@ namespace EA_DB_Editor
         {
             return new Func<PreseasonScheduledGame, int?>[]
             {
+                game => MatchTeams(7, game, 53, 64), //mtsu-nt
                 game => MatchTeams(13, game, 53, 211), //wku-mtsu
                 game=> MatchTeams(13,game,229,230), //fau-fiu
                 game=> MatchTeams(13,game,8,57), //army-navy
+                game => MatchTeams(12, game, 64, 232), //nt-UTSA
                 //game=> MatchTeams(13,game,43,105), //lt-utep
                 //game=> MatchTeams(13,game,85,98), //usm-uab
                 //game=> MatchTeams(12,game,64,232), //nt-utsa

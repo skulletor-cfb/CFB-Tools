@@ -265,7 +265,12 @@ namespace RefreshRunner
                     form.SetContinuation(useContinuation, continuationDir, continuationYear, cf);
                     SetKickoffGameOverrides(year, form);
                     form.OpenDynastyFile(Path.Combine(dirs[i], EndOfRecruting));
-                    form.UpdateRecruitingReports(false);
+
+                    try
+                    {
+                        form.UpdateRecruitingReports(false);
+                    }
+                    catch { }
 
                     // copy all files
                     Parallel.ForEach(Directory.GetFiles(ReportsDir), file => File.Copy(file, Path.Combine(reportDestinations[i], Path.GetFileName(file)), true));
