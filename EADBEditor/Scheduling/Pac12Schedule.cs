@@ -8,12 +8,22 @@ namespace EA_DB_Editor
     public class Pac12Schedule
     {
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] 
+
+        // delete after 2490 season
+        private static Func<Dictionary<int, int[]>>[] OldCreators = new Func<Dictionary<int, int[]>>[] 
         {
             CreateX, CreateX,
             CreateA, CreateA,
             CreateY, CreateY,
             CreateB, CreateB,
+        };
+
+        private static Func<Dictionary<int, int[]>>[] CorrectCreators = new Func<Dictionary<int, int[]>>[]
+        {
+            CreateA, CreateA,
+            CreateB, CreateB,
+            CreateX, CreateX,
+            CreateY, CreateY,
         };
 
         public static Dictionary<int, HashSet<int>> Pac12ConferenceSchedule = null;
@@ -36,8 +46,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2483) % Creators.Length;
-            var result = Creators[idx]();
+            var creatorsToUse = Form1.DynastyYear >= 2491 ? CorrectCreators : OldCreators;
+            var idx = (Form1.DynastyYear - 2483) % creatorsToUse.Length;
+            var result = creatorsToUse[idx]();
             result = result.Verify(12, RecruitingFixup.Pac16Id, "Pac12");
             Pac12ConferenceSchedule = result.BuildHashSet();
             return result;

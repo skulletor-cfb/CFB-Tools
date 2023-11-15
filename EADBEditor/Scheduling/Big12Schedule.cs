@@ -96,7 +96,7 @@ namespace EA_DB_Editor
             game.AssignGame(schedule, week);
         }
 
-        public static void ProcessACCSchedule(Dictionary<int, PreseasonScheduledGame[]> schedule)
+        public static void ProcessBig12Schedule(Dictionary<int, PreseasonScheduledGame[]> schedule)
         {
             schedule.ProcessSchedule(
                 ScenarioForSeason,

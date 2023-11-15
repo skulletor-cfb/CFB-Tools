@@ -45,9 +45,9 @@ namespace EA_DB_Editor
         }
 
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {
-            CreateB, CreateC,
             CreateA, CreateB,
             CreateC, CreateA,
+            CreateB, CreateC,
         };
 
         public static void ProcessACCSchedule(Dictionary<int, PreseasonScheduledGame[]> schedule)
@@ -64,7 +64,7 @@ namespace EA_DB_Editor
         private static Dictionary<int, int[]> CreateScenarioForSeason()
         {
             Dictionary<int, int[]> result = null;
-#if true
+#if false
             if (RecruitingFixup.TeamAndDivision[49] == RecruitingFixup.TeamAndDivision[24])
                 result = CreateA();
             else if (RecruitingFixup.TeamAndDivision[49] == RecruitingFixup.TeamAndDivision[31])
@@ -74,7 +74,7 @@ namespace EA_DB_Editor
             else
                 throw new Exception("THIS SHOULDNT HAPPEN");
 #else
-            var idx = Form1.DynastyYear == 2478 ? 5 : (Form1.DynastyYear - 2479) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2485) % Creators.Length;
             result = Creators[idx]();
 #endif
             var dict = result.Verify(16, RecruitingFixup.ACCId, "ACC");
@@ -83,7 +83,7 @@ namespace EA_DB_Editor
             return dict;
         }
 
-#if true // the old acc pods
+#if false // the old acc pods
         public static Dictionary<int, int[]> CreateA()
         {
             var dict= new Dictionary<int, int[]>();
@@ -160,22 +160,22 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Miami.Create(NCSU, FSU, SU, UMD),
-                BC.Create(Miami, WVU, VT, WF),
-                WVU.Create(Miami, VT, UL, Pitt),
-                VT.Create(Miami, SU, UVA, UNC),
-                NCSU.Create(VT, Duke, WF, WVU),
-                Clemson.Create(BC, VT, NCSU, Pitt),
-                Duke.Create(Miami, Pitt, UMD, UNC),
-                WF.Create(Clemson, Duke, UL, UNC),
-                FSU.Create(Clemson, WF, Pitt, GT),
-                SU.Create(BC, WVU, Clemson, GT),
-                Pitt.Create(BC, SU, UMD, UL),
-                UVA.Create(BC, Duke, FSU, UMD),
-                UMD.Create(WVU, FSU, GT, UNC),
-                GT.Create(Clemson, WF, UVA, UL),
-                UL.Create(NCSU, Duke, FSU, UVA),
-                UNC.Create(NCSU, SU, UVA, GT),
+                Miami.Create(SU, FSU, UMD , WF),
+                BC.Create(Miami, WVU, VT, UNC),
+                WVU.Create(Miami, VT, Pitt, UL),
+                VT.Create(Miami, UVA, Duke, GT),
+                Clemson.Create(SU, NCSU, WF, UL),
+                SU.Create(BC, WVU, NCSU , UL),
+                UVA.Create(Duke, FSU, UMD , Pitt),
+                Duke.Create(Miami, UNC, UMD, UL),
+                NCSU.Create(WVU, UVA, Duke, WF),
+                UNC.Create(Clemson, UVA, NCSU, Pitt),
+                FSU.Create(BC, Clemson, NCSU, Pitt),
+                UMD.Create(WVU, SU, FSU, WF),
+                Pitt.Create(BC, Clemson, SU, GT),
+                GT.Create(Clemson, UVA, UNC, UMD),
+                WF.Create(VT, Duke, UNC, GT),
+                UL.Create(BC, VT, FSU, GT),
             }.Create();
         }
 

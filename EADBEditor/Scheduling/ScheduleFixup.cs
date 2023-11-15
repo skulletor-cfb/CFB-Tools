@@ -360,7 +360,7 @@ namespace EA_DB_Editor
 
                 (teamSchedule, scheduleTable) = FillSchedule(false);
                 ACCPodSchedule.ProcessACCSchedule(teamSchedule);
-                Big12Schedule.ProcessACCSchedule(teamSchedule);
+                Big12Schedule.ProcessBig12Schedule(teamSchedule);
                 Pac12Schedule.ProcessPac12Schedule(teamSchedule);
                 Big10Schedule.ProcessBig10Schedule(teamSchedule);
                 AmericanSchedule.ProcessAmericanSchedule(teamSchedule);

@@ -474,6 +474,7 @@ namespace EA_DB_Editor
                         IsUNCNCSU,
                         IsClemsonGT,
                         IsWFDuke,
+                        IsWVUVT,
                     };
                 }
 
@@ -576,8 +577,13 @@ namespace EA_DB_Editor
             return MatchTeams(13, game, 62, 63);
         }
 
+        public int? IsWVUVT(PreseasonScheduledGame game)
+        {
+            return MatchTeams(7, game, 108, 112);
+        }
+
     }
-#endregion
+    #endregion
 
     public class SecLocks : ConferenceLocks
     {
@@ -754,7 +760,7 @@ namespace EA_DB_Editor
 
         private static List<PreseasonScheduledGame> FindExtraAccGames(Dictionary<int, PreseasonScheduledGame[]> schedules)
         {
-#if false
+#if true
             var result = new List<PreseasonScheduledGame>();
             var normalized = new HashSet<int>();
 
@@ -762,6 +768,13 @@ namespace EA_DB_Editor
             var found = schedules.Values.SelectMany(games => games.Where(g => g != null && g.IsAccConfGame()))
                 .OrderBy(g => g.WeekIndex)
                 .Distinct().ToArray();
+
+            // we already did this
+            if (found.Length == (16 * 4))
+            {                
+                return new List<PreseasonScheduledGame>();
+            }
+
             var queue = new Queue<PreseasonScheduledGame>(found);
 
 
@@ -1788,7 +1801,7 @@ namespace EA_DB_Editor
 
         public bool IsExtraAccGame()
         {
-
+            return false;
             if (ACCPodSchedule.ACCConferenceSchedule != null &&
                 ACCPodSchedule.ACCConferenceSchedule.ContainsKey(this.HomeTeam) &&
                 ACCPodSchedule.ACCConferenceSchedule.ContainsKey(this.AwayTeam) &&
