@@ -733,6 +733,7 @@ namespace EA_DB_Editor
             IsOysterBowl,
             IsErikSimpsonCFBClassic,
             IsMayhemAtMBS,
+            IsEddieRobinsonClassic,
         };
 
         public static string SiteIdSuffix(ScheduledGame g)
@@ -813,6 +814,21 @@ namespace EA_DB_Editor
             if (g.TimeOfDay == tod && teams.Contains(g.HomeTeamId) && teams.Contains(g.AwayTeamId))
             {
                 g.GameSite = $"Johnny Majors Classic ({SiteIdSuffix(g)})";
+                g.SiteId = id;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsEddieRobinsonClassic(ScheduledGame g)
+        {
+            const int id = 24861407;
+            KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
+            var tod = (60 * 16) + 7;
+            if (g.TimeOfDay == tod && g.Week == 1)
+            {
+                g.GameSite = $"Eddie Robinson Classic ({SiteIdSuffix(g)})";
                 g.SiteId = id;
                 return true;
             }

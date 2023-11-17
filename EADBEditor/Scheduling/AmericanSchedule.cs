@@ -50,6 +50,9 @@ namespace EA_DB_Editor
 
             switch (currYear)
             {
+                case 2488:
+                    throw new Exception("Reorder creators a-b-c-a-b-c");
+
                 default:
                     var idx = (Form1.DynastyYear - 2482) % Creators.Length;
                     result = Creators[idx]();
@@ -548,18 +551,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                ECU.Create(),
-                Tulane.Create(),
-                UAB.Create(),
-                Memphis.Create(),
-                Temple.Create(),
-                USF.Create(),
-                UCFId.Create(),
-                Tulsa.Create(),
-                CLT.Create(),
-                SMU.Create(),
-                Rice.Create(),
-                Houston.Create(),
+                ECU.Create(Tulane, USF, CLT, Rice),
+                Tulane.Create(UAB, Temple, UCFId, Rice),
+                UAB.Create(ECU, Memphis, Tulsa, Houston),
+                Memphis.Create(ECU, Tulane, Temple, SMU),
+                Temple.Create(UAB, USF, CLT, Rice),
+                USF.Create(UAB, UCFId, CLT, Houston),
+                UCFId.Create(ECU, Memphis, Tulsa, SMU),
+                Tulsa.Create(Tulane, Temple, USF, Houston),
+                CLT.Create(Memphis, UCFId, Tulsa, SMU),
+                SMU.Create(ECU, UAB, USF, Houston),
+                Rice.Create(Memphis ,UCFId, Tulsa, SMU),
+                Houston.Create(Tulane, Temple, CLT, Rice),
             }.Create();
         }
 

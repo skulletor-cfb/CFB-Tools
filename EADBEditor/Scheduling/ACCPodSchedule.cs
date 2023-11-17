@@ -74,8 +74,16 @@ namespace EA_DB_Editor
             else
                 throw new Exception("THIS SHOULDNT HAPPEN");
 #else
-            var idx = (Form1.DynastyYear - 2485) % Creators.Length;
-            result = Creators[idx]();
+            // for 2487 season configure new schedule using scratch worksheet
+            if (Form1.DynastyYear == 2486)
+            {
+                result = CreateA();
+            }
+            else
+            {
+                var idx = (Form1.DynastyYear - 2487) % Creators.Length;
+                result = Creators[idx]();
+            }
 #endif
             var dict = result.Verify(16, RecruitingFixup.ACCId, "ACC");
 

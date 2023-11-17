@@ -26,12 +26,13 @@ namespace EA_DB_Editor
         private static bool initRun = false;
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] 
         {
-            CreateNDY, CreateNDY,
-            CreateNDZ, CreateNDZ,
-            CreateNDAPrime, CreateNDAPrime,
-            CreateNDY, CreateNDY,
-            CreateNDZ, CreateNDZ,
-            CreateNDA, CreateNDA,
+            CreateNDY, CreateNDZ,
+            CreateNDAPrime, CreateNDY,
+            CreateNDZ, CreateNDAPrime,
+
+            CreateNDY, CreateNDZ,
+            CreateNDA, CreateNDY,
+            CreateNDZ, CreateNDA,
         };
 
         public static Dictionary<int, HashSet<int>> Big12ConferenceSchedule = null;

@@ -52,6 +52,7 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
+            if (Form1.DynastyYear == 2488) throw new Exception("Reorder Big 10 creators: a-b-c-a-b-c-x-y-z-x-y-z");
             var idx = (Form1.DynastyYear - 2476) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(12, RecruitingFixup.Big10Id, "Big10");
