@@ -148,7 +148,6 @@ namespace EditorTest
             var hash = Big12Schedule.CreateY().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
-#else
         [TestMethod]
         public void Big12ScheduleA()
         {
@@ -165,6 +164,7 @@ namespace EditorTest
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
+#else
         [TestMethod]
         public void Big12ScheduleX()
         {

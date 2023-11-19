@@ -55,18 +55,6 @@ namespace EA_DB_Editor
 
             switch (currYear)
             {
-                case 2483:
-                    result = CreateX();
-                    break;
-
-                case 2484:
-                    result = CreateB();
-                    break;
-
-                case 2485:
-                    result = CreateA();
-                    break;
-
                 default:
                     var idx = (Form1.DynastyYear - 2486) % Creators.Length;
                     result = Creators[idx]();
@@ -455,18 +443,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                TT.Create(),
-                Texas.Create(),
-                OU.Create(),
-                OkSt.Create(),
-                TCU.Create(),
-                Baylor.Create(),
-                Nebraska.Create(),
-                Colorado.Create(),
-                Cincy.Create(),
-                ISU.Create(),
-                KU.Create(),
-                KSU.Create(),
+                TT.Create(TCU, Baylor, Nebraska, KSU),
+                Texas.Create(TT, OkSt, Cincy, ISU),
+                OU.Create(TT, Texas, OkSt, Cincy),
+                OkSt.Create(Baylor, Colorado, ISU, KSU),
+                TCU.Create(OU, Colorado, Cincy, ISU),
+                Baylor.Create(Texas, TCU, Colorado, KU),
+                Nebraska.Create(OU, TCU, Baylor, KU),
+                Colorado.Create(Texas, OU, Nebraska, KU),
+                Cincy.Create(TT, OkSt, ISU, KSU),
+                ISU.Create(Baylor, Nebraska, Colorado, KSU),
+                KU.Create(TT, Texas, OkSt, Cincy),
+                KSU.Create(OU, TCU , Nebraska, KU),
             }.Create();
         }
 

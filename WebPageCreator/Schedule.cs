@@ -826,7 +826,7 @@ namespace EA_DB_Editor
             const int id = 24861407;
             KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
             var tod = (60 * 16) + 7;
-            if (g.TimeOfDay == tod && g.Week == 1)
+            if (g.TimeOfDay == tod && g.Week == 0)
             {
                 g.GameSite = $"Eddie Robinson Classic ({SiteIdSuffix(g)})";
                 g.SiteId = id;
