@@ -2625,7 +2625,7 @@ namespace EA_DB_Editor
                             Year = mr["PYEA"].ToInt32(),
                             First = mr["PFNA"],
                             Last = mr["PLNA"],
-//                            Team = RecruitingFixup.TeamNames[mr["TGID"].ToInt32()],
+                            //                            Team = RecruitingFixup.TeamNames[mr["TGID"].ToInt32()],
                             TeamId = mr["TGID"].ToInt32(),
                             Redshirted = mr["PRSD"].ToInt32() == 2,
                             State = PlayerStates.TryGetValue(mr["RCHD"].ToInt32(), out var st) ? st : "unknown",
@@ -3294,7 +3294,7 @@ PPOS = Position
             }*/
 
             var bowlTeams = teams.Values.Where(t => teamIds.Contains(t.Id) && t.Rank > 25).OrderBy(t => t.Rank).ToArray();
-            
+
             var sb = new StringBuilder();
             foreach (var team in bowlTeams)
             {
@@ -3303,7 +3303,7 @@ PPOS = Position
 
             matchups.Add("************");
 
-            var bowlEligibleTeams = teams.Values.Where(t => !teamIds.Contains(t.Id) && t.Rank > 25 && t.Win >= 5).OrderByDescending(t=>t.Win).ThenBy(t=>t.Loss).ThenBy(t => t.Rank).ToArray();
+            var bowlEligibleTeams = teams.Values.Where(t => !teamIds.Contains(t.Id) && t.Rank > 25 && t.Win >= 5).OrderByDescending(t => t.Win).ThenBy(t => t.Loss).ThenBy(t => t.Rank).ToArray();
             foreach (var team in bowlEligibleTeams)
             {
                 matchups.Add(string.Join(",", RecruitingFixup.TeamNames[team.Id], RecruitingFixup.ConferenceNames[team.ConfId], string.Format("{0} -- {1}", team.Win, team.Loss)));
@@ -3728,7 +3728,7 @@ PPOS = Position
         // 3 is the AAC id
         // 13 is the Sun Belt id
         const int ConferenceThatHas11Teams = 3;
-        
+
         // 900 is start time for AAC
         // 780 is start time for SBC
         const string StartTime = "900";
@@ -3817,7 +3817,7 @@ PPOS = Position
         {
             var transferTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "TRAN");
 
-            foreach( var mr in transferTable.lRecords)
+            foreach (var mr in transferTable.lRecords)
             {
                 mr["TRYR"] = "1";
             }
@@ -3858,28 +3858,50 @@ PPOS = Position
 
         private void customFixToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            const int from = 2425;
-            const int to = 2449;
-            const string id = "PGID";
+            const string stadiumFile = "jmu-stadium.txt";
+            const string teamFile = "jmu-team.txt";
 
-            List<MaddenTable> playerTables = new List<MaddenTable>();
-            foreach (var table in maddenDB.lTables)
+            // fiu stadium is 241
+            var stadiumTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "STAD");
+            var teamTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "TEAM");
+            var jmuTeam = teamTable.lRecords.Where(r => r["TGID"].ToInt32() == 230).Single();
+            var jmuStadium = stadiumTable.lRecords.Where(r => r["SGID"].ToInt32() == 241).Single();
+#if false // copy JMU from v21
+            var dict = new Dictionary<string, string>();
+            var include = new HashSet<string>(RosterCopy.STADIUM_DATA_TO_COPY, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var f in stadiumTable.lFields)
             {
-                if (table.lFields.Any(f => f.Abbreviation == id))
+                if (include.Contains(f.Abbreviation))
                 {
-                    playerTables.Add(table);
+                    dict[f.Abbreviation] = jmuStadium[f.Abbreviation];
                 }
             }
 
-            foreach (var table in playerTables)
-            {
-                var player = table.lRecords.Where(mr => mr[id].ToInt32() == from).FirstOrDefault();
+            dict.ToJsonFile(stadiumFile);
 
-                if (player != null)
-                {
-                    player[id] = to.ToString();
-                }
+            dict = new Dictionary<string, string>();
+
+            foreach (var f in teamTable.lFields)
+            {
+                dict[f.Abbreviation] = jmuTeam[f.Abbreviation];
             }
+
+            dict.ToJsonFile(teamFile);
+#else // apply jmu changes
+            var team = teamFile.FromJsonFile<Dictionary<string, string>>();
+            var stad = stadiumFile.FromJsonFile<Dictionary<string, string>>();
+
+            foreach(var kvp in team)
+            {
+                jmuTeam[kvp.Key] = kvp.Value;
+            }
+
+            foreach( var kvp in stad)
+            {
+                jmuStadium[kvp.Key] = kvp.Value;
+            }
+#endif
         }
     }
 

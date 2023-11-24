@@ -159,6 +159,11 @@ namespace EA_DB_Editor
             var include = new[] { "BCI1", "BCR1", "BCI2", "BCR2", "BNME" };
             var dest = destination.CreateDictionary(mr => mr["BIDX"].ToInt32(), mr => mr.lEntries[12].Data.ToInt32() > 16);
             var sauce = source.CreateDictionary(mr => mr["BIDX"].ToInt32(), mr => mr.lEntries[12].Data.ToInt32() > 16);
+
+#if false
+            // don't copy over big 12 settings
+            sauce.Remove(40);
+#endif
             CopyData(
                 sauce,
                 dest,
@@ -167,9 +172,12 @@ namespace EA_DB_Editor
                 key => include.Contains(key));
         }
 
+        public static string[] STADIUM_DATA_TO_COPY = new[] { "SNAM", "SCIT", "STAT", "STNN", "TDNA", "SCAP", "STAA", "FLID", "WCLC", "STOF", "STRY", "STYP" };
+
+
         static void CopyStadiumData(MaddenTable source, MaddenTable destination)
         {
-            var include = new[] { "SNAM", "SCIT", "STAT", "STNN", "TDNA", "SCAP", "STAA", "FLID", "WCLC", "STOF", "STRY", "STYP"  };
+            var include = STADIUM_DATA_TO_COPY;
 
 #if false
             var sourceToDestinationMap = new Dictionary<int, int>();
@@ -200,6 +208,12 @@ namespace EA_DB_Editor
 #endif
                 var sourceRow = sauce[sourceKey];
                 var destRow = dest[key];
+
+#if false // do not mess with JMU stadium as its part of the roster
+                if (key == 241 || key==99)
+                    continue;
+#endif
+
                 CopyRecordData(sourceRow, destRow, dataKey => include.Contains(dataKey));
 
                 switch(key)
@@ -262,8 +276,8 @@ namespace EA_DB_Editor
             team["TCHW"].Data = "0";
             team["TCHL"].Data = "0";
             team["TCHT"].Data = "0";
-            team["FCYR"].Data = "262";
-            team["FNYR"].Data = "262";
+            team["FCYR"].Data = "0";
+            team["NCYR"].Data = "0";
         }
 
         /// <summary>
@@ -288,9 +302,12 @@ namespace EA_DB_Editor
                 if (key.IsValidTeam() == false)
                     continue;
 
-#if false
-                // uconn and nmsu are gone!
-                if (key == 61 || key == 100)
+#if false // we copy JMU roster on its own the first time
+                if (key != 230)
+                    continue;
+#elif false
+                // fiu is gone!
+                if (key == 230)
                     continue;
 #endif
 
@@ -448,6 +465,12 @@ namespace EA_DB_Editor
             foreach (var key in destinationTable.Keys)
             {
 #if false
+                // only copy over JMU coaches
+                if (key.Team != 230)
+                {
+                    continue;
+                }
+#elif false
                 // dont modify uncc/ccu, you dont have to do this for the next continuation
                 if (key.Team == 61 || key.Team == 100)
                 {
@@ -496,9 +519,13 @@ namespace EA_DB_Editor
                         action(rowKey, sourceKey, row, destination[key]);
                     }
 
-#if false
-                    // dont copy nmsu or uconn
-                    if (key == 100 || key == 61)
+#if false 
+                    // first time we just copy over jmu
+                    if (key != 230)
+                        continue;
+#elif false
+                    // dont copy fiu
+                    if (key == 230)
                         continue;
 #endif
 
@@ -599,7 +626,7 @@ namespace EA_DB_Editor
                 }
                 else
                 {
-                    tbl.Add(newKey, data);
+                    tbl[newKey] = data;
                 }
             }
 

@@ -174,12 +174,12 @@ namespace EA_DB_Editor
 
         public int? IsKUKSU(PreseasonScheduledGame game)
         {
-            return MatchTeams(13 + Is10TeamBig12Modifier, game, 39, 40);
+            return MatchTeams(12 + Is10TeamBig12Modifier, game, 39, 40);
         }
 
         public int? IsISUKSU(PreseasonScheduledGame game)
         {
-            return MatchTeams(12 + Is10TeamBig12Modifier, game, 38, 40);
+            return MatchTeams(13 + Is10TeamBig12Modifier, game, 38, 40);
         }
 
 
@@ -200,17 +200,17 @@ namespace EA_DB_Editor
 
         public int? IsNUCU(PreseasonScheduledGame game)
         {
-            return MatchTeams(13, game, 58, 22);
+            return MatchTeams(12, game, 58, 22);
         }
 
         public int? IsNUOU(PreseasonScheduledGame game)
         {
-            return MatchTeams(12 + Is10TeamBig12Modifier, game, 58, 71);
+            return MatchTeams(13 + Is10TeamBig12Modifier, game, 58, 71);
         }
 
         public int? IsOSUOU(PreseasonScheduledGame game)
         {
-            return MatchTeams(13 + Is10TeamBig12Modifier, game, 72, 71);
+            return MatchTeams(9 + Is10TeamBig12Modifier, game, 72, 71);
         }
 
     }
@@ -311,14 +311,13 @@ namespace EA_DB_Editor
             {
                 game => MatchTeams( 13, game, 34,181), //gaso-app st
                 game => MatchTeams(13, game, 143, 235), //usa-troy
-                game=> MatchTeams(13, game, 46, 234), // odu - marshall
-                game=> MatchTeams(13,game,61,233), //ccu-gsu
+                game=> MatchTeams(13, game, 230, 234), // odu-jmu
                 game=> MatchTeams(13,game,65,86), //ull-ulm
                 game=> MatchTeams(13,game,7,64), //ark st - nt
-                game=> MatchTeams(13,game,218,232), //texst-utsa
-                game=> MatchTeams(13,game,43,85), //usm-lt
 
 
+
+                game=> MatchTeams(7, game, 46, 234), // odu - marshall
                 game=> MatchTeams(12,game,7,218), //tsu-ark st
                 game => MatchTeams(7, game, 61, 181), // coastal- gaso
                 game=> MatchTeams(8, game, 181, 233), // gsu-gaso
@@ -414,7 +413,6 @@ namespace EA_DB_Editor
             {
                 game => MatchTeams(7, game, 53, 64), //mtsu-nt
                 game => MatchTeams(13, game, 53, 211), //wku-mtsu
-                game=> MatchTeams(13,game,229,230), //fau-fiu
                 game=> MatchTeams(13,game,8,57), //army-navy
                 game => MatchTeams(12, game, 64, 232), //nt-UTSA
                 //game=> MatchTeams(13,game,43,105), //lt-utep
