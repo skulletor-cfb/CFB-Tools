@@ -26,6 +26,7 @@ namespace RefreshRunner
         static int StartContinuation6 = 263; //this is 2313 , after this we need continuation 6
         static int StartContinuation7 = 321; // this is 2371, after this we need continuation 7
         static int StartContinuation8 = 379; // this is 2429, after this we need continuation 8
+        static int StartContinuation9 = 437; // this is 2487, after this we need continuation 9
         static int ContinuationConfig1 = 55; //this is 2068-2125
         static int ContinuationConfig2 = 113; //this is 2126-2183
         static int ContinuationConfig3 = 171; //this is 2184-2197
@@ -34,6 +35,7 @@ namespace RefreshRunner
         static int ContinuationConfig6 = 301; //this is 2314-2371
         static int ContinuationConfig7 = 359; //this is 2372-2429
         static int ContinuationConfig8 = 417; //this is 2430-2487
+        static int ContinuationConfig9 = 475; //this is 2488-2545
         static string ContinationDir1 = @"e:\NCAA_2014\Archive\2067_Miami_HC_(15-0)_Week_EOY";
         static string ContinationDir2 = @"e:\NCAA_2014\Archive\2125_Season";
         static string ContinationDir3 = @"e:\NCAA_2014\Archive\2183_Season";
@@ -42,6 +44,7 @@ namespace RefreshRunner
         static string ContinationDir6 = @"e:\NCAA_2014\Archive\2313_Season";
         static string ContinationDir7 = @"e:\NCAA_2014\Archive\2371_Season";
         static string ContinationDir8 = @"e:\NCAA_2014\Archive\2429_Season";
+        static string ContinationDir9 = @"e:\NCAA_2014\Archive\2487_Season";
         static string CF1 = @"e:\NCAA_2014\Archive\Continuation68to125\continuationfile.txt";
         static string CF2 = @"e:\NCAA_2014\Archive\Continuation126to183\continuationfile.txt";
         static string CF3 = @"e:\NCAA_2014\Archive\Continuation184to197\continuationfile.txt";
@@ -49,7 +52,8 @@ namespace RefreshRunner
         static string CF5 = @"e:\NCAA_2014\Archive\Continuation256to313\continuationfile.txt";
         static string CF6 = @"e:\NCAA_2014\Archive\Continuation314to371\continuationfile.txt";
         static string CF7 = @"e:\NCAA_2014\Archive\Continuation372to429\continuationfile.txt";
-        static string CF8 = @"e:\NCAA_2014\Archive\continuationfile.txt";
+        static string CF8 = @"e:\NCAA_2014\Archive\Continuation430to487\continuationfile.txt";
+        static string CF9 = @"e:\NCAA_2014\Archive\continuationfile.txt";
         static int SetNeutralSiteYear = 156; // the year 2206 in dynasty before this we need
         const string OldNeutralSiteValue = "271,272,276,273,{150;150},{275;277;186},{147;169;153;168},182,184,183";
         const string OldStadiumNickNameOverride = "Stadium=271,BeforeWeek=2,NickName=Cowboys Classic;Stadium=184,BeforeWeek=3,NickName=Rocky Mountain Showdown;Stadium=276,BeforeWeek=3,NickName=Chicago Kickoff;Stadium=183,BeforeWeek=16,NickName=World's Largest Outdoor Cocktail Party;Stadium=182,BeforeWeek=16,NickName=Red River Shootout;Stadium=150,BeforeWeek=2,NickName=Fiesta Kickoff;Stadium=275,BeforeWeek=2,NickName=Atlantic Kickoff;Stadium=186,BeforeWeek=2,NickName=Atlantic Kickoff;Stadium=277,BeforeWeek=2,NickName=Atlantic Kickoff;Stadium=147,BeforeWeek=2,NickName=Sunshine State Kickoff;Stadium=169,BeforeWeek=2,NickName=Sunshine State Kickoff;Stadium=153,BeforeWeek=2,NickName=Sunshine State Kickoff;Stadium=168,BeforeWeek=2,NickName=Sunshine State Kickoff;";
@@ -206,11 +210,17 @@ namespace RefreshRunner
                         continuationYear = ContinuationConfig7;
                         cf = CF7;
                     }
-                    else
+                    else if(i<=StartContinuation9)
                     {
                         continuationDir = ContinationDir8;
                         continuationYear = ContinuationConfig8;
                         cf = CF8;
+                    }
+                    else
+                    {
+                        continuationDir = ContinationDir9;
+                        continuationYear = ContinuationConfig9;
+                        cf = CF9;
                     }
                 }
 

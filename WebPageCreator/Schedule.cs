@@ -167,7 +167,7 @@ namespace EA_DB_Editor
 
 
             // ru-uconn
-            rivalries.Add(new[] { 80, 100 });
+            // rivalries.Add(new[] { 80, 100 });
 
             // gt-gsu
             rivalries.Add(new[] { 31, 233 });
@@ -332,7 +332,7 @@ namespace EA_DB_Editor
             rivalries.Add(new[] { 20, 76 });
 
             // NMSU - UNM
-            rivalries.Add(new[] { 60, 61 });
+            //rivalries.Add(new[] { 60, 61 });
 
             // GaSo-App St
             rivalries.Add(new[] { 901, 902 });
@@ -341,7 +341,7 @@ namespace EA_DB_Editor
             rivalries.Add(new[] { 96, 85 });
 
             // UTEP-NMSU
-            rivalries.Add(new[] { 61, 105 });
+            //rivalries.Add(new[] { 61, 105 });
 
             // SDSU-FS
             rivalries.Add(new[] { 81, 29 });
@@ -398,7 +398,7 @@ namespace EA_DB_Editor
             rivalries.Add(new[] { 12, 111 });
 
             // fau-fiu
-            rivalries.Add(new[] { 230, 229 });
+            //rivalries.Add(new[] { 230, 229 });
 
             // army-ru
             rivalries.Add(new[] { 8, 80 });
@@ -422,7 +422,7 @@ namespace EA_DB_Editor
             rivalries.Add(new[] { 16, 81 });
 
             // uconn-su
-            rivalries.Add(new[] { 100, 88 });
+            //rivalries.Add(new[] { 100, 88 });
 
             // usm-ecu
             rivalries.Add(new[] { 25, 85 });

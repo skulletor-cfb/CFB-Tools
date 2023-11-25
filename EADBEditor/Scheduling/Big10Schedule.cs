@@ -25,12 +25,12 @@ namespace EA_DB_Editor
         // public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateG, CreateG, CreateA, CreateA, CreateH, CreateH, CreateD, CreateD, CreateJ, CreateJ, CreateB, CreateB, CreateI, CreateI, CreateE, CreateE, CreateF, CreateF, CreateC, CreateC, };
         //public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE };
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
-            CreateB, CreateB,
-            CreateY, CreateY,
-            CreateC, CreateC, // no ohio st - penn st
-            CreateZ, CreateZ,
-            CreateA, CreateA,
-            CreateX, CreateX, //no ohio st- ill
+            CreateA, CreateB,
+            CreateC, CreateA, 
+            CreateB, CreateC,
+            CreateX, CreateY,
+            CreateZ, CreateX, 
+            CreateY, CreateZ,
         };
 
         public static Dictionary<int, HashSet<int>> Big10ConferenceSchedule = null;
@@ -52,8 +52,7 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            if (Form1.DynastyYear == 2488) throw new Exception("Reorder Big 10 creators: a-b-c-a-b-c-x-y-z-x-y-z");
-            var idx = (Form1.DynastyYear - 2476) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2488) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(12, RecruitingFixup.Big10Id, "Big10");
             Big10ConferenceSchedule = result.BuildHashSet();

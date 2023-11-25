@@ -266,6 +266,9 @@ namespace EA_DB_Editor
 
             if (!Teams.ContainsKey(100))
                 Teams.Add(100, new Team(100, "Connecticut") { ToughestPlaceToPlayRank = 1000 });
+
+            if(!Teams.ContainsKey(230))
+                Teams.Add(230, new Team(230, "FIU") { ToughestPlaceToPlayRank = 1000 });
         }
 
         public static void TopPrograms(MaddenDatabase db, bool isPreseason)

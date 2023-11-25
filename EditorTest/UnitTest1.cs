@@ -164,7 +164,6 @@ namespace EditorTest
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
-#else
         [TestMethod]
         public void Big12ScheduleX()
         {
@@ -172,6 +171,7 @@ namespace EditorTest
             var hash = Big12Schedule.CreateX().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
+#else
 
         [TestMethod]
         public void Big12ScheduleNDA()
@@ -464,6 +464,14 @@ namespace EditorTest
         {
             SunBeltSchedule.CreateF().Verify(14, RecruitingFixup.SBCId, "SunBelt  ", false);
             var hash = SunBeltSchedule.CreateF().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void SBCScheduleG()
+        {
+            SunBeltSchedule.CreateG().Verify(14, RecruitingFixup.SBCId, "SunBelt  ", false);
+            var hash = SunBeltSchedule.CreateG().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 #if false

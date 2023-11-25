@@ -458,26 +458,27 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-        public static Dictionary<int, int[]> CreateNDA()
+        public static Dictionary<int, int[]> CreateNDAPrime()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                TT.Create(),
-                Texas.Create(),
-                OU.Create(),
-                OkSt.Create(),
-                TCU.Create(),
-                Baylor.Create(),
-                Nebraska.Create(),
-                Colorado.Create(),
-                Cincy.Create(),
-                ISU.Create(),
-                KU.Create(),
-                KSU.Create(),
+                TT.Create(Baylor, Colorado, Cincy, ISU),
+                Texas.Create(TT, OkSt, Nebraska, ISU),
+                OU.Create(Texas, OkSt, Cincy, ISU),
+                OkSt.Create(TT, Baylor, Nebraska, KSU),
+                TCU.Create(Texas, OkSt, Cincy, KU),
+                Baylor.Create(Texas, OU, TCU, KSU),
+                Nebraska.Create(TT, OU, Cincy, KSU),
+                Colorado.Create(OU, TCU, Nebraska, KU),
+                Cincy.Create(OkSt, Baylor, Colorado, KU),
+                ISU.Create(TCU, Nebraska, Colorado, KSU),
+                KU.Create(Texas, OU, Baylor, ISU),
+                KSU.Create(TT, TCU, Colorado, KU),
             }.Create();
         }
 
-        public static Dictionary<int, int[]> CreateNDAPrime()
+
+        public static Dictionary<int, int[]> CreateNDA()
         {
             return new List<KeyValuePair<int, int[]>>
             {

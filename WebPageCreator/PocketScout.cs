@@ -1554,6 +1554,7 @@ namespace EA_DB_Editor
             else if (Team_ID == 902) { Team_Name = "Georgia Southern"; }
             else if (Team_ID == 903) { Team_Name = "Coastal Carolina"; }
             else if (Team_ID == 904) { Team_Name = "Charlotte"; }
+            else if (Team_ID == 905) { Team_Name = "James Madison"; }
             else { Team_Name = "Unemployeed"; }
             return Team_Name;
         }

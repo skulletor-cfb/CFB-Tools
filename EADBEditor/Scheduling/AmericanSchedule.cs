@@ -19,9 +19,9 @@ namespace EA_DB_Editor
         };*/
 
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
-            CreateA, CreateA, 
-            CreateB, CreateB,
-            CreateC, CreateC,
+            CreateA, CreateB, 
+            CreateC, CreateA,
+            CreateB, CreateC,
         };
 
 
@@ -50,11 +50,8 @@ namespace EA_DB_Editor
 
             switch (currYear)
             {
-                case 2488:
-                    throw new Exception("Reorder creators a-b-c-a-b-c");
-
                 default:
-                    var idx = (Form1.DynastyYear - 2482) % Creators.Length;
+                    var idx = (Form1.DynastyYear - 2488) % Creators.Length;
                     result = Creators[idx]();
                     break;
             }
