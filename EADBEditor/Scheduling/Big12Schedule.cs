@@ -55,6 +55,9 @@ namespace EA_DB_Editor
 
             switch (currYear)
             {
+                case 2492:
+                    throw new Exception("Consider redoing big 12 schedule so it's even and NU-OU don't meet every year???");
+
                 default:
                     var idx = (Form1.DynastyYear - 2486) % Creators.Length;
                     result = Creators[idx]();

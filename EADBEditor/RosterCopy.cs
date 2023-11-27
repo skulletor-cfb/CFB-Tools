@@ -453,7 +453,7 @@ namespace EA_DB_Editor
 
         static void CopyCoachTable(ContinuationData continuationData, MaddenTable source, MaddenTable destination)
         {
-            var exclude = new[] { "CCID", "CLPS", "CFUC", "CSXP", "PTID", "TOID", "CLPS", "TGID" };
+            var exclude = new[] { "CCID", "CLPS", "CFUC", "CSXP", "PTID", "TOID", "CLPS", "TGID", "CCFY" };
             var coachSkillKeys = File.ReadAllText("coachColumns.txt").Split(',').Where(s => !exclude.Contains(s)).ToArray();
 
             //CCID is coach ID
@@ -464,7 +464,7 @@ namespace EA_DB_Editor
 
             foreach (var key in destinationTable.Keys)
             {
-#if false
+#if true
                 // only copy over JMU coaches
                 if (key.Team != 230)
                 {

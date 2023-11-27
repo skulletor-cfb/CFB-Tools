@@ -139,7 +139,7 @@ namespace EA_DB_Editor
         public static Player Find(int teamId, char firstInitial, string LastName)
         {
             var roster = Rosters[teamId];
-            var lastNames = roster.Where(p => p.LastName == LastName && p.FirstName[0] == firstInitial).ToArray();
+            var lastNames = roster.Where(p => p.LastName == LastName && p.FirstName.Length > 0 && p.FirstName[0] == firstInitial).ToArray();
             return lastNames.Length == 0 ? null : lastNames.First();
         }
 
