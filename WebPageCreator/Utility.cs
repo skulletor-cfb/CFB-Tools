@@ -397,7 +397,7 @@ namespace EA_DB_Editor
         public static void AddJs(TextWriter tw)
         {
             tw.Write("<script src=\"../HTML/utility.js\"></script>");
-            tw.Write("<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js\"></script>");
+            tw.Write("<script src=\"../jquery.min.js\"></script>");
         }
 
         public static void WriteNavBarAndHeader(TextWriter tw, string title, string loadFunc)
