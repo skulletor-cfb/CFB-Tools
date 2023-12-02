@@ -3733,6 +3733,9 @@ PPOS = Position
         // 780 is start time for SBC
         const string StartTime = "900";
 
+        // friday is 4, sat is 5
+        const string GameDay = "4";
+
         private void setSunBeltCCGToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show("FCYR should be the same as start of season", "decrement conference championships!!");
@@ -3773,7 +3776,7 @@ PPOS = Position
                     mr["SEWN"] = week.ToString();
                     mr["SEWT"] = week.ToString();
                     mr["SEYR"] = "0";
-                    mr["GDAT"] = "5";
+                    mr["GDAT"] = GameDay;
                     mr["GFOT"] = "0";
                     mr["GFFU"] = "0";
                     mr["GFHU"] = "0";

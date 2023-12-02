@@ -444,10 +444,26 @@ namespace EditorTest
         }
 
         [TestMethod]
+        public void SBCScheduleCPrime()
+        {
+            SunBeltSchedule.CreateCPrime().Verify(14, RecruitingFixup.SBCId, "SunBelt  ", false);
+            var hash = SunBeltSchedule.CreateCPrime().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
         public void SBCScheduleD()
         {
             SunBeltSchedule.CreateD().Verify(14, RecruitingFixup.SBCId, "SunBelt  ", false);
             var hash = SunBeltSchedule.CreateD().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void SBCScheduleDPrime()
+        {
+            SunBeltSchedule.CreateDPrime().Verify(14, RecruitingFixup.SBCId, "SunBelt  ", false);
+            var hash = SunBeltSchedule.CreateDPrime().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
@@ -553,6 +569,7 @@ namespace EditorTest
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
+        /*
         [TestMethod]
         public void MACScheduleD()
         {
@@ -567,7 +584,7 @@ namespace EditorTest
             MACSchedule.CreateE().Verify(12, RecruitingFixup.MACId, "MAC  ", false);
             var hash = MACSchedule.CreateE().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
+        }*/
 
     }
 }

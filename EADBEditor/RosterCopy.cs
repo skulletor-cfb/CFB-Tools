@@ -464,7 +464,7 @@ namespace EA_DB_Editor
 
             foreach (var key in destinationTable.Keys)
             {
-#if true
+#if false
                 // only copy over JMU coaches
                 if (key.Team != 230)
                 {

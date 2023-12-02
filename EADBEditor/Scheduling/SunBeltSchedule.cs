@@ -55,6 +55,25 @@ namespace EA_DB_Editor
         {
             var idx = (Form1.DynastyYear - 2488) % Creators.Length;
             var result = Creators[idx]();
+
+            switch(Form1.DynastyYear)
+            {
+                case 2491:
+                    result = CreateDPrime();
+                    break;
+
+                case 2497:
+                    result = CreateCPrime();
+                    break;
+
+                case 2498:
+                    result = CreateDPrime();
+                    break;
+
+                default:
+                    break;
+            }
+
             result = result.Verify(14, RecruitingFixup.SBCId, "SunBelt");
             SunbeltConferenceSchedule = result.BuildHashSet();
             return result;
@@ -138,6 +157,50 @@ namespace EA_DB_Editor
                 Troy.Create(ArkSt, USA, ULM, AppSt),
                 ULL.Create(ArkSt, TexSt, Troy, GSU),
 
+                UMarsh.Create(ULM, GSU, ODU, Coastal),
+                JMU.Create(USM, UMarsh, GSU, Coastal),
+                AppSt.Create(TexSt, UMarsh, JMU, Coastal),
+                GSU.Create(Troy, AppSt, ODU, GASO),
+                ODU.Create(ULL, JMU, AppSt, GASO),
+                Coastal.Create(ArkSt, GSU, ODU, GASO),
+                GASO.Create(USA, UMarsh, JMU, AppSt),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateD()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                ArkSt.Create(USA, ULM, USM, GASO),
+                USA.Create(USM, TexSt, ULL, UMarsh),
+                ULM.Create(USA, USM, ULL, JMU),
+                USM.Create(TexSt, Troy, ULL, AppSt),
+                TexSt.Create(ArkSt, ULM, Troy, GSU),
+                Troy.Create(ArkSt, USA, ULM, ODU),
+                ULL.Create(ArkSt, TexSt, Troy, Coastal),
+
+                UMarsh.Create(ArkSt, GSU, ODU, Coastal),
+                JMU.Create(USA, UMarsh, GSU, Coastal),
+                AppSt.Create(ULM, UMarsh, JMU, Coastal),
+                GSU.Create(USM, AppSt, ODU, GASO),
+                ODU.Create(TexSt, JMU, AppSt, GASO),
+                Coastal.Create(Troy, GSU, ODU, GASO),
+                GASO.Create(ULL, UMarsh, JMU, AppSt),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateCPrime()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                ArkSt.Create(USA, ULM, USM, ODU),
+                USA.Create(USM, TexSt, ULL, Coastal),
+                ULM.Create(USA, USM, ULL, GASO),
+                USM.Create(TexSt, Troy, ULL, UMarsh),
+                TexSt.Create(ArkSt, ULM, Troy, JMU),
+                Troy.Create(ArkSt, USA, ULM, AppSt),
+                ULL.Create(ArkSt, TexSt, Troy, GSU),
+
                 UMarsh.Create(ArkSt, GSU, ODU, Coastal),
                 JMU.Create(USA, UMarsh, GSU, Coastal),
                 AppSt.Create(ULM, UMarsh, JMU, Coastal),
@@ -149,25 +212,25 @@ namespace EA_DB_Editor
         }
 
 
-        public static Dictionary<int, int[]> CreateD()
+        public static Dictionary<int, int[]> CreateDPrime()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                ArkSt.Create(),
-                USA.Create(),
-                ULM.Create(),
-                USM.Create(),
-                TexSt.Create(),
-                Troy.Create(),
-                ULL.Create(),
+                ArkSt.Create(USA, ULM, USM, GASO),
+                USA.Create(USM, TexSt, ULL, UMarsh),
+                ULM.Create(USA, USM, ULL, JMU),
+                USM.Create(TexSt, Troy, ULL, AppSt),
+                TexSt.Create(ArkSt, ULM, Troy, GSU),
+                Troy.Create(ArkSt, USA, ULM, ODU),
+                ULL.Create(ArkSt, TexSt, Troy, Coastal),
 
-                UMarsh.Create(),
-                JMU.Create(),
-                AppSt.Create(),
-                GSU.Create(),
-                ODU.Create(),
-                Coastal.Create(),
-                GASO.Create(),
+                UMarsh.Create(ULM, GSU, ODU, Coastal),
+                JMU.Create(USM, UMarsh, GSU, Coastal),
+                AppSt.Create(TexSt, UMarsh, JMU, Coastal),
+                GSU.Create(Troy, AppSt, ODU, GASO),
+                ODU.Create(ULL, JMU, AppSt, GASO),
+                Coastal.Create(ArkSt, GSU, ODU, GASO),
+                GASO.Create(USA, UMarsh, JMU, AppSt),
             }.Create();
         }
 
@@ -176,21 +239,21 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                ArkSt.Create(),
-                USA.Create(),
-                ULM.Create(),
-                USM.Create(),
-                TexSt.Create(),
-                Troy.Create(),
-                ULL.Create(),
+                ArkSt.Create(USA, ULM, USM, JMU),
+                USA.Create(USM, TexSt, ULL, AppSt),
+                ULM.Create(USA, USM, ULL, GSU),
+                USM.Create(TexSt, Troy, ULL, ODU),
+                TexSt.Create(ArkSt, ULM, Troy, Coastal),
+                Troy.Create(ArkSt, USA, ULM, GASO),
+                ULL.Create(ArkSt, TexSt, Troy, UMarsh),
 
-                UMarsh.Create(),
-                JMU.Create(),
-                AppSt.Create(),
-                GSU.Create(),
-                ODU.Create(),
-                Coastal.Create(),
-                GASO.Create(),
+                UMarsh.Create(Troy, GSU, ODU, Coastal),
+                JMU.Create(ULL, UMarsh, GSU, Coastal),
+                AppSt.Create(ArkSt, UMarsh, JMU, Coastal),
+                GSU.Create(USA, AppSt, ODU, GASO),
+                ODU.Create(ULM, JMU, AppSt, GASO),
+                Coastal.Create(USM, GSU, ODU, GASO),
+                GASO.Create(TexSt, UMarsh, JMU, AppSt),
             }.Create();
         }
 
@@ -198,21 +261,21 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                ArkSt.Create(),
-                USA.Create(),
-                ULM.Create(),
-                USM.Create(),
-                TexSt.Create(),
-                Troy.Create(),
-                ULL.Create(),
+                ArkSt.Create(USA, ULM, USM, GSU),
+                USA.Create(USM, TexSt, ULL, ODU),
+                ULM.Create(USA, USM, ULL, Coastal),
+                USM.Create(TexSt, Troy, ULL, GASO),
+                TexSt.Create(ArkSt, ULM, Troy, UMarsh),
+                Troy.Create(ArkSt, USA, ULM, JMU),
+                ULL.Create(ArkSt, TexSt, Troy, AppSt),
 
-                UMarsh.Create(),
-                JMU.Create(),
-                AppSt.Create(),
-                GSU.Create(),
-                ODU.Create(),
-                Coastal.Create(),
-                GASO.Create(),
+                UMarsh.Create(USM, GSU, ODU, Coastal),
+                JMU.Create(TexSt, UMarsh, GSU, Coastal),
+                AppSt.Create(Troy, UMarsh, JMU, Coastal),
+                GSU.Create(ULL, AppSt, ODU, GASO),
+                ODU.Create(ArkSt, JMU, AppSt, GASO),
+                Coastal.Create(USA, GSU, ODU, GASO),
+                GASO.Create(ULM, UMarsh, JMU, AppSt),
             }.Create();
         }
 
@@ -220,21 +283,21 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                ArkSt.Create(),
-                USA.Create(),
-                ULM.Create(),
-                USM.Create(),
-                TexSt.Create(),
-                Troy.Create(),
-                ULL.Create(),
+                ArkSt.Create(USA, ULM, USM, Coastal),
+                USA.Create(USM, TexSt, ULL, GASO),
+                ULM.Create(USA, USM, ULL, UMarsh),
+                USM.Create(TexSt, Troy, ULL, JMU),
+                TexSt.Create(ArkSt, ULM, Troy, AppSt),
+                Troy.Create(ArkSt, USA, ULM, GSU),
+                ULL.Create(ArkSt, TexSt, Troy, ODU),
 
-                UMarsh.Create(),
-                JMU.Create(),
-                AppSt.Create(),
-                GSU.Create(),
-                ODU.Create(),
-                Coastal.Create(),
-                GASO.Create(),
+                UMarsh.Create(USA, GSU, ODU, Coastal),
+                JMU.Create(ULM, UMarsh, GSU, Coastal),
+                AppSt.Create(USM, UMarsh, JMU, Coastal),
+                GSU.Create(TexSt, AppSt, ODU, GASO),
+                ODU.Create(Troy, JMU, AppSt, GASO),
+                Coastal.Create(ULL, GSU, ODU, GASO),
+                GASO.Create(ArkSt, UMarsh, JMU, AppSt),
             }.Create();
         }
 
