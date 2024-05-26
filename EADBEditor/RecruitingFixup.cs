@@ -104,7 +104,6 @@ namespace EA_DB_Editor
             var positionGroups = new int[] { 1, 2, 3, 4, 0, 1, 5, 6, 7, 0, 8, 0, 9, 10, 11, 12, 13, 14 };
             var recruitPitchTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPR");
             // select 25 random positions:  5 from Texas, 15 from SEC country, 5 elsewhere, 5 from florida
-            const int totalUpgrades = 56;
             var positionsToLookFor = new Stack<int>();
 
             for (int i = 0; i < 100; i++)
@@ -120,28 +119,29 @@ namespace EA_DB_Editor
             positionsToLookFor = l.ToArray();
 #endif
 
-            const int nationalTake = 10;
+            var caliPosition = positionsToLookFor.Pop(5);
+            var texPosition = positionsToLookFor.Pop(9);
+            var flPosition = positionsToLookFor.Pop(12);
+            var secPosition = positionsToLookFor.Pop(20);
+            var nationalPosition = positionsToLookFor.Pop(10);
+            var hawaiiPosition = positionsToLookFor.Pop(1);
+
             // get the lowest ranked freshman at the position we have selected
-            var caliRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Take(5).Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == caliId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
-            var texasRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(5).Take(9).Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == texasId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
-            var floridaRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(14).Take(12).Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == floridaId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
-            var secRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(26).Take(20).Contains(r["RPGP"].ToInt32()) && SECStates.Contains(r["STAT"].ToInt32())).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
-            var nationalRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(totalUpgrades).Take(nationalTake).Contains(r["RPGP"].ToInt32()) && SECStates.Concat(new[] { texasId, caliId }).Contains(r["STAT"].ToInt32()) == false).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
+            var caliRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && caliPosition.Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == caliId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
+            var texasRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && texPosition.Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == texasId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
+            var floridaRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && flPosition.Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == floridaId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
+            var secRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && secPosition.Contains(r["RPGP"].ToInt32()) && SECStates.Contains(r["STAT"].ToInt32())).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
+            var nationalRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && nationalPosition.Contains(r["RPGP"].ToInt32()) && SECStates.Concat(new[] { texasId, caliId }).Contains(r["STAT"].ToInt32()) == false).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
             var athRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && r["RPGP"].ToInt32() == 18).OrderByDescending(r => r["RCRK"].ToInt32()).Take(3).ToArray();
-            MaddenRecord[] hawaiiRecruits = new MaddenRecord[0];
-
-            if ((DateTime.UtcNow.Ticks % 5) > 1)
-            {
-                hawaiiRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(totalUpgrades).Take(1).Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == 10).OrderByDescending(r => r["RCRK"].ToInt32()).Take(2000).ToArray();
-            }
-
+            var hawaiiRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && hawaiiPosition.Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == 10).OrderByDescending(r => r["RCRK"].ToInt32()).Take(2000).ToArray();
+   
             List<MaddenRecord> records = new List<MaddenRecord>();
-            FillList(records, caliRecruits, positionsToLookFor.Pop(caliRecruits.Length));
-            FillList(records, texasRecruits, positionsToLookFor.Pop(texasRecruits.Length));
-            FillList(records, floridaRecruits, positionsToLookFor.Pop(floridaRecruits.Length));
-            FillList(records, secRecruits, positionsToLookFor.Pop(secRecruits.Length));
-            FillList(records, nationalRecruits, positionsToLookFor.Pop(nationalRecruits.Length));
-            FillList(records, hawaiiRecruits, positionsToLookFor.Pop(hawaiiRecruits.Length));
+            FillList(records, caliRecruits, caliPosition);
+            FillList(records, texasRecruits, texPosition);
+            FillList(records, floridaRecruits, flPosition);
+            FillList(records, secRecruits, secPosition);
+            FillList(records, nationalRecruits, nationalPosition);
+            FillList(records, hawaiiRecruits, hawaiiPosition);
 
             // ATH recruits get a 5-20 adder to each stat
             foreach (var ath in athRecruits)
