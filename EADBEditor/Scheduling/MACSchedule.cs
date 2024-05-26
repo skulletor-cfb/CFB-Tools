@@ -78,18 +78,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Akron.Create(),
-                KentSt.Create(),
-                BGSU.Create(),
-                Toledo.Create(),
-                NIU.Create(),
-                BallSt.Create(),
-                Miami.Create(),
-                Ohio.Create(),
-                Buffalo.Create(),
-                EMU.Create(),
-                CMU.Create(),
-                WMU.Create(),
+                Akron.Create(NIU, Ohio, Buffalo, EMU),
+                KentSt.Create(Akron, BallSt, Buffalo, CMU),
+                BGSU.Create(Akron, KentSt, NIU, WMU),
+                Toledo.Create(KentSt, BGSU, BallSt, EMU),
+                NIU.Create(Toledo, Miami, Buffalo, CMU),
+                BallSt.Create(Akron, NIU, Ohio, WMU),
+                Miami.Create(KentSt, BGSU, BallSt, EMU),
+                Ohio.Create(BGSU, Toledo, Miami, CMU),
+                Buffalo.Create(Toledo, Miami, Ohio, WMU),
+                EMU.Create(KentSt, NIU, Ohio, CMU),
+                CMU.Create(BGSU, BallSt, Buffalo, WMU),
+                WMU.Create(Akron, Toledo, Miami, EMU),
             }.Create();
         }
 
@@ -97,18 +97,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Akron.Create(),
-                KentSt.Create(),
-                BGSU.Create(),
-                Toledo.Create(),
-                NIU.Create(),
-                BallSt.Create(),
-                Miami.Create(),
-                Ohio.Create(),
-                Buffalo.Create(),
-                EMU.Create(),
-                CMU.Create(),
-                WMU.Create(),
+                Akron.Create(BallSt, Miami, Buffalo, EMU),
+                KentSt.Create(Akron, NIU, Ohio, CMU),
+                BGSU.Create(Akron, KentSt, Buffalo, WMU),
+                Toledo.Create(Akron, KentSt, BGSU, EMU),
+                NIU.Create(Toledo, Miami, Ohio, CMU),
+                BallSt.Create(BGSU, NIU , Buffalo, WMU),
+                Miami.Create(KentSt, Toledo, BallSt, EMU),
+                Ohio.Create(BGSU, BallSt, Miami, CMU),
+                Buffalo.Create(Toledo, NIU, Ohio, WMU),
+                EMU.Create(BGSU, BallSt, Buffalo, CMU),
+                CMU.Create(Akron, Toledo, Miami, WMU),
+                WMU.Create(KentSt, NIU, Ohio, EMU),
             }.Create();
         }
 

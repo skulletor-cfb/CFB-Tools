@@ -2795,7 +2795,7 @@ PPOS = Position
                     var toLines = lines.Skip(lines.Length / 2).ToArray();
 
                     // check to make sure we don't have duplicates
-                    void CheckForUniqueness(string[] linesToCheck, string scenario)
+                    bool CheckForUniqueness(string[] linesToCheck, string scenario)
                     {
                         var set = new HashSet<string>();
 
@@ -2804,13 +2804,17 @@ PPOS = Position
                             if (!set.Add(line))
                             {
                                 MessageBox.Show($"Duplicate value in {scenario}", line);
-                                return;
+                                return false;
                             }
                         }
+
+                        return true;
                     }
 
-                    CheckForUniqueness(fromLines, "from");
-                    CheckForUniqueness(toLines, "to");
+                    if (!CheckForUniqueness(fromLines, "from") || !CheckForUniqueness(toLines, "to"))
+                    {
+                        return;
+                    }
 
                     for (int i = 0; i < offset; i++)
                     {
@@ -3111,14 +3115,14 @@ PPOS = Position
                 Directory.Delete(dir, true);
             }
 
-
+            StringBuilder sb = null;
             Directory.CreateDirectory(dir);
             int idx = 0;
 
             foreach (var table in maddenDB.lTables)
             {
                 var name = table.Abbreviation ?? table.Name;
-                StringBuilder sb = new StringBuilder();
+                sb = new StringBuilder();
                 var columns = table.lFields.Select(f => f.Abbreviation).ToArray();
                 sb.AppendLine(string.Join(",", columns));
 
@@ -3167,6 +3171,80 @@ PPOS = Position
             }
 
             list.ToJsonFile(SCHDFILE);
+
+            var teamScheduleTable = MaddenTable.FindTable(maddenDB.lTables, "TSCH");
+            var teamTable = MaddenTable.FindTable(maddenDB.lTables, "TEAM");
+
+            // first for each team build a dictionary of conference record
+            var teamConfRecord = new Dictionary<int, ConferenceRecord>();
+            foreach (var team in teamTable.lRecords)
+            {
+                var conferenceWin = team.lEntries[193].Data.ToInt32();
+                var conferenceLoss = team.lEntries[181].Data.ToInt32();
+
+                teamConfRecord[team.lEntries[40].Data.ToInt32()] = ConferenceRecord.Create(conferenceWin, conferenceLoss);
+            }
+
+            var teamConfOppRecord = new Dictionary<int, ConferenceRecord>();
+
+            foreach (var record in teamScheduleTable.lRecords.Where(mr => mr.lEntries[4].Data.ToInt32() < 15))
+            {
+                // the team the schedule is for
+                var teamId = record.lEntries[2].Data.ToInt32();
+
+                // the opponent
+                var oppId = record.lEntries[1].Data.ToInt32();
+
+                // in the same conference
+                if (RecruitingFixup.TeamAndConferences.TryGetValue(teamId, out var teamConfId) &&
+                    RecruitingFixup.TeamAndConferences.TryGetValue(oppId, out var oppConfId) &&
+                    teamConfId == oppConfId)
+                {
+                    if (teamConfOppRecord.TryGetValue(teamId, out var oppRecord))
+                    {
+                        var confRecord = teamConfRecord[oppId];
+                        teamConfOppRecord[teamId].Add(confRecord);
+                    }
+                    else
+                    {
+                        teamConfOppRecord[teamId] = ConferenceRecord.Create(teamConfRecord[oppId]);
+                    }
+                }
+            }
+
+            var sorted = teamConfOppRecord.OrderBy(kvp => RecruitingFixup.TeamAndConferences[kvp.Key]).ThenByDescending(kvp => kvp.Value.WinPct);
+            sb = new StringBuilder();
+            foreach (var team in sorted)
+            {
+                sb.AppendLine($"{RecruitingFixup.TeamNames[team.Key]},{team.Value.WinPct},{team.Value.Win},{team.Value.Loss}");
+            }
+
+            File.WriteAllText(Path.Combine(dir, "Conference-Opp-Records.csv"), sb.ToString());
+        }
+
+        public class ConferenceRecord
+        {
+            public int Win { get; private set; }
+
+            public int Loss { get; private set; }
+
+            public int WinPct => (1000 * Win) / (Win + Loss);
+
+            public static ConferenceRecord Create(int win, int loss) => new ConferenceRecord { Win = win, Loss = loss };
+
+            public static ConferenceRecord Create(ConferenceRecord record) => new ConferenceRecord { Win = record.Win, Loss = record.Loss };
+
+            public void Add(int win, int loss)
+            {
+                this.Win += win;
+                this.Loss += loss;
+            }
+
+            public void Add(ConferenceRecord record)
+            {
+                this.Win += record.Win;
+                this.Loss += record.Loss;
+            }
         }
 
         const string SCHDFILE = "schedule.txt";

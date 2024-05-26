@@ -35,6 +35,18 @@ namespace EA_DB_Editor
             CreateNDZ, CreateNDA,
         };
 
+        public static Func<Dictionary<int, int[]>>[] Creators2 = new Func<Dictionary<int, int[]>>[]
+        {
+
+            CreateNDAPrime, CreateNDZ,
+            CreateNDY, CreateNDA,
+            CreateNDY, CreateNDZ,
+
+            CreateNDA, CreateNDY,
+            CreateNDZ, CreateNDAPrime,
+            CreateNDZ, CreateNDY,
+        };
+
         public static Dictionary<int, HashSet<int>> Big12ConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
 
@@ -55,8 +67,8 @@ namespace EA_DB_Editor
 
             switch (currYear)
             {
-                case 2492:
-                    throw new Exception("Consider redoing big 12 schedule so it's even and NU-OU don't meet every year???");
+                case 2498:
+                    throw new Exception("Consider redoing big 12 schedule so it's even and NU-OU don't meet every year???  OR USE CREATORS2");
 
                 default:
                     var idx = (Form1.DynastyYear - 2486) % Creators.Length;
@@ -485,18 +497,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                TT.Create(),
-                Texas.Create(),
-                OU.Create(),
-                OkSt.Create(),
-                TCU.Create(),
-                Baylor.Create(),
-                Nebraska.Create(),
-                Colorado.Create(),
-                Cincy.Create(),
-                ISU.Create(),
-                KU.Create(),
-                KSU.Create(),
+                TT.Create(Baylor, Colorado, Cincy, ISU),
+                Texas.Create(TT, OkSt, ISU, KU),
+                OU.Create(Texas, OkSt, TCU, Cincy),
+                OkSt.Create(TT, Baylor, Nebraska, KSU),
+                TCU.Create(Texas, OkSt, Cincy, ISU),
+                Baylor.Create(Texas, TCU, Nebraska, KSU),
+                Nebraska.Create(TT, OU, Cincy, KSU),
+                Colorado.Create(OU, TCU, Nebraska, KU),
+                Cincy.Create(OkSt, Baylor, Colorado, KU),
+                ISU.Create(OU, Nebraska, Colorado, KSU),
+                KU.Create(OU, TCU, Baylor, ISU),
+                KSU.Create(TT, Texas, Colorado, KU),
             }.Create();
         }
 

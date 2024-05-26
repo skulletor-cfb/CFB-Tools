@@ -53,6 +53,12 @@ namespace EA_DB_Editor
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
             var idx = (Form1.DynastyYear - 2488) % Creators.Length;
+
+            if( Form1.DynastyYear == 2500)
+            {
+                throw new Exception("Big 10 moves to 9 game schedule!");
+            }
+
             var result = Creators[idx]();
             result = result.Verify(12, RecruitingFixup.Big10Id, "Big10");
             Big10ConferenceSchedule = result.BuildHashSet();
