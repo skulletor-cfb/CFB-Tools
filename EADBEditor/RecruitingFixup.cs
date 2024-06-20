@@ -851,7 +851,7 @@ namespace EA_DB_Editor
 
         public static bool IsG5(this int teamId)
         {
-            return American.Contains(teamId) || MWC.Contains(teamId) || MAC.Contains(teamId) || SBC.Contains(teamId) || CUSA.Contains(teamId) || teamId == 57 || teamId == 8;
+            return American.Contains(teamId) || MWC.Contains(teamId) || MAC.Contains(teamId) || SBC.Contains(teamId) || CUSA.Contains(teamId) || teamId == 57 || teamId == 8 || teamId == 1;
         }
 
         public static bool IsSECTeam(this int teamId)

@@ -46,9 +46,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2484) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2498) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(9, RecruitingFixup.CUSAId, "CUSA");
+            result = result.Verify(4, RecruitingFixup.CUSAId, "CUSA", expectedGames: 3);
             CUSAConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -155,7 +155,18 @@ namespace EA_DB_Editor
                 MTSU.Create(Army ,FIU),
             }.Create();
         }
-#elif true // 7 team CUSA
+#elif true // 4 team CUSA
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                MTSU.Create(LT, UTEP),
+                WKU.Create(MTSU, LT),
+                LT.Create(UTEP),
+                UTEP.Create(WKU),
+            }.Create();
+        }
+#elif false // 7 team CUSA
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>

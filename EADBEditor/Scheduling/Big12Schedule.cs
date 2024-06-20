@@ -22,8 +22,11 @@ namespace EA_DB_Editor
         public const int Texas = 92;
         public const int TCU = 89;
         public const int TT = 94;
+        public const int HOU = 33;
+        public const int SMU = 83;
 
         private static bool initRun = false;
+        /*
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] 
         {
             CreateNDY, CreateNDZ,
@@ -45,6 +48,11 @@ namespace EA_DB_Editor
             CreateNDA, CreateNDY,
             CreateNDZ, CreateNDAPrime,
             CreateNDZ, CreateNDY,
+        };*/
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[]
+        {
+            Create15A, Create15A,
+            Create15B, Create15B,
         };
 
         public static Dictionary<int, HashSet<int>> Big12ConferenceSchedule = null;
@@ -67,16 +75,14 @@ namespace EA_DB_Editor
 
             switch (currYear)
             {
-                case 2498:
-                    throw new Exception("Consider redoing big 12 schedule so it's even and NU-OU don't meet every year???  OR USE CREATORS2");
 
                 default:
-                    var idx = (Form1.DynastyYear - 2486) % Creators.Length;
+                    var idx = (Form1.DynastyYear - 2498) % Creators.Length;
                     result = Creators[idx]();
                     break;
             }
 
-            result = result.Verify(12, RecruitingFixup.Big12Id, "Big12");
+            result = result.Verify(15, RecruitingFixup.Big12Id, "Big12");
             Big12ConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -433,7 +439,35 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif true // big 12 with north/south cincy in it instead of bsu.  No divisions
+#elif true // big 12 has 15 teams, no divisions, smu, ucf, hou are in it
+        public static Dictionary<int, int[]> Create15A()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                OU.Create(Texas, Baylor, UCF, OkSt),
+                Texas.Create(TT, HOU, Cincy, KSU),
+                TT.Create(Baylor, SMU, UCF, ISU),
+                Baylor.Create(TCU, UCF, ISU, Colorado),
+                TCU.Create(Texas, SMU, Cincy, KU),
+                SMU.Create(OU, Baylor, HOU, ISU),
+                HOU.Create(TCU, Cincy, Nebraska, OkSt),
+                UCF.Create(SMU, HOU, KSU, Colorado),
+                Cincy.Create(UCF, KU, Colorado, OkSt),
+                ISU.Create(OU, Cincy, KSU, Nebraska),
+                KSU.Create(Baylor, SMU, KU, Nebraska),
+                KU.Create(OU, TT, HOU, Colorado),
+                Nebraska.Create(OU, TT, TCU, KU),
+                Colorado.Create(Texas, ISU, Nebraska, OkSt),
+                OkSt.Create(Texas, TT, TCU, KSU),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> Create15B()
+        {
+            return null;
+        }
+
+#elif false // big 12 with north/south cincy in it instead of bsu.  No divisions
         public static Dictionary<int, int[]> CreateNDY()
         {
             return new List<KeyValuePair<int, int[]>>

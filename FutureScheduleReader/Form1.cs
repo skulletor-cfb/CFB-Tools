@@ -43,7 +43,7 @@ namespace FutureScheduleReader
             {
                 ExcelApp._Worksheet excelSheet = excelBook.Sheets["Schedule"];
                 var table = excelSheet.UsedRange;
-                var rows = 67;//  table.Rows.Count;
+                var rows = 70;//  table.Rows.Count;
                 var cols = table.Columns.Count;
                 list.Clear();
                 start = Convert.ToInt32(table.Cells[1, 2].Value2);
@@ -165,6 +165,7 @@ namespace FutureScheduleReader
         static readonly string Tennessee = "	Tennessee	".Trim();
         static readonly string TexasAM = "	Texas A&M	".Trim();
         static readonly string Vanderbilt = "	Vanderbilt	".Trim();
+        static readonly string Houston = "Houston";
 
         private static Dictionary<string, string> lookup = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -197,14 +198,19 @@ namespace FutureScheduleReader
             {"WF", WakeForest },
             {WestVirginia, WestVirginia },
             {"WVU", WestVirginia },
+            {"UH", "Houston" },
+            {"Hou", "Houston" },
 {   Illinois    ,   Illinois    },
 { "Ill"    ,   Illinois    },
+{ "UI"    ,   Illinois    },
 {   Indiana ,   Indiana },
 {   "Indy",   Indiana },
+{   "IU",   Indiana },
 {   Iowa    ,   Iowa    },
 {   Michigan    ,   Michigan    },
 {   MichiganState  ,   MichiganState  },
 {   "MichSt"  ,   MichiganState  },
+{   "Mich St"  ,   MichiganState  },
 {   Minnesota   ,   Minnesota   },
 {   "Minn"   ,   Minnesota   },
 {   Northwestern    ,   Northwestern    },
@@ -236,6 +242,7 @@ namespace FutureScheduleReader
 {   "OU"    ,   Oklahoma    },
 {   OklahomaState  ,   OklahomaState  },
 {   "OkSt"  ,   OklahomaState  },
+{   "Ok St"  ,   OklahomaState  },
 {   TCU ,   TCU },
 {   Texas   ,   Texas   },
 {   TexasTech  ,   TexasTech  },
@@ -253,6 +260,7 @@ namespace FutureScheduleReader
 {   "UO",   Oregon  },
 {   OregonState    ,   OregonState    },
 {   "orst",   OregonState    },
+{   "or st",   OregonState    },
 {   Stanford    ,   Stanford    },
 {   "Stan",   Stanford    },
 {   UCLA    ,   UCLA    },
