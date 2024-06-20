@@ -128,33 +128,25 @@ namespace EA_DB_Editor
                 {
                     lockChecks = new Func<PreseasonScheduledGame, int?>[]
                     {
+                        IsBaylorTCU,
+                        IsTexasTT,
+                        IsKUKSU,
+                        IsSMUHOU,
                         IsOSUOU,
-                        IsNUOU,
                         IsNUCU,
+                        IsNUOU,
                         // IsBSUCU,
                         // IsBSUTCU,
-                        IsBaylorTCU,
                         IsISUKSU,
-                        IsKUKSU,
-                        IsTexasTT,
                         IsTexasOU,
                         g => MatchTeams(13, g, 20, 38), // ISU-Cincy end the season when they play
                         g => MatchTeams(7,g,11,94), //BU-TT in week 7
+                        g => MatchTeams(4,g,83,89), //tcu-smu in week 7
                     };
                 }
 
                 return lockChecks;
             }
-        }
-
-        public int? IsTexasSMU(PreseasonScheduledGame game)
-        {
-            if (game.HomeTeam == 83 && game.AwayTeam == 92)
-            {
-                return 8;
-            }
-
-            return null;
         }
 
         public int? IsTexasOU(PreseasonScheduledGame game)
@@ -171,15 +163,20 @@ namespace EA_DB_Editor
             return MatchTeams(13 + Is10TeamBig12Modifier, game, 94, 92);
         }
 
+        public int? IsSMUHOU(PreseasonScheduledGame game)
+        {
+            return MatchTeams(13 + Is10TeamBig12Modifier, game, 33, 83);
+        }
+
 
         public int? IsKUKSU(PreseasonScheduledGame game)
         {
-            return MatchTeams(12 + Is10TeamBig12Modifier, game, 39, 40);
+            return MatchTeams(13 + Is10TeamBig12Modifier, game, 39, 40);
         }
 
         public int? IsISUKSU(PreseasonScheduledGame game)
         {
-            return MatchTeams(13 + Is10TeamBig12Modifier, game, 38, 40);
+            return MatchTeams(12 + Is10TeamBig12Modifier, game, 38, 40);
         }
 
 
@@ -200,17 +197,17 @@ namespace EA_DB_Editor
 
         public int? IsNUCU(PreseasonScheduledGame game)
         {
-            return MatchTeams(12, game, 58, 22);
+            return MatchTeams(13, game, 58, 22);
         }
 
         public int? IsNUOU(PreseasonScheduledGame game)
         {
-            return MatchTeams(13 + Is10TeamBig12Modifier, game, 58, 71);
+            return MatchTeams(7 + Is10TeamBig12Modifier, game, 58, 71);
         }
 
         public int? IsOSUOU(PreseasonScheduledGame game)
         {
-            return MatchTeams(9 + Is10TeamBig12Modifier, game, 72, 71);
+            return MatchTeams(13 + Is10TeamBig12Modifier, game, 72, 71);
         }
 
     }
@@ -226,11 +223,12 @@ namespace EA_DB_Editor
                 {
                     lockChecks = new Func<PreseasonScheduledGame, int?>[]
                     {
-                        g=>MatchTeams(13, g, 33, 83), // hou-smu
                         g=>MatchTeams(13, g, 79, 97), // rice-tulsa
                         g=>MatchTeams(13, g, 25, 100), // charlotte-ecu
-                        g=>MatchTeams(13, g, 18, 144), // ucf-usf
+                        g=>MatchTeams(13, g, 144, 229), // fau-usf
                         g=>MatchTeams(13, g, 48, 98), // memphis-uab
+                        g=>MatchTeams(13, g, 8, 57), // army navy
+                        g=>MatchTeams(13, g, 64, 232), // nt-utsa
   //                      g=>MatchTeams(13, g, 85, 96), // usm-tulane
     //                    g=>MatchTeams(12, g, 85, 98), // usm-uab
 

@@ -1433,7 +1433,7 @@ namespace EA_DB_Editor
                     teamScheduleRecord["THOA"] = "1";
                 }
                 // smu - texas play neutral site when SMU is at home
-                else if (homeTeam == 83 && awayTeam == 92)
+                else if (false && homeTeam == 83 && awayTeam == 92)
                 {
                     gameRecord["SGID"] = "279";
                     query["TGID"] = awayTeam.ToString();

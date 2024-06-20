@@ -7,22 +7,23 @@ namespace EA_DB_Editor
     {
         private static bool initRun = false;
 
-        /* this order when you have 14 team conference with no cross div
+        /* this order when you have 14 team conference with no cross div*/
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {  
-            CreateA, CreateF,
-            CreateG, CreateE,
-            CreateC, CreateD,
-            CreateB, CreateA,
-            CreateF, CreateG,
-            CreateE, CreateC,
-            CreateD, CreateB,
-        };*/
+            CreateZ, CreateY, 
+            CreateX, CreateW,
+            CreateR, CreateS,
+            CreateT, CreateZ, 
+            CreateY, CreateX, 
+            CreateW, CreateR, 
+            CreateS, CreateT,
+        };
 
+        /*
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
             CreateA, CreateB, 
             CreateC, CreateA,
             CreateB, CreateC,
-        };
+        };*/
 
 
         public static Dictionary<int, HashSet<int>> AmericanConferenceSchedule = null;
@@ -51,12 +52,12 @@ namespace EA_DB_Editor
             switch (currYear)
             {
                 default:
-                    var idx = (Form1.DynastyYear - 2488) % Creators.Length;
+                    var idx = (Form1.DynastyYear - 2498) % Creators.Length;
                     result = Creators[idx]();
                     break;
             }
 
-            result = result.Verify(12, RecruitingFixup.AmericanId, "American");
+            result = result.Verify(14, RecruitingFixup.AmericanId, "American");
             AmericanConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -76,6 +77,8 @@ namespace EA_DB_Editor
         const int Tulane = 96;
         const int FAU = 229;
         const int UTSA = 232;
+        const int Army = 8;
+        const int Navy = 57;
         const int CincyId = 20;
         const int MemphisId = 48;
         const int SMUId = 83;
@@ -505,7 +508,71 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif true // 12 team AAC with no div
+#elif true // 14 east-west close to real life??
+        public static Dictionary<int, int[]> CreateZ()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Army.Create(FAU, ECU, Temple, Tulsa),
+                FAU.Create(Temple, Navy, CLT, UTSA),
+                ECU.Create(FAU, Navy, CLT, Memphis),
+                Temple.Create(ECU, Navy, USF, Tulane),
+                Navy.Create(Army, USF, CLT, Rice),
+                USF.Create(Army, FAU, ECU, NT),
+                CLT.Create(Army, Temple, USF, UAB),
+
+                Tulsa.Create(CLT, UTSA, Memphis, Tulane),
+                UTSA.Create(Army, Tulane, NT, UAB),
+                Memphis.Create(FAU, UTSA, Tulane, Rice),
+                Tulane.Create(ECU, Rice, NT, UAB),
+                Rice.Create(Temple, Tulsa, UTSA, UAB),
+                NT.Create(Navy, Tulsa, Memphis, Rice),
+                UAB.Create(USF, Tulsa, Memphis, NT),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateT()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateY()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateW()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateX()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateR()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateS()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+#elif false // 12 team AAC with no div
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
