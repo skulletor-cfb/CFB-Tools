@@ -7,17 +7,11 @@ namespace EA_DB_Editor
     {
         private static bool initRun = false;
 
-        /* this order when you have 14 team conference with no cross div*/
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {  
-            CreateZ, CreateZ, 
-        };
-
-        /*
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
             CreateA, CreateB, 
             CreateC, CreateA,
             CreateB, CreateC,
-        };*/
+        };
 
 
         public static Dictionary<int, HashSet<int>> AmericanConferenceSchedule = null;
@@ -45,11 +39,8 @@ namespace EA_DB_Editor
 
             switch (currYear)
             {
-                case 2500:
-                    throw new Exception("Army/Navy aren't here anymore");
-
                 default:
-                    var idx = (Form1.DynastyYear - 2498) % Creators.Length;
+                    var idx = (Form1.DynastyYear - 2500) % Creators.Length;
                     result = Creators[idx]();
                     break;
             }
@@ -74,8 +65,8 @@ namespace EA_DB_Editor
         const int Tulane = 96;
         const int FAU = 229;
         const int UTSA = 232;
-        const int Army = 8;
-        const int Navy = 57;
+  //      const int Army = 8;
+//        const int Navy = 57;
         const int CincyId = 20;
         const int MemphisId = 48;
         const int SMUId = 83;
@@ -505,7 +496,64 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif true // 14 east-west close to real life??
+#elif true // 12 team AAC with UTSA, NT, FAU in place of UCF, HOU, SMU  
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                ECU.Create(CLT, NT, Tulane, Temple),
+                CLT.Create(UTSA, Rice, UAB, USF),
+                UTSA.Create(ECU, NT, Memphis, FAU),
+                NT.Create(CLT, Tulsa, Rice, Temple),
+                Tulsa.Create(ECU, UTSA, Temple, USF),
+                Rice.Create(Tulsa, UAB, Memphis, USF),
+                Tulane.Create(CLT, NT, Rice, FAU),
+                UAB.Create(UTSA, Tulsa, Tulane, Memphis),
+                Memphis.Create(ECU, Tulane, Temple, FAU),
+                Temple.Create(UTSA, Tulane, UAB, USF),
+                USF.Create(NT, UAB, Memphis, FAU),
+                FAU.Create(ECU, CLT, Tulsa, Rice),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                ECU.Create(),
+                CLT.Create(),
+                UTSA.Create(),
+                NT.Create(),
+                Tulsa.Create(),
+                Rice.Create(),
+                Tulane.Create(),
+                UAB.Create(),
+                Memphis.Create(),
+                Temple.Create(),
+                USF.Create(),
+                FAU.Create(),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                ECU.Create(),
+                CLT.Create(),
+                UTSA.Create(),
+                NT.Create(),
+                Tulsa.Create(),
+                Rice.Create(),
+                Tulane.Create(),
+                UAB.Create(),
+                Memphis.Create(),
+                Temple.Create(),
+                USF.Create(),
+                FAU.Create(),
+            }.Create();
+        }
+#elif false // 14 east-west close to real life??
         public static Dictionary<int, int[]> CreateZ()
         {
             return new List<KeyValuePair<int, int[]>>
