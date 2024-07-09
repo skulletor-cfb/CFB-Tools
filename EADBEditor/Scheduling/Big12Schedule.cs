@@ -464,7 +464,24 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> Create15B()
         {
-            return null;
+            return new List<KeyValuePair<int, int[]>>
+            {
+                OU.Create(Texas, TT, TCU, OkSt),
+                Texas.Create(TT, SMU, ISU, KU),
+                TT.Create(Baylor, HOU, KSU, Colorado),
+                Baylor.Create(Texas, TCU, Cincy, Nebraska),
+                TCU.Create(TT, SMU, UCF, ISU),
+                SMU.Create(HOU, Cincy, Nebraska, Colorado),
+                HOU.Create(OU, Baylor, KSU, Colorado),
+                UCF.Create(Texas, HOU, Nebraska, OkSt ),
+                Cincy.Create(OU, TT, UCF, ISU),
+                ISU.Create(HOU, UCF, KSU, OkSt),
+                KSU.Create(OU, TCU , Cincy, KU),
+                KU.Create(Baylor, SMU, UCF, ISU),
+                Nebraska.Create(Texas, Cincy, KU, OkSt),
+                Colorado.Create(OU, TCU ,KSU, Nebraska),
+                OkSt.Create(Baylor, SMU, KU, Colorado),
+            }.Create();
         }
 
 #elif false // big 12 with north/south cincy in it instead of bsu.  No divisions
