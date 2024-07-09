@@ -160,10 +160,12 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                MTSU.Create(LT, UTEP),
-                WKU.Create(MTSU, LT),
-                LT.Create(UTEP),
-                UTEP.Create(WKU),
+                MTSU.Create(LT, UTEP, Army),
+                WKU.Create(MTSU, LT, Navy),
+                LT.Create(UTEP, Army),
+                UTEP.Create(WKU, Navy),
+                Army.Create(WKU, UTEP),
+                Navy.Create(Army, MTSU, LT)
             }.Create();
         }
 #elif false // 7 team CUSA

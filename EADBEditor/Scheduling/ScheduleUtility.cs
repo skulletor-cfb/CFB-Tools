@@ -46,7 +46,7 @@ namespace EA_DB_Editor
             if (teams.Length != teamLength)
                 throw new Exception("Wrong number of teams");
 
-            if (teams.Length == 4)
+            if (teams.Length == 4 || teams.Length == 6)
                 return result;
 
             var badSchedule = teams.Where(t => t.Count != expectedGames).ToArray();
