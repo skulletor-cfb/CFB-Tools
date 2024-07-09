@@ -500,10 +500,13 @@ namespace EA_DB_Editor
 
                     if (ooc.Length != ooc.Select(g => g.OpponentId(tsch.Key)).Distinct().Count())
                     {
-                        notes += "Duplicate opponents.   ";
+                        if (ooc.Count(g => g.OpponentId(tsch.Key).IsFcsTeam()) <= 1)
+                        {
+                            notes += "Duplicate opponents.   ";
+                        }
                     }
 
-                    if (fcsOpp > 1)
+                    if (tsch.Key.TooManyFcsGameCheck(fcsOpp))
                     {
                         notes += "Multiple FCS opponents.  ";
                     }

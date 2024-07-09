@@ -754,6 +754,69 @@ namespace EA_DB_Editor
             }
         }
 
+        private static List<PreseasonScheduledGame> FindExtraBig12Games(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        {
+#if true
+            var result = new List<PreseasonScheduledGame>();
+            var normalized = new Dictionary<int, int>();
+
+            // take away one conference game per team
+            var found = schedules.Values.SelectMany(games => games.Where(g => g != null && g.IsBig12ConfGame()))
+                .OrderBy(g => g.WeekIndex)
+                .Distinct().ToArray();
+
+
+            // we already did this
+            if (found.Length == (15 * 4))
+            {
+                return new List<PreseasonScheduledGame>();
+            }
+
+            found.Shuffle();
+            var queue = new Queue<PreseasonScheduledGame>(found);
+
+
+            while (result.Count < 15)
+            {
+                if(queue.Count == 0)
+                {
+                    return FindExtraBig12Games(schedules);
+                }
+
+                var game = queue.Dequeue();
+
+                var htc = 0;
+                var atc = 0;
+                // we haven't seen these teams before, easy add them
+                if ((!normalized.TryGetValue(game.HomeTeam, out htc) || htc < 2) &&
+                    (!normalized.TryGetValue(game.AwayTeam, out atc) || atc < 2))
+                {
+                    result.Add(game);
+                    normalized[game.HomeTeam] = ++htc;
+                    normalized[game.AwayTeam] = ++atc;
+
+                    if (htc >= 2)
+                    {
+                        queue.RemoveFromQueue(game.HomeTeam);
+                    }
+
+                    if (atc >= 2)
+                    {
+                        queue.RemoveFromQueue(game.AwayTeam);
+                    }
+                }
+                else
+                {
+                    queue.Enqueue(game);
+                }
+            }
+
+            return result;
+#else
+            return new List<PreseasonScheduledGame>();
+#endif
+        }
+
         private static List<PreseasonScheduledGame> FindExtraAccGames(Dictionary<int, PreseasonScheduledGame[]> schedules)
         {
 #if true
@@ -771,11 +834,18 @@ namespace EA_DB_Editor
                 return new List<PreseasonScheduledGame>();
             }
 
+            found.Shuffle();
+
             var queue = new Queue<PreseasonScheduledGame>(found);
 
 
             while (result.Count < 8)
             {
+                if(queue.Count == 0)
+                {
+                    return FindExtraAccGames(schedules);
+                }
+
                 var game = queue.Dequeue();
 
                 // we haven't seen these teams before, easy add them
@@ -930,7 +1000,9 @@ namespace EA_DB_Editor
             var stack = new Stack<PreseasonScheduledGame>(fcsGames);
 
             // should not remove more than 8 games, but only 1 per team
-            var extraConfGames = FindExtraSunBeltGames(schedules).Concat(FindExtraAccGames(schedules));
+            var extraConfGames = FindExtraSunBeltGames(schedules)
+                .Concat(FindExtraAccGames(schedules))
+                .Concat(FindExtraBig12Games(schedules));
 
             // p5-p5 games late in the season
             var replaceableGamesP5 = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsRivalryGame() && !g.IsConferenceGame() && !g.IsFCSGame() && g.IsP5Game() && g.WeekIndex > 4)).Distinct().OrderByDescending(g => g.WeekIndex).ToArray();
@@ -1126,7 +1198,7 @@ namespace EA_DB_Editor
         /// </summary>
         /// <typeparam name="T">Array element type.</typeparam>
         /// <param name="array">Array to shuffle.</param>
-        static void Shuffle(int[] array)
+        static void Shuffle<T>(this T[] array)
         {
             int n = array.Length;
             for (int i = 0; i < (n - 1); i++)
@@ -1702,6 +1774,11 @@ namespace EA_DB_Editor
         public bool IsAccConfGame()
         {
             return this.HomeTeam.IsAccTeam()  && this.AwayTeam.IsAccTeam();
+        }
+
+        public bool IsBig12ConfGame()
+        {
+            return this.HomeTeam.IsBig12Team() && this.AwayTeam.IsBig12Team();
         }
 
         public bool IsAccOrSecGame()

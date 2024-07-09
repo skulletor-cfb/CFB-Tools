@@ -9,13 +9,7 @@ namespace EA_DB_Editor
 
         /* this order when you have 14 team conference with no cross div*/
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {  
-            CreateZ, CreateY, 
-            CreateX, CreateW,
-            CreateR, CreateS,
-            CreateT, CreateZ, 
-            CreateY, CreateX, 
-            CreateW, CreateR, 
-            CreateS, CreateT,
+            CreateZ, CreateZ, 
         };
 
         /*
@@ -51,6 +45,9 @@ namespace EA_DB_Editor
 
             switch (currYear)
             {
+                case 2500:
+                    throw new Exception("Army/Navy aren't here anymore");
+
                 default:
                     var idx = (Form1.DynastyYear - 2498) % Creators.Length;
                     result = Creators[idx]();

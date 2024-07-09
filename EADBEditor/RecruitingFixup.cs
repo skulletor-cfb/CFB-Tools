@@ -868,9 +868,28 @@ namespace EA_DB_Editor
             return ACC.Contains(teamId) && teamId != 68;
         }
 
+        public static bool IsBig12Team(this int teamId)
+        {
+            return Big12.Contains(teamId) && teamId != 68;
+        }
+
+
         public static bool IsAmericanTeam(this int teamId)
         {
             return American.Contains(teamId);
+        }
+
+        public static bool TooManyFcsGameCheck(this int  teamId, int fcsGAmes)
+        {
+            var conf = TeamAndConferences[teamId];
+            var count = TeamAndConferences.Count(kvp => kvp.Value == conf && kvp.Key != 68);
+
+            if( count <=6 )
+            {
+                return fcsGAmes > 2;
+            }
+
+            return fcsGAmes > 1;
         }
 
         public static bool ConferenceGameCountCheck(this int teamId, int current)
@@ -895,7 +914,7 @@ namespace EA_DB_Editor
                 expected = 8;
             else if (count >= 16)
                 expected = 9;
-            else if (count == 14 || count == 12 || count == 11 || count == 13)
+            else if (count == 14 || count == 12 || count == 11 || count == 13 || count == 15)
                 expected = 8;
             else if (count == 10)
                 expected = 9;
@@ -929,6 +948,8 @@ namespace EA_DB_Editor
             if (conf == CUSAId && CUSA.Length == 5 && confGames == 2) return true;
 
             if (conf == CUSAId && CUSA.Length == 7 && confGames == 3) return true;
+
+            if (conf == CUSAId && CUSA.Length == 4 && (confGames == 2 || confGames == 1)) return true;
 
             return confGames == 4;
         }
