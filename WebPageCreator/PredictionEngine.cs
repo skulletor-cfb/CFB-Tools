@@ -103,7 +103,7 @@ namespace EA_DB_Editor
         {
             {1, new[]{(2472, int.MaxValue) } }, // big 10
             {2, new[]{(2470, 2475), (2478, 2479), (2486, int.MaxValue) } }, // big 12
-            {3, new []{(2478, 2497)} }, // american
+            {3, new []{(2478, 2497), (2500, int.MaxValue) } }, // american
             {9, new []{(2478, int.MaxValue )} }, // mountain west
             {10, new []{(2483, int.MaxValue )} }, // pac-12
             {13, new[]{ (2462, 2467) } }, // Sun Belt

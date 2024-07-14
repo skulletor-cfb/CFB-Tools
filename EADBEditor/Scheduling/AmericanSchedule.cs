@@ -45,7 +45,7 @@ namespace EA_DB_Editor
                     break;
             }
 
-            result = result.Verify(14, RecruitingFixup.AmericanId, "American");
+            result = result.Verify(12, RecruitingFixup.AmericanId, "American");
             AmericanConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -520,18 +520,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                ECU.Create(),
-                CLT.Create(),
-                UTSA.Create(),
-                NT.Create(),
-                Tulsa.Create(),
-                Rice.Create(),
-                Tulane.Create(),
-                UAB.Create(),
-                Memphis.Create(),
-                Temple.Create(),
-                USF.Create(),
-                FAU.Create(),
+                ECU.Create(CLT, Rice, Tulane, FAU),
+                CLT.Create(UTSA, UAB, Memphis, Temple),
+                UTSA.Create(ECU, NT, Memphis, Temple),
+                NT.Create(CLT, Tulsa, Rice, FAU),
+                Tulsa.Create(CLT, UAB, Memphis, USF),
+                Rice.Create(UTSA, Tulsa, UAB, FAU),
+                Tulane.Create(UTSA, Tulsa, Rice, USF),
+                UAB.Create(ECU, NT, Tulane , Memphis),
+                Memphis.Create(ECU, NT, Temple, USF),
+                Temple.Create(Tulsa, Rice, Tulane, USF),
+                USF.Create(ECU, UTSA, NT, FAU),
+                FAU.Create(CLT, Tulane, UAB, Temple),
             }.Create();
         }
 
@@ -539,18 +539,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                ECU.Create(),
-                CLT.Create(),
-                UTSA.Create(),
-                NT.Create(),
-                Tulsa.Create(),
-                Rice.Create(),
-                Tulane.Create(),
-                UAB.Create(),
-                Memphis.Create(),
-                Temple.Create(),
-                USF.Create(),
-                FAU.Create(),
+                ECU.Create(CLT, Rice, UAB, USF),
+                CLT.Create(UTSA, Tulsa ,  Memphis, Temple),
+                UTSA.Create(NT, Tulsa, Tulane, FAU),
+                NT.Create(ECU, Tulsa, UAB, Memphis),
+                Tulsa.Create(ECU, Tulane, Memphis, FAU),
+                Rice.Create(CLT, UTSA,Tulsa, Temple),
+                Tulane.Create(CLT, NT, Rice, USF),
+                UAB.Create(UTSA, Tulane, Memphis, USF),
+                Memphis.Create(Rice, Tulane, Temple, FAU),
+                Temple.Create(ECU, NT, UAB, USF),
+                USF.Create(CLT, UTSA, Rice, FAU),
+                FAU.Create(ECU, NT, UAB, Temple),
             }.Create();
         }
 #elif false // 14 east-west close to real life??

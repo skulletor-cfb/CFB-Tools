@@ -54,7 +54,7 @@ namespace EA_DB_Editor
         {
             var idx = (Form1.DynastyYear - 2488) % Creators.Length;
 
-            if( Form1.DynastyYear == 2500)
+            if( Form1.DynastyYear == 2512)
             {
                 throw new Exception("Big 10 moves to 9 game schedule!");
             }

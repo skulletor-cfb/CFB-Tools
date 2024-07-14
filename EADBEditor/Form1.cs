@@ -2715,6 +2715,16 @@ PPOS = Position
                 otherCandidates.ForEach(c => other.AppendLine(c.ToCsvLine()));
             }
 
+            // g5 superstars, jr/sr above 95
+            var g5stars = new StringBuilder();
+
+            for (int i = 0; i <= 18; i++)
+            {
+                var otherPlayers = GetPlayers(pos => pos == i);
+                var otherCandidates = otherPlayers.Values.SelectMany(p => p).Where(p => p.TeamId.IsG5() && p.OVR >= 95 && (p.Year >= 2)).OrderByDescending(p => p.OVR).ToList();
+                otherCandidates.ForEach(c => g5stars.AppendLine(c.ToCsvLine()));
+            }
+
             // QBs
             var players = GetPlayers(pos => pos == 0);
             var candidates = players.Values.SelectMany(p => p.Skip(1)).Where(p => p.OVR >= 85 && (p.Year == 3 || (p.Year == 2 && p.Redshirted))).OrderByDescending(p => p.OVR).ToList();
@@ -2747,6 +2757,7 @@ PPOS = Position
             {
                 File.WriteAllText("transfercandidates.csv", sb.ToString());
                 File.WriteAllText("transferPortal.csv", other.ToString());
+                File.WriteAllText("g5stars.csv", g5stars.ToString());
             }
             catch { }
 
