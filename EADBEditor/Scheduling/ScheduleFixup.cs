@@ -294,11 +294,14 @@ namespace EA_DB_Editor
                 if (reorderNeedsToBeRun)
                 {
                     mr["GDAT"] = "5";
-                    if ((game.IsConferenceGame() && game.IsExtraConferenceGame() && weekNum > 0 && homeTeamFreeWeek1 && awayTeamFreeWeek1) ||
+
+                    
+                    if (
+                        // (game.IsConferenceGame() && game.IsExtraConferenceGame() && weekNum > 0 && homeTeamFreeWeek1 && awayTeamFreeWeek1) ||
                         (game.IsP5Game() && !game.IsRivalryGame() && weekNum > 8 && !game.IsNotreDameGame() && homeTeamFreeWeek1 && awayTeamFreeWeek1) ||
                         (game.IsFCSGame() && game.IsG5Game() && weekNum > 0 && homeTeamFreeWeek1) ||
                         (game.IsG5Game() && !game.IsRivalryGame() && !game.IsFCSGame() && weekNum > 0 && homeTeamFreeWeek1 && awayTeamFreeWeek1) ||
-                        (game.IsP5GameAnyOpponent() && !game.IsRivalryGame() && !game.IsConferenceGame() && !game.IsNotreDameGame() && homeTeamFreeWeek1 && awayTeamFreeWeek1 && !game.IsAccOrSecGame() && weekNum > 2 && !game.IsP5FCSGame())
+                        (game.IsP5GameAnyOpponent() && !game.IsRivalryGame() && !game.IsConferenceGame() && !game.IsNotreDameGame() && homeTeamFreeWeek1 && awayTeamFreeWeek1 && !game.IsAccOrSecOrBig12Game() && weekNum > 2 && !game.IsP5FCSGame())
                         )
                     {
                         var weekMoveTo = 0;

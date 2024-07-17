@@ -987,6 +987,23 @@ namespace EA_DB_Editor
             }
         }
 
+        public static List<PreseasonScheduledGame> FindExtraP5Games(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        {
+            var acc = FindExtraAccGames(schedules);
+            var accCount = acc.Count;
+            var b12 = FindExtraBig12Games(schedules);
+            var b12Swap = b12.Take(accCount).ToList();
+
+            for( int i = 0; i < acc.Count; i++)
+            {
+                ScheduleFixup.SwapTeams(acc[i], b12Swap[i]);
+                acc[i].SetWeek(14);
+                b12Swap[i].SetWeek(14);
+            }
+
+            return b12.Skip(accCount).ToList();
+        }
+
         public static void ReplaceFcsOnlyGames(Dictionary<int, PreseasonScheduledGame[]> schedules)
         {
             // find the games with fcs home team
@@ -1001,8 +1018,7 @@ namespace EA_DB_Editor
 
             // should not remove more than 8 games, but only 1 per team
             var extraConfGames = FindExtraSunBeltGames(schedules)
-                .Concat(FindExtraAccGames(schedules))
-                .Concat(FindExtraBig12Games(schedules));
+                .Concat(FindExtraP5Games(schedules));
 
             // p5-p5 games late in the season
             var replaceableGamesP5 = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsRivalryGame() && !g.IsConferenceGame() && !g.IsFCSGame() && g.IsP5Game() && g.WeekIndex > 4)).Distinct().OrderByDescending(g => g.WeekIndex).ToArray();
@@ -1781,9 +1797,9 @@ namespace EA_DB_Editor
             return this.HomeTeam.IsBig12Team() && this.AwayTeam.IsBig12Team();
         }
 
-        public bool IsAccOrSecGame()
+        public bool IsAccOrSecOrBig12Game()
         {
-            return this.HomeTeam.IsSECTeam() || this.HomeTeam.IsAccTeam() || this.AwayTeam.IsSECTeam() || this.AwayTeam.IsAccTeam();
+            return this.HomeTeam.IsSECTeam() || this.HomeTeam.IsAccTeam() || this.AwayTeam.IsSECTeam() || this.AwayTeam.IsAccTeam() || this.AwayTeam.IsBig12Team() || this.HomeTeam.IsBig12Team();
         }
 
         public bool IsAccOrSecConfGame()
