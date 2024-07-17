@@ -3984,16 +3984,153 @@ PPOS = Position
             var team = teamFile.FromJsonFile<Dictionary<string, string>>();
             var stad = stadiumFile.FromJsonFile<Dictionary<string, string>>();
 
-            foreach(var kvp in team)
+            foreach (var kvp in team)
             {
                 jmuTeam[kvp.Key] = kvp.Value;
             }
 
-            foreach( var kvp in stad)
+            foreach (var kvp in stad)
             {
                 jmuStadium[kvp.Key] = kvp.Value;
             }
 #endif
+        }
+
+        const int NationalChampId = 42;
+
+        private void cureBowlToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddBowlGame(NationalChampId+1, 162);
+        }
+
+        private void myrtleBeachBowlToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddBowlGame(NationalChampId + 2, 60);
+        }
+
+        private void arizonaBowlToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddBowlGame(NationalChampId + 3, 3);
+        }
+
+        private void venturesBowlToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddBowlGame(NationalChampId + 4, 225);
+        }
+
+        private void AddBowlGame(int gameNumber, int stadium) => AddBowlGame(gameNumber, stadium);
+
+        private void AddPlayoffGame(int gameNumber, string startTime, string day = "5") => AddBowlGame(gameNumber, 0, day, true, startTime);
+
+        private void AddBowlGame(int gameNumber, int stadium, string day = "5", bool isPlayoffGame =false, string startTime = StartTime)
+        {
+            TeamEntry homeEntry = new TeamEntry("Home team");
+            TeamEntry awayEntry = new TeamEntry("Away team");
+            if (homeEntry.ShowDialog() == DialogResult.OK)
+            {
+                if (awayEntry.ShowDialog() == DialogResult.OK)
+                {
+                    //find stadium id for home team
+                    var home = homeEntry.TeamId;
+                    var away = awayEntry.TeamId;
+                    var gameNum = gameNumber.ToString();
+                    var week = "18";
+                    var teamQuery = new Dictionary<string, string>();
+                    teamQuery["TGID"] = home.ToString();
+                    var teamRecord = MaddenTable.Query(Form1.MainForm.maddenDB.lTables, "TEAM", teamQuery).SingleOrDefault();
+                    var teamStadium = isPlayoffGame ? teamRecord["SGID"] : stadium.ToString();
+
+                    // create a game 
+                    var schd = MaddenTable.FindTable(maddenDB.lTables, "SCHD");
+                    var currentSeason = schd.lRecords.Where(r => r["SEYR"].ToInt32() == 0).First()["SESI"];
+
+                    // create the record
+                    var mr = schd.AddNewRecord();
+                    mr["GSTA"] = "1";
+                    mr["GASC"] = "0";
+                    mr["GHSC"] = "0";
+                    mr["SGID"] = teamStadium.ToString();
+                    mr["GTOD"] = startTime;
+                    mr["GUTE"] = "0";
+                    mr["GATG"] = away.ToString();
+                    mr["GHTG"] = home.ToString();
+                    mr["SESI"] = "0";
+                    mr["CPCK"] = "7";
+                    mr["HPCK"] = "7";
+                    mr["SGNM"] = gameNum;
+                    mr["SEWN"] = week.ToString();
+                    mr["SEWT"] = "30";
+                    mr["SEYR"] = "0";
+                    mr["GDAT"] = day;
+                    mr["GFOT"] = "0";
+                    mr["GFFU"] = "0";
+                    mr["GFHU"] = "0";
+                    mr["GMFX"] = "0";
+                    mr["SGID"] = teamStadium;
+
+                    // set the team schedules
+                    var teamScheduleTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "TSCH");
+                    var query = new Dictionary<string, string>();
+                    query["TGID"] = home.ToString();
+
+                    var homeTeamSchedule = MaddenTable.Query(teamScheduleTable, query).Where(ts => ts["SEWN"].ToInt32() > 16).SingleOrDefault();
+
+                    if (homeTeamSchedule == null)
+                    {
+                        homeTeamSchedule = teamScheduleTable.AddNewRecord();
+                    }
+
+                    homeTeamSchedule["OGID"] = away.ToString();
+                    homeTeamSchedule["THOA"] = "1";
+                    homeTeamSchedule["SGNM"] = gameNum;
+                    homeTeamSchedule["SEWN"] = week;
+
+                    query["TGID"] = away.ToString();
+                    var awayTeamSchedule = MaddenTable.Query(teamScheduleTable, query).Where(ts => ts["SEWN"].ToInt32() > 16).SingleOrDefault();
+
+                    if (awayTeamSchedule == null)
+                    {
+                        awayTeamSchedule = teamScheduleTable.AddNewRecord();
+                    }
+
+                    awayTeamSchedule["OGID"] = home.ToString();
+                    awayTeamSchedule["THOA"] = isPlayoffGame ? "0" : "1";
+                    awayTeamSchedule["SGNM"] = gameNum;
+                    awayTeamSchedule["SEWN"] = week;
+                }
+            }
+        }
+
+        private void cleanupBCHHToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // find the CCHH table
+            var table = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "BCHH");
+            var records = table.lRecords.Where(mr => mr["BIDX"].ToInt32() >= 45);
+
+            foreach (var record in records)
+            {
+                table.RemoveRecord(record);
+            }
+        }
+
+        private void add5V12ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddPlayoffGame(NationalChampId + 8, "1200");
+        }
+
+        private void add6V11ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddPlayoffGame(NationalChampId + 7, "960");
+        }
+
+        private void add7V10ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddPlayoffGame(NationalChampId + 6, "720");
+        }
+
+        private void add8V9ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddPlayoffGame(NationalChampId + 5, "1200", "4");
         }
     }
 

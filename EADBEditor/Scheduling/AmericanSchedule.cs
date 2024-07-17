@@ -39,6 +39,9 @@ namespace EA_DB_Editor
 
             switch (currYear)
             {
+                case 2506:
+                    throw new Exception("Should AAC/CUSA merge into 2 9 team conferences?");
+
                 default:
                     var idx = (Form1.DynastyYear - 2500) % Creators.Length;
                     result = Creators[idx]();
