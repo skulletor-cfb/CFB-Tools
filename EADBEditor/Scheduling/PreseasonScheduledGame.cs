@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 
 namespace EA_DB_Editor
 {
@@ -989,19 +990,83 @@ namespace EA_DB_Editor
 
         public static List<PreseasonScheduledGame> FindExtraP5Games(Dictionary<int, PreseasonScheduledGame[]> schedules)
         {
-            var acc = FindExtraAccGames(schedules);
-            var accCount = acc.Count;
+            // find b12 games such that we have a unique number of teams
+            var foundTeams = new HashSet<int>();
             var b12 = FindExtraBig12Games(schedules);
-            var b12Swap = b12.Take(accCount).ToList();
+            var b12Match = new List<PreseasonScheduledGame>();
+            var accMatch = new List<PreseasonScheduledGame>();
+            var leftovers = new List<PreseasonScheduledGame>();
 
-            for( int i = 0; i < acc.Count; i++)
+            // we get no more than 7 games
+            foreach (var g in b12)
             {
-                ScheduleFixup.SwapTeams(acc[i], b12Swap[i]);
-                acc[i].SetWeek(14);
-                b12Swap[i].SetWeek(14);
+                if(schedules[g.HomeTeam][0] != null || schedules[g.AwayTeam][0] != null)
+                {
+                    leftovers.Add(g);
+                    continue;
+                }
+
+                if (foundTeams.Add(g.HomeTeam) && foundTeams.Add(g.AwayTeam))
+                {
+                    b12Match.Add(g);
+                }
+                else
+                {
+                    leftovers.Add(g);
+                }
             }
 
-            return b12.Skip(accCount).ToList();
+            var accGames = FindExtraAccGames(schedules);
+
+            foreach(var g in accGames)
+            {
+                if (schedules[g.HomeTeam][0] != null || schedules[g.AwayTeam][0] != null)
+                {
+                    leftovers.Add(g);
+                    continue;
+                }
+                else
+                {
+                    accMatch.Add(g);
+                }
+            }
+
+            var diff = Math.Abs(b12Match.Count - accMatch.Count);
+
+            if (accMatch.Count < b12Match.Count)
+            {
+                leftovers.AddRange(b12Match.Take(diff));
+                b12Match = b12Match.Skip(diff).ToList();
+            }
+            else if (b12Match.Count < accMatch.Count)
+            {
+                leftovers.AddRange(accMatch.Take(diff));
+                accMatch = accMatch.Skip(diff).ToList();
+            }
+
+
+            MessageBox.Show("Big12Match is: " + b12Match.Count, "Leftovers count is: " + leftovers.Count);
+
+            for( int i = 0; i < accMatch.Count; i++)
+            {
+                // null them out first
+                schedules[accMatch[i].HomeTeam][accMatch[i].WeekIndex] = null;
+                schedules[accMatch[i].AwayTeam][accMatch[i].WeekIndex] = null;
+                schedules[b12Match[i].HomeTeam][b12Match[i].WeekIndex] = null;
+                schedules[b12Match[i].AwayTeam][b12Match[i].WeekIndex] = null;
+
+                ScheduleFixup.SwapTeams(accMatch[i], b12Match[i]);
+                accMatch[i].SetWeek(0);
+                b12Match[i].SetWeek(0);
+
+                // set them in the team schedule now
+                schedules[accMatch[i].HomeTeam][accMatch[i].WeekIndex] = accMatch[i];
+                schedules[accMatch[i].AwayTeam][accMatch[i].WeekIndex] = accMatch[i];
+                schedules[b12Match[i].HomeTeam][b12Match[i].WeekIndex] = b12Match[i];
+                schedules[b12Match[i].AwayTeam][b12Match[i].WeekIndex] = b12Match[i];
+            }
+
+            return leftovers;
         }
 
         public static void ReplaceFcsOnlyGames(Dictionary<int, PreseasonScheduledGame[]> schedules)
@@ -1842,7 +1907,7 @@ namespace EA_DB_Editor
 
             if (team != null)
                 return IsConferenceGame() ? team.ToLower() : team.ToUpper();
-
+            return string.Empty;
             throw new InvalidOperationException();
         }
 
