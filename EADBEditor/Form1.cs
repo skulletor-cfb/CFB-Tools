@@ -3300,7 +3300,26 @@ PPOS = Position
                     ConfRank2 = mr["BCR2"].ToInt32(),
                 });
 
-            var big6Games = new HashSet<int>(new[] { 25, 27, 28, 17, 12, 26, 39 });
+            foreach (var b in AdditionalGameProvider.BowlIdToAddedGame)
+            {
+                bowlTable[b.Key] = new
+                {
+                    Id = b.Key,
+                    Name = AdditionalGameProvider.BowlIdToName[b.Key],
+                    GameNumber = b.Value,
+                    ConfId1 = 0,
+                    ConfId2 = 0,
+                    ConfRank1 = 0,
+                    ConfRank2 = 0,
+                };
+            }
+
+            var big6Games = new HashSet<int>(new[] {
+                AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP5v12],
+                AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP6v11],
+                AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP7v10],
+                AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP8v9],
+                25, 27, 28, 17, 12, 26, 39 });
 
             var schedules = MaddenTable.FindTable(maddenDB.lTables, "SCHD").lRecords
                 .Where(mr => mr["SEWN"].ToInt32() > 16)
@@ -3320,18 +3339,32 @@ PPOS = Position
             foreach (var game in big6Games)
             {
                 var bowl = bowlTable[game];
-                var scheduledGame = schedules[bowl.GameNumber];
-                matchups.Add(string.Join(",", bowl.GameNumber, bowl.Name, string.Empty, RecruitingFixup.TeamNames[scheduledGame.Home], RecruitingFixup.TeamNames[scheduledGame.Away], "", "", ""));
+
+                if (schedules.TryGetValue(bowl.GameNumber, out var scheduledGame))
+                {
+                    matchups.Add(string.Join(",", bowl.GameNumber, bowl.Name, string.Empty, RecruitingFixup.TeamNames[scheduledGame.Home], RecruitingFixup.TeamNames[scheduledGame.Away], "", "", ""));
+                }
+                else
+                {
+                    matchups.Add(string.Join(",", bowl.GameNumber, bowl.Name, "", "", "", "", "", ""));
+                }
             }
 
             foreach (var game in bowlTable.Where(b => !big6Games.Contains(b.Key)).OrderBy(b => b.Value.GameNumber))
             {
                 var bowl = game.Value;
-                var scheduledGame = schedules[bowl.GameNumber];
 
-                if (scheduledGame.Home == 1023) continue;
+                if (schedules.TryGetValue(bowl.GameNumber, out var scheduledGame))
+                {
 
-                matchups.Add(string.Join(",", bowl.GameNumber, bowl.Name, string.Empty, RecruitingFixup.TeamNames[scheduledGame.Home], RecruitingFixup.TeamNames[scheduledGame.Away], "", "", ""));
+                    if (scheduledGame.Home == 1023) continue;
+
+                    matchups.Add(string.Join(",", bowl.GameNumber, bowl.Name, string.Empty, RecruitingFixup.TeamNames[scheduledGame.Home], RecruitingFixup.TeamNames[scheduledGame.Away], "", "", ""));
+                }
+                else
+                {
+                    matchups.Add(string.Join(",", bowl.GameNumber, bowl.Name, "", "", "", "", "", ""));
+                }
             }
 
             for (int j = 0; j < 15; j++)
@@ -3996,26 +4029,25 @@ PPOS = Position
 #endif
         }
 
-        const int NationalChampId = 42;
 
         private void cureBowlToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AddBowlGame(NationalChampId+1, 162);
+            AddBowlGame(AdditionalGameProvider.CureBowl, 162);
         }
 
         private void myrtleBeachBowlToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AddBowlGame(NationalChampId + 2, 60);
+            AddBowlGame(AdditionalGameProvider.MyrtleBeachBowl, 60);
         }
 
         private void arizonaBowlToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AddBowlGame(NationalChampId + 3, 3);
+            AddBowlGame(AdditionalGameProvider.ArizonaBowl, 3);
         }
 
         private void venturesBowlToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AddBowlGame(NationalChampId + 4, 225);
+            AddBowlGame(AdditionalGameProvider.Sixty8VenturesBowl, 225);
         }
 
         private void AddBowlGame(int gameNumber, int stadium) => AddBowlGame(gameNumber, stadium);
@@ -4115,22 +4147,22 @@ PPOS = Position
 
         private void add5V12ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AddPlayoffGame(NationalChampId + 8, "1200");
+            AddPlayoffGame(AdditionalGameProvider.CFP5v12, "1200");
         }
 
         private void add6V11ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AddPlayoffGame(NationalChampId + 7, "960");
+            AddPlayoffGame(AdditionalGameProvider.CFP6v11, "960");
         }
 
         private void add7V10ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AddPlayoffGame(NationalChampId + 6, "720");
+            AddPlayoffGame(AdditionalGameProvider.CFP7v10, "720");
         }
 
         private void add8V9ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AddPlayoffGame(NationalChampId + 5, "1200", "4");
+            AddPlayoffGame(AdditionalGameProvider.CFP8v9, "1200", "4");
         }
     }
 
