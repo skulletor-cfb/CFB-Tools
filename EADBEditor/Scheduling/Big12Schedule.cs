@@ -26,8 +26,20 @@ namespace EA_DB_Editor
         public const int SMU = 83;
 
         private static bool initRun = false;
-        /*
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] 
+
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[]
+        {
+
+            CreateNDAPrime, CreateNDZ,
+            CreateNDY, CreateNDA,
+            CreateNDY, CreateNDZ,
+
+            CreateNDA, CreateNDY,
+            CreateNDZ, CreateNDAPrime,
+            CreateNDZ, CreateNDY,
+        };
+
+/*        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] 
         {
             CreateNDY, CreateNDZ,
             CreateNDAPrime, CreateNDY,
@@ -38,22 +50,11 @@ namespace EA_DB_Editor
             CreateNDZ, CreateNDA,
         };
 
-        public static Func<Dictionary<int, int[]>>[] Creators2 = new Func<Dictionary<int, int[]>>[]
-        {
-
-            CreateNDAPrime, CreateNDZ,
-            CreateNDY, CreateNDA,
-            CreateNDY, CreateNDZ,
-
-            CreateNDA, CreateNDY,
-            CreateNDZ, CreateNDAPrime,
-            CreateNDZ, CreateNDY,
-        };*/
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[]
         {
             Create15A, Create15A,
             Create15B, Create15B,
-        };
+        };*/
 
         public static Dictionary<int, HashSet<int>> Big12ConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
@@ -77,12 +78,12 @@ namespace EA_DB_Editor
             {
 
                 default:
-                    var idx = (Form1.DynastyYear - 2498) % Creators.Length;
+                    var idx = (Form1.DynastyYear - 2504) % Creators.Length;
                     result = Creators[idx]();
                     break;
             }
 
-            result = result.Verify(15, RecruitingFixup.Big12Id, "Big12");
+            result = result.Verify(12, RecruitingFixup.Big12Id, "Big12");
             Big12ConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -439,7 +440,7 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif true // big 12 has 15 teams, no divisions, smu, ucf, hou are in it
+#elif false // big 12 has 15 teams, no divisions, smu, ucf, hou are in it
         public static Dictionary<int, int[]> Create15A()
         {
             return new List<KeyValuePair<int, int[]>>
@@ -484,7 +485,7 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif false // big 12 with north/south cincy in it instead of bsu.  No divisions
+#elif true // big 12 with north/south cincy in it instead of bsu.  No divisions
         public static Dictionary<int, int[]> CreateNDY()
         {
             return new List<KeyValuePair<int, int[]>>

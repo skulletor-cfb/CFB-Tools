@@ -1083,7 +1083,7 @@ namespace EA_DB_Editor
 
             // should not remove more than 8 games, but only 1 per team
             var extraConfGames = FindExtraSunBeltGames(schedules)
-                .Concat(FindExtraP5Games(schedules));
+                .Concat(FindExtraAccGames(schedules));
 
             // p5-p5 games late in the season
             var replaceableGamesP5 = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsRivalryGame() && !g.IsConferenceGame() && !g.IsFCSGame() && g.IsP5Game() && g.WeekIndex > 4)).Distinct().OrderByDescending(g => g.WeekIndex).ToArray();
@@ -1907,7 +1907,7 @@ namespace EA_DB_Editor
 
             if (team != null)
                 return IsConferenceGame() ? team.ToLower() : team.ToUpper();
-            return string.Empty;
+
             throw new InvalidOperationException();
         }
 

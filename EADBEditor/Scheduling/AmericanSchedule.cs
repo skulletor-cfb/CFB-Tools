@@ -39,11 +39,8 @@ namespace EA_DB_Editor
 
             switch (currYear)
             {
-                case 2506:
-                    throw new Exception("Should AAC/CUSA merge into 2 9 team conferences?");
-
                 default:
-                    var idx = (Form1.DynastyYear - 2500) % Creators.Length;
+                    var idx = (Form1.DynastyYear - 2504) % Creators.Length;
                     result = Creators[idx]();
                     break;
             }
@@ -499,7 +496,7 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif true // 12 team AAC with UTSA, NT, FAU in place of UCF, HOU, SMU  
+#elif false // 12 team AAC with UTSA, NT, FAU in place of UCF, HOU, SMU  
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
@@ -620,7 +617,7 @@ namespace EA_DB_Editor
             {
             }.Create();
         }
-#elif false // 12 team AAC with no div
+#elif true // 12 team AAC with no div
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>

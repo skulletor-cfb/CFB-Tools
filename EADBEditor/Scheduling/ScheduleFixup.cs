@@ -347,12 +347,10 @@ namespace EA_DB_Editor
             CUSASchedule.Init();
             SunBeltSchedule.Init();
 
-            var (teamSchedule, scheduleTable) = FillSchedule(false);
+            var (teamSchedule, scheduleTable) = FillSchedule(!RanReorder);
 
             // fcs-fcs games need to find teams to set them to
             ConfScheduleFixer.ReplaceFcsOnlyGames(teamSchedule);
-
-            (teamSchedule, scheduleTable) = FillSchedule(!RanReorder);
 
             if (!RanReorder)
             {
