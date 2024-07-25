@@ -50,7 +50,7 @@ namespace EA_DB_Editor
             CreateA, CreateB,
         };
 
-        public static void ProcessACCSchedule(Dictionary<int, PreseasonScheduledGame[]> schedule)
+        public static void ProcessACCSchedule(Dictionary<int, TeamSchedule> schedule)
         {
             schedule.ProcessSchedule(
                 ScenarioForSeason,

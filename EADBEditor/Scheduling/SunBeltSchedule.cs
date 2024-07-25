@@ -45,7 +45,7 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void ProcessSunbeltSchedule(Dictionary<int, PreseasonScheduledGame[]> schedule)
+        public static void ProcessSunbeltSchedule(Dictionary<int, TeamSchedule> schedule)
         {
             schedule.ProcessSchedule(ScenarioForSeason, SunbeltConferenceSchedule, RecruitingFixup.SBCId, RecruitingFixup.SBC);
         }

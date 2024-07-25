@@ -40,7 +40,7 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void ProcessMWCSchedule(Dictionary<int, PreseasonScheduledGame[]> schedule)
+        public static void ProcessMWCSchedule(Dictionary<int, TeamSchedule> schedule)
         {
             schedule.ProcessSchedule(ScenarioForSeason, MWCConferenceSchedule, RecruitingFixup.MWCId, RecruitingFixup.MWC);
         }
@@ -49,7 +49,7 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            if (Form1.DynastyYear == 2506)
+            if (Form1.DynastyYear == 2512)
             {
                 throw new Exception("Does BSU go to Big 12????");
             }

@@ -928,7 +928,7 @@ namespace EA_DB_Editor
             return current == expected;
         }
 
-        public static bool ConferenceHomeGameCount(this PreseasonScheduledGame[] schedule, int teamId)
+        public static bool ConferenceHomeGameCount(this TeamSchedule schedule, int teamId)
         {
             var conf = TeamAndConferences[teamId];
 

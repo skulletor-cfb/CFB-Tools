@@ -29,7 +29,7 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void ProcessPac12Schedule(Dictionary<int, PreseasonScheduledGame[]> schedule)
+        public static void ProcessPac12Schedule(Dictionary<int, TeamSchedule> schedule)
         {
             schedule.ProcessSchedule(ScenarioForSeason, Pac12ConferenceSchedule, RecruitingFixup.Pac16Id, RecruitingFixup.Pac12);
         }

@@ -26,7 +26,7 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void ProcessAmericanSchedule(Dictionary<int, PreseasonScheduledGame[]> schedule)
+        public static void ProcessAmericanSchedule(Dictionary<int, TeamSchedule> schedule)
         {
              schedule.ProcessSchedule(ScenarioForSeason, AmericanConferenceSchedule, RecruitingFixup.AmericanId, RecruitingFixup.American);
         }

@@ -45,7 +45,7 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void ProcessBig10Schedule(Dictionary<int, PreseasonScheduledGame[]> schedule)
+        public static void ProcessBig10Schedule(Dictionary<int, TeamSchedule> schedule)
         {
             schedule.ProcessSchedule(ScenarioForSeason, Big10ConferenceSchedule, RecruitingFixup.Big10Id, RecruitingFixup.Big10);
         }

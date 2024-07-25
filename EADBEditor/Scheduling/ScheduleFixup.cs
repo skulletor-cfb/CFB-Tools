@@ -380,6 +380,7 @@ namespace EA_DB_Editor
                 // move aerlier in the year to ensure more chance of replacement
                 ConfScheduleFixer.MoveReplaceableGames(teamSchedule, g => true);
 
+                /*
                 // do power conf first
                 ConfScheduleFixer.ExtraConfGameSwap(teamSchedule, g => true, g => !g.IsAmericanGame());
 
@@ -388,6 +389,7 @@ namespace EA_DB_Editor
 
                 // now cross cut 
                 ConfScheduleFixer.ExtraConfGameSwap(teamSchedule);
+                */
 
                 ConfScheduleFixer.G5FCSSwap(teamSchedule);
 

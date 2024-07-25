@@ -38,7 +38,7 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void ProcessCUSASchedule(Dictionary<int, PreseasonScheduledGame[]> schedule)
+        public static void ProcessCUSASchedule(Dictionary<int, TeamSchedule> schedule)
         {
             schedule.ProcessSchedule(ScenarioForSeason, CUSAConferenceSchedule, RecruitingFixup.CUSAId, RecruitingFixup.CUSA);
         }

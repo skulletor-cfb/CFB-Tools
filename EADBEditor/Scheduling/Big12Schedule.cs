@@ -97,7 +97,7 @@ namespace EA_DB_Editor
             mr["GHTG"] = game.HomeTeam.ToString();
         }
 
-        public static void SetNewTeams(this PreseasonScheduledGame game, Dictionary<int, PreseasonScheduledGame[]> schedule, Dictionary<int, int[]> homeSchedules, int week, int a, int b)
+        public static void SetNewTeams(this PreseasonScheduledGame game, Dictionary<int, TeamSchedule> schedule, Dictionary<int, int[]> homeSchedules, int week, int a, int b)
         {
             game.HomeTeam = a;
             game.AwayTeam = b;
@@ -107,7 +107,7 @@ namespace EA_DB_Editor
             game.AssignGame(schedule, week);
         }
 
-        public static void ProcessBig12Schedule(Dictionary<int, PreseasonScheduledGame[]> schedule)
+        public static void ProcessBig12Schedule(Dictionary<int, TeamSchedule> schedule)
         {
             schedule.ProcessSchedule(
                 ScenarioForSeason,
@@ -117,7 +117,7 @@ namespace EA_DB_Editor
         }
 
 
-        public static void ProcessSchedule(this Dictionary<int, PreseasonScheduledGame[]> schedule, Dictionary<int, int[]> homeSchedules, Dictionary<int, HashSet<int>> opponents, int confId, int[] conference, int? excludeTeam = null)
+        public static void ProcessSchedule(this Dictionary<int, TeamSchedule> schedule, Dictionary<int, int[]> homeSchedules, Dictionary<int, HashSet<int>> opponents, int confId, int[] conference, int? excludeTeam = null)
         {
             // get all conference games - should be 54
             var confGames = schedule.Where(kvp => homeSchedules.ContainsKey(kvp.Key)).SelectMany(kvp => kvp.Value).Where(g => g != null && g.IsConferenceGame()).Distinct().ToArray();

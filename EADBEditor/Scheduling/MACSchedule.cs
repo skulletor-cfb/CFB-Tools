@@ -38,7 +38,7 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void ProcessMACSchedule(Dictionary<int, PreseasonScheduledGame[]> schedule)
+        public static void ProcessMACSchedule(Dictionary<int, TeamSchedule> schedule)
         {
             schedule.ProcessSchedule(ScenarioForSeason, MACConferenceSchedule, RecruitingFixup.MACId, RecruitingFixup.MAC);
         }
