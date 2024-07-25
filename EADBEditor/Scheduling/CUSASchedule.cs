@@ -48,7 +48,7 @@ namespace EA_DB_Editor
         {
             var idx = (Form1.DynastyYear - 2504) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(9, RecruitingFixup.CUSAId, "CUSA", expectedGames: 5);
+            result = result.Verify(9, RecruitingFixup.CUSAId, "CUSA");
             CUSAConferenceSchedule = result.BuildHashSet();
             return result;
         }

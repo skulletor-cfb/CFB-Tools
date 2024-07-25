@@ -294,7 +294,7 @@ namespace EA_DB_Editor
                 if (reorderNeedsToBeRun)
                 {
                     mr["GDAT"] = "5";
-
+                    continue;
                     
                     if (
                         // (game.IsConferenceGame() && game.IsExtraConferenceGame() && weekNum > 0 && homeTeamFreeWeek1 && awayTeamFreeWeek1) ||
@@ -328,7 +328,6 @@ namespace EA_DB_Editor
                         teamSchedule[awayTeam][weekNum] = null;
                     }
 
-                    return FillSchedule(false);
                 }
             }
 

@@ -224,12 +224,11 @@ namespace EA_DB_Editor
                 {
                     lockChecks = new Func<PreseasonScheduledGame, int?>[]
                     {
+                        g=>MatchTeams(13, g, 33, 83), // hou-smu
                         g=>MatchTeams(13, g, 79, 97), // rice-tulsa
                         g=>MatchTeams(13, g, 25, 100), // charlotte-ecu
-                        g=>MatchTeams(13, g, 144, 229), // fau-usf
+                        g=>MatchTeams(13, g, 18, 144), // ucf-usf
                         g=>MatchTeams(13, g, 48, 98), // memphis-uab
-                        //g=>MatchTeams(13, g, 8, 57), // army navy
-                        g=>MatchTeams(13, g, 64, 232), // nt-utsa
   //                      g=>MatchTeams(13, g, 85, 96), // usm-tulane
     //                    g=>MatchTeams(12, g, 85, 98), // usm-uab
 
@@ -410,11 +409,10 @@ namespace EA_DB_Editor
         {
             return new Func<PreseasonScheduledGame, int?>[]
             {
-                //game => MatchTeams(7, game, 53, 64), //mtsu-nt
+                game => MatchTeams(7, game, 53, 64), //mtsu-nt
                 game => MatchTeams(13, game, 53, 211), //wku-mtsu
                 game=> MatchTeams(13,game,8,57), //army-navy
-                //game => MatchTeams(12, game, 64, 232), //nt-UTSA
-                //game=> MatchTeams(13,game,43,105), //lt-utep
+                game => MatchTeams(12, game, 64, 232), //nt-UTSA
                 //game=> MatchTeams(13,game,85,98), //usm-uab
                 //game=> MatchTeams(12,game,64,232), //nt-utsa
                 //game => MatchTeams(7, game, 53, 64), //nt-mtsu

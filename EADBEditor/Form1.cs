@@ -2439,21 +2439,24 @@ namespace EA_DB_Editor
             TeamEntry entry = new TeamEntry();
             if (entry.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                var sttm = MaddenTable.FindTable(maddenDB.lTables, "STTM");
-                var coch = MaddenTable.FindTable(maddenDB.lTables, "COCH");
+                foreach (var teamId in entry.TeamIds)
+                {
+                    var sttm = MaddenTable.FindTable(maddenDB.lTables, "STTM");
+                    var coch = MaddenTable.FindTable(maddenDB.lTables, "COCH");
 
-                // set the team as controlled
-                var team = sttm.lRecords.Where(mr => mr["TGID"].ToInt32() == entry.TeamId).SingleOrDefault();
+                    // set the team as controlled
+                    var team = sttm.lRecords.Where(mr => mr["TGID"].ToInt32() == teamId).SingleOrDefault();
 
-                // if the team is controlled, uncontrol, otherwise control
-                var setting = "1";
-                team["CFUC"] = setting;
+                    // if the team is controlled, uncontrol, otherwise control
+                    var setting = "1";
+                    team["CFUC"] = setting;
 
-                var coachPosition = entry.CoachPosition ?? 0;
+                    var coachPosition = entry.CoachPosition ?? 0;
 
-                // find a coach as controlled
-                var coach = coch.lRecords.Where(mr => mr["TGID"].ToInt32() == entry.TeamId && mr["COPS"].ToInt32() == coachPosition).FirstOrDefault();
-                coach["CFUC"] = setting;
+                    // find a coach as controlled
+                    var coach = coch.lRecords.Where(mr => mr["TGID"].ToInt32() == teamId && mr["COPS"].ToInt32() == coachPosition).FirstOrDefault();
+                    coach["CFUC"] = setting;
+                }
             }
         }
 
@@ -3300,6 +3303,7 @@ PPOS = Position
                     ConfRank2 = mr["BCR2"].ToInt32(),
                 });
 
+#if false
             foreach (var b in AdditionalGameProvider.BowlIdToAddedGame)
             {
                 bowlTable[b.Key] = new
@@ -3313,12 +3317,13 @@ PPOS = Position
                     ConfRank2 = 0,
                 };
             }
+#endif
 
             var big6Games = new HashSet<int>(new[] {
-                AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP5v12],
-                AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP6v11],
-                AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP7v10],
-                AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP8v9],
+                //AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP5v12],
+                //AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP6v11],
+                //AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP7v10],
+                //AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP8v9],
                 25, 27, 28, 17, 12, 26, 39 });
 
             var schedules = MaddenTable.FindTable(maddenDB.lTables, "SCHD").lRecords
