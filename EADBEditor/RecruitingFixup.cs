@@ -124,7 +124,7 @@ namespace EA_DB_Editor
             var flPosition = positionsToLookFor.Pop(12);
             var secPosition = positionsToLookFor.Pop(20);
             var nationalPosition = positionsToLookFor.Pop(10);
-            var hawaiiPosition = positionsToLookFor.Pop(1);
+            var hawaiiPosition = positionsToLookFor.Pop(3);
 
             // get the lowest ranked freshman at the position we have selected
             var caliRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && caliPosition.Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == caliId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();

@@ -1779,10 +1779,10 @@ namespace EA_DB_Editor
         {
             // Prescout >= 80 is 5*
             // Prescout 70 - 79 is 4*
-            if (rating >= 80 && rank <= 300)
+            if (rating >= 85 && rank <= 300)
                 return "5";
 
-            if (rating >= 70 && rank <= 400)
+            if (rating >= 73 && rank <= 400)
                 return "4";
 
             if (rank <= 1000)

@@ -9,18 +9,18 @@ namespace EA_DB_Editor
 {
     public class TeamSchedule : IEnumerable<PreseasonScheduledGame>
     {
-        private readonly List<PreseasonScheduledGame> games = new List<PreseasonScheduledGame>(15);
-
-        private readonly List<PreseasonScheduledGame> unscheduledGames = new List<PreseasonScheduledGame>();
-
+        public const int ScheduleLimit = 15;
+        private readonly PreseasonScheduledGame[] games = new PreseasonScheduledGame[ScheduleLimit*2];
         private readonly bool isFcsTeam;
+
+        private int gameOverflow = 14;
 
         public  TeamSchedule(bool isFcsTeam = false)
         {
             this.isFcsTeam = isFcsTeam;
         }
 
-        public int Length => this.games.Count;
+        public int Length => this.games.Length;
 
         public PreseasonScheduledGame this[int index]
         {
@@ -29,22 +29,27 @@ namespace EA_DB_Editor
             {
                 if (this.isFcsTeam) return;
 
-                if (index > 14)
-                {
-                    throw new InvalidOperationException($"Unable to set week to {index}");
-                }
-
                 this.games[index] = value;
             }
         }
 
-        public IEnumerator<PreseasonScheduledGame> GetEnumerator() => this.games.GetEnumerator();
+        public PreseasonScheduledGame[] GetAllConferenceGames()
+        {
+            return this.games.Where(g => g?.IsConferenceGame() ?? false).Distinct().ToArray();
+        }
+
+        public void AddUnscheduledGame(PreseasonScheduledGame game, int gameNumber)
+        {
+            game.SetWeek(gameOverflow++);
+            game.GameNumber = gameNumber;
+            games[game.WeekIndex] = game;
+        }
 
         public List<int> FindOpenWeeks(int? butNot = null)
         {
             var list = new List<int>();
 
-            for (int i = 0; i < games.Count; i++)
+            for (int i = 0; i < ScheduleLimit; i++)
             {
                 if (games[i] == null)
                 {
@@ -64,7 +69,7 @@ namespace EA_DB_Editor
         public int FindNextOpenWeek(int notThisWeek)
         {
 
-            for (int i = notThisWeek + 1; i < games.Count; i++)
+            for (int i = notThisWeek + 1; i < ScheduleLimit; i++)
             {
                 if (games[i] == null)
                     return i;
@@ -85,6 +90,8 @@ namespace EA_DB_Editor
             games[toWeek] = games[fromWeek];
             games[fromWeek] = null;
         }
+
+        public IEnumerator<PreseasonScheduledGame> GetEnumerator() => ((IEnumerable<PreseasonScheduledGame>)this.games).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => this.games.GetEnumerator();
     }

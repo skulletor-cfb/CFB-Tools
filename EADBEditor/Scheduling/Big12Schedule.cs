@@ -116,11 +116,49 @@ namespace EA_DB_Editor
                 RecruitingFixup.Big12);
         }
 
+        private static (PreseasonScheduledGame[],int) GetAllConferenceGames(this Dictionary<int, TeamSchedule> schedule, Dictionary<int, int[]> homeSchedules)
+        {
+            int games = 0; 
+            var result = new List<PreseasonScheduledGame>();
+
+            foreach (var kvp in homeSchedules)
+            {
+                result.AddRange(schedule[kvp.Key].GetAllConferenceGames());
+                games += kvp.Value.Length;
+            }
+
+            return (result.Distinct().ToArray(), games);
+        }
+
+
+        private static HashSet<Tuple<int, int>> CreateExpectedPairs(Dictionary<int, HashSet<int>> opponents)
+        {
+            var result = new HashSet<Tuple<int, int>>();
+
+            foreach(var kvp in opponents)
+            {
+                foreach (var opp in kvp.Value)
+                {
+                    result.Add(CreateNeededMatchup(kvp.Key, opp));
+                }
+            }
+
+            return result;
+        }
 
         public static void ProcessSchedule(this Dictionary<int, TeamSchedule> schedule, Dictionary<int, int[]> homeSchedules, Dictionary<int, HashSet<int>> opponents, int confId, int[] conference, int? excludeTeam = null)
         {
+            var neededToSchedule = CreateExpectedPairs(opponents);
+
             // get all conference games - should be 54
-            var confGames = schedule.Where(kvp => homeSchedules.ContainsKey(kvp.Key)).SelectMany(kvp => kvp.Value).Where(g => g != null && g.IsConferenceGame()).Distinct().ToArray();
+            var (confGames, expectedGames) = schedule.GetAllConferenceGames(homeSchedules);
+            int successfullyScheduleGames = 0; 
+
+            if(confGames.Length != expectedGames)
+            {
+                throw new Exception("Error reading schedule!");
+            }
+
             var notScheduled = new List<PreseasonScheduledGame>();
 
             foreach (var game in confGames)
@@ -129,35 +167,18 @@ namespace EA_DB_Editor
                 if (game.GameOnSchedule(opponents))
                 {
                     game.SetHomeTeam(homeSchedules);
+                    successfullyScheduleGames++;
+
+                    if (!neededToSchedule.Remove(CreateNeededMatchup(game.HomeTeam, game.AwayTeam)))
+                    {
+                        throw new InvalidOperationException("Expected a match up to be present!");
+                    }
                 }
                 else
                 {
                     notScheduled.Add(game);
                     schedule[game.AwayTeam][game.WeekIndex] = null;
                     schedule[game.HomeTeam][game.WeekIndex] = null;
-                }
-            }
-
-            // now we need to evaluate what's not scheduled
-            var successfullyScheduled = schedule.Where(kvp => conference.Contains(kvp.Key)).ToDictionary(kvp => kvp.Key, kvp => new HashSet<int>(kvp.Value.Where(g => g != null && g.IsConferenceGame()).Select(g => g.OpponentId(kvp.Key))));
-            HashSet<Tuple<int, int>> neededToSchedule = new HashSet<Tuple<int, int>>();
-
-            // find the games that need to be scheduled
-            foreach (var key in successfullyScheduled.Keys)
-            {
-                if(excludeTeam.HasValue && key == excludeTeam.Value)
-                {
-                    continue;
-                }
-
-                // already scheduled
-                if (successfullyScheduled[key].Count == 8)
-                    continue;
-
-                var missing = opponents[key].Where(i => !successfullyScheduled[key].Contains(i)).ToArray();
-                foreach (var m in missing)
-                {
-                    neededToSchedule.Add(CreateNeededMatchup(key, m));
                 }
             }
 
@@ -169,31 +190,11 @@ namespace EA_DB_Editor
                 int week = -1;
                 if (!ConfScheduleFixer.FindCommonOpenWeek(schedule[need.Item1].FindOpenWeeks(), schedule[need.Item2].FindOpenWeeks(), out week))
                 {
-                    week = 0;
+                    week = 14;
                 }
 
                 notScheduled[idx].SetNewTeams(schedule, homeSchedules, week, need.Item1, need.Item2);
                 idx++;
-            }
-
-            var openings = schedule.Where(kvp => conference.Contains(kvp.Key)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value.FindOpenWeeks());
-
-            AllPairs = new List<List<Tuple<int, int>>>();
-            MakePairs(conference, 0, new List<Tuple<int, int>>());
-            var allPairs = AllPairs;
-
-            //var allPairs = CreatePairs(divA, divB);
-
-            foreach (var pairSet in allPairs)
-            {
-                if (pairSet.All(p =>
-                {
-                    int week = -1;
-                    return ConfScheduleFixer.FindCommonOpenWeek(openings[p.Item1], openings[p.Item2], out week);
-                }))
-                {
-                    return;
-                }
             }
         }
 

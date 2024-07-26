@@ -126,7 +126,7 @@ namespace EA_DB_Editor
 
         public static bool RanG5Fixup = false;
 
-        public static (Dictionary<int, PreseasonScheduledGame[]> teamSchedule, MaddenRecord[] scheduleTable) FillSchedule(bool reorderNeedsToBeRun)
+        public static (Dictionary<int, TeamSchedule> teamSchedule, MaddenRecord[] scheduleTable) FillSchedule(bool reorderNeedsToBeRun, bool dontShowMessageBox = false)
         {
             var scheduleTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "SCHD").lRecords.Where(r => r["SEYR"].ToInt32() == 0).ToArray();
 
@@ -141,7 +141,7 @@ namespace EA_DB_Editor
                 }
             }
 
-            Dictionary<int, PreseasonScheduledGame[]> teamSchedule = new Dictionary<int, PreseasonScheduledGame[]>();
+            Dictionary<int, TeamSchedule> teamSchedule = new Dictionary<int, TeamSchedule>();
 
             foreach (var mr in scheduleTable.OrderBy(mr => mr["SEWN"].ToInt32()))
             {
@@ -251,90 +251,60 @@ namespace EA_DB_Editor
                     }
                 }
 
-                bool homeTeamFreeWeek1 = false;
-                bool awayTeamFreeWeek1 = false;
-
-                PreseasonScheduledGame[] schedule = null;
+                var newGameNum = ConfScheduleFixer.GetGameNumber();
 
                 // home team
-                if (teamSchedule.TryGetValue(homeTeam, out schedule) == false)
+                if (teamSchedule.TryGetValue(homeTeam, out var homeSchedule) == false)
                 {
-                    schedule = new PreseasonScheduledGame[15];
-                    teamSchedule[homeTeam] = schedule;
+                    homeSchedule = new TeamSchedule();
+                    teamSchedule[homeTeam] = homeSchedule;
                 }
-
-                if (schedule[weekNum] != null)
-                {
-                    MessageBox.Show(game.ToString());
-                }
-
-                schedule[weekNum] = game;
-                homeTeamFreeWeek1 = schedule[0] == null;
 
                 // away team
-                if (teamSchedule.TryGetValue(awayTeam, out schedule) == false)
+                if (teamSchedule.TryGetValue(awayTeam, out var awaySchedule) == false)
                 {
-                    schedule = new PreseasonScheduledGame[15];
-                    teamSchedule[awayTeam] = schedule;
+                    awaySchedule = new TeamSchedule();
+                    teamSchedule[awayTeam] = awaySchedule;
                 }
 
-                if (!awayTeam.IsFcsTeam() && schedule[weekNum] != null)
+                // we can't put them here, drop it to week 14
+                if (homeSchedule[weekNum] != null || awaySchedule[weekNum] != null)
                 {
-                    MessageBox.Show(game.ToString());
+                    if (!dontShowMessageBox)
+                    {
+                        MessageBox.Show(game.ToString());
+                    }
+
+                    homeSchedule.AddUnscheduledGame(game, newGameNum);
+
+                    if (!awayTeam.IsFcsTeam())
+                    {
+                        awaySchedule.AddUnscheduledGame(game, newGameNum);
+                    }
+                }
+                else
+                {
+
+                    homeSchedule[weekNum] = game;
+
+                    if (!awayTeam.IsFcsTeam())
+                    {
+                        // don't track away games for fcs
+                        awaySchedule[weekNum] = game;
+                    }
                 }
 
-                // don't track away games for fcs
-                if (!awayTeam.IsFcsTeam())
-                {
-                    schedule[weekNum] = game;
-                }
-
-                awayTeamFreeWeek1 = schedule[0] == null;
 
                 if (reorderNeedsToBeRun)
                 {
                     mr["GDAT"] = "5";
-                    continue;
-                    
-                    if (
-                        // (game.IsConferenceGame() && game.IsExtraConferenceGame() && weekNum > 0 && homeTeamFreeWeek1 && awayTeamFreeWeek1) ||
-                        (game.IsP5Game() && !game.IsRivalryGame() && weekNum > 8 && !game.IsNotreDameGame() && homeTeamFreeWeek1 && awayTeamFreeWeek1) ||
-                        (game.IsFCSGame() && game.IsG5Game() && weekNum > 0 && homeTeamFreeWeek1) ||
-                        (game.IsG5Game() && !game.IsRivalryGame() && !game.IsFCSGame() && weekNum > 0 && homeTeamFreeWeek1 && awayTeamFreeWeek1) ||
-                        (game.IsP5GameAnyOpponent() && !game.IsRivalryGame() && !game.IsConferenceGame() && !game.IsNotreDameGame() && homeTeamFreeWeek1 && awayTeamFreeWeek1 && !game.IsAccOrSecOrBig12Game() && weekNum > 2 && !game.IsP5FCSGame())
-                        )
-                    {
-                        var weekMoveTo = 0;
-                        if (game.IsExtraConferenceGame() &&
-                            teamSchedule[awayTeam][1] != null &&
-                            teamSchedule[awayTeam][1].IsFCSGame() &&
-                            teamSchedule[homeTeam][1] != null &&
-                            teamSchedule[homeTeam][1].IsFCSGame())
-                        {
-                            weekMoveTo = 1;
-                            teamSchedule[awayTeam][1].SetWeek(0);
-                            teamSchedule[homeTeam][1].SetWeek(0);
-                            teamSchedule[awayTeam][0] = teamSchedule[awayTeam][1];
-                            teamSchedule[homeTeam][0] = teamSchedule[homeTeam][1];
-                            teamSchedule[awayTeam][1] = null;
-                            teamSchedule[homeTeam][1] = null;
-                        }
-
-                        //mr["SEWN"] = "0";
-                        game.SetWeek(weekMoveTo);
-                        teamSchedule[homeTeam][weekMoveTo] = game;
-                        teamSchedule[awayTeam][weekMoveTo] = game;
-                        teamSchedule[homeTeam][weekNum] = null;
-                        teamSchedule[awayTeam][weekNum] = null;
-                    }
-
                 }
             }
 
             return (teamSchedule, scheduleTable);
         }
 
-        public static Dictionary<int, PreseasonScheduledGame[]> ReadSchedule(bool runG5Fix = false)
+        public static Dictionary<int, TeamSchedule> ReadSchedule(bool runG5Fix = false)
         {
             ACCPodSchedule.Init();
             Big12Schedule.Init();
@@ -354,15 +324,15 @@ namespace EA_DB_Editor
             if (!RanReorder)
             {
                 // try to put non conference games earlier in the season
-                (teamSchedule, scheduleTable) = FillSchedule(false);
+                (teamSchedule, scheduleTable) = FillSchedule(false, true);
                 ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule);
-                ConfScheduleFixer.FcsGamesEarly(teamSchedule);
 
-                (teamSchedule, scheduleTable) = FillSchedule(false);
+                /*
+                (teamSchedule, scheduleTable) = FillSchedule(false, true);
                 ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule);
-                ConfScheduleFixer.FcsGamesEarly(teamSchedule);
+                ConfScheduleFixer.FcsGamesEarly(teamSchedule);*/
 
-                (teamSchedule, scheduleTable) = FillSchedule(false);
+                (teamSchedule, scheduleTable) = FillSchedule(false, true);
                 ACCPodSchedule.ProcessACCSchedule(teamSchedule);
                 Big12Schedule.ProcessBig12Schedule(teamSchedule);
                 Pac12Schedule.ProcessPac12Schedule(teamSchedule);
@@ -372,13 +342,16 @@ namespace EA_DB_Editor
                 MACSchedule.ProcessMACSchedule(teamSchedule);
                 CUSASchedule.ProcessCUSASchedule(teamSchedule);
                 SunBeltSchedule.ProcessSunbeltSchedule(teamSchedule);
-                (teamSchedule, scheduleTable) = FillSchedule(false);
-                ConfScheduleFixer.G5FCSSwap(teamSchedule);
-                (teamSchedule, scheduleTable) = FillSchedule(false);
+
+                (teamSchedule, scheduleTable) = FillSchedule(false, true);
+                ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule);
+
+                //ConfScheduleFixer.G5FCSSwap(teamSchedule);
+                //(teamSchedule, scheduleTable) = FillSchedule(false, true);
 
 
                 // move aerlier in the year to ensure more chance of replacement
-                ConfScheduleFixer.MoveReplaceableGames(teamSchedule, g => true);
+                // ConfScheduleFixer.MoveReplaceableGames(teamSchedule, g => true);
 
                 /*
                 // do power conf first
@@ -391,9 +364,8 @@ namespace EA_DB_Editor
                 ConfScheduleFixer.ExtraConfGameSwap(teamSchedule);
                 */
 
-                ConfScheduleFixer.G5FCSSwap(teamSchedule);
-
-                (teamSchedule, scheduleTable) = FillSchedule(false);
+                //ConfScheduleFixer.G5FCSSwap(teamSchedule);
+                (teamSchedule, scheduleTable) = FillSchedule(false, true);
                 ConfScheduleFixer.SecFix(teamSchedule);
                 ConfScheduleFixer.AccFix(teamSchedule);
                 ConfScheduleFixer.Big10Fix(teamSchedule);
@@ -404,23 +376,29 @@ namespace EA_DB_Editor
                 ConfScheduleFixer.CUSAFix(teamSchedule);
                 ConfScheduleFixer.MWCFix(teamSchedule);
                 ConfScheduleFixer.MACFix(teamSchedule);
-                (teamSchedule, scheduleTable) = FillSchedule(false);
 
+                (teamSchedule, scheduleTable) = FillSchedule(false, true);
+
+                /*
                 // move aerlier in the year to ensure more chance of replacement
                 for (int i = 0; i < 5; i++)
                 {
                     ConfScheduleFixer.MoveReplaceableGames(teamSchedule, g => true);
-                }
+                    (teamSchedule, scheduleTable) = FillSchedule(false, true);
+                }*/
 
                 // try to put non conference games earlier in the season
-                ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule, 4);
-                (teamSchedule, scheduleTable) = FillSchedule(false);
+                //ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule, 4);
+                //(teamSchedule, scheduleTable) = FillSchedule(false, true);
 
                 ConfScheduleFixer.SwapG5ForP5HomeTeam(teamSchedule);
-                (teamSchedule, scheduleTable) = FillSchedule(false);
+                (teamSchedule, scheduleTable) = FillSchedule(false, true);
 
-                ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule, 4);
-                (teamSchedule, scheduleTable) = FillSchedule(false);
+                //ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule, 4);
+                //(teamSchedule, scheduleTable) = FillSchedule(false, true);
+
+                ConfScheduleFixer.FcsGamesEarly(teamSchedule);
+                (teamSchedule, scheduleTable) = FillSchedule(false, true);
             }
 
             RanReorder = true;
@@ -571,7 +549,7 @@ namespace EA_DB_Editor
                         notes += ",";
                     }
 
-                    sb.AppendLine(string.Format("{0},,{1},,{2}", RecruitingFixup.TeamNames[tsch.Key], string.Join(",", tsch.Value.Select((ts, idx) => ts == null ? string.Empty : string.Format("{0}{1}", idx == 1 ? prefix : string.Empty, ts.Opponent(tsch.Key)))), notes));
+                    sb.AppendLine(string.Format("{0},,{1},,{2}", RecruitingFixup.TeamNames[tsch.Key], string.Join(",", tsch.Value.Take(TeamSchedule.ScheduleLimit).Select((ts, idx) => ts == null ? string.Empty : string.Format("{0}{1}", idx == 1 ? prefix : string.Empty, ts.Opponent(tsch.Key)))), notes));
                 }
 
                 needMoreG5Games = Randomize(needMoreG5Games);
@@ -652,7 +630,7 @@ namespace EA_DB_Editor
             return new List<int>(arr);
         }
 
-        static void AttemptFix(int teamId, Dictionary<int, PreseasonScheduledGame[]> teamSchedule, PreseasonScheduledGame[] ooc, List<int> potentialFixees, int gamesNeeded)
+        static void AttemptFix(int teamId, Dictionary<int, TeamSchedule> teamSchedule, PreseasonScheduledGame[] ooc, List<int> potentialFixees, int gamesNeeded)
         {
             if (ooc.Any(g =>  RecruitingFixup.OnTheirOwn.Contains(g.HomeTeam) || RecruitingFixup.OnTheirOwn.Contains(g.AwayTeam))) return;
 
@@ -884,7 +862,7 @@ namespace EA_DB_Editor
             return lockedTeamSchedules.Contains(awayId)||lockedTeamSchedules.Contains(homeId)|| lockedGames.Contains(hash);
         }
 
-        static List<FutureGame> CleanSchedule(int team, Dictionary<int, PreseasonScheduledGame[]> schedules, List<FutureGame> futureGames, List<PreseasonScheduledGame> replacements)
+        static List<FutureGame> CleanSchedule(int team, Dictionary<int, TeamSchedule> schedules, List<FutureGame> futureGames, List<PreseasonScheduledGame> replacements)
         {
             // give me all my OOC games
             var schedule = schedules[team];
@@ -1047,7 +1025,7 @@ namespace EA_DB_Editor
         }
 
 #if false
-        static void CleanSchedule(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        static void CleanSchedule(Dictionary<int, TeamSchedule> schedules)
         {
             // get all OOC games needed to be replaced, skip the first one
             var gamesInNeedOfReplacement = schedules.Where(kvp => kvp.Value.Where(v => v != null).Select(v => v.IsP5Game()).Count() > 1).SelectMany(kvp => kvp.Value.Where(v => v != null && !v.IsRivalryGame() && v.IsP5Game() && !v.IsConferenceGame() && !v.IsNotreDameGame()).Skip(1)).OrderBy(g => g.Week).Distinct().ToList();
@@ -1231,7 +1209,7 @@ namespace EA_DB_Editor
             return true ; 
         }
 
-        static void SwapTeams(Dictionary<int, PreseasonScheduledGame[]> schedules, PreseasonScheduledGame g1, PreseasonScheduledGame g2)
+        static void SwapTeams(Dictionary<int, TeamSchedule> schedules, PreseasonScheduledGame g1, PreseasonScheduledGame g2)
         {
             var a1 = g1.AwayTeam;
             var a2 = g2.AwayTeam;

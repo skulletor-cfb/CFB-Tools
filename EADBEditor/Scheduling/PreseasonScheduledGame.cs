@@ -1,7 +1,8 @@
-﻿using System;
+﻿using EA_DB_Editor.Scheduling;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace EA_DB_Editor
@@ -621,7 +622,7 @@ namespace EA_DB_Editor
 
     public static class ConfScheduleFixer
     {
-        public static void ExtraConfGameSwap(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        public static void ExtraConfGameSwap(Dictionary<int, TeamSchedule> schedules)
         {
             // give me all extra games for a given week
             var conf = schedules.Values.SelectMany(games => games.Where(g => g != null && g.MustReplace)).Distinct().GroupBy(g => g.WeekIndex).ToDictionary(g => g.Key, g => g.ToArray());
@@ -657,7 +658,7 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void MoveReplaceableGames(Dictionary<int, PreseasonScheduledGame[]> schedules, Func<PreseasonScheduledGame, bool> confGameQualifier)
+        public static void MoveReplaceableGames(Dictionary<int, TeamSchedule> schedules, Func<PreseasonScheduledGame, bool> confGameQualifier)
         {
             // give me all extra games
             var conf = schedules.Values.SelectMany(games => games.Where(g => g != null && g.IsExtraConferenceGame() && confGameQualifier(g))).Distinct().ToList();
@@ -667,8 +668,8 @@ namespace EA_DB_Editor
                 if (game.Week < 4)
                     continue;
 
-                var homeOpenings = FindOpenWeeks(schedules[game.HomeTeam]);
-                var awayOpenings = game.AwayTeam.IsFcsTeam() ? FcsOpenings() : FindOpenWeeks(schedules[game.AwayTeam]);
+                var homeOpenings = schedules[game.HomeTeam].FindOpenWeeks();
+                var awayOpenings = game.AwayTeam.IsFcsTeam() ? FcsOpenings() : schedules[game.AwayTeam].FindOpenWeeks();
                 int week = 0;
 
                 if (FindCommonOpenWeek(awayOpenings, homeOpenings, out week))
@@ -682,17 +683,28 @@ namespace EA_DB_Editor
         /// put fcs games the earliest possible
         /// </summary>
         /// <param name="schedules"></param>
-        public static void FcsGamesEarly(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        public static void FcsGamesEarly(Dictionary<int, TeamSchedule> schedules)
         {
-            var fcsGames = schedules.Values.SelectMany(games => games.Where(g => g != null && g.IsFCSGame()));
+            var fcsGames = schedules.Values.SelectMany(games => games.Where(g => g != null && g.IsFCSGame())).Distinct().ToArray();
+            var secLateFCSGame = new HashSet<int>();
 
             foreach (var game in fcsGames)
             {
                 var team = game.HomeTeam.IsFcsTeam() ? game.AwayTeam : game.HomeTeam;
                 var currentGameWeek = game.WeekIndex;
                 var teamSchedule = schedules[team];
-                var openWeeks = teamSchedule.FindOpenWeeks();
-                var week = team.IsSECTeam() ? openWeeks.Last() : openWeeks.First();
+
+                var firstTime = secLateFCSGame.Add(team);
+                int week = 0; 
+
+                if(team.IsSECTeam() && firstTime)
+                {
+                    week = teamSchedule.FindLastOpenWeekForFcs();
+                }
+                else
+                {
+                    week = teamSchedule.FindOpenWeeks().First();
+                }
 
                 game.SetWeek(week);
                 teamSchedule[week] = game;
@@ -753,7 +765,7 @@ namespace EA_DB_Editor
             }
         }
 
-        private static List<PreseasonScheduledGame> FindExtraBig12Games(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        private static List<PreseasonScheduledGame> FindExtraBig12Games(Dictionary<int, TeamSchedule> schedules)
         {
 #if true
             var result = new List<PreseasonScheduledGame>();
@@ -777,7 +789,7 @@ namespace EA_DB_Editor
 
             while (result.Count < 15)
             {
-                if(queue.Count == 0)
+                if (queue.Count == 0)
                 {
                     return FindExtraBig12Games(schedules);
                 }
@@ -816,7 +828,7 @@ namespace EA_DB_Editor
 #endif
         }
 
-        private static List<PreseasonScheduledGame> FindExtraAccGames(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        private static List<PreseasonScheduledGame> FindExtraAccGames(Dictionary<int, TeamSchedule> schedules)
         {
 #if true
             var result = new List<PreseasonScheduledGame>();
@@ -829,7 +841,7 @@ namespace EA_DB_Editor
 
             // we already did this
             if (found.Length == (16 * 4))
-            {                
+            {
                 return new List<PreseasonScheduledGame>();
             }
 
@@ -840,7 +852,7 @@ namespace EA_DB_Editor
 
             while (result.Count < 8)
             {
-                if(queue.Count == 0)
+                if (queue.Count == 0)
                 {
                     return FindExtraAccGames(schedules);
                 }
@@ -868,7 +880,7 @@ namespace EA_DB_Editor
 #endif
         }
 
-        private static List<PreseasonScheduledGame> FindExtraSunBeltGames(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        private static List<PreseasonScheduledGame> FindExtraSunBeltGames(Dictionary<int, TeamSchedule> schedules)
         {
             var result = new List<PreseasonScheduledGame>();
             return result;
@@ -903,90 +915,97 @@ namespace EA_DB_Editor
             return result;
         }
 
+        public static int GetGameNumber()
+        {
+            return monotronic++;
+        }
+
         static int monotronic = 200;
 
-        public static void MoveNonConfGamesEarly(Dictionary<int, PreseasonScheduledGame[]> schedules, int confWeek = 13)
+        private static void TemporarilyRemoveGameFromSchedule(Dictionary<int, TeamSchedule> schedules, PreseasonScheduledGame game)
+        {
+            var gameIndex = game.WeekIndex;
+            var home = game.HomeTeam;
+            var homeSchd = schedules[home];
+            homeSchd[gameIndex] = null;
+
+            if (gameIndex < 5)
+            {
+                homeSchd.AddUnscheduledGame(game, GetGameNumber());
+            }
+
+            if (schedules.TryGetValue(game.AwayTeam, out var awaySchedule))
+            {
+                awaySchedule[gameIndex] = null;
+
+                if (!game.AwayTeam.IsFcsTeam() && gameIndex < 5)
+                {
+                    awaySchedule.AddUnscheduledGame(game, GetGameNumber());
+                }
+            }
+        }
+
+        /// <summary>
+        /// all this function should do is remove all conference games from the and put non conf early in the schedule
+        /// </summary>
+        /// <param name="schedules"></param>
+        /// <param name="confWeek"></param>
+        public static void MoveNonConfGamesEarly(Dictionary<int, TeamSchedule> schedules, int confWeek = 13)
         {
             // remove all fcs games from schedules
             var fcs = schedules.Values.SelectMany(games => games.Where(g => g != null && g.IsFCSGame())).Distinct().OrderBy(g => g.WeekIndex).ToArray();
             foreach (var game in fcs)
             {
-                var gameIndex = game.WeekIndex;
-                var home = game.HomeTeam;
-                var homeSchd = schedules[home];
-                homeSchd[gameIndex] = null;
+                TemporarilyRemoveGameFromSchedule(schedules, game);
             }
 
-            bool keepRunning = false;
-            do
+            var conf = schedules.Values.SelectMany(games => games.Where(g => g != null && g.IsConferenceGame() && !g.IsSecConfGame())).Distinct().OrderBy(g => g.WeekIndex).ToArray();
+            var nonConf = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsLateSeasonRivalryGame() && !g.IsConferenceGame() && !g.IsFCSGame())).Distinct().OrderByDescending(g => g.WeekIndex).ToArray();
+            var secNonConf = nonConf.Where(g => g.IsSECNonConferenceGame());
+            var theRest = nonConf.Where(g => !g.IsSECNonConferenceGame());
+
+            foreach (var psg in conf.Concat(nonConf))
             {
-                var conf = schedules.Values.SelectMany(games => games.Where(g => g != null && g.IsConferenceGame() && !g.IsAccOrSecConfGame() && g.WeekIndex < confWeek)).Distinct().OrderBy(g => g.WeekIndex).ToArray();
-                var nonConf = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsRivalryGame() && !g.IsConferenceGame() && !g.IsFCSGame())).Distinct().OrderByDescending(g => g.WeekIndex).ToArray();
+                TemporarilyRemoveGameFromSchedule(schedules, psg);
+            }
 
-                keepRunning = false;
+            // non conf go earlier
+            foreach (var game in secNonConf.Concat(theRest))
+            {
+                var gameIndex = game.WeekIndex;
+                var home = game.HomeTeam;
+                var away = game.AwayTeam;
+                var homeSchd = schedules[home];
+                var awaySchd = schedules[away];
 
-                // non conf go earlier
-                foreach (var game in nonConf)
+                if (FindCommonOpenWeek(homeSchd.FindOpenWeeks(), awaySchd.FindOpenWeeks(), out var opening))
                 {
-                    var gameIndex = game.WeekIndex;
-
-                    var home = game.HomeTeam;
-                    var away = game.AwayTeam;
-                    var homeSchd = schedules[home];
-                    var awaySchd = schedules[away];
-
-                    if (FindCommonOpenWeek(homeSchd.FindOpenWeeks(), awaySchd.FindOpenWeeks(), out var opening) &&
-                        opening < gameIndex)
-                    {
-                        keepRunning = true;
-                        game.SetWeek(opening);
-                        game.GameNumber = monotronic++;
-                        homeSchd[opening] = game;
-                        awaySchd[opening] = game;
-                        homeSchd[gameIndex] = null;
-                        awaySchd[gameIndex] = null;
-                    }
+                    game.SetWeek(opening);
+                    game.GameNumber = monotronic++;
+                    homeSchd[opening] = game;
+                    awaySchd[opening] = game;
+                    //homeSchd[gameIndex] = null;
+                    //awaySchd[gameIndex] = null;
                 }
-
-                // conf games go later
-                foreach (var game in conf)
-                {
-                    var gameIndex = game.WeekIndex;
-
-                    var home = game.HomeTeam;
-                    var away = game.AwayTeam;
-                    var homeSchd = schedules[home];
-                    var awaySchd = schedules[away];
-
-                    if (FindCommonOpenWeek(homeSchd.FindOpenWeeks(), awaySchd.FindOpenWeeks(), out var opening) &&
-                        opening > gameIndex && opening < 14)
-                    {
-                        keepRunning = true;
-                        game.SetWeek(opening);
-                        game.GameNumber = monotronic++;
-                        homeSchd[opening] = game;
-                        awaySchd[opening] = game;
-                        homeSchd[gameIndex] = null;
-                        awaySchd[gameIndex] = null;
-                    }
-                }
-            } while (keepRunning);
+            }
 
             // put the fcs game back for each team, sec gets them late
             foreach (var game in fcs)
             {
                 var home = game.HomeTeam;
                 var homeSchd = schedules[home];
-                var openWeek = home.IsSECTeam() || home == 68 ? homeSchd.FindLastOpenWeekForFcs() : homeSchd.FindOpenWeeks().First();
+                var openWeek = (home.IsSECTeam() || home == 68) ? homeSchd.FindLastOpenWeekForFcs() : homeSchd.FindOpenWeeks().First();
 
                 // set the game in the schedule
                 game.SetWeek(openWeek);
                 game.GameNumber = monotronic++;
                 homeSchd[openWeek] = game;
             }
+
+            FcsGamesEarly(schedules);
         }
 
-        public static List<PreseasonScheduledGame> FindExtraP5Games(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        public static List<PreseasonScheduledGame> FindExtraP5Games(Dictionary<int, TeamSchedule> schedules)
         {
             // find b12 games such that we have a unique number of teams
             var foundTeams = new HashSet<int>();
@@ -998,7 +1017,7 @@ namespace EA_DB_Editor
             // we get no more than 7 games
             foreach (var g in b12)
             {
-                if(schedules[g.HomeTeam][0] != null || schedules[g.AwayTeam][0] != null)
+                if (schedules[g.HomeTeam][0] != null || schedules[g.AwayTeam][0] != null)
                 {
                     leftovers.Add(g);
                     continue;
@@ -1016,7 +1035,7 @@ namespace EA_DB_Editor
 
             var accGames = FindExtraAccGames(schedules);
 
-            foreach(var g in accGames)
+            foreach (var g in accGames)
             {
                 if (schedules[g.HomeTeam][0] != null || schedules[g.AwayTeam][0] != null)
                 {
@@ -1045,7 +1064,7 @@ namespace EA_DB_Editor
 
             MessageBox.Show("Big12Match is: " + b12Match.Count, "Leftovers count is: " + leftovers.Count);
 
-            for( int i = 0; i < accMatch.Count; i++)
+            for (int i = 0; i < accMatch.Count; i++)
             {
                 // null them out first
                 schedules[accMatch[i].HomeTeam][accMatch[i].WeekIndex] = null;
@@ -1067,7 +1086,7 @@ namespace EA_DB_Editor
             return leftovers;
         }
 
-        public static void ReplaceFcsOnlyGames(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        public static void ReplaceFcsOnlyGames(Dictionary<int, TeamSchedule> schedules)
         {
             // find the games with fcs home team
             var fcsGames = schedules.Values.SelectMany(games => games.Where(g => g != null && g.HomeTeam.IsFcsTeam() && g.AwayTeam.IsFcsTeam())).Distinct().ToArray();
@@ -1131,7 +1150,7 @@ namespace EA_DB_Editor
 
         static List<int> FcsOpenings() => fcsOpenings;
 
-        public static void ExtraConfGameSwap(Dictionary<int, PreseasonScheduledGame[]> schedules, Func<PreseasonScheduledGame, bool> g5Qualifier, Func<PreseasonScheduledGame, bool> confGameQualifier)
+        public static void ExtraConfGameSwap(Dictionary<int, TeamSchedule> schedules, Func<PreseasonScheduledGame, bool> g5Qualifier, Func<PreseasonScheduledGame, bool> confGameQualifier)
         {
             // give me all g5 games
             var gamesToReplace = schedules.Values.SelectMany(games => games.Where(g => g != null && g5Qualifier(g) && g.IsG5Game() && !g.IsFCSGame() && !g.IsRivalryGame())).GroupBy(g => g.WeekIndex).ToDictionary(g => g.Key, g => g.Distinct().ToList());
@@ -1160,7 +1179,7 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void SwapG5ForP5HomeTeam(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        public static void SwapG5ForP5HomeTeam(Dictionary<int, TeamSchedule> schedules)
         {
             // give me all g5 fcs games
             var g5fcs = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsAmericanGame() && g.IsG5FCSGame())).Distinct().ToList();
@@ -1195,7 +1214,7 @@ namespace EA_DB_Editor
         }
 
 
-        public static void G5FCSSwap(Dictionary<int, PreseasonScheduledGame[]> schedules, bool anyP5Game = false)
+        public static void G5FCSSwap(Dictionary<int, TeamSchedule> schedules, bool anyP5Game = false)
         {
             // this code has never been executed, not sure what happens when it does
             return;
@@ -1220,7 +1239,7 @@ namespace EA_DB_Editor
             }
 
             // nothing to replace, proceed
-            if(gamesToReplace.Count == 0)
+            if (gamesToReplace.Count == 0)
             {
                 return;
             }
@@ -1252,8 +1271,8 @@ namespace EA_DB_Editor
                         exhausted = true;
                     }
 
-                    var open = FindNextOpenWeek(schedules[game.HomeTeam], game.WeekIndex);
-                    MoveFcsGame(schedules[game.HomeTeam], game.WeekIndex, open);
+                    var open = schedules[game.HomeTeam].FindNextOpenWeek( game.WeekIndex);
+                    schedules[game.HomeTeam].MoveFcsGame( game.WeekIndex, open);
 
                     if (game.HomeTeam.IsFcsTeam() && game.AwayTeam.IsFcsTeam())
                     {
@@ -1269,7 +1288,7 @@ namespace EA_DB_Editor
                 G5FCSSwap(schedules, true);
             }
         }
-        
+
         static Random _random = new Random();
 
         /// <summary>
@@ -1292,7 +1311,7 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void Fix(Dictionary<int, PreseasonScheduledGame[]> schedules, ConferenceLocks confLocks, int confId, Action<Dictionary<int, PreseasonScheduledGame[]>> special = null)
+        public static void Fix(Dictionary<int, TeamSchedule> schedules, ConferenceLocks confLocks, int confId, Action<Dictionary<int, TeamSchedule>> special = null)
         {
             var teams = RecruitingFixup.TeamAndConferences.Where(kvp => kvp.Value == confId).Select(kvp => kvp.Key).ToArray();
             Shuffle(teams);
@@ -1433,22 +1452,22 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void SunBeltFix(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        public static void SunBeltFix(Dictionary<int, TeamSchedule> schedules)
         {
             Fix(schedules, new SunBeltLocks(), RecruitingFixup.SBCId);
         }
 
-        public static void MWCFix(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        public static void MWCFix(Dictionary<int, TeamSchedule> schedules)
         {
             Fix(schedules, new MWCLocks(), RecruitingFixup.MWCId);
         }
 
-        public static void MACFix(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        public static void MACFix(Dictionary<int, TeamSchedule> schedules)
         {
             Fix(schedules, new MACLocks(), RecruitingFixup.MACId);
         }
 
-        public static void CUSAFix(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        public static void CUSAFix(Dictionary<int, TeamSchedule> schedules)
         {
             Fix(schedules, new CUSALocks(), RecruitingFixup.CUSAId);
 
@@ -1469,7 +1488,7 @@ namespace EA_DB_Editor
             SetHomeTeamForRoundRobin(schedules, dict);*/
         }
 
-        public static void SetHomeTeamForRoundRobin(Dictionary<int, PreseasonScheduledGame[]> schedules, Dictionary<int, int[]> homeGames)
+        public static void SetHomeTeamForRoundRobin(Dictionary<int, TeamSchedule> schedules, Dictionary<int, int[]> homeGames)
         {
             foreach (var game in schedules.Values.SelectMany(s => s.Where(g => g != null && g.IsConferenceGame() && homeGames.ContainsKey(g.HomeTeam))))
             {
@@ -1477,27 +1496,27 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void AmericanFix(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        public static void AmericanFix(Dictionary<int, TeamSchedule> schedules)
         {
             Fix(schedules, new AmericanLocks(), RecruitingFixup.AmericanId);
         }
 
-        public static void Big10Fix(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        public static void Big10Fix(Dictionary<int, TeamSchedule> schedules)
         {
             Fix(schedules, new Big10Locks(), RecruitingFixup.Big10Id);
         }
 
-        public static void Big12Fix(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        public static void Big12Fix(Dictionary<int, TeamSchedule> schedules)
         {
             Fix(schedules, new Big12Locks(), RecruitingFixup.Big12Id);
         }
 
-        public static void SecFix(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        public static void SecFix(Dictionary<int, TeamSchedule> schedules)
         {
             Fix(schedules, new SecLocks(), RecruitingFixup.SECId);
         }
 
-        public static void AccFix(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        public static void AccFix(Dictionary<int, TeamSchedule> schedules)
         {
             var accLocks = new AccLocks();
 
@@ -1516,17 +1535,17 @@ namespace EA_DB_Editor
                 });
         }
 
-        public static void Pac12Fix(Dictionary<int, PreseasonScheduledGame[]> schedules)
+        public static void Pac12Fix(Dictionary<int, TeamSchedule> schedules)
         {
             Fix(schedules, new Pac12Locks(), RecruitingFixup.Pac16Id);
         }
 
         private static HashSet<PreseasonScheduledGame> RejectedOnce = new HashSet<PreseasonScheduledGame>();
 
-        public static bool AssignGame(this PreseasonScheduledGame game, Dictionary<int, PreseasonScheduledGame[]> schedules, int week, bool postFix = false)
+        public static bool AssignGame(this PreseasonScheduledGame game, Dictionary<int, TeamSchedule> schedules, int week, bool postFix = false)
         {
             var homeSchedule = schedules[game.HomeTeam];
-            var awaySchedule = game.AwayTeam.IsFcsTeam() ? new PreseasonScheduledGame[homeSchedule.Length] : schedules[game.AwayTeam];
+            var awaySchedule = game.AwayTeam.IsFcsTeam() ? new TeamSchedule(true) : schedules[game.AwayTeam];
 
             // we don't want 3 or 4 away games in a row, try to mitigate that
             if (postFix && !RejectedOnce.Contains(game) && game.IsConferenceGame())
@@ -1589,23 +1608,23 @@ namespace EA_DB_Editor
             // suppose one or both teams have a fcs game that week, we can move it easily
             if (homeSchedule[week] == null && awaySchedule[week] != null && awaySchedule[week].IsFCSGame())
             {
-                var open = FindNextOpenWeek(awaySchedule, week);
-                MoveFcsGame(awaySchedule, week, open);
+                var open = awaySchedule.FindNextOpenWeek(week);
+                awaySchedule.MoveFcsGame(week, open);
                 return game.AssignGame(schedules, week);
             }
             else if (awaySchedule[week] == null && homeSchedule[week] != null && homeSchedule[week].IsFCSGame())
             {
-                var open = FindNextOpenWeek(homeSchedule, week);
-                MoveFcsGame(homeSchedule, week, open);
+                var open = homeSchedule.FindNextOpenWeek(week);
+                homeSchedule.MoveFcsGame(week, open);
                 return game.AssignGame(schedules, week);
             }
             else if (homeSchedule[week] != null && homeSchedule[week].IsFCSGame() && awaySchedule[week] != null && awaySchedule[week].IsFCSGame())
             {
-                var open = FindNextOpenWeek(awaySchedule, week);
-                MoveFcsGame(awaySchedule, week, open);
+                var open = awaySchedule.FindNextOpenWeek(week);
+                awaySchedule.MoveFcsGame(week, open);
 
-                open = FindNextOpenWeek(homeSchedule, week);
-                MoveFcsGame(homeSchedule, week, open);
+                open = homeSchedule.FindNextOpenWeek(week);
+                homeSchedule.MoveFcsGame(week, open);
                 return game.AssignGame(schedules, week);
             }
             /*            else
@@ -1656,53 +1675,7 @@ namespace EA_DB_Editor
             return false;
         }
 
-        public static List<int> FindOpenWeeks(this PreseasonScheduledGame[] games, int? butNot = null)
-        {
-            var list = new List<int>();
-
-            for (int i = 0; i < games.Length; i++)
-            {
-                if (games[i] == null)
-                {
-                    if (butNot == null || butNot.Value != i)
-                        list.Add(i);
-                }
-            }
-
-            return list;
-        }
-
-        public static int FindLastOpenWeekForFcs(this PreseasonScheduledGame[] games)
-        {
-            return FindOpenWeeks(games, 14).Last();
-        }
-
-        public static void MoveFcsGame(PreseasonScheduledGame[] schedule, int fromWeek, int toWeek)
-        {
-            schedule[fromWeek].SetWeek(toWeek);
-            schedule[toWeek] = schedule[fromWeek];
-            schedule[fromWeek] = null;
-        }
-
-        public static int FindNextOpenWeek(PreseasonScheduledGame[] schedule, int notThisWeek)
-        {
-
-            for (int i = notThisWeek + 1; i < schedule.Length; i++)
-            {
-                if (schedule[i] == null)
-                    return i;
-            }
-
-            for (int i = 0; i < notThisWeek; i++)
-            {
-                if (schedule[i] == null)
-                    return i;
-            }
-
-            return -1;
-        }
-
-        public static bool AssignGame(this PreseasonScheduledGame game, Dictionary<int, PreseasonScheduledGame[]> schedules)
+        public static bool AssignGame(this PreseasonScheduledGame game, Dictionary<int, TeamSchedule> schedules)
         {
             var week = game.LockedWeek.Value % 15;
             return game.AssignGame(schedules, week);
@@ -1779,7 +1752,7 @@ namespace EA_DB_Editor
 
         public int? ConferenceGameId()
         {
-            if(!this.IsConferenceGame())
+            if (!this.IsConferenceGame())
             {
                 return null;
             }
@@ -1835,6 +1808,39 @@ namespace EA_DB_Editor
             return ScheduleFixup.IsRivalryGame(HomeTeam, AwayTeam);
         }
 
+        public bool IsSECNonConferenceGame()
+        {
+            return (this.HomeTeam.IsSECTeam() || this.AwayTeam.IsSECTeam());
+        }
+
+        public bool IsLateSeasonRivalryGame()
+        {
+            if (!IsRivalryGame())
+            {
+                return false;
+            }
+
+            var rivalry = new Rivalry(HomeTeam, AwayTeam);
+            return lateSeasonRivals.Contains(rivalry);
+        }
+
+        private static readonly HashSet<Rivalry> lateSeasonRivals = new HashSet<Rivalry>()
+        {
+            new Rivalry(68,102),
+            new Rivalry(68, 87),
+            new Rivalry(68, 57),
+            new Rivalry(27,28),
+            new Rivalry(42,44),
+            new Rivalry(21,84),
+            new Rivalry(30,31),
+            new Rivalry(1,57),
+            new Rivalry(1, 8),
+            new Rivalry(8,57),
+            new Rivalry(18,144),
+            new Rivalry(37, 38),
+            new Rivalry(20, 50),
+        };
+
         public bool IsG5Game()
         {
             return !IsConferenceGame() && !AwayTeam.IsP5OrND() && !HomeTeam.IsP5OrND() && !AwayTeam.IsFcsTeam() && !HomeTeam.IsFcsTeam();
@@ -1852,7 +1858,7 @@ namespace EA_DB_Editor
 
         public bool IsAccConfGame()
         {
-            return this.HomeTeam.IsAccTeam()  && this.AwayTeam.IsAccTeam();
+            return this.HomeTeam.IsAccTeam() && this.AwayTeam.IsAccTeam();
         }
 
         public bool IsBig12ConfGame()
@@ -1867,7 +1873,12 @@ namespace EA_DB_Editor
 
         public bool IsAccOrSecConfGame()
         {
-            return (this.HomeTeam.IsSECTeam() && this.AwayTeam.IsSECTeam()) || (this.AwayTeam.IsAccTeam() && this.HomeTeam.IsAccTeam());
+            return this.IsSecConfGame() || this.IsAccConfGame();
+        }
+
+        public bool IsSecConfGame()
+        {
+            return this.HomeTeam.IsSECTeam() && this.AwayTeam.IsSECTeam();
         }
 
         public bool IsSunBeltGame()
