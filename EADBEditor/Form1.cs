@@ -1779,10 +1779,10 @@ namespace EA_DB_Editor
         {
             // Prescout >= 80 is 5*
             // Prescout 70 - 79 is 4*
-            if (rating >= 85 && rank <= 300)
+            if (rating >= 80 && rank <= 300)
                 return "5";
 
-            if (rating >= 73 && rank <= 400)
+            if (rating >= 70 && rank <= 400)
                 return "4";
 
             if (rank <= 1000)
@@ -3320,10 +3320,10 @@ PPOS = Position
 #endif
 
             var big6Games = new HashSet<int>(new[] {
-                //AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP5v12],
-                //AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP6v11],
-                //AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP7v10],
-                //AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP8v9],
+         //       AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP5v12],
+           //     AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP6v11],
+             //   AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP7v10],
+               // AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP8v9],
                 25, 27, 28, 17, 12, 26, 39 });
 
             var schedules = MaddenTable.FindTable(maddenDB.lTables, "SCHD").lRecords
@@ -3413,6 +3413,7 @@ PPOS = Position
 
             // get all the bowl teams
             var teamIds = new HashSet<int>(schedules.SelectMany(g => new[] { g.Value.Home, g.Value.Away }));
+            
             /*var bowlTeams = teams.Values.Where(t => teamIds.Contains(t.Id) && t.Win <= 6).OrderBy(t => t.Win).ThenByDescending(t => t.Loss).ToArray();
             foreach (var t in bowlTeams)
             {
@@ -3420,7 +3421,7 @@ PPOS = Position
                 i++;
             }*/
 
-            var bowlTeams = teams.Values.Where(t => teamIds.Contains(t.Id) && t.Rank > 25).OrderBy(t => t.Rank).ToArray();
+             var bowlTeams = teams.Values.Where(t => teamIds.Contains(t.Id) && t.Rank > 25).OrderBy(t => t.Rank).ToArray();
 
             var sb = new StringBuilder();
             foreach (var team in bowlTeams)
@@ -4055,7 +4056,7 @@ PPOS = Position
             AddBowlGame(AdditionalGameProvider.Sixty8VenturesBowl, 225);
         }
 
-        private void AddBowlGame(int gameNumber, int stadium) => AddBowlGame(gameNumber, stadium);
+        private void AddBowlGame(int gameNumber, int stadium) => AddBowlGame(gameNumber, stadium, "5");
 
         private void AddPlayoffGame(int gameNumber, string startTime, string day = "5") => AddBowlGame(gameNumber, 0, day, true, startTime);
 

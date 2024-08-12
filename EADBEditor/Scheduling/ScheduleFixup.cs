@@ -256,14 +256,14 @@ namespace EA_DB_Editor
                 // home team
                 if (teamSchedule.TryGetValue(homeTeam, out var homeSchedule) == false)
                 {
-                    homeSchedule = new TeamSchedule();
+                    homeSchedule = new TeamSchedule(hasWeek14Games:homeTeam.HasWeek14Games());
                     teamSchedule[homeTeam] = homeSchedule;
                 }
 
                 // away team
                 if (teamSchedule.TryGetValue(awayTeam, out var awaySchedule) == false)
                 {
-                    awaySchedule = new TeamSchedule();
+                    awaySchedule = new TeamSchedule(hasWeek14Games: awayTeam.HasWeek14Games());
                     teamSchedule[awayTeam] = awaySchedule;
                 }
 

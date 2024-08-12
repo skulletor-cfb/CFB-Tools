@@ -879,6 +879,13 @@ namespace EA_DB_Editor
             return American.Contains(teamId);
         }
 
+        public static bool HasWeek14Games(this int teamId)
+        {
+            var conf = TeamAndConferences[teamId];
+            var count = TeamAndConferences.Count(kvp => kvp.Value == conf && kvp.Key != 68);
+            return count < 12;
+        }
+
         public static bool TooManyFcsGameCheck(this int  teamId, int fcsGAmes)
         {
             var conf = TeamAndConferences[teamId];

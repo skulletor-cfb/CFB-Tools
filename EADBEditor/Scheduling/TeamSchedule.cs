@@ -10,14 +10,16 @@ namespace EA_DB_Editor
     public class TeamSchedule : IEnumerable<PreseasonScheduledGame>
     {
         public const int ScheduleLimit = 15;
-        private readonly PreseasonScheduledGame[] games = new PreseasonScheduledGame[ScheduleLimit*2];
+        private readonly PreseasonScheduledGame[] games = new PreseasonScheduledGame[ScheduleLimit * 2];
         private readonly bool isFcsTeam;
 
         private int gameOverflow = 14;
 
-        public  TeamSchedule(bool isFcsTeam = false)
+        public TeamSchedule(bool isFcsTeam = false, bool hasWeek14Games = false)
         {
             this.isFcsTeam = isFcsTeam;
+            this.gameOverflow = hasWeek14Games ? 15 : 14;
+            
         }
 
         public int Length => this.games.Length;

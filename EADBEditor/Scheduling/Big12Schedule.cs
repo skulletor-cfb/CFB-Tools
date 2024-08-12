@@ -76,6 +76,8 @@ namespace EA_DB_Editor
 
             switch (currYear)
             {
+                case 2515:
+                    throw new Exception("Is Cincy still in??");
 
                 default:
                     var idx = (Form1.DynastyYear - 2504) % Creators.Length;

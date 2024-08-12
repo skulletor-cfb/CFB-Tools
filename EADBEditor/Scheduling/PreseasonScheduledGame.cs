@@ -1839,6 +1839,8 @@ namespace EA_DB_Editor
             new Rivalry(18,144),
             new Rivalry(37, 38),
             new Rivalry(20, 50),
+            new Rivalry(22, 23),
+            new Rivalry(83,89),
         };
 
         public bool IsG5Game()

@@ -31,6 +31,7 @@ namespace EA_DB_Editor
                 var split = this.textBox1.Text.Split(':');
                 this.TeamId = Convert.ToInt32(split[0]);
                 this.CoachPosition = Convert.ToInt32(split[1]);
+                this.TeamIds = new[] { this.TeamId };
             }
             else if (this.textBox1.Text.Contains(","))
             {
