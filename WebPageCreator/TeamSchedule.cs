@@ -36,6 +36,7 @@ namespace EA_DB_Editor
 
         public static void Create(MaddenDatabase db, bool isPreseason)
         {
+            Bowl.Create(db, isPreseason);
             if (TeamSchedules != null)
                 return;
 
@@ -212,7 +213,7 @@ namespace EA_DB_Editor
                     string line = null;
                     if (!isPreason)
                     {
-                        line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}", game.Week, game.GameNumber, game.Location, game.OpponentId, game.OpponentDescription, game.Result, game.Score, game.TeamId, game.TeamDescription, game.BowlId > 0 ? game.BowlId.ToString() : string.Empty);
+                        line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}", game.Week, game.GameNumber, game.Location, game.OpponentId, game.OpponentDescription, game.Result, game.Score, game.TeamId, game.TeamDescription, game.BowlId.HasValue ? game.BowlId.ToString() : string.Empty);
                     }
                     else
                     {

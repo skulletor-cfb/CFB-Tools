@@ -3303,7 +3303,7 @@ PPOS = Position
                     ConfRank2 = mr["BCR2"].ToInt32(),
                 });
 
-#if false
+#if true
             foreach (var b in AdditionalGameProvider.BowlIdToAddedGame)
             {
                 bowlTable[b.Key] = new
@@ -3691,7 +3691,7 @@ PPOS = Position
 
 #if false
             // any players without a redshirt are set to current season, allowing for 5 years of eligibility
-            var playersToRedshirt = playerTable.lRecords.Where(mr => mr["TGID"].ToInt32() != 1023 && mr["PRSD"].ToInt32() == 0).ToList();
+            var playersToRedshirt = playerTable.lRecords.Where(mr => mr["TGID"].ToInt32() != 1023 && mr["PRSD"].ToInt32() == 0 && mr["PYEA"].ToInt32() < 3).ToList();
 
             foreach (var player in playersToRedshirt)
             {
@@ -4036,105 +4036,146 @@ PPOS = Position
         }
 
 
+        bool cureBowlAdded = false;
+        bool mytleBeachBowlAdded = false;
+        bool arizonaBowlAdded = false;
+        bool venturesBowlAdded = false;
+
         private void cureBowlToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (cureBowlAdded)
+            {
+                MessageBox.Show("Cure Bowl already added!");
+                return;
+            }
+
             AddBowlGame(AdditionalGameProvider.CureBowl, 162);
+            cureBowlAdded = true;
         }
 
         private void myrtleBeachBowlToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (mytleBeachBowlAdded)
+            {
+                MessageBox.Show("Myrtle Beach Bowl already added!");
+                return;
+            }
+
             AddBowlGame(AdditionalGameProvider.MyrtleBeachBowl, 60);
+            mytleBeachBowlAdded = true;
         }
 
         private void arizonaBowlToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (arizonaBowlAdded)
+            {
+                MessageBox.Show("Arizona Bowl already added!");
+                return;
+            }
+
             AddBowlGame(AdditionalGameProvider.ArizonaBowl, 3);
+            arizonaBowlAdded = true;
         }
 
         private void venturesBowlToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (venturesBowlAdded)
+            {
+                MessageBox.Show("68 Ventures Bowl already added!");
+                return;
+            }
+
             AddBowlGame(AdditionalGameProvider.Sixty8VenturesBowl, 225);
+            venturesBowlAdded = true;
         }
 
         private void AddBowlGame(int gameNumber, int stadium) => AddBowlGame(gameNumber, stadium, "5");
 
         private void AddPlayoffGame(int gameNumber, string startTime, string day = "5") => AddBowlGame(gameNumber, 0, day, true, startTime);
 
-        private void AddBowlGame(int gameNumber, int stadium, string day = "5", bool isPlayoffGame =false, string startTime = StartTime)
+        private void AddBowlGame(int gameNumber, int stadium, string day = "5", bool isPlayoffGame = false, string startTime = StartTime)
         {
             TeamEntry homeEntry = new TeamEntry("Home team");
             TeamEntry awayEntry = new TeamEntry("Away team");
+            TeamEntry stadiumEntry = new TeamEntry("Choose home stadium");
             if (homeEntry.ShowDialog() == DialogResult.OK)
             {
                 if (awayEntry.ShowDialog() == DialogResult.OK)
                 {
-                    //find stadium id for home team
-                    var home = homeEntry.TeamId;
-                    var away = awayEntry.TeamId;
-                    var gameNum = gameNumber.ToString();
-                    var week = "18";
-                    var teamQuery = new Dictionary<string, string>();
-                    teamQuery["TGID"] = home.ToString();
-                    var teamRecord = MaddenTable.Query(Form1.MainForm.maddenDB.lTables, "TEAM", teamQuery).SingleOrDefault();
-                    var teamStadium = isPlayoffGame ? teamRecord["SGID"] : stadium.ToString();
-
-                    // create a game 
-                    var schd = MaddenTable.FindTable(maddenDB.lTables, "SCHD");
-                    var currentSeason = schd.lRecords.Where(r => r["SEYR"].ToInt32() == 0).First()["SESI"];
-
-                    // create the record
-                    var mr = schd.AddNewRecord();
-                    mr["GSTA"] = "1";
-                    mr["GASC"] = "0";
-                    mr["GHSC"] = "0";
-                    mr["SGID"] = teamStadium.ToString();
-                    mr["GTOD"] = startTime;
-                    mr["GUTE"] = "0";
-                    mr["GATG"] = away.ToString();
-                    mr["GHTG"] = home.ToString();
-                    mr["SESI"] = "0";
-                    mr["CPCK"] = "7";
-                    mr["HPCK"] = "7";
-                    mr["SGNM"] = gameNum;
-                    mr["SEWN"] = week.ToString();
-                    mr["SEWT"] = "30";
-                    mr["SEYR"] = "0";
-                    mr["GDAT"] = day;
-                    mr["GFOT"] = "0";
-                    mr["GFFU"] = "0";
-                    mr["GFHU"] = "0";
-                    mr["GMFX"] = "0";
-                    mr["SGID"] = teamStadium;
-
-                    // set the team schedules
-                    var teamScheduleTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "TSCH");
-                    var query = new Dictionary<string, string>();
-                    query["TGID"] = home.ToString();
-
-                    var homeTeamSchedule = MaddenTable.Query(teamScheduleTable, query).Where(ts => ts["SEWN"].ToInt32() > 16).SingleOrDefault();
-
-                    if (homeTeamSchedule == null)
+                    if (!isPlayoffGame || stadiumEntry.ShowDialog() == DialogResult.OK)
                     {
-                        homeTeamSchedule = teamScheduleTable.AddNewRecord();
+                        //find stadium id for home team
+                        var home = homeEntry.TeamId;
+                        var away = awayEntry.TeamId;
+                        var gameNum = gameNumber.ToString();
+                        var week = "18";
+                        var teamQuery = new Dictionary<string, string>();
+
+                        // the stadium team is either the home team or the stadium team
+                        var stadiumTeamId = isPlayoffGame ? stadiumEntry.TeamId : home;
+
+                        teamQuery["TGID"] = stadiumTeamId.ToString();
+                        var teamRecord = MaddenTable.Query(Form1.MainForm.maddenDB.lTables, "TEAM", teamQuery).SingleOrDefault();
+                        var teamStadium = isPlayoffGame ? teamRecord["SGID"] : stadium.ToString();
+
+                        // create a game 
+                        var schd = MaddenTable.FindTable(maddenDB.lTables, "SCHD");
+                        var currentSeason = schd.lRecords.Where(r => r["SEYR"].ToInt32() == 0).First()["SESI"];
+
+                        // create the record
+                        var mr = schd.AddNewRecord();
+                        mr["GSTA"] = "1";
+                        mr["GASC"] = "0";
+                        mr["GHSC"] = "0";
+                        mr["SGID"] = teamStadium.ToString();
+                        mr["GTOD"] = startTime;
+                        mr["GUTE"] = "0";
+                        mr["GATG"] = away.ToString();
+                        mr["GHTG"] = home.ToString();
+                        mr["SESI"] = "0";
+                        mr["CPCK"] = "7";
+                        mr["HPCK"] = "7";
+                        mr["SGNM"] = gameNum;
+                        mr["SEWN"] = week.ToString();
+                        mr["SEWT"] = "30";
+                        mr["SEYR"] = "0";
+                        mr["GDAT"] = day;
+                        mr["GFOT"] = "0";
+                        mr["GFFU"] = "0";
+                        mr["GFHU"] = "0";
+                        mr["GMFX"] = "0";
+                        mr["SGID"] = teamStadium;
+
+                        // set the team schedules
+                        var teamScheduleTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "TSCH");
+                        var query = new Dictionary<string, string>();
+                        query["TGID"] = home.ToString();
+
+                        var homeTeamSchedule = MaddenTable.Query(teamScheduleTable, query).Where(ts => ts["SEWN"].ToInt32() > 16).SingleOrDefault();
+
+                        if (homeTeamSchedule == null)
+                        {
+                            homeTeamSchedule = teamScheduleTable.AddNewRecord();
+                        }
+
+                        homeTeamSchedule["OGID"] = away.ToString();
+                        homeTeamSchedule["THOA"] = "1";
+                        homeTeamSchedule["SGNM"] = gameNum;
+                        homeTeamSchedule["SEWN"] = week;
+
+                        query["TGID"] = away.ToString();
+                        var awayTeamSchedule = MaddenTable.Query(teamScheduleTable, query).Where(ts => ts["SEWN"].ToInt32() > 16).SingleOrDefault();
+
+                        if (awayTeamSchedule == null)
+                        {
+                            awayTeamSchedule = teamScheduleTable.AddNewRecord();
+                        }
+
+                        awayTeamSchedule["OGID"] = home.ToString();
+                        awayTeamSchedule["THOA"] = isPlayoffGame ? "0" : "1";
+                        awayTeamSchedule["SGNM"] = gameNum;
+                        awayTeamSchedule["SEWN"] = week;
                     }
-
-                    homeTeamSchedule["OGID"] = away.ToString();
-                    homeTeamSchedule["THOA"] = "1";
-                    homeTeamSchedule["SGNM"] = gameNum;
-                    homeTeamSchedule["SEWN"] = week;
-
-                    query["TGID"] = away.ToString();
-                    var awayTeamSchedule = MaddenTable.Query(teamScheduleTable, query).Where(ts => ts["SEWN"].ToInt32() > 16).SingleOrDefault();
-
-                    if (awayTeamSchedule == null)
-                    {
-                        awayTeamSchedule = teamScheduleTable.AddNewRecord();
-                    }
-
-                    awayTeamSchedule["OGID"] = home.ToString();
-                    awayTeamSchedule["THOA"] = isPlayoffGame ? "0" : "1";
-                    awayTeamSchedule["SGNM"] = gameNum;
-                    awayTeamSchedule["SEWN"] = week;
                 }
             }
         }
@@ -4143,7 +4184,7 @@ PPOS = Position
         {
             // find the CCHH table
             var table = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "BCHH");
-            var records = table.lRecords.Where(mr => mr["BIDX"].ToInt32() >= 45);
+            var records = table.lRecords.Where(mr => mr["BIDX"].ToInt32() >= 45).ToArray();
 
             foreach (var record in records)
             {

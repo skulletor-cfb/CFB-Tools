@@ -497,7 +497,11 @@ namespace EA_DB_Editor
             }
         }
         public static int CurrentYear { get; set; }
-        public static List<BowlChampion> BowlChampions;
+
+        public static Dictionary<string, BowlChampion> BowlChampions;
+
+        public static string BowlChampionsTable => Path.Combine(@".\archive\..\BowlChampionsTable");
+
         public static void Create(MaddenDatabase db)
         {
             if (BowlChampions != null)
@@ -505,7 +509,28 @@ namespace EA_DB_Editor
 
             ContinuationData.Create(db);
 
-            BowlChampions = new List<BowlChampion>();
+
+            if (File.Exists(BowlChampionsTable))
+            {
+                BowlChampions = BowlChampionsTable.FromJsonFile<Dictionary<string, BowlChampion>>();
+            }
+            else
+            {
+                BowlChampions = new Dictionary<string, BowlChampion>();
+
+                if (ContinuationData.UsingContinuationData && ContinuationData.Instance != null)
+                {
+                    ContinuationData.Instance.BowlChamps.ForEach(bc => BowlChampions.Add(bc.GetKey(), bc));
+
+                    // first year of a dynasty
+                    if (CurrentYear == 0)
+                    {
+                        CurrentYear = ContinuationData.Instance.Year;
+                        return;
+                    }
+                }
+            }
+
             var table = db.lTables[0];
             for (int i = 0; i < table.Table.currecords; i++)
             {
@@ -521,21 +546,12 @@ namespace EA_DB_Editor
                     bc.BowlId = Bowl.BowlIdOverrides[bc.BowlId].Item1;
 
 
-                BowlChampions.Add(bc);
+                if (!BowlChampions.ContainsKey(bc.GetKey()))
+                {
+                    BowlChampions.Add(bc.GetKey(), bc);
+                }
 
                 CurrentYear = Math.Max(CurrentYear, bc.Year);
-            }
-
-            if (ContinuationData.UsingContinuationData && ContinuationData.Instance != null)
-            {
-                BowlChampions.AddRange(ContinuationData.Instance.BowlChamps);
-
-                // first year of a dynasty
-                if (CurrentYear == 0)
-                {
-                    CurrentYear = ContinuationData.Instance.Year;
-                    return; 
-                }
             }
 
             // if we haven't played the bowls, we need to increment the current year by 1, aka the assumption that CurrentYear is correct is only true at the end of the season
@@ -545,32 +561,52 @@ namespace EA_DB_Editor
             }
         }
 
+        public string GetKey() => CreateKey(this.Year, this.BowlId);
+
+        public static string CreateKey(int year, int bowlId)
+        {
+            return $"{year}-{bowlId}";
+        }
+
+        public static void AddBowlChampion(int teamId, int bowlId)
+        {
+            BowlChampions.Add(CreateKey(CurrentYear, bowlId), new BowlChampion
+            {
+                TeamId = teamId,
+                BowlId = bowlId,
+                Year = CurrentYear,
+            });
+        }
+
         public static bool IsNationalChampionshipYear(int teamId, int year)
         {
-            return BowlChampions.Where(bc => bc.Year == year && bc.TeamId == teamId && bc.BowlId == NationalChampionshipGameId).Any();
+            return BowlChampions.TryGetValue(CreateKey(year, NationalChampionshipGameId), out var bowlChamp) &&
+                bowlChamp.TeamId == teamId;
         }
 
         public static string[] GetBowlChampionships(int teamId, int year)
         {
-            return BowlChampions.Where(bc => bc.Year == year && bc.TeamId == teamId && bc.BowlId != 39).Select(bc => Bowl.FindById(bc.BowlId).Name).ToArray();
+            return BowlChampions.Values.Where(bc => bc.Year == year && bc.TeamId == teamId && bc.BowlId != NationalChampionshipGameId).Select(bc => Bowl.FindById(bc.BowlId).Name).ToArray();
         }
 
         public static IEnumerable<BowlChampion> GetTeamBowlChampionships(int teamId)
         {
-            return BowlChampions.Where(bc => bc.TeamId == teamId).OrderByDescending(bc => bc.Year);
+            return BowlChampions.Values.Where(bc => bc.TeamId == teamId).OrderByDescending(bc => bc.Year);
         }
 
         public static IEnumerable<BowlChampion> GetBowlChampions(int bowlId)
         {
-            return BowlChampions.Where(bc => bc.BowlId == bowlId).OrderByDescending(bc => bc.Year);
+            return BowlChampions.Values.Where(bc => bc.BowlId == bowlId).OrderByDescending(bc => bc.Year);
         }
 
 
         public static void ToBCFile(string file)
         {
+            BowlChampions.ToJsonFile(BowlChampionsTable);
+
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Year,BowlId,TeamId");
-            foreach (var item in BowlChampions.OrderBy(bc=>bc.TeamId).ThenByDescending(bc=> bc.Year))
+            foreach (var item in BowlChampions.Values.OrderBy(bc=>bc.TeamId).ThenByDescending(bc=> bc.Year))
             {
                 sb.AppendLine(string.Format("{0},{1},{2}", item.Year, item.BowlId,item.TeamId));
             }

@@ -78,7 +78,7 @@ namespace EA_DB_Editor
         public Team TeamName { get { return Team.Teams[TeamId]; } }
         public int GameNumber { get; set; }
         public int Week { get; set; }
-        public int BowlId
+        public int? BowlId
         {
             get
             {
@@ -91,7 +91,7 @@ namespace EA_DB_Editor
                     return this.ScheduledGame.SiteId;
                 }
 
-                return 0;
+                return null;
             }
         }
         public string Location
@@ -228,11 +228,11 @@ namespace EA_DB_Editor
         public static void Prep(MaddenDatabase db, bool isPreseason)
         {
             // need historic records
+            Bowl.Create(db, isPreseason);
             HistoricTeamRecord.Create(db);
             BowlChampion.Create(db);
             TeamSchedule.Create(db, isPreseason);
             ScheduledGame.Create(db, isPreseason);
-            Bowl.Create(db, isPreseason);
             Coach.Create(db);
             Stadium.Create(db);
             ConferenceChampion.Create(db);

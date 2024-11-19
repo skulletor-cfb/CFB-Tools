@@ -7,6 +7,21 @@ namespace EA_DB_Editor
 {
     public class Bowl
     {
+        private const int CureBowl = 987043;
+        private const int MyrtleBeachBowl = 987044;
+        private const int ArizonaBowl = 987045;
+        private const int MobileAlabamaBowl = 0;
+
+        private static HashSet<int> AugmentedBowls = new HashSet<int>()
+        {
+            CureBowl,
+            MyrtleBeachBowl,
+            ArizonaBowl,
+            MobileAlabamaBowl,
+        };
+
+        public bool IsAugmentedBowl => AugmentedBowls.Contains(this.Id);
+
         public static Dictionary<int, Tuple<int, int>> BowlIdOverrides = new Dictionary<int, Tuple<int,int>>();
         public static Dictionary<string, Bowl> Bowls { get; private set; }
         public static Bowl FindById(int id)
@@ -16,7 +31,19 @@ namespace EA_DB_Editor
 
         public static Bowl FindByKey(int week, int game)
         {
-            return Bowls[week + "-" + game];
+            return Bowls[CreateKey(week,game)];
+        }
+
+        public static bool TryFindByKey(int week, int game, out Bowl bowl)
+        {
+            bowl = null;
+            if (Bowls == null) return false;
+            return Bowls.TryGetValue(CreateKey(week, game), out bowl);
+        }
+
+        public static string CreateKey(int week, int game)
+        {
+            return week + "-" + game;
         }
 
         public static void Create(MaddenDatabase db, bool isPreseason)
@@ -46,6 +73,59 @@ namespace EA_DB_Editor
                 if (bowl.Game != 255)
                     Bowls.Add(bowl.Key, bowl);
             }
+
+            var cureBowl = new Bowl
+            {
+                Id = CureBowl,
+                Name = "Cure Bowl",
+                Week = 18,
+                Game = 43,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+            var mbBowl = new Bowl
+            {
+                Id = MyrtleBeachBowl,
+                Name = "Myrtle Beach Bowl",
+                Week = 18,
+                Game = 44,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+            var arizonaBowl = new Bowl
+            {
+                Id = ArizonaBowl,
+                Name = "Arizona Bowl",
+                Week = 18,
+                Game = 45,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+            var venturesBowl = new Bowl
+            {
+                Id = MobileAlabamaBowl,
+                Name = "68 Ventures Bowl",
+                Week = 18,
+                Game = 46,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+            Bowls.Add(cureBowl.Key, cureBowl);
+            Bowls.Add(mbBowl.Key, mbBowl);
+            Bowls.Add(arizonaBowl.Key, arizonaBowl);
+            Bowls.Add(venturesBowl.Key, venturesBowl);
 
             if (!isPreseason)
             {

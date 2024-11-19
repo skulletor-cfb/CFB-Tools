@@ -896,6 +896,19 @@ namespace EA_DB_Editor
                     StadiumId = table.lRecords[i]["SGID"].ToInt32(),
                 };
 
+                // check to see if this is an augmented bowl game
+                if (!isPreseason && Bowl.TryFindByKey(game.Week, game.GameNumber, out var bowlGame))
+                {
+                    if (bowlGame.IsAugmentedBowl)
+                    {
+                        var winner = game.AwayScore > game.HomeScore ?
+                            game.AwayTeamId : game.HomeTeamId;
+
+                        BowlChampion.AddBowlChampion(winner, bowlGame.Id);
+                    }
+                }
+
+
                 // stadium id
                 var stadiumId =table.lRecords[i].lEntries[3].Data.ToInt32();
 
