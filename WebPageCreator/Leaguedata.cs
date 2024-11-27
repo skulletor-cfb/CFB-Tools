@@ -570,12 +570,17 @@ namespace EA_DB_Editor
 
         public static void AddBowlChampion(int teamId, int bowlId)
         {
-            BowlChampions.Add(CreateKey(CurrentYear, bowlId), new BowlChampion
+            var key = CreateKey(CurrentYear, bowlId);
+            if (BowlChampions.ContainsKey(key))return;
+
+            var bc = new BowlChampion
             {
                 TeamId = teamId,
                 BowlId = bowlId,
                 Year = CurrentYear,
-            });
+            };
+
+            BowlChampions.Add(key, bc);
         }
 
         public static bool IsNationalChampionshipYear(int teamId, int year)

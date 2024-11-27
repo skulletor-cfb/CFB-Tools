@@ -49,7 +49,7 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            if (Form1.DynastyYear == 2512)
+            if (Form1.DynastyYear == 2518)
             {
                 throw new Exception("Does BSU go to Big 12????");
             }

@@ -907,6 +907,8 @@ namespace EA_DB_Editor
 
             if (conf == IndId) return true;
 
+            return current == 8;
+
             if (conf == SECId && current == 10)
                 return true;
 

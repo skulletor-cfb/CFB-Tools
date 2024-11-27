@@ -3961,6 +3961,9 @@ PPOS = Position
 
         private void cleanupCCHHToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            MessageBox.Show("no OP");
+            return; 
+
             // find the CCHH table
             var table = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "CCHH");
 
@@ -4210,6 +4213,68 @@ PPOS = Position
         private void add8V9ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             AddPlayoffGame(AdditionalGameProvider.CFP8v9, "1200", "4");
+        }
+
+        private void cFPToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UpdatePoll("TBRK", "TBPR");
+        }
+
+        private void aPToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UpdatePoll("TMRK", "TMPP");
+        }
+
+        private void coachesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UpdatePoll("TCRK", "TCPR");
+        }
+
+        private void UpdatePoll(string currentKey, string lastKey)
+        {
+            const string startAt = @"E:\dynastyTables";
+            var exclude = new HashSet<int>() { 611, 160, 161, 162, 163, 164};
+
+            var file = new OpenFileDialog()
+            {
+                InitialDirectory = startAt,
+            };
+
+            if (file.ShowDialog() == DialogResult.OK)
+            {
+                var dict = new Dictionary<int, string>();
+
+                // first read the file and determine the index of the various keys
+                var csv = File.ReadAllLines(file.FileName);
+                var keys = csv[0].Split(',').ToList();
+                var tgidIdx = keys.IndexOf("TGID");
+                var rankIdx = keys.IndexOf(currentKey);
+                var previousIdx = keys.IndexOf(lastKey);
+
+                // get the rank for each team
+                foreach (var line in csv.Skip(1))
+                {
+                    var values = line.Split(',');
+                    var tgid = values[tgidIdx].ToInt32();
+                    var rank = values[rankIdx];
+                    dict[tgid] = rank;
+                }
+
+                // get the team table
+                var table = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "TEAM");
+
+                foreach (var mr in table.lRecords)
+                {
+                    var teamId = mr["TGID"].ToInt32();
+
+                    if (exclude.Contains(teamId))
+                    {
+                        continue;
+                    }
+
+                    mr[currentKey] = dict[teamId];
+                }
+            }
         }
     }
 

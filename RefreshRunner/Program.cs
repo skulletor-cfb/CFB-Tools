@@ -107,6 +107,12 @@ namespace RefreshRunner
 
         static void Main(string[] args)
         {
+            if (args.Length == 1 && args[0] == "dump")
+            {
+                Dump();
+                return;
+            }
+
             if (args.Length == 1 && args[0] == "records")
             {
                 Create();
@@ -295,6 +301,59 @@ namespace RefreshRunner
                     // AppDomain.Unload(appDomain);
                 }
             }
+        }
+
+        static void Dump()
+        {
+            const string saveFiles = @"E:\rpcs3\dev_hdd0\home\00000001\savedata";
+            const string outputDirectory = @"e:\dynastyTables";
+            const string teamFile = outputDirectory + @"\team.csv";
+            const string schdFile = outputDirectory + @"\schd.csv";
+
+            // get the latest file
+            var dir = new DirectoryInfo(saveFiles);
+            var files = dir.GetFiles("USR-DATA", SearchOption.AllDirectories);
+            var newest = files.OrderByDescending(f => f.LastWriteTime).First();
+
+            // setup output
+            if (Directory.Exists(outputDirectory))
+            {
+                Directory.Delete(outputDirectory, true);
+            }
+
+            Directory.CreateDirectory(outputDirectory);
+
+            // setup file reading
+            var appDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString());
+            var form = CreateForm(appDomain);
+            form.OpenDynastyFile(newest.FullName);
+            form.DumpTables(outputDirectory);
+
+            // delete the files we don't need
+            var tables = Directory.GetFiles(outputDirectory);
+            foreach( var table in tables)
+            {
+                if(string.Equals(table, teamFile, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(table, schdFile, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                File.Delete(table);
+            }
+
+            return;
+            // read the data
+            var csv = File.ReadAllText(teamFile);
+            form.SetClipboard(csv);
+            Console.WriteLine("Copy TEAM table");
+            Console.ReadLine();
+
+
+            csv = File.ReadAllText(schdFile);
+            form.SetClipboard(csv);
+            Console.WriteLine("Copy SCHD table");
+            Console.ReadLine();
         }
 
         static void ReadCoachData()

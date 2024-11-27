@@ -166,9 +166,15 @@ namespace FutureScheduleReader
         static readonly string TexasAM = "	Texas A&M	".Trim();
         static readonly string Vanderbilt = "	Vanderbilt	".Trim();
         static readonly string Houston = "Houston";
+        static readonly string Cincy = "Cincy";
+        static readonly string AtBoiseSt = "at Boise State";
 
         private static Dictionary<string, string> lookup = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
+            {AtBoiseSt, AtBoiseSt },
+            {"at BSU", AtBoiseSt },
+            { Houston, Houston },
+            { Cincy, Cincy },
             {"bc", BostonCollege },
             {BostonCollege , BostonCollege },
             {Clemson, Clemson },

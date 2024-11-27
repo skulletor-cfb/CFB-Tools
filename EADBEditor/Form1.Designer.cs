@@ -106,12 +106,16 @@
             this.arizonaBowlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.venturesBowlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cleanupBCHHToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.playoffRound1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.add5V12ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.add6V11ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.add7V10ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.add8V9ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.pollUpdateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cFPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.coachesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -632,7 +636,8 @@
             this.cleanupCCHHToolStripMenuItem,
             this.bowlGamesToolStripMenuItem,
             this.cleanupBCHHToolStripMenuItem,
-            this.playoffRound1ToolStripMenuItem});
+            this.playoffRound1ToolStripMenuItem,
+            this.pollUpdateToolStripMenuItem});
             this.postSeasonToolStripMenuItem.Name = "postSeasonToolStripMenuItem";
             this.postSeasonToolStripMenuItem.Size = new System.Drawing.Size(79, 20);
             this.postSeasonToolStripMenuItem.Text = "PostSeason";
@@ -725,6 +730,45 @@
             this.cleanupBCHHToolStripMenuItem.Text = "Cleanup BCHH";
             this.cleanupBCHHToolStripMenuItem.Click += new System.EventHandler(this.cleanupBCHHToolStripMenuItem_Click);
             // 
+            // playoffRound1ToolStripMenuItem
+            // 
+            this.playoffRound1ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.add5V12ToolStripMenuItem,
+            this.add6V11ToolStripMenuItem,
+            this.add7V10ToolStripMenuItem,
+            this.add8V9ToolStripMenuItem});
+            this.playoffRound1ToolStripMenuItem.Name = "playoffRound1ToolStripMenuItem";
+            this.playoffRound1ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.playoffRound1ToolStripMenuItem.Text = "Playoff Round 1";
+            // 
+            // add5V12ToolStripMenuItem
+            // 
+            this.add5V12ToolStripMenuItem.Name = "add5V12ToolStripMenuItem";
+            this.add5V12ToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.add5V12ToolStripMenuItem.Text = "Add 5 v 12";
+            this.add5V12ToolStripMenuItem.Click += new System.EventHandler(this.add5V12ToolStripMenuItem_Click);
+            // 
+            // add6V11ToolStripMenuItem
+            // 
+            this.add6V11ToolStripMenuItem.Name = "add6V11ToolStripMenuItem";
+            this.add6V11ToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.add6V11ToolStripMenuItem.Text = "Add 6 v 11";
+            this.add6V11ToolStripMenuItem.Click += new System.EventHandler(this.add6V11ToolStripMenuItem_Click);
+            // 
+            // add7V10ToolStripMenuItem
+            // 
+            this.add7V10ToolStripMenuItem.Name = "add7V10ToolStripMenuItem";
+            this.add7V10ToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.add7V10ToolStripMenuItem.Text = "Add 7 v 10";
+            this.add7V10ToolStripMenuItem.Click += new System.EventHandler(this.add7V10ToolStripMenuItem_Click);
+            // 
+            // add8V9ToolStripMenuItem
+            // 
+            this.add8V9ToolStripMenuItem.Name = "add8V9ToolStripMenuItem";
+            this.add8V9ToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.add8V9ToolStripMenuItem.Text = "Add 8 v9";
+            this.add8V9ToolStripMenuItem.Click += new System.EventHandler(this.add8V9ToolStripMenuItem_Click);
+            // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -746,44 +790,36 @@
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
-            // playoffRound1ToolStripMenuItem
+            // pollUpdateToolStripMenuItem
             // 
-            this.playoffRound1ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.add5V12ToolStripMenuItem,
-            this.add6V11ToolStripMenuItem,
-            this.add7V10ToolStripMenuItem,
-            this.add8V9ToolStripMenuItem});
-            this.playoffRound1ToolStripMenuItem.Name = "playoffRound1ToolStripMenuItem";
-            this.playoffRound1ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.playoffRound1ToolStripMenuItem.Text = "Playoff Round 1";
+            this.pollUpdateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cFPToolStripMenuItem,
+            this.aPToolStripMenuItem,
+            this.coachesToolStripMenuItem});
+            this.pollUpdateToolStripMenuItem.Name = "pollUpdateToolStripMenuItem";
+            this.pollUpdateToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.pollUpdateToolStripMenuItem.Text = "Poll Update";
             // 
-            // add5V12ToolStripMenuItem
+            // cFPToolStripMenuItem
             // 
-            this.add5V12ToolStripMenuItem.Name = "add5V12ToolStripMenuItem";
-            this.add5V12ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.add5V12ToolStripMenuItem.Text = "Add 5 v 12";
-            this.add5V12ToolStripMenuItem.Click += new System.EventHandler(this.add5V12ToolStripMenuItem_Click);
+            this.cFPToolStripMenuItem.Name = "cFPToolStripMenuItem";
+            this.cFPToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.cFPToolStripMenuItem.Text = "CFP";
+            this.cFPToolStripMenuItem.Click += new System.EventHandler(this.cFPToolStripMenuItem_Click);
             // 
-            // add6V11ToolStripMenuItem
+            // aPToolStripMenuItem
             // 
-            this.add6V11ToolStripMenuItem.Name = "add6V11ToolStripMenuItem";
-            this.add6V11ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.add6V11ToolStripMenuItem.Text = "Add 6 v 11";
-            this.add6V11ToolStripMenuItem.Click += new System.EventHandler(this.add6V11ToolStripMenuItem_Click);
+            this.aPToolStripMenuItem.Name = "aPToolStripMenuItem";
+            this.aPToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.aPToolStripMenuItem.Text = "AP";
+            this.aPToolStripMenuItem.Click += new System.EventHandler(this.aPToolStripMenuItem_Click);
             // 
-            // add7V10ToolStripMenuItem
+            // coachesToolStripMenuItem
             // 
-            this.add7V10ToolStripMenuItem.Name = "add7V10ToolStripMenuItem";
-            this.add7V10ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.add7V10ToolStripMenuItem.Text = "Add 7 v 10";
-            this.add7V10ToolStripMenuItem.Click += new System.EventHandler(this.add7V10ToolStripMenuItem_Click);
-            // 
-            // add8V9ToolStripMenuItem
-            // 
-            this.add8V9ToolStripMenuItem.Name = "add8V9ToolStripMenuItem";
-            this.add8V9ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.add8V9ToolStripMenuItem.Text = "Add 8 v9";
-            this.add8V9ToolStripMenuItem.Click += new System.EventHandler(this.add8V9ToolStripMenuItem_Click);
+            this.coachesToolStripMenuItem.Name = "coachesToolStripMenuItem";
+            this.coachesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.coachesToolStripMenuItem.Text = "Coaches";
+            this.coachesToolStripMenuItem.Click += new System.EventHandler(this.coachesToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -888,6 +924,10 @@
         private System.Windows.Forms.ToolStripMenuItem add6V11ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem add7V10ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem add8V9ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem pollUpdateToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cFPToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem aPToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem coachesToolStripMenuItem;
     }
 }
 

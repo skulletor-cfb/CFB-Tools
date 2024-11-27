@@ -469,6 +469,52 @@ namespace EA_DB_Editor
             Cursor.Current = Cursors.Default;
         }
 
+        public void SetClipboard(string s)
+        {
+            Clipboard.SetText(s);
+        }
+
+        public void DumpTables(string dir)
+        {
+            StringBuilder sb = null;
+            int idx = 0;
+
+            foreach (var table in maddenDB.lTables)
+            {
+                var name = table.Abbreviation ?? table.Name;
+                sb = new StringBuilder();
+                var columns = table.lFields.Select(f => f.Abbreviation).ToArray();
+                sb.AppendLine(string.Join(",", columns));
+
+                foreach (var row in table.lRecords)
+                {
+                    sb.AppendLine(string.Join(",", columns.Select(c => row[c])));
+                }
+
+#if false
+                try
+                {
+                    var sb2 = new StringBuilder();
+                    sb2.AppendLine($"Name: {table.Name}");
+                    sb2.AppendLine($"Abbreviation: {table.Abbreviation}");
+                    sb2.AppendLine($"Max Count: {table.Table.maxrecords}");
+                    File.WriteAllText(Path.Combine(dir, name + ".meta.txt"), sb2.ToString());
+                }
+                catch { }
+#endif
+
+                try
+                {
+                    File.WriteAllText(Path.Combine(dir, name + ".csv"), sb.ToString());
+                }
+                catch
+                {
+                    name = "t" + idx;
+                    File.WriteAllText(Path.Combine(dir, name + ".csv"), sb.ToString());
+                }
+            }
+        }
+
         public void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //if( ! bConfigRead )
@@ -508,7 +554,7 @@ namespace EA_DB_Editor
         }
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            #region open file
+#region open file
             SaveFileDialog saveFileDialog = new SaveFileDialog();
 
             saveFileDialog.Filter = "*.MC02|*.MC02|all|*.*";
@@ -517,7 +563,7 @@ namespace EA_DB_Editor
 
             if (System.Windows.Forms.DialogResult.OK != saveFileDialog.ShowDialog())
                 return;
-            #endregion
+#endregion
 
             Cursor.Current = Cursors.WaitCursor;
             maddenDB.SaveAs(saveFileDialog.FileName);
@@ -560,7 +606,7 @@ namespace EA_DB_Editor
                     sw.WriteLine("");
                     sw.WriteLine("");
 
-                    #region create the main tab view
+#region create the main tab view
                     sw.WriteLine("");
                     sw.WriteLine("<View>");
                     sw.WriteLine("\t<Name>MainTab</Name>");
@@ -574,17 +620,17 @@ namespace EA_DB_Editor
                     sw.WriteLine("\t\t<Width>800</Width>");
                     sw.WriteLine("\t\t<Height>340</Height>");
                     sw.WriteLine("\t</Size>");
-                    #region add tables
+#region add tables
                     foreach (MaddenTable mt in maddenDB2.lTables)
                         sw.WriteLine("\t<Child>" + mt.Table.TableName + "</Child>");
-                    #endregion
+#endregion
                     sw.WriteLine("</View>");
                     sw.WriteLine("");
-                    #endregion
+#endregion
 
                     foreach (MaddenTable mt in maddenDB2.lTables)
                     {
-                        #region create a view
+#region create a view
                         sw.WriteLine("");
                         sw.WriteLine("<View>");
                         sw.WriteLine("\t<Name>" + mt.Table.TableName + "</Name>");
@@ -602,22 +648,22 @@ namespace EA_DB_Editor
                         sw.WriteLine("\t\t<Type>Table</Type>");
                         sw.WriteLine("\t\t<Name>" + mt.Table.TableName + "</Name>");
                         sw.WriteLine("\t</Source>");
-                        #region add fields
+#region add fields
                         foreach (Field f in mt.lFields)
                             sw.WriteLine("\t<Field>" + f.name + "</Field>");
-                        #endregion
+#endregion
                         sw.WriteLine("</View>");
                         sw.WriteLine("");
-                        #endregion
-                        #region create the table
+#endregion
+#region create the table
                         sw.WriteLine("");
                         sw.WriteLine("<Table>");
                         sw.WriteLine("\t<Abbreviation>" + mt.Table.TableName + "</Abbreviation>");
                         sw.WriteLine("\t<Name></Name>");
                         sw.WriteLine("</Table>");
                         sw.WriteLine("");
-                        #endregion
-                        #region create the fields
+#endregion
+#region create the fields
                         foreach (Field f in mt.lFields)
                         {
                             string type = "";
@@ -636,7 +682,7 @@ namespace EA_DB_Editor
                             sw.WriteLine("\t<Type>" + type + "</Type>");
                             sw.WriteLine("</Field>");
                         }
-                        #endregion
+#endregion
                     }
 
                     sw.WriteLine("");
@@ -729,7 +775,7 @@ namespace EA_DB_Editor
                 // now get the record selected
                 MaddenRecord mr = (MaddenRecord)((ListView)currentView.DisplayControl).SelectedItems[0].Tag;
 
-                #region now open the file dialog
+#region now open the file dialog
                 SaveFileDialog saveFileDialog1 = new SaveFileDialog();
 
                 saveFileDialog1.Filter = "*.csv|*.csv|all|*.*";
@@ -739,14 +785,14 @@ namespace EA_DB_Editor
 
                 if (System.Windows.Forms.DialogResult.OK != saveFileDialog1.ShowDialog())
                     return;
-                #endregion
+#endregion
 
                 FileStream fs = new FileStream(saveFileDialog1.FileName, FileMode.OpenOrCreate, FileAccess.Write);
                 StreamWriter sw = new StreamWriter(fs);
 
 
                 Cursor.Current = Cursors.WaitCursor;
-                #region write the table name, fields, and record
+#region write the table name, fields, and record
                 sw.WriteLine(mt.Abbreviation + "," + cf.choosen.name);
 
                 foreach (Field f in mt.lFields)
@@ -760,7 +806,7 @@ namespace EA_DB_Editor
                 sw.Flush();
                 sw.Close();
                 fs.Close();
-                #endregion
+#endregion
                 Cursor.Current = Cursors.Default;
             }
         }
@@ -783,7 +829,7 @@ namespace EA_DB_Editor
                 return;
             }
 
-            #region now open the file dialog
+#region now open the file dialog
             SaveFileDialog saveFileDialog1 = new SaveFileDialog();
 
             saveFileDialog1.Filter = "*.csv|*.csv|all|*.*";
@@ -793,13 +839,13 @@ namespace EA_DB_Editor
 
             if (System.Windows.Forms.DialogResult.OK != saveFileDialog1.ShowDialog())
                 return;
-            #endregion
+#endregion
 
             FileStream fs = new FileStream(saveFileDialog1.FileName, FileMode.OpenOrCreate, FileAccess.Write);
             StreamWriter sw = new StreamWriter(fs);
 
             Cursor.Current = Cursors.WaitCursor;
-            #region write the table name, fields, and records
+#region write the table name, fields, and records
 
             sw.WriteLine(mt.Abbreviation + "," + cf.choosen.name);
 
@@ -819,12 +865,12 @@ namespace EA_DB_Editor
             sw.Flush();
             sw.Close();
             fs.Close();
-            #endregion
+#endregion
             Cursor.Current = Cursors.Default;
         }
         private void asNewItemsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            #region open file
+#region open file
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
 
             openFileDialog1.Filter = "*.csv|*.csv|all|*.*";
@@ -833,7 +879,7 @@ namespace EA_DB_Editor
 
             if (System.Windows.Forms.DialogResult.OK != openFileDialog1.ShowDialog())
                 return;
-            #endregion
+#endregion
 
             Cursor.Current = Cursors.WaitCursor;
 
@@ -843,7 +889,7 @@ namespace EA_DB_Editor
                 FileStream fs = new FileStream(openFileDialog1.FileNames[iFile], FileMode.Open, FileAccess.Read);
                 StreamReader sr = new StreamReader(fs);
 
-                #region read table & headers then check their validity
+#region read table & headers then check their validity
                 string[] header = sr.ReadLine().Split(new char[] { ',' });
                 if (header.Length < 2)
                 {
@@ -896,11 +942,11 @@ namespace EA_DB_Editor
                         return;
                     }
                 }
-                #endregion
+#endregion
 
                 while (!sr.EndOfStream)
                 {
-                    #region read our data
+#region read our data
                     string[] data = sr.ReadLine().Split(new char[] { ',' });
 
                     if (data.Length < sfields.Length)
@@ -910,15 +956,15 @@ namespace EA_DB_Editor
                         fs.Close();
                         return;
                     }
-                    #endregion
-                    #region create a new record to hold the data
+#endregion
+#region create a new record to hold the data
                     MaddenRecord mr = new MaddenRecord(mt, mt.lFields);
                     for (int i = 0; i < sfields.Length; i++)
                     {
                         mr[sfields[i]] = data[i];
                     }
-                    #endregion
-                    #region now see if this record already exists
+#endregion
+#region now see if this record already exists
                     MaddenRecord exists = mt.lRecords.Find((a) => a[key] == mr[key]);
                     if (exists != null)
                     {
@@ -954,15 +1000,15 @@ namespace EA_DB_Editor
                         // set the value to an unused value for the key field
                         mr[key] = index.ToString();
                     }
-                    #endregion
-                    #region fell through, so we're adding the record
+#endregion
+#region fell through, so we're adding the record
                     if (!mt.InsertRecord(mr))
                     {
                         MessageBox.Show("Table is full; cannot create a new record", "Error");
                         Cursor.Current = Cursors.Default;
                         return;
                     }
-                    #endregion
+#endregion
                 }
 
                 PostProcessMaps();
@@ -977,7 +1023,7 @@ namespace EA_DB_Editor
         }
         private void overwriteExistingToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            #region open file
+#region open file
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
 
             openFileDialog1.Filter = "*.csv|*.csv|all|*.*";
@@ -986,7 +1032,7 @@ namespace EA_DB_Editor
 
             if (System.Windows.Forms.DialogResult.OK != openFileDialog1.ShowDialog())
                 return;
-            #endregion
+#endregion
 
             Cursor.Current = Cursors.WaitCursor;
 
@@ -996,7 +1042,7 @@ namespace EA_DB_Editor
                 FileStream fs = new FileStream(openFileDialog1.FileNames[iFile], FileMode.Open, FileAccess.Read);
                 StreamReader sr = new StreamReader(fs);
 
-                #region read table & headers then check their validity
+#region read table & headers then check their validity
                 string[] header = sr.ReadLine().Split(new char[] { ',' });
                 if (header.Length < 2)
                 {
@@ -1049,12 +1095,12 @@ namespace EA_DB_Editor
                         return;
                     }
                 }
-                #endregion
+#endregion
 
                 int count = 1;
                 while (!sr.EndOfStream)
                 {
-                    #region read our data
+#region read our data
                     string[] data = sr.ReadLine().Split(new char[] { ',' });
 
                     if (data.Length < sfields.Length)
@@ -1064,15 +1110,15 @@ namespace EA_DB_Editor
                         fs.Close();
                         return;
                     }
-                    #endregion
-                    #region create a new record to hold the data
+#endregion
+#region create a new record to hold the data
                     MaddenRecord mr = new MaddenRecord(mt, mt.lFields);
                     for (int i = 0; i < sfields.Length; i++)
                     {
                         mr[sfields[i]] = data[i];
                     }
-                    #endregion
-                    #region now copy over the existing record ( only the fields provided )
+#endregion
+#region now copy over the existing record ( only the fields provided )
                     MaddenRecord exists = mt.lRecords.Find((a) => a[key] == mr[key]);
                     if (exists == null)
                     {
@@ -1086,7 +1132,7 @@ namespace EA_DB_Editor
                     }
 
                     count++;
-                    #endregion
+#endregion
                 }
 
                 PostProcessMaps();
@@ -1110,7 +1156,7 @@ namespace EA_DB_Editor
             if (((ListView)currentView.DisplayControl).SelectedItems.Count <= 0)
                 return;
 
-            #region open file
+#region open file
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
 
             openFileDialog1.Filter = "*.csv|*.csv|all|*.*";
@@ -1119,7 +1165,7 @@ namespace EA_DB_Editor
 
             if (System.Windows.Forms.DialogResult.OK != openFileDialog1.ShowDialog())
                 return;
-            #endregion
+#endregion
 
             Cursor.Current = Cursors.WaitCursor;
 
@@ -1129,7 +1175,7 @@ namespace EA_DB_Editor
                 FileStream fs = new FileStream(openFileDialog1.FileNames[iFile], FileMode.Open, FileAccess.Read);
                 StreamReader sr = new StreamReader(fs);
 
-                #region read table & headers then check their validity
+#region read table & headers then check their validity
                 string[] header = sr.ReadLine().Split(new char[] { ',' });
                 if (header.Length < 2)
                 {
@@ -1182,8 +1228,8 @@ namespace EA_DB_Editor
                         return;
                     }
                 }
-                #endregion
-                #region read our data
+#endregion
+#region read our data
                 string[] data = sr.ReadLine().Split(new char[] { ',' });
 
                 if (data.Length < sfields.Length)
@@ -1193,15 +1239,15 @@ namespace EA_DB_Editor
                     fs.Close();
                     return;
                 }
-                #endregion
-                #region create a new record to hold the data
+#endregion
+#region create a new record to hold the data
                 MaddenRecord mr = new MaddenRecord(mt, mt.lFields);
                 for (int i = 0; i < sfields.Length; i++)
                 {
                     mr[sfields[i]] = data[i];
                 }
-                #endregion
-                #region now copy over the existing record ( only the fields provided, minus the key )
+#endregion
+#region now copy over the existing record ( only the fields provided, minus the key )
                 MaddenRecord selected = (MaddenRecord)((ListView)currentView.DisplayControl).SelectedItems[0].Tag;
 
                 for (int i = 0; i < sfields.Length; i++)
@@ -1209,7 +1255,7 @@ namespace EA_DB_Editor
                     if (sfields[i] != key)
                         selected[sfields[i]] = mr[sfields[i]];
                 }
-                #endregion
+#endregion
 
                 PostProcessMaps();
                 currentView.RefreshGridData(mt);
@@ -1238,7 +1284,7 @@ namespace EA_DB_Editor
         }
         private void copyConfigToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            #region open src file
+#region open src file
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
 
             openFileDialog1.Filter = "*.xml|*.xml|all|*.*";
@@ -1248,8 +1294,8 @@ namespace EA_DB_Editor
 
             if (System.Windows.Forms.DialogResult.OK != openFileDialog1.ShowDialog())
                 return;
-            #endregion
-            #region open dst file
+#endregion
+#region open dst file
             OpenFileDialog openFileDialog2 = new OpenFileDialog();
 
             openFileDialog2.Filter = "*.xml|*.xml|all|*.*";
@@ -1259,7 +1305,7 @@ namespace EA_DB_Editor
 
             if (System.Windows.Forms.DialogResult.OK != openFileDialog2.ShowDialog())
                 return;
-            #endregion
+#endregion
 
             List<XMLConfig> srcViews = new List<XMLConfig>();
             List<XMLConfig> srcTables = new List<XMLConfig>();
@@ -1932,7 +1978,7 @@ namespace EA_DB_Editor
     }
     public class Field
     {
-        #region members
+#region members
         public string name;
         public ulong type;
         public ulong offset;
@@ -1951,7 +1997,7 @@ namespace EA_DB_Editor
         public string ControlRF2 = "";
         public bool ControlLocked = false;
         public int Offset = 0;
-        #region new for calculated type, 10/23/13
+#region new for calculated type, 10/23/13
         public class Variable
         {
             public string vField = "";
@@ -2110,10 +2156,10 @@ namespace EA_DB_Editor
 
             return Math.Round(r, 0);
         }
-        #endregion
+#endregion
         // new attempt to speed up searches with ref objs
         public Dictionary<string, int> KeyToIndexMappings = new Dictionary<string, int>();
-        #endregion
+#endregion
 
         public static int fieldsize = 16;
 
@@ -2556,7 +2602,7 @@ namespace EA_DB_Editor
     }
     public class DBFileInfo
     {
-        #region internals & statics
+#region internals & statics
         public UInt32 tableIndexOffset = 0x24;		// from DB start ( really 20, but we're treating it differently )
         public byte[] theFile = null;
         public long absPosition = 0;
@@ -2577,7 +2623,7 @@ namespace EA_DB_Editor
 
         public List<DBTable> lTables;
 
-        #endregion
+#endregion
         public DBFileInfo()
         {
             header = 0;
@@ -3252,23 +3298,23 @@ namespace EA_DB_Editor
             // check file type
             type = MaddenDatabase.CheckFileType(fs);
 
-            #region unknown file type
+#region unknown file type
             if (type == MaddenFileType.FileType_None)
             {
                 MessageBox.Show("Error - this is not a DB or MC02 file!");
                 fs.Close();
                 return;
             }
-            #endregion
-            #region CON file type
+#endregion
+#region CON file type
             if (type == MaddenFileType.FileType_CON)
             {
                 MessageBox.Show("You must first extract the MC02 / DB file from the roster!");
                 fs.Close();
                 return;
             }
-            #endregion
-            #region MC02 file type
+#endregion
+#region MC02 file type
             if (type == MaddenFileType.FileType_MC02)
             {
                 MC02Handler.Package package = null;
@@ -3297,10 +3343,10 @@ namespace EA_DB_Editor
 
             }
             else	// must be a DB file
-            #endregion
-                #region DB file type
+#endregion
+#region DB file type
                 fileName = file;
-                #endregion
+#endregion
 
             dbFileInfo = new DBFileInfo(fs);
             foreach (DBTable dbt in dbFileInfo.lTables)
@@ -3334,7 +3380,7 @@ namespace EA_DB_Editor
             dbFileInfo.Save(fs);
             fs.Close();
 
-            #region if this was an MC02 file, repackage
+#region if this was an MC02 file, repackage
             if (type == MaddenDatabase.MaddenFileType.FileType_MC02)
             {
                 fs = new FileStream(realfileName, FileMode.Open, FileAccess.ReadWrite);
@@ -3387,7 +3433,7 @@ namespace EA_DB_Editor
 
                 package.Dispose();
             }
-            #endregion
+#endregion
         }
         public void SaveAs(string newfile)
         {
@@ -3465,7 +3511,7 @@ namespace EA_DB_Editor
     {
         public delegate void ViewChanged(View v);
         public delegate Field GetMappedField(string name);
-        #region members
+#region members
         public string Name = "";
         public string Type = "";
         public Control DisplayControl = null;
@@ -3486,7 +3532,7 @@ namespace EA_DB_Editor
         public ToolTip toolTip = new ToolTip();
         static public ViewChanged viewChanged = null;
         static public GetMappedField getMappedField = null;
-        #endregion
+#endregion
 
         public View()
         {
@@ -3499,7 +3545,7 @@ namespace EA_DB_Editor
         {
             switch (Type)
             {
-                #region grid list view
+#region grid list view
                 case "Grid":
                     // setup list view
                     ListViewEx.ListViewEx lv = new ListViewEx.ListViewEx();
@@ -3541,9 +3587,9 @@ namespace EA_DB_Editor
                     DisplayControl = lv;
                     DisplayControl.Tag = this;
                     break;
-                #endregion
+#endregion
 
-                #region list item list view
+#region list item list view
                 case "List Item":
                     // setup list view ( this is a name / value type view )
                     ListViewEx.ListViewEx lv2 = new ListViewEx.ListViewEx();
@@ -3562,9 +3608,9 @@ namespace EA_DB_Editor
                     DisplayControl = lv2;
                     DisplayControl.Tag = this;
                     break;
-                #endregion
+#endregion
 
-                #region tab view
+#region tab view
                 case "Tab":	// to do
                     TabControl tab = new TabControl();
                     tab.Height = Size_height;
@@ -3576,7 +3622,7 @@ namespace EA_DB_Editor
                     DisplayControl = tab;
                     DisplayControl.Tag = this;
                     break;
-                #endregion
+#endregion
             }
             return true;
         }
@@ -3589,7 +3635,7 @@ namespace EA_DB_Editor
             ((ListView)DisplayControl).BeginUpdate();
 
             lastFilters = lFilters;
-            #region columns specified
+#region columns specified
             if (ChildFields.Count > 0)
             {
                 ((ListView)DisplayControl).Items.Clear();
@@ -3616,8 +3662,8 @@ namespace EA_DB_Editor
 
                                 if (f.ControlLink != "")
                                 {
-                                    #region select the item via lookup
-                                    #region find the ojbect in the list
+#region select the item via lookup
+#region find the ojbect in the list
                                     if (f.KeyToIndexMappings.ContainsKey(maddenTable.lRecords[i][f.Abbreviation]))
                                     {
                                         ((ComboBox)f.EditControl).SelectedIndex = f.KeyToIndexMappings[maddenTable.lRecords[i][f.Abbreviation]];
@@ -3633,7 +3679,7 @@ namespace EA_DB_Editor
                                     //        break;
                                     //    }
                                     //}
-                                    #endregion
+#endregion
                                     //if( ((ComboBox) f.EditControl).SelectedIndex > -1 )
                                     //    sub	= new ListViewItem.ListViewSubItem( lvitems, ((ComboBox) f.EditControl).SelectedItem.ToString( ) );
                                     else
@@ -3644,12 +3690,12 @@ namespace EA_DB_Editor
                                         ((ComboBox)f.EditControl).SelectedIndex = ((ComboBox)f.EditControl).Items.Count - 1;
                                         sub = new ListViewItem.ListViewSubItem(lvitems, ro.value);
                                     }
-                                    #endregion
+#endregion
 
                                 }
                                 else
                                 {
-                                    #region select by index
+#region select by index
                                     if (((ComboBox)f.EditControl).Items.Count < Convert.ToInt32(maddenTable.lRecords[i][f.Abbreviation]))
                                         sub = new ListViewItem.ListViewSubItem(lvitems, maddenTable.lRecords[i][f.Abbreviation]);
                                     else
@@ -3657,7 +3703,7 @@ namespace EA_DB_Editor
                                         ((ComboBox)f.EditControl).SelectedIndex = Convert.ToInt32(maddenTable.lRecords[i][f.Abbreviation]);
                                         sub = new ListViewItem.ListViewSubItem(lvitems, ((ComboBox)f.EditControl).SelectedItem.ToString());
                                     }
-                                    #endregion
+#endregion
                                 }
                                 break;
 
@@ -3703,8 +3749,8 @@ namespace EA_DB_Editor
 
                 }
             }
-            #endregion
-            #region columns not specified
+#endregion
+#region columns not specified
             else
             {
                 ((ListView)DisplayControl).Clear();
@@ -3739,7 +3785,7 @@ namespace EA_DB_Editor
 
                 }
             }
-            #endregion
+#endregion
 
             ((ListView)DisplayControl).AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
             ((ListView)DisplayControl).EndUpdate();
@@ -4060,23 +4106,23 @@ namespace EA_DB_Editor
                 case Operation.EndsWith:
                 case Operation.StartsWith:
 
-                    #region is a combox item
+#region is a combox item
                     if (f.ControlType.EndsWith("ComboBox"))
                     {
                         string testData = "";
 
                         // need to find item based on type of combobox
-                        #region regular combobox with an item list
+#region regular combobox with an item list
                         if (f.ControlType == "ComboBox" && f.ControlLink == "")
                         {
                             testData = ((ComboBox)f.EditControl).Items[Convert.ToInt32(mr[code])].ToString();
                         }
-                        #endregion
-                        #region linked combobox
+#endregion
+#region linked combobox
                         if (f.ControlType == "ComboBox" && f.ControlLink != "")
                         {
                             RefObj linkedObj = null;
-                            #region find the ojbect in the list
+#region find the ojbect in the list
                             for (int x = 0; x < ((ComboBox)f.EditControl).Items.Count; x++)
                             {
                                 RefObj ro = (RefObj)((ComboBox)f.EditControl).Items[x];
@@ -4086,20 +4132,20 @@ namespace EA_DB_Editor
                                     break;
                                 }
                             }
-                            #endregion
+#endregion
                             testData = (linkedObj != null) ? linkedObj.value : "";
                         }
-                        #endregion
-                        #region adjusted combobox with an item list
+#endregion
+#region adjusted combobox with an item list
                         if (f.ControlType == "AdjustedComboBox")
                         {
                             testData = ((ComboBox)f.EditControl).Items[Convert.ToInt32(mr[code]) + f.Offset].ToString();
                         }
-                        #endregion
-                        #region mapped combobox with an item list
+#endregion
+#region mapped combobox with an item list
                         if (f.ControlType == "MappedComboBox")
                             testData = ((ComboBox)f.EditControl).Items[Convert.ToInt32(mr[f.ControlIF])].ToString();
-                        #endregion
+#endregion
 
                         switch (op)
                         {
@@ -4116,9 +4162,9 @@ namespace EA_DB_Editor
                                 return testData.StartsWith(value);
                         }
                     }
-                    #endregion
+#endregion
 
-                    #region not a combobox variant
+#region not a combobox variant
                     switch (op)
                     {
                         case Operation.Contains:
@@ -4133,7 +4179,7 @@ namespace EA_DB_Editor
                         case Operation.StartsWith:
                             return mr[code].StartsWith(value);
                     }
-                    #endregion
+#endregion
                     return false;	// should never get here
 
 
@@ -4178,7 +4224,7 @@ namespace EA_DB_Editor
     // xml config info used in copying known fields / tables
     public class XMLConfig
     {
-        #region fields
+#region fields
         public string StartLabel = "";
         public string Name = "";
         public string Abbreviation = "";
@@ -4204,14 +4250,14 @@ namespace EA_DB_Editor
         public string Max = "";
         public List<Field.Formula> Formulas = new List<Field.Formula>();
         public string Offset = "";
-        #endregion
+#endregion
 
         public XMLConfig() { }
         public override string ToString()
         {
             string data = "";
 
-            #region view
+#region view
             if (StartLabel == "View")
             {
                 data += "<View>\r\n";
@@ -4249,8 +4295,8 @@ namespace EA_DB_Editor
 
                 data += "</View>\r\n\r\n\r\n";
             }
-            #endregion
-            #region table
+#endregion
+#region table
             if (StartLabel == "Table")
             {
                 data += "<Table>\r\n";
@@ -4258,8 +4304,8 @@ namespace EA_DB_Editor
                 data += "\t<Name>" + Name + "</Name>\r\n";
                 data += "</Table>\r\n\r\n";
             }
-            #endregion
-            #region field
+#endregion
+#region field
             if (StartLabel == "Field")
             {
                 data += "<Field>\r\n";
@@ -4322,7 +4368,7 @@ namespace EA_DB_Editor
                 data += "\t<Type>" + Type + "</Type>\r\n";
                 data += "</Field>\r\n";
             }
-            #endregion
+#endregion
 
             return data;
         }
@@ -4366,7 +4412,7 @@ namespace EA_DB_Editor
                 switch (reader.NodeType)
                 {
                     case XmlNodeType.Element:
-                        #region map open elements
+#region map open elements
                         if (Path == "\\xml\\" && reader.Name == "Field")
                         {
                             xml = new XMLConfig();
@@ -4390,22 +4436,22 @@ namespace EA_DB_Editor
                             xml.Formulas = Field.Formula.ReadFormulas(reader, Path + "Formulas\\");
                             break;
                         }
-                        #endregion
+#endregion
 
                         Path += reader.Name + "\\";
                         break;
 
                     case XmlNodeType.Text:
 
-                        #region map main entries
+#region map main entries
                         if (Path.EndsWith("Main\\Size\\Width\\"))
                             xml.SizeW = reader.Value;
 
                         if (Path.EndsWith("Main\\Size\\Height\\"))
                             xml.SizeH = reader.Value;
-                        #endregion
+#endregion
 
-                        #region map field entries
+#region map field entries
                         if (Path.EndsWith("Field\\Abbreviation\\"))
                             xml.Abbreviation = reader.Value;
 
@@ -4468,17 +4514,17 @@ namespace EA_DB_Editor
 
                         if (Path.EndsWith("Field\\Type\\"))
                             xml.Type = reader.Value;
-                        #endregion
+#endregion
 
-                        #region map table entries
+#region map table entries
                         if (Path.EndsWith("Table\\Abbreviation\\"))
                             xml.Abbreviation = reader.Value;
 
                         if (Path.EndsWith("Table\\Name\\"))
                             xml.Name = reader.Value;
-                        #endregion
+#endregion
 
-                        #region map view entries
+#region map view entries
                         if (Path.EndsWith("View\\Name\\"))
                             xml.Name = reader.Value;
 
@@ -4511,11 +4557,11 @@ namespace EA_DB_Editor
 
                         if (Path.EndsWith("View\\Field\\"))
                             xml.ChildFields.Add(reader.Value);
-                        #endregion
+#endregion
                         break;
 
                     case XmlNodeType.EndElement:
-                        #region map close elements
+#region map close elements
                         if (Path == "\\xml\\Field\\" && reader.Name == "Field")
                             fields.Add(xml);
 
@@ -4524,7 +4570,7 @@ namespace EA_DB_Editor
 
                         if (Path == "\\xml\\View\\" && reader.Name == "View")
                             views.Add(xml);
-                        #endregion
+#endregion
 
                         try
                         {

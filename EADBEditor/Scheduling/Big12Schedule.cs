@@ -29,14 +29,21 @@ namespace EA_DB_Editor
 
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[]
         {
+            CreateNDAPrime, CreateNDAPrime,
+            CreateNDY, CreateNDY,
+            CreateNDZ, CreateNDZ,
+            CreateNDA, CreateNDA,
+            CreateNDY, CreateNDY,
+            CreateNDZ, CreateNDZ,
 
+            /*
             CreateNDAPrime, CreateNDZ,
             CreateNDY, CreateNDA,
             CreateNDY, CreateNDZ,
 
             CreateNDA, CreateNDY,
             CreateNDZ, CreateNDAPrime,
-            CreateNDZ, CreateNDY,
+            CreateNDZ, CreateNDY,*/
         };
 
 /*        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] 
@@ -76,7 +83,7 @@ namespace EA_DB_Editor
 
             switch (currYear)
             {
-                case 2515:
+                case 2527:
                     throw new Exception("Is Cincy still in??");
 
                 default:
