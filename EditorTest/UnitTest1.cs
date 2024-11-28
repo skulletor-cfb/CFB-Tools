@@ -171,23 +171,23 @@ namespace EditorTest
             var hash = Big12Schedule.CreateX().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
-#elif false
+#elif true
         [TestMethod]
         public void Big12ScheduleA()
         {
-            Big12Schedule.Create15A().Verify(15, RecruitingFixup.Big12Id, "Big12", false);
-            var hash = Big12Schedule.Create15A().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+            Big12Schedule.Create16A().Verify(16, RecruitingFixup.Big12Id, "Big12", false);
+            var hash = Big12Schedule.Create16A().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
         }
 
         [TestMethod]
         public void Big12ScheduleB()
         {
-            Big12Schedule.Create15B().Verify(15, RecruitingFixup.Big12Id, "Big12", false);
-            var hash = Big12Schedule.Create15B().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+            Big12Schedule.Create16B().Verify(16, RecruitingFixup.Big12Id, "Big12", false);
+            var hash = Big12Schedule.Create16B().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
         }
-#elif true
+#elif false
         [TestMethod]
         public void Big12ScheduleNDA()
         {

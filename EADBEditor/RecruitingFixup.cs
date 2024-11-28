@@ -254,6 +254,7 @@ namespace EA_DB_Editor
         const int BYUId = 16;
         const int CincyId = 20;
         const int UCFId = 18;
+        const int USFId = 144;
 
         static Lazy<Dictionary<int, int[]>> ConfStateAssignments = new Lazy<Dictionary<int, int[]>>(CreateConferenceAssignmentsForStates, true);
 
@@ -270,7 +271,7 @@ namespace EA_DB_Editor
             dict.Add(5, new int[] { TeamAndConferences[22], NotreDameId, BYUId }); //CO
             dict.Add(6, new int[] { ACCId,Big10Id , NotreDameId}); //CT
             dict.Add(7, new int[] { ACCId, Big10Id ,NotreDameId}); //DE
-            dict.Add(8, new int[] { SECId,ACCId , SECId, ACCId, UCFId }); //FL
+            dict.Add(8, new int[] { SECId,ACCId , SECId, ACCId, UCFId, USFId }); //FL
             dict.Add(9, new int[] { SECId, ACCId }); //GA
             dict.Add(10, new int[] { Pac16Id, NotreDameId  }); //HI
             dict.Add(11, new int[] { Pac16Id, BYUId }); //ID
@@ -356,6 +357,9 @@ namespace EA_DB_Editor
                             break;
                         case UCFId:
                             allTeams.AddRange(WeightedUCF);
+                            break;
+                        case USFId:
+                            allTeams.AddRange(WeightedUSF);
                             break;
                         default:
                             break; 
@@ -826,6 +830,7 @@ namespace EA_DB_Editor
         static List<int> WeightedBig16 = null;
         static List<int> WeightedCincy = null;
         static List<int> WeightedUCF = null;
+        static List<int> WeightedUSF = null;
 
         public static int[] TeamsOnTheirOwn()
         {
@@ -993,7 +998,7 @@ namespace EA_DB_Editor
             // Independent BYU gets to recruit
             WeightedBYU = TeamAndConferences[16] == IndId ? CreateWeightedList(new[] { 16 }) : new List<int>();
 
-            if(CincyId.IsP5())
+            if (CincyId.IsP5())
             {
                 WeightedCincy = CreateWeightedList(new[] { CincyId });
             }
@@ -1009,6 +1014,15 @@ namespace EA_DB_Editor
             else
             {
                 WeightedUCF = CreateWeightedList(new int[0]);
+            }
+
+            if (USFId.IsP5())
+            {
+                WeightedUSF = CreateWeightedList(new[] { USFId });
+            }
+            else
+            {
+                WeightedUSF = CreateWeightedList(Array.Empty<int>());
             }
         }
 

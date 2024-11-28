@@ -12,6 +12,7 @@ namespace FutureScheduleReader
 {
     public partial class Form1 : Form
     {
+        private const int TeamCount = 70; // 66 if usf/ucf/hou/smu aren't in
         private static ExcelApp.Application excelApp;
         List<(int year, string away, string home)> list = new List<(int year, string away, string home)>();
         int start = 0;
@@ -43,7 +44,7 @@ namespace FutureScheduleReader
             {
                 ExcelApp._Worksheet excelSheet = excelBook.Sheets["Schedule"];
                 var table = excelSheet.UsedRange;
-                var rows = 67;//  table.Rows.Count;
+                var rows = TeamCount + 1;//  table.Rows.Count;
                 var cols = table.Columns.Count;
                 list.Clear();
                 start = Convert.ToInt32(table.Cells[1, 2].Value2);
@@ -168,9 +169,15 @@ namespace FutureScheduleReader
         static readonly string Houston = "Houston";
         static readonly string Cincy = "Cincy";
         static readonly string AtBoiseSt = "at Boise State";
+        static readonly string UCF = "UCF";
+        static readonly string USF = "USF";
+        static readonly string SMU = "SMU";
 
         private static Dictionary<string, string> lookup = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
+            {SMU, SMU },
+            {UCF, UCF },
+            {USF, USF },
             {AtBoiseSt, AtBoiseSt },
             {"at BSU", AtBoiseSt },
             { Houston, Houston },
@@ -213,6 +220,7 @@ namespace FutureScheduleReader
 {   "Indy",   Indiana },
 {   "IU",   Indiana },
 {   Iowa    ,   Iowa    },
+{   "Mich"    ,   Michigan    },
 {   Michigan    ,   Michigan    },
 {   MichiganState  ,   MichiganState  },
 {   "MichSt"  ,   MichiganState  },

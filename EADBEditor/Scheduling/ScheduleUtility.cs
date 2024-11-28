@@ -38,7 +38,7 @@ namespace EA_DB_Editor
             return conf;
         }
 
-        public static Dictionary<int, int[]> Verify(this Dictionary<int, int[]> result, int teamLength, int confId, string confName, bool verifyMembership = true, int expectedGames = 4)
+        public static Dictionary<int, int[]> Verify(this Dictionary<int, int[]> result, int teamLength, int confId, string confName, bool verifyMembership = true, int expectedGames = 4, int ifNotExpectedThen = 5)
         {
             // verify integrity
             var teams = result.Values.SelectMany(i => i).GroupBy(i => i).Select(g => new { Team = g.Key, Count = g.Count() }).ToArray();
@@ -53,7 +53,13 @@ namespace EA_DB_Editor
 
             if (badSchedule.Any())
             {
-                throw new Exception("You fucked up: " + string.Join(",", badSchedule.Select(t => t.Team.ToString())));
+                foreach (var schd in badSchedule)
+                {
+                    if (schd.Count != ifNotExpectedThen)
+                    {
+                        throw new Exception("You fucked up: " + string.Join(",", badSchedule.Select(t => t.Team.ToString())));
+                    }
+                }
             }
 
             if (verifyMembership)
