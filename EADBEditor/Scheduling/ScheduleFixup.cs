@@ -190,11 +190,13 @@ namespace EA_DB_Editor
                 {
                     game.SwapHomeAwayTeam(mr);
                 }
+#if false
                 else if ((game.HomeTeam == 50 && game.AwayTeam == 20 && Form1.IsEvenYear.Value) || (game.HomeTeam == 20 && game.AwayTeam == 50 && !Form1.IsEvenYear.Value))
                 {
                     // with 9 game big 12 schedule, cincy needs to be home even years
                     game.SwapHomeAwayTeam(mr);
                 }
+#endif
                 else if (false && game.IsConferenceGame() && RecruitingFixup.TeamAndConferences[homeTeam] == RecruitingFixup.Big12Id)
                 {
                     // FINDME : BIG 12 HOME/AWAY FIXES

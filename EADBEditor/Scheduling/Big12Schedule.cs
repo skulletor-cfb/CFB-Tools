@@ -507,18 +507,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Texas.Create(),
-                OU.Create(),
-                OkSt.Create(),
-                Colorado.Create(),
-                Nebraska.Create(),
-                KU.Create(),
-                KSU.Create(),
-                ISU.Create(),
-                Cincy.Create(),
-                TCU.Create(),
-                Baylor.Create(),
-                TT.Create(),
+                Texas.Create(Nebraska, ISU, TCU, TT),
+                OU.Create(Texas, OkSt, KU, Baylor),
+                OkSt.Create(Texas, Colorado, KSU, TT),
+                Colorado.Create(OU, Nebraska, ISU, Baylor),
+                Nebraska.Create(OU, OkSt, KSU, Cincy),
+                KU.Create(OkSt, Colorado, Nebraska, TCU),
+                KSU.Create(Texas, KU, Cincy, Baylor),
+                ISU.Create(OU, KSU, Cincy, TCU),
+                Cincy.Create(OU, Colorado, KU, TT),
+                TCU.Create(OkSt, Nebraska, Cincy, TT),
+                Baylor.Create(Texas, KU, ISU, TCU),
+                TT.Create(Colorado, KSU, ISU, Baylor),
 
             }.Create();
         }
