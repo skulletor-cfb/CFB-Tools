@@ -28,15 +28,15 @@ namespace EA_DB_Editor
 
         private static bool initRun = false;
 
-#if false
+#if true
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[]
         {
+            CreateNDZ, CreateNDZ,
+            CreateNDY, CreateNDY,
             CreateNDAPrime, CreateNDAPrime,
-            CreateNDY, CreateNDY,
             CreateNDZ, CreateNDZ,
+            CreateNDY, CreateNDY,
             CreateNDA, CreateNDA,
-            CreateNDY, CreateNDY,
-            CreateNDZ, CreateNDZ,
 
             /*
             CreateNDAPrime, CreateNDZ,
@@ -93,12 +93,12 @@ namespace EA_DB_Editor
             switch (currYear)
             {
                 default:
-                    var idx = (Form1.DynastyYear - 2516) % Creators.Length;
+                    var idx = (Form1.DynastyYear - 2517) % Creators.Length;
                     result = Creators[idx]();
                     break;
             }
 
-            result = result.Verify(16, RecruitingFixup.Big12Id, "Big12");
+            result = result.Verify(12, RecruitingFixup.Big12Id, "Big12");
             Big12ConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -501,7 +501,88 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif true // big 12 with north/south cincy in it instead of bsu.  No divisions
+#elif true // new big 12 no division
+        public static Dictionary<int, int[]> CreateNDY()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Texas.Create(),
+                OU.Create(),
+                OkSt.Create(),
+                Colorado.Create(),
+                Nebraska.Create(),
+                KU.Create(),
+                KSU.Create(),
+                ISU.Create(),
+                Cincy.Create(),
+                TCU.Create(),
+                Baylor.Create(),
+                TT.Create(),
+
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateNDZ()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Texas.Create(Colorado, KU, TCU, TT),
+                OU.Create(Texas, OkSt, KSU, TCU),
+                OkSt.Create(Colorado, Nebraska, ISU, TT),
+                Colorado.Create(OU, Nebraska, KSU, Baylor),
+                Nebraska.Create(OU, ISU, Cincy, Baylor),
+                KU.Create(OkSt, Colorado, Nebraska, ISU),
+                KSU.Create(Texas, KU, Cincy, TCU),
+                ISU.Create(OU, KSU, Cincy, TT),
+                Cincy.Create(Texas, OkSt, Baylor, TT),
+                TCU.Create(Colorado, KU, ISU, Cincy),
+                Baylor.Create(Texas, OkSt, KSU, TCU),
+                TT.Create(OU, Nebraska, KU, Baylor),
+
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateNDAPrime()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Texas.Create(),
+                OU.Create(),
+                OkSt.Create(),
+                Colorado.Create(),
+                Nebraska.Create(),
+                KU.Create(),
+                KSU.Create(),
+                ISU.Create(),
+                Cincy.Create(),
+                TCU.Create(),
+                Baylor.Create(),
+                TT.Create(),
+
+            }.Create();
+        }
+
+
+        public static Dictionary<int, int[]> CreateNDA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Texas.Create(),
+                OU.Create(),
+                OkSt.Create(),
+                Colorado.Create(),
+                Nebraska.Create(),
+                KU.Create(),
+                KSU.Create(),
+                ISU.Create(),
+                Cincy.Create(),
+                TCU.Create(),
+                Baylor.Create(),
+                TT.Create(),
+
+            }.Create();
+        }
+#elif false // old big 12 with north/south cincy in it instead of bsu.  No divisions
         public static Dictionary<int, int[]> CreateNDY()
         {
             return new List<KeyValuePair<int, int[]>>

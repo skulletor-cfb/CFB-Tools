@@ -912,7 +912,8 @@ namespace EA_DB_Editor
 
             if (conf == IndId) return true;
 
-            return current == 8;
+            if (conf == Big12Id && count == 16)
+                expected = 9;
 
             if (conf == SECId && current == 10)
                 return true;

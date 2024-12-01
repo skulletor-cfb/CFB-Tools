@@ -65,8 +65,8 @@ namespace EA_DB_Editor
         const int Tulane = 96;
         const int FAU = 229;
         const int UTSA = 232;
-  //      const int Army = 8;
-//        const int Navy = 57;
+        //      const int Army = 8;
+        //        const int Navy = 57;
         const int CincyId = 20;
         const int MemphisId = 48;
         const int SMUId = 83;
@@ -615,6 +615,66 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
+            }.Create();
+        }
+#elif false // 13 team AAC with no div
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                ECU.Create(Memphis, Rice, Temple, CLT),
+                NT.Create(Rice, FAU, Tulane, Army),
+                Navy.Create(FAU, Tulane,Army, UTSA),
+                Memphis.Create(Temple, Tulane, Tulsa, CLT),
+                Rice.Create(Tulsa, UAB, UTSA, CLT),
+                FAU.Create(Tulane, UAB, Army, UTSA),
+                Temple.Create(NT, Navy, UAB, CLT),
+                Tulane.Create(ECU, Rice, Army, UTSA),
+                Tulsa.Create(ECU, NT, Navy, FAU),
+                UAB.Create(ECU, NT, Navy, Memphis),
+                Army.Create(ECU, Memphis, Rice, Temple),
+                UTSA.Create(NT, Memphis, Temple, Tulsa),
+                CLT.Create(Navy, FAU, Tulsa, UAB),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                ECU.Create(),
+                NT.Create(),
+                Navy.Create(),
+                Memphis.Create(),
+                Rice.Create(),
+                FAU.Create(),
+                Temple.Create(),
+                Tulane.Create(),
+                Tulsa.Create(),
+                UAB.Create(),
+                Army.Create(),
+                UTSA.Create(),
+                CLT.Create(),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                ECU.Create(),
+                NT.Create(),
+                Navy.Create(),
+                Memphis.Create(),
+                Rice.Create(),
+                FAU.Create(),
+                Temple.Create(),
+                Tulane.Create(),
+                Tulsa.Create(),
+                UAB.Create(),
+                Army.Create(),
+                UTSA.Create(),
+                CLT.Create(),
             }.Create();
         }
 #elif true // 12 team AAC with no div

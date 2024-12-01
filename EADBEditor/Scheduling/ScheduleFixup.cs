@@ -190,6 +190,11 @@ namespace EA_DB_Editor
                 {
                     game.SwapHomeAwayTeam(mr);
                 }
+                else if ((game.HomeTeam == 50 && game.AwayTeam == 20 && Form1.IsEvenYear.Value) || (game.HomeTeam == 20 && game.AwayTeam == 50 && !Form1.IsEvenYear.Value))
+                {
+                    // with 9 game big 12 schedule, cincy needs to be home even years
+                    game.SwapHomeAwayTeam(mr);
+                }
                 else if (false && game.IsConferenceGame() && RecruitingFixup.TeamAndConferences[homeTeam] == RecruitingFixup.Big12Id)
                 {
                     // FINDME : BIG 12 HOME/AWAY FIXES
@@ -217,6 +222,10 @@ namespace EA_DB_Editor
                         {
                             doSwitch = true;
                         }
+                        else if (homeTeam == 50 && awayTeam == 20)
+                        {
+                            doSwitch = true;
+                        }
                     }
                     else
                     {
@@ -236,6 +245,10 @@ namespace EA_DB_Editor
                             (awayTeam == 11 && homeTeam == 72) ||
                             (awayTeam == 39 && homeTeam == 58) ||
                             (awayTeam == 22 && homeTeam == 39))
+                        {
+                            doSwitch = true;
+                        }
+                        else if (homeTeam == 20 && awayTeam == 50)
                         {
                             doSwitch = true;
                         }
