@@ -1389,7 +1389,7 @@ namespace EA_DB_Editor
                     // 0 = rocky mountain showdown, 1 = @CU, 2 = @CSU, 3=@CU
                     var rotation = (Form1.DynastyYear - 2516) % 4;
 
-                    if (rotation == 0)
+                    if (true || rotation == 0)
                     {
                         gameRecord["SGID"] = "184";
                         query["TGID"] = awayTeam.ToString();
@@ -1448,7 +1448,7 @@ namespace EA_DB_Editor
                 }
 
                 // smu-tcu play at 279 when smu is in big 12 on friday night
-                else if (false && MatchTeams(homeTeam, awayTeam, new[] { 83, 89 }))
+                else if (MatchTeams(homeTeam, awayTeam, new[] { 83, 89 }))
                 {
                     gameRecord["SGID"] = "257";
                     gameRecord["GDAT"] = "4";
@@ -1459,7 +1459,7 @@ namespace EA_DB_Editor
                 }
 
                 // houston-rice play at 272 on friday night
-                else if (false && MatchTeams(homeTeam, awayTeam, new[] { 33, 79 }))
+                else if (MatchTeams(homeTeam, awayTeam, new[] { 33, 79 }))
                 {
                     gameRecord["SGID"] = "272";
                     gameRecord["GDAT"] = "4";

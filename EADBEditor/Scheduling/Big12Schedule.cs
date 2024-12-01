@@ -31,12 +31,13 @@ namespace EA_DB_Editor
 #if true
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[]
         {
-            CreateNDZ, CreateNDZ,
-            CreateNDY, CreateNDY,
-            CreateNDAPrime, CreateNDAPrime,
-            CreateNDZ, CreateNDZ,
-            CreateNDY, CreateNDY,
-            CreateNDA, CreateNDA,
+            CreateNDZ, CreateNDY,
+            CreateNDAPrime, CreateNDZ,
+            CreateNDY, CreateNDAPrime,
+
+            CreateNDZ, CreateNDY,
+            CreateNDA, CreateNDZ,
+            CreateNDY, CreateNDA, 
 
             /*
             CreateNDAPrime, CreateNDZ,

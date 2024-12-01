@@ -12,7 +12,7 @@ namespace FutureScheduleReader
 {
     public partial class Form1 : Form
     {
-        private const int TeamCount = 70; // 66 if usf/ucf/hou/smu aren't in
+        private const int TeamCount = 66; // 66 if usf/ucf/hou/smu aren't in
         private static ExcelApp.Application excelApp;
         List<(int year, string away, string home)> list = new List<(int year, string away, string home)>();
         int start = 0;
