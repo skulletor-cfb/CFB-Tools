@@ -60,6 +60,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdditionalGameProvider.cs" />
+    <Compile Include="Scheduling\AmericanPodSchedule.cs" />
     <Compile Include="RecruitAllAmericans.cs" />
     <Compile Include="Scheduling\ACCPodSchedule.cs" />
     <Compile Include="Scheduling\AmericanSchedule.cs" />
@@ -81,6 +83,7 @@
     <Compile Include="ConfigCopySelection.Designer.cs">
       <DependentUpon>ConfigCopySelection.cs</DependentUpon>
     </Compile>
+    <Compile Include="Scheduling\TeamSchedule.cs" />
     <Compile Include="Scheduling\CUSASchedule.cs" />
     <Compile Include="EntryList.cs" />
     <Compile Include="FieldList.cs" />
@@ -120,8 +123,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecruitingFixup.cs" />
     <Compile Include="RosterCopy.cs" />
+    <Compile Include="Scheduling\Rivalry.cs" />
     <Compile Include="Scheduling\ScheduleFixup.cs" />
     <Compile Include="Scheduling\ScheduleReader.cs" />
+    <Compile Include="Scheduling\ScheduleUtility.cs" />
     <Compile Include="Scheduling\SunBeltSchedule.cs" />
     <Compile Include="TeamEntry.cs">
       <SubType>Form</SubType>

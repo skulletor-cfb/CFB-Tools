@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace EA_DB_Editor
@@ -13,13 +8,20 @@ namespace EA_DB_Editor
     {
         public int TeamId { get; set; }
 
+        public int[] TeamIds { get; set; }
+
         public int? CoachPosition { get; set; } = null;
 
-        public TeamEntry()
+        public TeamEntry(string label = null)
         {
             InitializeComponent();
             this.okBtn.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+
+            if (!string.IsNullOrWhiteSpace(label))
+            {
+                this.label1.Text = label;
+            }
         }
 
         private void okBtn_Click(object sender, EventArgs e)
@@ -29,10 +31,17 @@ namespace EA_DB_Editor
                 var split = this.textBox1.Text.Split(':');
                 this.TeamId = Convert.ToInt32(split[0]);
                 this.CoachPosition = Convert.ToInt32(split[1]);
+                this.TeamIds = new[] { this.TeamId };
+            }
+            else if (this.textBox1.Text.Contains(","))
+            {
+                var split = this.textBox1.Text.Split(',');
+                this.TeamIds = split.Select(i => Convert.ToInt32(i)).ToArray();
             }
             else
             {
                 this.TeamId = Convert.ToInt32(this.textBox1.Text);
+                this.TeamIds = new[] { this.TeamId };
             }
         }
 

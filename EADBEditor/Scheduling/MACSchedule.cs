@@ -20,7 +20,12 @@ namespace EA_DB_Editor
         private const int Ohio = 69;
         private const int BGSU = 14;
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { CreateA, CreateA, CreateB, CreateB, CreateC, CreateC, CreateD, CreateD, CreateE, CreateE };
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] 
+        { 
+            CreateA, CreateB, 
+            CreateC, CreateA, 
+            CreateB, CreateC
+        };
         public static Dictionary<int, HashSet<int>> MACConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
 
@@ -33,7 +38,7 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void ProcessMACSchedule(Dictionary<int, PreseasonScheduledGame[]> schedule)
+        public static void ProcessMACSchedule(Dictionary<int, TeamSchedule> schedule)
         {
             schedule.ProcessSchedule(ScenarioForSeason, MACConferenceSchedule, RecruitingFixup.MACId, RecruitingFixup.MAC);
         }
@@ -41,7 +46,7 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2211) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2491) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(12, RecruitingFixup.MACId, "MAC");
             MACConferenceSchedule = result.BuildHashSet();
@@ -49,6 +54,65 @@ namespace EA_DB_Editor
         }
 
 
+#if true // no divisions
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Akron.Create(Miami, Ohio, Buffalo, CMU),
+                KentSt.Create(Akron, NIU, Buffalo, WMU),
+                BGSU.Create(KentSt, NIU, Miami, EMU),
+                Toledo.Create(Akron, BGSU, BallSt, CMU),
+                NIU.Create(Akron, Toledo, Ohio, WMU),
+                BallSt.Create(KentSt, BGSU, NIU, EMU),
+                Miami.Create(Toledo, BallSt, Buffalo, CMU),
+                Ohio.Create(KentSt, Toledo, Miami, WMU),
+                Buffalo.Create(BGSU, BallSt, Ohio, EMU),
+                EMU.Create(KentSt, NIU, Ohio, CMU),
+                CMU.Create(BGSU, BallSt, Buffalo, WMU),
+                WMU.Create(Akron, Toledo, Miami, EMU),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Akron.Create(NIU, Ohio, Buffalo, EMU),
+                KentSt.Create(Akron, BallSt, Buffalo, CMU),
+                BGSU.Create(Akron, KentSt, NIU, WMU),
+                Toledo.Create(KentSt, BGSU, BallSt, EMU),
+                NIU.Create(Toledo, Miami, Buffalo, CMU),
+                BallSt.Create(Akron, NIU, Ohio, WMU),
+                Miami.Create(KentSt, BGSU, BallSt, EMU),
+                Ohio.Create(BGSU, Toledo, Miami, CMU),
+                Buffalo.Create(Toledo, Miami, Ohio, WMU),
+                EMU.Create(KentSt, NIU, Ohio, CMU),
+                CMU.Create(BGSU, BallSt, Buffalo, WMU),
+                WMU.Create(Akron, Toledo, Miami, EMU),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Akron.Create(BallSt, Miami, Buffalo, EMU),
+                KentSt.Create(Akron, NIU, Ohio, CMU),
+                BGSU.Create(Akron, KentSt, Buffalo, WMU),
+                Toledo.Create(Akron, KentSt, BGSU, EMU),
+                NIU.Create(Toledo, Miami, Ohio, CMU),
+                BallSt.Create(BGSU, NIU , Buffalo, WMU),
+                Miami.Create(KentSt, Toledo, BallSt, EMU),
+                Ohio.Create(BGSU, BallSt, Miami, CMU),
+                Buffalo.Create(Toledo, NIU, Ohio, WMU),
+                EMU.Create(BGSU, BallSt, Buffalo, CMU),
+                CMU.Create(Akron, Toledo, Miami, WMU),
+                WMU.Create(KentSt, NIU, Ohio, EMU),
+            }.Create();
+        }
+
+#else
         public static Dictionary<int, int[]> CreateA()
         {
             return new Dictionary<int, int[]>()
@@ -143,5 +207,6 @@ namespace EA_DB_Editor
                 {NIU,new[] {BGSU,Toledo,CMU,BallSt} },
             };
         }
+#endif
     }
 }
