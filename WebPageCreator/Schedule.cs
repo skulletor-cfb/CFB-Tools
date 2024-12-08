@@ -1407,6 +1407,7 @@ namespace EA_DB_Editor
 
         public bool IsPlayoffGame(int highestRank)
         {
+            return false;
             return this.HomeTeam.BCSPrevious <= highestRank && this.AwayTeam.BCSPrevious <= highestRank && this.HomeTeam.BCSPrevious >= 1 && this.AwayTeam.BCSPrevious >= 1;
         }
     }

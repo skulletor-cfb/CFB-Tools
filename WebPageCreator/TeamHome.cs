@@ -71,6 +71,8 @@ namespace EA_DB_Editor
 
     public class Game
     {
+        private int week;
+
         public int TeamId { get; set; }
         public bool IsHomeGame { get; set; }
         public int OpponentId { get; set; }
@@ -78,6 +80,16 @@ namespace EA_DB_Editor
         public Team TeamName { get { return Team.Teams[TeamId]; } }
         public int GameNumber { get; set; }
         public int Week { get; set; }
+        
+        public int DisplayWeek 
+        {
+            get
+            {
+                return this.IsQuarterFinalGame ?
+                    Week - 1 : Week;
+            }
+        }
+        
         public int? BowlId
         {
             get
@@ -94,6 +106,15 @@ namespace EA_DB_Editor
                 return null;
             }
         }
+
+        public bool IsQuarterFinalGame
+        {
+            get
+            {
+                return Bowl.IsQuarterfinal(this);
+            }
+        }
+
         public string Location
         {
             get
