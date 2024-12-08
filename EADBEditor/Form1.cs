@@ -3992,6 +3992,12 @@ PPOS = Position
 
         private void customFixToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            // make it so that a recrutied player changes his team
+            var rcpr = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPR");
+            var recruit = rcpr.lRecords.Where(mr => mr["PRSI"].ToInt32() == 1).Single();
+            recruit["PTCM"] = "77";
+            return;
+
             const string stadiumFile = "jmu-stadium.txt";
             const string teamFile = "jmu-team.txt";
 
@@ -6559,22 +6565,48 @@ PPOS = Position
 
                         case "TextBox":
                         default:
-                            var currentValue = mr[f.Abbreviation] = f.EditControl.Text;
 
-                            if (mr.Table.Abbreviation == "RCPR")
+                            // we are changing the week in bowl games, we need to update TSCH table
+                            if (mr.Table.Abbreviation == "SCHD" && !Form1.PreseasonScheduleEdit && f.Abbreviation == "SEWN")
                             {
-                                var preValue = mr["PT01"];
-                                mr["PT01"] = currentValue;
-                                for (int i = 2; i <= 10; i++)
+                                // get the team schedule
+                                var teamScheduleTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "TSCH");
+
+                                // get the game # and week #
+                                var gameNum = mr["SGNM"];
+                                var weekNum = mr["SEWN"];
+
+                                var query = new Dictionary<string, string>();
+                                query["SGNM"] = gameNum;
+                                query["SEWN"] = weekNum;
+
+                                var newWeek = mr[f.Abbreviation] = f.EditControl.Text;
+
+                                var teamScheduleRecord = MaddenTable.Query(teamScheduleTable, query).ToArray();
+                                foreach(var ts in teamScheduleRecord)
                                 {
-                                    var key = i == 10 ? "PT10" : "PT0" + i.ToString();
-                                    if (key != f.Abbreviation && mr[key] == currentValue)
+                                    ts[f.Abbreviation] = newWeek;
+                                }
+
+                            }
+                            else
+                            {
+                                var currentValue = mr[f.Abbreviation] = f.EditControl.Text;
+
+                                if (mr.Table.Abbreviation == "RCPR")
+                                {
+                                    var preValue = mr["PT01"];
+                                    mr["PT01"] = currentValue;
+                                    for (int i = 2; i <= 10; i++)
                                     {
-                                        mr[key] = preValue;
+                                        var key = i == 10 ? "PT10" : "PT0" + i.ToString();
+                                        if (key != f.Abbreviation && mr[key] == currentValue)
+                                        {
+                                            mr[key] = preValue;
+                                        }
                                     }
                                 }
                             }
-
                             break;
                     }
 
