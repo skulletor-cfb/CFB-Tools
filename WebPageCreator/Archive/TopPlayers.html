@@ -1,0 +1,297 @@
+﻿<html>
+   <head>
+      <title>Top Players</title>
+      <link rel=stylesheet type=text/css href=./HTML/styles.css>
+      <script src="./HTML/utility.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+   </head>
+   <body onload="loadTopPlayers()" topmargin=0 leftmargin=0 marginheight=70 marginwidth=0>
+      <div id='cssmenu'>
+         <ul>
+            <li class='has-sub last'><a href='./Seasons.html'><span>Season Archives</span></a>
+            </li>
+         </ul>
+      </div>
+      <table>
+         <tr>
+            <td class=c8 colspan=9 width=800 height=40></td>
+         </tr>
+      </table>
+  <table cellpadding="20" cellspacing="0">
+    <tr>
+      <td width="100%" align="center" colspan="4">
+        <table id="logoTable" cellpadding="0" cellspacing="0" width="100%">
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td width="900" align="center" colspan="8">
+        <table id="passingTable" cellspacing="1" cellpadding="2" width="80%" class="standard">
+          <tr>
+            <td class="c2" colspan="13"><b>Passing Stats</b></td>
+          </tr>
+
+          <tr>
+            <td class="C10" width="14%">Years</td>
+
+            <td class="C10" width="4%">#</td>
+
+            <td class="C10" width="20%">Name</td>
+
+            <td class="C10" width="6%">Pos</td>
+
+            <td class="C10" width="5%">Hgt</td>
+
+            <td class="C10" width="5%">Lbs</td>
+
+            <td class="C10" width="8%">Att</td>
+
+            <td class="C10" width="8%">Comp</td>
+
+            <td class="C10" width="8%">Yards</td>
+
+            <td class="C10" width="8%">TDs</td>
+
+            <td class="C10"  width="7%">Ints</td>
+
+            <td class="C10" width="7%">Games</td>
+          </tr>
+
+        </table><br />
+      </td>
+    </tr>
+
+    <tr>
+      <td width="900" align="center" colspan="14">
+        <table id="qbrushingTable" cellspacing="1" cellpadding="2" width="80%" class="standard">
+          <tr>
+            <td class="c2" colspan="14"><b>QB Rushing Stats</b></td>
+          </tr>
+
+          <tr>
+            <td class="C10" width="14%">Years</td>
+
+            <td class="C10" width="4%">#</td>
+
+            <td class="C10" width="20%">Name</td>
+
+            <td class="C10" width="6%">Pos</td>
+
+            <td class="C10" width="5%">Hgt</td>
+
+            <td class="C10" width="5%">Lbs</td>
+
+            <td class="C10" width="7%">Car</td>
+
+            <td class="C10" width="7%">Yards</td>
+
+            <td class="C10" width="7%">TDs</td>
+
+            <td class="C10" width="6%">YAC</td>
+
+            <td class="C10" width="7%">BTK</td>
+
+            <td class="C10" width="6%">Fumb</td>
+
+            <td class="C10" width="6%">Games</td>
+          </tr>
+        </table><br />
+      </td>
+    </tr>
+
+      <tr>
+          <td width="900" align="center" colspan="14">
+              <table id="rushingTable" cellspacing="1" cellpadding="2" width="80%" class="standard">
+                  <tr>
+                      <td class="c2" colspan="14"><b>Rushing Stats</b></td>
+                  </tr>
+
+                  <tr>
+                      <td class="C10" width="14%">Years</td>
+
+                      <td class="C10" width="4%">#</td>
+
+                      <td class="C10" width="20%">Name</td>
+
+                      <td class="C10" width="6%">Pos</td>
+
+                      <td class="C10" width="5%">Hgt</td>
+
+                      <td class="C10" width="5%">Lbs</td>
+
+                      <td class="C10" width="7%">Car</td>
+
+                      <td class="C10" width="7%">Yards</td>
+
+                      <td class="C10" width="7%">TDs</td>
+
+                      <td class="C10" width="6%">YAC</td>
+
+                      <td class="C10" width="7%">BTK</td>
+
+                      <td class="C10" width="6%">Fumb</td>
+
+                      <td class="C10" width="6%">Games</td>
+                  </tr>
+              </table><br />
+          </td>
+      </tr>
+
+    <tr>
+      <td width="900" align="center" colspan="8">
+        <table id="receivingTable" cellspacing="1" cellpadding="2" width="80%" class="standard">
+          <tr>
+            <td class="c2" colspan="13"><b>Receiving Stats</b></td>
+          </tr>
+
+          <tr>
+            <td class="C10" width="14%">Years</td>
+
+            <td class="C10" width="4%">#</td>
+
+            <td class="C10" width="20%">Name</td>
+
+            <td class="C10" width="6%">Pos</td>
+
+            <td class="C10" width="5%">Hgt</td>
+
+            <td class="C10" width="5%">Lbs</td>
+
+            <td class="C10" width="8%">Rec</td>
+
+            <td class="C10" width="8%">Yards</td>
+
+            <td class="C10" width="8%">TDs</td>
+
+            <td class="C10" width="8%">YAC</td>
+
+            <td class="C10" width="7%">Fumb</td>
+
+            <td class="C10" width="7%">Games</td>
+          </tr>
+
+        </table><br />
+      </td>
+    </tr>
+
+    <tr>
+      <td width="900" align="center" colspan="14">
+        <table id="tackleTable" cellspacing="1" cellpadding="2" width="80%" class="standard">
+          <tr>
+            <td class="c2" colspan="14"><b>Tackles</b></td>
+          </tr>
+
+          <tr>
+            <td class="C10" width="14%">Years</td>
+
+            <td class="C10" width="4%">#</td>
+
+            <td class="C10" width="20%">Name</td>
+
+            <td class="C10" width="6%">Pos</td>
+
+            <td class="C10" width="5%">Hgt</td>
+
+            <td class="C10" width="5%">Lbs</td>
+
+            <td class="C10" width="7%">Tck</td>
+
+            <td class="C10" width="7%">TFL</td>
+
+            <td class="C10" width="7%">Sck</td>
+
+            <td class="C10" width="6%">Int</td>
+
+            <td class="C10" width="7%">PDef</td>
+
+            <td class="C10" width="6%">FF</td>
+
+            <td class="C10" width="6%">Games</td>
+          </tr>
+
+        </table>
+          <br />
+      </td>
+    </tr>
+
+    <tr>
+      <td width="900" align="center" colspan="14">
+        <table id="sackTable" cellspacing="1" cellpadding="2" width="80%" class="standard">
+          <tr>
+            <td class="c2" colspan="14"><b>Sacks</b></td>
+          </tr>
+
+          <tr>
+            <td class="C10" width="14%">Years</td>
+
+            <td class="C10" width="4%">#</td>
+
+            <td class="C10" width="20%">Name</td>
+
+            <td class="C10" width="6%">Pos</td>
+
+            <td class="C10" width="5%">Hgt</td>
+
+            <td class="C10" width="5%">Lbs</td>
+
+            <td class="C10" width="7%">Tck</td>
+
+            <td class="C10" width="7%">TFL</td>
+
+            <td class="C10" width="7%">Sck</td>
+
+            <td class="C10" width="6%">Int</td>
+
+            <td class="C10" width="7%">PDef</td>
+
+            <td class="C10" width="6%">FF</td>
+
+            <td class="C10" width="6%">Games</td>
+          </tr>
+
+        </table>
+          <br />
+      </td>
+    </tr>
+
+    <tr>
+      <td width="900" align="center" colspan="14">
+        <table id="intTable" cellspacing="1" cellpadding="2" width="80%" class="standard">
+          <tr>
+            <td class="c2" colspan="14"><b>Interceptions</b></td>
+          </tr>
+
+          <tr>
+            <td class="C10" width="14%">Years</td>
+
+            <td class="C10" width="4%">#</td>
+
+            <td class="C10" width="20%">Name</td>
+
+            <td class="C10" width="6%">Pos</td>
+
+            <td class="C10" width="5%">Hgt</td>
+
+            <td class="C10" width="5%">Lbs</td>
+
+            <td class="C10" width="7%">Tck</td>
+
+            <td class="C10" width="7%">TFL</td>
+
+            <td class="C10" width="7%">Sck</td>
+
+            <td class="C10" width="6%">Int</td>
+
+            <td class="C10" width="7%">PDef</td>
+
+            <td class="C10" width="6%">FF</td>
+
+            <td class="C10" width="6%">Games</td>
+          </tr>
+
+        </table>
+          <br />
+      </td>
+    </tr>
+
+  </table>
+   </body>

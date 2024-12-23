@@ -1,0 +1,91 @@
+
+<html>
+<head>
+    <title>Bowl Records</title>
+    <link rel=stylesheet type=text/css href=./HTML/styles.css>
+    <script src="./HTML/utility.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+</head>
+<body onload="loadBowlRecords()" topmargin=0 leftmargin=0 marginheight=70 marginwidth=0>
+    <div id='cssmenu'>
+        <ul>
+            <li class='has-sub last'>
+                <a href='./Seasons.html'><span>Season Archives</span></a>
+            </li>
+        </ul>
+    </div>
+    <table>
+        <tr>
+            <td class=c8 colspan=9 width=800 height=40></td>
+        </tr>
+    </table>
+    <table cellpadding="20" cellspacing="0">
+        <tr>
+            <td width="100%" align="center" colspan="4">
+                <table cellpadding=20 cellspacing=0>
+                    <tr>
+                        <td width=100% align=center colspan=4>
+                            <table cellpadding=0 cellspacing=0 width=100%>
+                                <tr><img id='currentBowl' border=0 src=""></tr>
+                                <tr><img id='currentBowlTrophy' border=0 src=""></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="c3" colspan="13">
+                            <center>
+                                <b>
+                                    | <a href="javascript:loadPlayoffHistory()">Show Playoff History</a> |
+                                    | <a href="javascript:loadKickOffHistory()">Show Kickoff Game History</a> |
+                                    | <a id="recordLink" href="BowlHistory.html">History</a> |
+                                </b>
+                            </center>
+                    <tr><img id='currentBowlTrophy' border=0 src=""></tr>
+
+            </td>
+        </tr>
+        <tr>
+            <td width=800 align=center colspan=4>
+                <table id="meetingTable" cellspacing=1 cellpadding=2 width=750 class=standard align='right'>
+                    <tr>
+                        <td class=c7 width=20%>
+                            <b>
+                                <center>Record</center>
+                            </b>
+                        </td>
+                        <td class=c7 width=10%>
+                            <b>
+                                <center>Set by</center>
+                            </b>
+                        </td>
+                        <td class=c7 width=10%>
+                            <b>
+                                <center>Box Score</center>
+                            </b>
+                        </td>
+                        <td class=c7 width=10%>
+                            <b>
+                                <center>Against</center>
+                            </b>
+                        </td>
+                        <td class=c7 width=30%>
+                            <b>
+                                <center>Description</center>
+                            </b>
+                        </td>
+                        <td class=c7 width=10%>
+                            <b>
+                                <center>Value</center>
+                            </b>
+                        </td>
+                        <td class=c7 width=10%>
+                            <b>
+                                <center>Year</center>
+                            </b>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>

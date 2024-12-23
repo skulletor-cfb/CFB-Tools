@@ -1,0 +1,11 @@
+﻿    <tr>
+      <td class="c3" colspan="13">
+        <center>
+<b>| <a id="teamScheduleLink" href="Team.html">Schedule</a> | |
+      <a id="playerStatsLink" href="">Player
+      Stats</a> | | <a id="rosterLink" href="teamroster.html">Roster</a> | | <a id="freshmanLink" href=
+      "teamfrosh.html">Freshmen</a> | | <a id="recordBookLink" href="teamrecords.html">Record
+      Book</a> | | <a id="topAllTime" href="">All Time Greats</a> | | <a id="recruitLink" href="recruits.html">Recruiting Class</a> | | <a id="trophyCase" href="">Trophy Case</a> |
+</b>        </center>
+      </td>
+    </tr>

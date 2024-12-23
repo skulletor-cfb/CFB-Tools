@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Windows.Forms;
 
 /*
 Recruit Id = PRSI
@@ -80,6 +81,18 @@ namespace EA_DB_Editor
 
         public static bool PreseasonFixupRun { get; set; }
 
+        public static int[] Pop(this Stack<int> stack, int count)
+        {
+            var result = new List<int>(count);
+
+            for (int i = 0; i < count; i++)
+            {
+                result.Add(stack.Pop());
+            }
+
+            return result.ToArray();
+        }
+
         public static List<MaddenRecord> PreseasonFixup()
         {
             var recruitTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPT");
@@ -87,14 +100,18 @@ namespace EA_DB_Editor
             // find the last 5 guys in texas and cali
             int texasId = 42;
             int caliId = 4;
+            int floridaId = 8;
             var positionGroups = new int[] { 1, 2, 3, 4, 0, 1, 5, 6, 7, 0, 8, 0, 9, 10, 11, 12, 13, 14 };
             var recruitPitchTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPR");
-            // select 25 random positions:  5 from Texas, 15 from SEC country, 5 elsewhere
-            int[] positionsToLookFor = new int[36];
-            for (int i = 0; i < positionsToLookFor.Length; i++)
+            // select 25 random positions:  5 from Texas, 15 from SEC country, 5 elsewhere, 5 from florida
+            var positionsToLookFor = new Stack<int>();
+
+            for (int i = 0; i < 100; i++)
             {
-                positionsToLookFor[i] = positionGroups[RAND.Next(0, positionGroups.Length)];
+                positionsToLookFor.Push(positionGroups[RAND.Next(0, positionGroups.Length)]);
             }
+
+
 
 #if false // you want the last guy in the list to be here
             var l = new List<int>(positionsToLookFor);
@@ -102,26 +119,29 @@ namespace EA_DB_Editor
             positionsToLookFor = l.ToArray();
 #endif
 
-            var nationalTake = positionsToLookFor.Length - 31;
+            var caliPosition = positionsToLookFor.Pop(5);
+            var texPosition = positionsToLookFor.Pop(9);
+            var flPosition = positionsToLookFor.Pop(12);
+            var secPosition = positionsToLookFor.Pop(20);
+            var nationalPosition = positionsToLookFor.Pop(10);
+            var hawaiiPosition = positionsToLookFor.Pop(3);
+
             // get the lowest ranked freshman at the position we have selected
-            var caliRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Take(5).Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == caliId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
-            var texasRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(5).Take(5).Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == texasId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
-            var secRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(10).Take(20).Contains(r["RPGP"].ToInt32()) && SECStates.Contains(r["STAT"].ToInt32())).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
-            var nationalRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(30).Take(nationalTake).Contains(r["RPGP"].ToInt32()) && SECStates.Concat(new[] { texasId, caliId }).Contains(r["STAT"].ToInt32()) == false).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
+            var caliRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && caliPosition.Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == caliId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
+            var texasRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && texPosition.Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == texasId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
+            var floridaRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && flPosition.Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == floridaId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
+            var secRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && secPosition.Contains(r["RPGP"].ToInt32()) && SECStates.Contains(r["STAT"].ToInt32())).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
+            var nationalRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && nationalPosition.Contains(r["RPGP"].ToInt32()) && SECStates.Concat(new[] { texasId, caliId }).Contains(r["STAT"].ToInt32()) == false).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
             var athRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && r["RPGP"].ToInt32() == 18).OrderByDescending(r => r["RCRK"].ToInt32()).Take(3).ToArray();
-            MaddenRecord[] hawaiiRecruits = new MaddenRecord[0];
-
-            if( (DateTime.UtcNow.Ticks % 5 ) > 1)
-            {
-                 hawaiiRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && positionsToLookFor.Skip(positionsToLookFor.Length-1).Take(1).Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == 10).OrderByDescending(r => r["RCRK"].ToInt32()).Take(2000).ToArray();
-            }
-
+            var hawaiiRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && hawaiiPosition.Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == 10).OrderByDescending(r => r["RCRK"].ToInt32()).Take(2000).ToArray();
+   
             List<MaddenRecord> records = new List<MaddenRecord>();
-            FillList(records, caliRecruits, positionsToLookFor.Take(5).ToArray());
-            FillList(records, texasRecruits, positionsToLookFor.Skip(5).Take(5).ToArray());
-            FillList(records, secRecruits, positionsToLookFor.Skip(10).Take(20).ToArray());
-            FillList(records, nationalRecruits, positionsToLookFor.Skip(30).Take(nationalTake).ToArray());
-            FillList(records, hawaiiRecruits, positionsToLookFor.Skip(positionsToLookFor.Length - 1).Take(1).ToArray());
+            FillList(records, caliRecruits, caliPosition);
+            FillList(records, texasRecruits, texPosition);
+            FillList(records, floridaRecruits, flPosition);
+            FillList(records, secRecruits, secPosition);
+            FillList(records, nationalRecruits, nationalPosition);
+            FillList(records, hawaiiRecruits, hawaiiPosition);
 
             // ATH recruits get a 5-20 adder to each stat
             foreach (var ath in athRecruits)
@@ -232,6 +252,9 @@ namespace EA_DB_Editor
 
         const int NotreDameId = 68;
         const int BYUId = 16;
+        const int CincyId = 20;
+        const int UCFId = 18;
+        const int USFId = 144;
 
         static Lazy<Dictionary<int, int[]>> ConfStateAssignments = new Lazy<Dictionary<int, int[]>>(CreateConferenceAssignmentsForStates, true);
 
@@ -248,10 +271,10 @@ namespace EA_DB_Editor
             dict.Add(5, new int[] { TeamAndConferences[22], NotreDameId, BYUId }); //CO
             dict.Add(6, new int[] { ACCId,Big10Id , NotreDameId}); //CT
             dict.Add(7, new int[] { ACCId, Big10Id ,NotreDameId}); //DE
-            dict.Add(8, new int[] { SECId,ACCId , SECId, ACCId }); //FL
+            dict.Add(8, new int[] { SECId,ACCId , SECId, ACCId, UCFId, USFId }); //FL
             dict.Add(9, new int[] { SECId, ACCId }); //GA
             dict.Add(10, new int[] { Pac16Id, NotreDameId  }); //HI
-            dict.Add(11, new int[] { Pac16Id, BYUId, Big12Id }); //ID
+            dict.Add(11, new int[] { Pac16Id, BYUId }); //ID
             dict.Add(12, new int[] { Big10Id,NotreDameId }); //IL
             dict.Add(13, new int[] { Big10Id, NotreDameId }); //IN
             dict.Add(14, new int[] { Big10Id, NotreDameId,Big12Id }); //IA
@@ -261,7 +284,7 @@ namespace EA_DB_Editor
             dict.Add(18, new int[] { ACCId,Big10Id,NotreDameId }); //ME
             dict.Add(19, new int[] {  ACCId,  NotreDameId }); //MD
             dict.Add(20, new int[] { ACCId, NotreDameId }); //MA
-            dict.Add(21, new int[] { Big10Id,NotreDameId }); //MI
+            dict.Add(21, new int[] { Big10Id,NotreDameId, CincyId }); //MI
             dict.Add(22, new int[] { Big10Id,NotreDameId }); //MN
             dict.Add(23, new int[] { SECId }); //MS
             dict.Add(24, new int[] { SECId,Big12Id}); //MO
@@ -274,10 +297,10 @@ namespace EA_DB_Editor
             dict.Add(31, new int[] { ACCId, Big10Id, NotreDameId }); //NY
             dict.Add(32, new int[] { ACCId }); //NC
             dict.Add(33, new int[] { Pac16Id,NotreDameId, BYUId }); //ND
-            dict.Add(34, new int[] { Big10Id,NotreDameId, Big10Id, NotreDameId, Big10Id, NotreDameId }); //OH
+            dict.Add(34, new int[] { Big10Id,NotreDameId, Big10Id, NotreDameId, Big10Id, NotreDameId, CincyId }); //OH
             dict.Add(35, new int[] { Big12Id }); //OK
             dict.Add(36, new int[] { Pac16Id }); //OR
-            dict.Add(37, new int[] { ACCId,Big10Id,NotreDameId }); //PA
+            dict.Add(37, new int[] { ACCId,Big10Id,NotreDameId, CincyId }); //PA
             dict.Add(38, new int[] { ACCId, Big10Id, NotreDameId }); //RI
             dict.Add(39, new int[] { ACCId,SECId }); //SC
             dict.Add(40, new int[] { Pac16Id,Big12Id,NotreDameId, BYUId }); //SD
@@ -328,6 +351,15 @@ namespace EA_DB_Editor
                             break;
                         case BYUId:
                             allTeams.AddRange(WeightedBYU);
+                            break;
+                        case CincyId:
+                            allTeams.AddRange(WeightedCincy);
+                            break;
+                        case UCFId:
+                            allTeams.AddRange(WeightedUCF);
+                            break;
+                        case USFId:
+                            allTeams.AddRange(WeightedUSF);
                             break;
                         default:
                             break; 
@@ -419,6 +451,8 @@ namespace EA_DB_Editor
                     recruitRank = Int32.Parse(entry.Data);
                 }
             }
+
+            if(recruitId < DontChange) { return; }
 
             List<int> teams = new List<int>();
             List<int> subs = new List<int>();
@@ -677,6 +711,8 @@ namespace EA_DB_Editor
 
         private static int? accTeams = null;
 
+        public static int SunBeltTeams => TeamAndConferences.Values.Count(v => v == SBCId);
+
         public static int AccTeams
         {
             get
@@ -779,7 +815,11 @@ namespace EA_DB_Editor
 
         static string[] academies = { "1", "8", "57" };
         public static int[] OnTheirOwn = TeamsOnTheirOwn();
+#if false
+        public static int[] DontFoolWith = new int[0];// American.ToArray();
+#else
         public static int[] DontFoolWith = American.ToArray();
+#endif
         static List<int> WeightedACC = null;
         static List<int> WeightedBig10 = null;
         static List<int> WeightedBig12 = null;
@@ -788,6 +828,9 @@ namespace EA_DB_Editor
         static List<int> WeightedBYU = null;
         static List<int> WeightedND = null;
         static List<int> WeightedBig16 = null;
+        static List<int> WeightedCincy = null;
+        static List<int> WeightedUCF = null;
+        static List<int> WeightedUSF = null;
 
         public static int[] TeamsOnTheirOwn()
         {
@@ -813,7 +856,7 @@ namespace EA_DB_Editor
 
         public static bool IsG5(this int teamId)
         {
-            return American.Contains(teamId) || MWC.Contains(teamId) || MAC.Contains(teamId) || SBC.Contains(teamId) || CUSA.Contains(teamId) || teamId == 57 || teamId == 8;
+            return American.Contains(teamId) || MWC.Contains(teamId) || MAC.Contains(teamId) || SBC.Contains(teamId) || CUSA.Contains(teamId) || teamId == 57 || teamId == 8 || teamId == 1;
         }
 
         public static bool IsSECTeam(this int teamId)
@@ -821,14 +864,44 @@ namespace EA_DB_Editor
             return SEC.Contains(teamId);
         }
 
+        public static bool IsPac12Team(this int teamId) => Pac12.Contains(teamId);
+
+        public static bool IsSunBeltTeam(this int teamId) => SBC.Contains(teamId);
+
         public static bool IsAccTeam(this int teamId)
         {
             return ACC.Contains(teamId) && teamId != 68;
         }
 
+        public static bool IsBig12Team(this int teamId)
+        {
+            return Big12.Contains(teamId) && teamId != 68;
+        }
+
+
         public static bool IsAmericanTeam(this int teamId)
         {
             return American.Contains(teamId);
+        }
+
+        public static bool HasWeek14Games(this int teamId)
+        {
+            var conf = TeamAndConferences[teamId];
+            var count = TeamAndConferences.Count(kvp => kvp.Value == conf && kvp.Key != 68);
+            return count < 12;
+        }
+
+        public static bool TooManyFcsGameCheck(this int  teamId, int fcsGAmes)
+        {
+            var conf = TeamAndConferences[teamId];
+            var count = TeamAndConferences.Count(kvp => kvp.Value == conf && kvp.Key != 68);
+
+            if( count <=6 )
+            {
+                return fcsGAmes > 2;
+            }
+
+            return fcsGAmes > 1;
         }
 
         public static bool ConferenceGameCountCheck(this int teamId, int current)
@@ -839,12 +912,10 @@ namespace EA_DB_Editor
 
             if (conf == IndId) return true;
 
-            if (conf == SECId && current == 10)
-                return true;
+            if (conf == Big12Id && count == 16)
+                expected = 9;
 
-            if (conf == CUSAId && current != 8)
-                return false;
-            else if (CUSAId == conf)
+            if (conf == SECId && current == 10)
                 return true;
 
             if (count == 12 && conf == Pac16Id)
@@ -852,9 +923,13 @@ namespace EA_DB_Editor
 
             if (count == 16 && conf == ACCId)
                 expected = 8;
+            else if (count == 16 && conf == AmericanId)
+                expected = 8;
+            else if (count == 16 && conf == SBCId)
+                expected = 8;
             else if (count >= 16)
                 expected = 9;
-            else if (count == 14 || count == 12 || count == 11 || count == 13)
+            else if (count == 14 || count == 12 || count == 11 || count == 13 || count == 15)
                 expected = 8;
             else if (count == 10)
                 expected = 9;
@@ -868,23 +943,31 @@ namespace EA_DB_Editor
             return current == expected;
         }
 
-        public static bool ConferenceHomeGameCount(this PreseasonScheduledGame[] schedule, int teamId)
+        public static bool ConferenceHomeGameCount(this TeamSchedule schedule, int teamId)
         {
             var conf = TeamAndConferences[teamId];
 
             if (conf == Pac16Id) return true;
-            if (conf == Big12Id && (Big12.Length == 16|| Big12.Length == 10)) return true;
-            if (conf == AmericanId && American.Length == 16) return true;
+            if (conf == Big12Id && (Big12.Length == 16 || Big12.Length == 10)) return true;
+            //if (conf == AmericanId && American.Length == 16) return true;
             if (conf == AmericanId && American.Length == 10) return true;
             if (conf == IndId) return true;
-            if (conf == SBCId || conf==CUSAId) return true;
             if (conf == MACId && MAC.Length == 16) return true;
             if (conf == MWCId /*&& MWC.Length == 10*/) return true;
-            
+
             //if (conf == ACCId && AccTeams > 14)
             //    return true;
 
             var confGames = schedule.Count(g => g != null && g.HomeTeam == teamId && teamAndConferences[g.AwayTeam] == conf);
+
+            if (conf == CUSAId && CUSA.Length == 5 && confGames == 2) return true;
+
+            if (conf == CUSAId && CUSA.Length == 7 && confGames == 3) return true;
+
+            if (conf == CUSAId && CUSA.Length == 4 && (confGames == 2 || confGames == 1)) return true;
+
+            if (conf == CUSAId && CUSA.Length == 6 && (confGames == 2 || confGames == 3)) return true;
+
             return confGames == 4;
         }
 
@@ -915,6 +998,33 @@ namespace EA_DB_Editor
 
             // Independent BYU gets to recruit
             WeightedBYU = TeamAndConferences[16] == IndId ? CreateWeightedList(new[] { 16 }) : new List<int>();
+
+            if (CincyId.IsP5())
+            {
+                WeightedCincy = CreateWeightedList(new[] { CincyId });
+            }
+            else
+            {
+                WeightedCincy = CreateWeightedList(new int[0]);
+            }
+
+            if (UCFId.IsP5())
+            {
+                WeightedUCF = CreateWeightedList(new[] { UCFId });
+            }
+            else
+            {
+                WeightedUCF = CreateWeightedList(new int[0]);
+            }
+
+            if (USFId.IsP5())
+            {
+                WeightedUSF = CreateWeightedList(new[] { USFId });
+            }
+            else
+            {
+                WeightedUSF = CreateWeightedList(Array.Empty<int>());
+            }
         }
 
         static List<int> CreateWeightedList(int[] teams, int modifier = 1)

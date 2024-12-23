@@ -44,9 +44,27 @@ namespace EA_DB_Editor
             }
         }
 
-        public static Dictionary<int, int[]> CreateScenarioForSeason()
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {
+            CreateC, CreateA,
+            CreateB, CreateC,
+            CreateA, CreateB,
+        };
+
+        public static void ProcessACCSchedule(Dictionary<int, TeamSchedule> schedule)
+        {
+            schedule.ProcessSchedule(
+                ScenarioForSeason,
+                ACCConferenceSchedule,
+                RecruitingFixup.ACCId,
+                RecruitingFixup.ACC,
+                68);
+        }
+
+
+        private static Dictionary<int, int[]> CreateScenarioForSeason()
         {
             Dictionary<int, int[]> result = null;
+#if false
             if (RecruitingFixup.TeamAndDivision[49] == RecruitingFixup.TeamAndDivision[24])
                 result = CreateA();
             else if (RecruitingFixup.TeamAndDivision[49] == RecruitingFixup.TeamAndDivision[31])
@@ -55,72 +73,17 @@ namespace EA_DB_Editor
                 result = CreateC();
             else
                 throw new Exception("THIS SHOULDNT HAPPEN");
-
-            var dict= Verify(result,16,RecruitingFixup.ACCId,"ACC");
+#else
+            var idx = (Form1.DynastyYear - 2487) % Creators.Length;
+            result = Creators[idx]();
+#endif
+            var dict = result.Verify(16, RecruitingFixup.ACCId, "ACC");
 
             ACCConferenceSchedule = dict.BuildHashSet();
             return dict;
         }
 
-        public static Dictionary<int, HashSet<int>> BuildHashSet(this Dictionary<int, int[]> dict)
-        {
-            var conf = new Dictionary<int, HashSet<int>>();
-
-            foreach (var kvp in dict)
-            {
-                HashSet<int> curr = null;
-                HashSet<int> temp = null;
-
-                if (!conf.TryGetValue(kvp.Key, out curr))
-                {
-                    curr = new HashSet<int>();
-                    conf[kvp.Key] = curr;
-                }
-
-                foreach (var opp in kvp.Value)
-                {
-                    curr.Add(opp);
-
-                    if (!conf.TryGetValue(opp, out temp))
-                    {
-                        temp = new HashSet<int>();
-                        conf[opp] = temp;
-                    }
-
-                    temp.Add(kvp.Key);
-                }
-            }
-
-            return conf;
-        }
-
-        public static Dictionary<int, int[]> Verify(this Dictionary<int, int[]> result, int teamLength, int confId, string confName, bool verifyMembership = true)
-        {
-            // verify integrity
-            var teams = result.Values.SelectMany(i => i).GroupBy(i => i).Select(g => new { Team = g.Key, Count = g.Count() }).ToArray();
-
-            if (teams.Length != teamLength)
-                throw new Exception("Wrong number of teams");
-
-            var badSchedule = teams.Where(t => t.Count != 4).ToArray();
-
-            if (badSchedule.Any())
-            {
-                throw new Exception("You fucked up: " + string.Join(",", badSchedule.Select(t => t.Team.ToString())));
-            }
-
-            if (verifyMembership)
-            {
-                badSchedule = teams.Where(t => RecruitingFixup.TeamAndConferences[t.Team] != confId).ToArray();
-                if (badSchedule.Any())
-                {
-                    throw new Exception("Team not in " + confName + ": " + string.Join(",", badSchedule.Select(t => t.Team.ToString())));
-                }
-            }
-
-            return result;
-        }
-
+#if false // the old acc pods
         public static Dictionary<int, int[]> CreateA()
         {
             var dict= new Dictionary<int, int[]>();
@@ -192,6 +155,78 @@ namespace EA_DB_Editor
 
             return dict;
         }
+#else
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Miami.Create(UVA, Duke, FSU, Pitt),
+                BC.Create(Miami, SU, GT, WF),
+                WVU.Create(BC, VT, Pitt, UL),
+                VT.Create(Miami, BC, FSU, Pitt),
+                Clemson.Create(WVU, VT, NCSU, UL),
+                SU.Create(Miami, WVU, NCSU, UMD),
+                UVA.Create(VT, SU, Duke, UMD),
+                Duke.Create(BC, UNC, UMD, Pitt),
+                NCSU.Create(WVU, VT, Duke, WF),
+                UNC.Create(Clemson, UVA, NCSU, UL),
+                FSU.Create(BC, Clemson, UVA, NCSU),
+                UMD.Create(Miami, WVU, Clemson, UNC),
+                Pitt.Create(SU, GT, WF, UL),
+                GT.Create(Clemson, UVA, UNC, FSU),
+                WF.Create(Duke, UNC, UMD, GT),
+                UL.Create(SU, FSU, GT, WF),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            // redo home/away for ACC rivalries
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Miami.Create(WVU, UNC, FSU, Pitt),
+                BC.Create(Miami, SU, UVA, UMD),
+                WVU.Create(VT, Duke, Pitt, UL),
+                VT.Create(Miami, BC, GT, WF),
+                Clemson.Create(Miami, BC, NCSU, UL),
+                SU.Create(WVU, UNC, FSU, GT),
+                UVA.Create(VT,Clemson, NCSU, UMD),
+                Duke.Create(SU, UNC, UMD, UL),
+                NCSU.Create(Duke, Pitt, GT, WF),
+                UNC.Create(BC, WVU, UVA, NCSU),
+                FSU.Create(Clemson, UVA, Duke, GT),
+                UMD.Create(WVU, VT, NCSU, FSU),
+                Pitt.Create(BC, SU, UMD, UL),
+                GT.Create(Clemson, UVA, Pitt, WF),
+                WF.Create(Clemson, Duke, UNC, FSU),
+                UL.Create(Miami, VT, SU, WF),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Miami.Create(SU, FSU, GT, WF),
+                BC.Create(Miami, SU, GT, UL),
+                WVU.Create(VT, FSU, Pitt, WF),
+                VT.Create(Miami, BC, UNC, GT),
+                Clemson.Create(BC, SU, NCSU, Pitt),
+                SU.Create(WVU, VT, UMD, WF),
+                UVA.Create(WVU, VT, UMD, Pitt),
+                Duke.Create(VT, Clemson, UNC, UL),
+                NCSU.Create(Miami, BC, Duke, WF),
+                UNC.Create(UVA, NCSU, UMD, Pitt),
+                FSU.Create(Clemson, UVA, UNC, UL),
+                UMD.Create(WVU, NCSU, FSU, UL),
+                Pitt.Create(BC, SU, Duke, FSU),
+                GT.Create(WVU, Clemson, Duke, UMD),
+                WF.Create(Clemson, UVA, Duke, UNC),
+                UL.Create(Miami, UVA, NCSU, GT),
+            }.Create();
+        }
+
+#endif
 
         public static void Add(this Dictionary<int,int[]> dict,int key,params int[] values)
         {
