@@ -31,22 +31,14 @@ namespace EA_DB_Editor
 #if true
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[]
         {
-            CreateNDY, CreateNDAPrime,
             CreateNDZ, CreateNDY,
             CreateNDAPrime, CreateNDZ,
+            CreateNDY, CreateNDAPrime,
 
-            CreateNDY, CreateNDA,
             CreateNDZ, CreateNDY,
             CreateNDA, CreateNDZ,
-
-            /*
-            CreateNDAPrime, CreateNDZ,
             CreateNDY, CreateNDA,
-            CreateNDY, CreateNDZ,
 
-            CreateNDA, CreateNDY,
-            CreateNDZ, CreateNDAPrime,
-            CreateNDZ, CreateNDY,*/
         };
 
 /*        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] 
@@ -94,7 +86,7 @@ namespace EA_DB_Editor
             switch (currYear)
             {
                 default:
-                    var idx = (Form1.DynastyYear - 2517) % Creators.Length;
+                    var idx = (Form1.DynastyYear - 2519) % Creators.Length;
                     result = Creators[idx]();
                     break;
             }
@@ -547,18 +539,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Texas.Create(),
-                OU.Create(),
-                OkSt.Create(),
-                Colorado.Create(),
-                Nebraska.Create(),
-                KU.Create(),
-                KSU.Create(),
-                ISU.Create(),
-                Cincy.Create(),
-                TCU.Create(),
-                Baylor.Create(),
-                TT.Create(),
+                Texas.Create(OkSt, Colorado, KU, TT),
+                OU.Create(Texas, OkSt, KU, TCU),
+                OkSt.Create(Colorado, KSU, Cincy, Baylor),
+                Colorado.Create(Nebraska, KSU, ISU, TT),
+                Nebraska.Create(OU, ISU, TCU, Baylor),
+                KU.Create(Nebraska, ISU, Cincy, TT),
+                KSU.Create(OU, Nebraska, KU, TCU),
+                ISU.Create(Texas, OkSt, KSU, Cincy),
+                Cincy.Create(Texas, OU, Colorado, Baylor),
+                TCU.Create(OkSt, Colorado, Cincy, TT),
+                Baylor.Create(Texas, KU, ISU, TCU),
+                TT.Create(OU, Nebraska, KSU, Baylor),
 
             }.Create();
         }
@@ -568,18 +560,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Texas.Create(),
-                OU.Create(),
-                OkSt.Create(),
-                Colorado.Create(),
-                Nebraska.Create(),
-                KU.Create(),
-                KSU.Create(),
-                ISU.Create(),
-                Cincy.Create(),
-                TCU.Create(),
-                Baylor.Create(),
-                TT.Create(),
+                Texas.Create(Nebraska, ISU, Cincy, TT),
+                OU.Create(Texas, OkSt, KU, Baylor),
+                OkSt.Create(Colorado, KSU, TCU, TT),
+                Colorado.Create(Texas, Nebraska, KSU, Cincy),
+                Nebraska.Create(OU, KSU, ISU, TCU),
+                KU.Create(Texas, Nebraska, ISU, Baylor),
+                KSU.Create(OU, KU, TCU, TT),
+                ISU.Create(OkSt, Colorado, KSU, Cincy),
+                Cincy.Create(OU, OkSt, KU, Baylor),
+                TCU.Create(OU, Colorado, Cincy, TT),
+                Baylor.Create(Texas, OkSt, ISU, TCU),
+                TT.Create(Colorado, Nebraska, KU, Baylor),
 
             }.Create();
         }
