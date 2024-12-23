@@ -81,15 +81,7 @@ namespace EA_DB_Editor
         public int GameNumber { get; set; }
         public int Week { get; set; }
         
-        public int DisplayWeek 
-        {
-            get
-            {
-                return this.IsQuarterFinalGame ?
-                    Week - 1 : Week;
-            }
-        }
-        
+       
         public int? BowlId
         {
             get
@@ -104,14 +96,6 @@ namespace EA_DB_Editor
                 }
 
                 return null;
-            }
-        }
-
-        public bool IsQuarterFinalGame
-        {
-            get
-            {
-                return Bowl.IsQuarterfinal(this);
             }
         }
 

@@ -208,12 +208,12 @@ namespace EA_DB_Editor
             {
                 schedule.CalculateOpponentMetrics(isPreason);
                 Team currentTeam = null;
-                foreach (var game in schedule.FlattenedListOfGames.Where(g => g.OpponentId != 1023).OrderBy(g => g.DisplayWeek))
+                foreach (var game in schedule.FlattenedListOfGames.Where(g => g.OpponentId != 1023).OrderBy(g => g.Week))
                 {
                     string line = null;
                     if (!isPreason)
                     {
-                        line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}", game.DisplayWeek, game.GameNumber, game.Location, game.OpponentId, game.OpponentDescription, game.Result, game.Score, game.TeamId, game.TeamDescription, game.BowlId.HasValue ? game.BowlId.ToString() : string.Empty);
+                        line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}", game.Week, game.GameNumber, game.Location, game.OpponentId, game.OpponentDescription, game.Result, game.Score, game.TeamId, game.TeamDescription, game.BowlId.HasValue ? game.BowlId.ToString() : string.Empty);
                     }
                     else
                     {
@@ -250,9 +250,9 @@ namespace EA_DB_Editor
             schedule.CalculateOpponentMetrics(isPreseason);
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Week,Game,Location,OppId,Opponent,Result,Score");
-            foreach (var game in schedule.FlattenedListOfGames.Where(g => g.OpponentId != 1023).OrderBy(g => g.DisplayWeek))
+            foreach (var game in schedule.FlattenedListOfGames.Where(g => g.OpponentId != 1023).OrderBy(g => g.Week))
             {
-                sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6}", game.DisplayWeek, game.GameNumber, game.Location, game.OpponentId, game.OpponentDescription, game.Result, game.Score));
+                sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6}", game.Week, game.GameNumber, game.Location, game.OpponentId, game.OpponentDescription, game.Result, game.Score));
             }
             sb.AppendLine(string.Format(",,,,Opp Record ({0}-{1})<br>Avg Rank ({2}),,", schedule.OpponentWin, schedule.OpponentLoss, string.Format("{0}.{1}", schedule.AverageOpponentRank / 10, schedule.AverageOpponentRank % 10)));
             Utility.WriteData(@".\archive\reports\tsch" + teamId + ".csv", sb.ToString());
