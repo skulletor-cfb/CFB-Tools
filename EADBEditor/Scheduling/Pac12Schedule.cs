@@ -40,7 +40,7 @@ namespace EA_DB_Editor
             var creatorsToUse = CorrectCreators;
             var idx = (Form1.DynastyYear - 2483) % creatorsToUse.Length;
 
-            if( Form1.DynastyYear == 2523)
+            if( Form1.DynastyYear == 2531)
             {
                 throw new Exception("Pac 12 moves to 9 game schedule!!");
             }
