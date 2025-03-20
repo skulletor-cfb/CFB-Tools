@@ -7,10 +7,15 @@ namespace EA_DB_Editor
 {
     public class Bowl
     {
+        private const int cfp12TeamPlayoffStart = 2519;
         private const int CureBowl = 987043;
         private const int MyrtleBeachBowl = 987044;
         private const int ArizonaBowl = 987045;
         private const int MobileAlabamaBowl = 0;
+        private const int CFB8v9 = 987047;
+        private const int CFB7v10 = 987048;
+        private const int CFB6v11 = 987049;
+        private const int CFB5v12 = 987050;
 
         private static HashSet<int> AugmentedBowls = new HashSet<int>()
         {
@@ -122,10 +127,62 @@ namespace EA_DB_Editor
                 ConferenceTieInSelection2 = 1,
             };
 
+            var cfp8v9 = new Bowl
+            {
+                Id = CFB8v9,
+                Name = "CFP 1st Round 8v9",
+                Week = 18,
+                Game = 47,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+            var cfp7v10 = new Bowl
+            {
+                Id = CFB7v10,
+                Name = "CFP 1st Round 7v10",
+                Week = 18,
+                Game = 48,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+            var cfp6v11 = new Bowl
+            {
+                Id = CFB6v11,
+                Name = "CFP 1st Round 6v11",
+                Week = 18,
+                Game = 49,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+            var cfp5v12 = new Bowl
+            {
+                Id = CFB5v12,
+                Name = "CFP 1st Round 5v12",
+                Week = 18,
+                Game = 50,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
             Bowls.Add(cureBowl.Key, cureBowl);
             Bowls.Add(mbBowl.Key, mbBowl);
             Bowls.Add(arizonaBowl.Key, arizonaBowl);
             Bowls.Add(venturesBowl.Key, venturesBowl);
+            Bowls.Add(cfp8v9.Key, cfp8v9);
+            Bowls.Add(cfp7v10.Key, cfp7v10);
+            Bowls.Add(cfp6v11.Key, cfp6v11);
+            Bowls.Add(cfp5v12.Key, cfp5v12);
 
             if (!isPreseason)
             {
@@ -146,10 +203,68 @@ namespace EA_DB_Editor
 
         // Order the bowl games will show up in on the bowls.html page
         public static int[] PlayoffBowlOrder = ConfigurationManager.AppSettings["BowlOrder"].Split(',').Select(s => Convert.ToInt32(s.Trim())).ToArray();
+
+        public static bool IsQuarterfinal(Game g)
+        {
+            if (Form1.CalendarYear >= cfp12TeamPlayoffStart && 
+                TryFindByKey(g.Week, g.GameNumber, out var bowl))
+            {
+                var rotation = (Form1.CalendarYear - cfp12TeamPlayoffStart) % 3;
+                var quarterFinalBowls = new HashSet<int>();
+
+                switch (rotation)
+                {
+                    case 0:
+                        quarterFinalBowls = new HashSet<int>() { 25, 27, 12, 26 };
+                        break;
+
+                    case 1:
+                        quarterFinalBowls = new HashSet<int>() { 25, 27, 28, 17 };
+                        break;
+
+                    case 2:
+                        quarterFinalBowls = new HashSet<int>() { 28, 17, 12, 26 };
+                        break;
+
+                    default:
+                        throw new InvalidOperationException("BAD PLAYOFF ORDER");
+                }
+
+                return quarterFinalBowls.Contains(bowl.Id);
+            }
+
+            return false;
+        }
+
         public static List<Bowl> GetBowlsInPlayoffOrder()
         {
             List<Bowl> bowls = new List<Bowl>();
             var order = PlayoffBowlOrder;
+
+            const int cfp12TeamPlayoffStart = 2519;
+            if (Form1.CalendarYear >= cfp12TeamPlayoffStart)
+            {
+                var rotation = (Form1.CalendarYear- cfp12TeamPlayoffStart) % 3;
+
+                switch (rotation)
+                {
+                    case 0:
+                        order = new[] { 39, 28, 17, 25, 27, 12, 26, 987050, 987049, 987048, 987047 };
+                        break;
+
+                    case 1:
+                        order = new[] { 39, 12, 26, 25, 27, 28, 17, 987050, 987049, 987048, 987047 };
+                        break;
+
+                    case 2:
+                        order = new[] { 39, 25, 27, 28, 17, 12, 26, 987050, 987049, 987048, 987047 };
+                        break;
+
+                    default:
+                        throw new InvalidOperationException("BAD PLAYOFF ORDER");
+                }
+            }
+
             for (int i = 0; i < order.Length; i++)
             {
                 bowls.Add(Bowl.FindById(order[i]));
