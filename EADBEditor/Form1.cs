@@ -2714,7 +2714,7 @@ PPOS = Position
             for (int i = 1; i <= 18; i++)
             {
                 var otherPlayers = GetPlayers(pos => pos == i);
-                var otherCandidates = otherPlayers.Values.SelectMany(p => p.Skip(2)).Where(p => p.OVR >= 85 && (p.Year == 3)).OrderByDescending(p => p.OVR).ToList();
+                var otherCandidates = otherPlayers.Values.SelectMany(p => p.Skip(2)).Where(p => p.OVR >= 85 && (p.Year >= 2)).OrderByDescending(p => p.OVR).ToList();
                 otherCandidates.ForEach(c => other.AppendLine(c.ToCsvLine()));
             }
 
@@ -3320,10 +3320,10 @@ PPOS = Position
 #endif
 
             var big6Games = new HashSet<int>(new[] {
-         //       AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP5v12],
-           //     AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP6v11],
-             //   AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP7v10],
-               // AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP8v9],
+                /*AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP5v12],
+                AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP6v11],
+                AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP7v10],
+                AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP8v9],*/
                 25, 27, 28, 17, 12, 26, 39 });
 
             var schedules = MaddenTable.FindTable(maddenDB.lTables, "SCHD").lRecords
@@ -6483,7 +6483,7 @@ PPOS = Position
                                         var oppRecord = MaddenTable.Query(teamScheduleTable, query).SingleOrDefault();
                                         teamScheduleRecord["TGID"] = ro.key;
                                         oppRecord["OGID"] = ro.key;
-
+                                        
                                         // if both teams are marked as "1" then this is a neutral site game, don't do anything
                                         if ((teamScheduleRecord["THOA"] == "1" && oppRecord["THOA"] == "1") == false)
                                         {

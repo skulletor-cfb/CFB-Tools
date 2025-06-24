@@ -49,11 +49,6 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            if (Form1.DynastyYear == 2524)
-            {
-                throw new Exception("Does BSU go to Big 12????");
-            }
-
             var idx = (Form1.DynastyYear - 2478) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(12, RecruitingFixup.MWCId, "MWC");
