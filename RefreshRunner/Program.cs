@@ -90,14 +90,18 @@ namespace RefreshRunner
 
         //2372 to 2432
         static Tuple<int, int> NeutralSitesPhase8 = new Tuple<int, int>(322, 382);
-        const string Phase8Override = "fill in from app.config";
-        const string Phase8NeutralSiteValue = "fill in from app.config";
+        const string Phase8Override = "Stadium=272,BeforeWeek=2,NickName=Texas Kickoff;RivalryGame=33-79,Stadium=272,BeforeWeek=16,NickName=Bayou Bucket Classic;Stadium=271,BeforeWeek=2,NickName=Allstate Kickoff Classic;Stadium=184,BeforeWeek=4,NickName=Rocky Mountain Showdown;Stadium=276,BeforeWeek=3,NickName=Windy City Classic;Stadium=183,BeforeWeek=16,NickName=World's Largest Outdoor Cocktail Party;Stadium=182,BeforeWeek=16,NickName=Red River Shootout;Stadium=258,BeforeWeek=2,NickName=Cactus Kickoff Classic;Stadium=268,BeforeWeek=3,NickName=Duke's Mayo Classic;Stadium=267,BeforeWeek=3,NickName=Orlando Kickoff;Stadium=259,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=264,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=265,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=275,BeforeWeek=3,NickName=Pigskin Classic;Stadium=277,BeforeWeek=2,NickName=The Kickoff Classic;Stadium=144,BeforeWeek=2,NickName=Pigskin Classic;Stadium=185,BeforeWeek=2,NickName=Pigskin Classic;Stadium=180,BeforeWeek=2,NickName=Pigskin Classic;Stadium=176,BeforeWeek=2,NickName=Pigskin Classic;Stadium=251,BeforeWeek=2,NickName=Pigskin Classic;Stadium=165,BeforeWeek=3,NickName=Pigskin Classic;Stadium=173,BeforeWeek=2,NickName=Pigskin Classic;Stadium=163,BeforeWeek=2,NickName=Pigskin Classic;Stadium=145,BeforeWeek=2,NickName=Pigskin Classic;Stadium=253,BeforeWeek=2,NickName=Pigskin Classic;Stadium=254,BeforeWeek=2,NickName=Pigskin Classic;Stadium=160,BeforeWeek=2,NickName=Pigskin Classic;Stadium=164,BeforeWeek=2,NickName=Pigskin Classic;Stadium=159,BeforeWeek=2,NickName=Pigskin Classic;Stadium=266,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=242,BeforeWeek=2,NickName=Kickoff in the Capital;Stadium=158,BeforeWeek=2,NickName=Pigskin Classic;Stadium=262,BeforeWeek=8,NickName=Pigskin Classic;Stadium=263,BeforeWeek=3,NickName=Patriot Bowl;Stadium=261,BeforeWeek=13,NickName=Aer Lingus College Football Classic;Stadium=279,BeforeWeek=2,NickName=Louisiana Kickoff;Stadium=274,BeforeWeek=2,NickName=Vegas Kickoff Classic;Stadium=250,BeforeWeek=2,NickName=Mile High Classic;";
+        const string Phase8NeutralSiteValue = "250,{274;274},{279;279},{268;268},{258;258},163,262,261,263,271,272,276,273,184,183,182,{267;267},{277;277},{150;150},{264;265;266;259},{186;186},{275;158;144;185;180;176;251;165;173;145;253;254;160;164;159},{242;242}";
 
-        //2433 to ???
-        static Tuple<int, int> NeutralSitesPhase9 = new Tuple<int, int>(383, 999);
-        const string Phase9Override = "fill in from app.config";
-        const string Phase9NeutralSiteValue = "fill in from app.config";
+        //2433 to 2536
+        static Tuple<int, int> NeutralSitesPhase9 = new Tuple<int, int>(383, 485);
+        const string Phase9Override = "Stadium=272,BeforeWeek=2,NickName=Texas Kickoff;RivalryGame=33-79,Stadium=272,BeforeWeek=16,NickName=Bayou Bucket Classic;Stadium=271,BeforeWeek=2,NickName=Allstate Kickoff Classic;Stadium=184,BeforeWeek=4,NickName=Rocky Mountain Showdown;Stadium=276,BeforeWeek=3,NickName=Windy City Classic;Stadium=183,BeforeWeek=16,NickName=World's Largest Outdoor Cocktail Party;Stadium=182,BeforeWeek=16,NickName=Red River Shootout;Stadium=258,BeforeWeek=2,NickName=Cactus Kickoff Classic;Stadium=268,BeforeWeek=3,NickName=Duke's Mayo Classic;Stadium=267,BeforeWeek=3,NickName=Orlando Kickoff;Stadium=259,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=264,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=265,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=275,BeforeWeek=3,NickName=Pigskin Classic;Stadium=277,BeforeWeek=2,NickName=The Kickoff Classic;Stadium=144,BeforeWeek=2,NickName=Pigskin Classic;Stadium=185,BeforeWeek=2,NickName=Pigskin Classic;Stadium=180,BeforeWeek=2,NickName=Pigskin Classic;Stadium=176,BeforeWeek=2,NickName=Pigskin Classic;Stadium=251,BeforeWeek=2,NickName=Pigskin Classic;Stadium=165,BeforeWeek=3,NickName=Pigskin Classic;Stadium=173,BeforeWeek=2,NickName=Pigskin Classic;Stadium=163,BeforeWeek=2,NickName=Pigskin Classic;Stadium=145,BeforeWeek=2,NickName=Pigskin Classic;Stadium=253,BeforeWeek=2,NickName=Pigskin Classic;Stadium=254,BeforeWeek=2,NickName=Pigskin Classic;Stadium=160,BeforeWeek=2,NickName=Pigskin Classic;Stadium=164,BeforeWeek=2,NickName=Pigskin Classic;Stadium=159,BeforeWeek=2,NickName=Pigskin Classic;Stadium=266,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=242,BeforeWeek=2,NickName=Kickoff in the Capital;Stadium=158,BeforeWeek=2,NickName=Pigskin Classic;Stadium=262,BeforeWeek=8,NickName=Pigskin Classic;Stadium=263,BeforeWeek=3,NickName=Patriot Bowl;Stadium=261,BeforeWeek=13,NickName=Aer Lingus College Football Classic;Stadium=279,BeforeWeek=2,NickName=Louisiana Kickoff;Stadium=274,BeforeWeek=2,NickName=Vegas Kickoff Classic;Stadium=250,BeforeWeek=2,NickName=Mile High Classic;";
+        const string Phase9NeutralSiteValue = "250,{274;274},{279;279},{268;268},{258;258},163,262,261,263,271,272,276,273,184,183,182,{267;267},{277;277},{150;150},{264;265;266;259},{186;186},{275;158;144;185;180;176;251;165;173;145;253;254;160;164;159},{242;242}";
 
+        //2536 to ??
+        static Tuple<int, int> NeutralSitesPhase10 = new Tuple<int, int>(485, 999);
+        const string Phase10Override = "fill in from app.config";
+        const string Phase10NeutralSiteValue = "fill in from app.config";
 
         static string GetPreseasonFileName(string dir)
         {
@@ -452,7 +456,15 @@ namespace RefreshRunner
                 }
                 else if (year >= NeutralSitesPhase8.Item1 && year <= NeutralSitesPhase8.Item2)
                 {
-                    // use app.config until phase 9
+                    form.NeutralSiteGamesForRecords(Phase8NeutralSiteValue, Phase8Override);
+                }
+                else if (year >= NeutralSitesPhase9.Item1 && year <= NeutralSitesPhase9.Item2)
+                {
+                    form.NeutralSiteGamesForRecords(Phase9NeutralSiteValue, Phase9Override);
+                }
+                else if (year >= NeutralSitesPhase10.Item1 && year <= NeutralSitesPhase10.Item2)
+                {
+                    // use app.config
                 }
 
                 // starting in the same year the poinsetta bowl became the Pinstripe Bowl

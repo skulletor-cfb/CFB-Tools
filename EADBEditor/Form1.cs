@@ -3993,16 +3993,18 @@ PPOS = Position
         private void customFixToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // make it so that a recrutied player changes his team
-            var rcpr = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPR");
-            var recruit = rcpr.lRecords.Where(mr => mr["PRSI"].ToInt32() == 1).Single();
-            recruit["PTCM"] = "77";
+            const int chickFilaStadium = 273;
+            const int atlantaGridironClassic = 263;
+
+            var stadiumTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "STAD");
+            var sauce = stadiumTable.CreateDictionary(mr => mr["SGID"].ToInt32(), mr => true);
+            RosterCopy.CopyRecordData(sauce[chickFilaStadium], sauce[atlantaGridironClassic], dataKey => RosterCopy.STADIUM_DATA_TO_COPY.Contains(dataKey));
             return;
 
             const string stadiumFile = "jmu-stadium.txt";
             const string teamFile = "jmu-team.txt";
 
             // fiu stadium is 241
-            var stadiumTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "STAD");
             var teamTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "TEAM");
             var jmuTeam = teamTable.lRecords.Where(r => r["TGID"].ToInt32() == 230).Single();
             var jmuStadium = stadiumTable.lRecords.Where(r => r["SGID"].ToInt32() == 241).Single();

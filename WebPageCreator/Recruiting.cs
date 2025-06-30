@@ -17,15 +17,71 @@ namespace EA_DB_Editor
         static int R_MN = 0, R_MS = 0, R_MO = 0, R_MT = 0, R_NE = 0, R_NV = 0, R_NH = 0, R_NJ = 0, R_NM = 0, R_NY = 0, R_NC = 0;
         static int R_ND = 0, R_OH = 0, R_OK = 0, R_OR = 0, R_PA = 0, R_RI = 0, R_SC = 0, R_SD = 0, R_TN = 0, R_TX = 0, R_UT = 0;
         static int R_VT = 0, R_VA = 0, R_WA = 0, R_WV = 0, R_WI = 0, R_WY = 0, R_CN = 0, R_DC = 0;
+
+        private const string Elite11 = "elite11";
+        private const string SimpsonSelect = "simpsonselect";
+        private const string MrTexas = "mrtexas";
+        private const int TexasId = 42;
+        public static void CreateFeatureRecruitPage(MaddenDatabase db, string scenario)
+        {
+            using (var tw = new StreamWriter($"./Archive/Reports/{scenario}.html", false))
+            {
+
+                try
+                {
+                    Utility.WriteNavBarAndHeader(tw, "Recruits", "loadRecruitData");
+
+                    tw.WriteLine("<table><tr><td width=800 height=40></td></tr></table>");
+                    tw.WriteLine("<table width=800 cellpadding=20 cellspacing=0><tr><td width=100% align=left colspan=20>");
+                    tw.WriteLine("<table cellpadding=0 cellspacing=0 width=100%>");
+                    tw.WriteLine($"<tr><td class=c8 width=100%><center><img id='currentSchoolLogo' border=0 src=../HTML/Logos/{scenario}.png></center></td><td class=c8></td></tr>	 <tr><td class=c3 width=800 align=center colspan=8><b>| <a href='recruits.html'>Recruits</a> | | <a href='elite11.html'>Elite 11</a> | | <a href='simpsonselect.html'>Simpson Select</a> | | <a href='mrtexas.html'>Mr. Texas Football</a> |</b></td></tr>");
+                    tw.WriteLine("</table>");
+                    tw.WriteLine("</td></tr>");
+
+                    IEnumerable<Recruit> recruits = null;
+                    string name = string.Empty;
+
+                    switch (scenario)
+                    {
+                        case Elite11:
+                            // only take 11 of the top 20
+                            recruits = Recruit.RecruitRankings.Values.Where(r => r.PositionValue == 0 && !r.IsAthlete && (r.Tendency == 0 || r.Tendency == 1)).Distinct().OrderBy(r => r.Rank).Take(11).ToArray();
+                            name = "Elite 11";
+                            break;
+                        case SimpsonSelect:
+                            recruits = Recruit.RecruitRankings.Values.Where(r => r.PositionValue == 0 && (r.Tendency == 2 || r.IsAthlete)).Distinct().OrderBy(r => r.Rank).Take(6).ToArray();
+                            name = "Simpson Select 6";
+                            break;
+                        case MrTexas:
+                            name = "Mr. Texas Football";
+                            recruits = Recruit.RecruitRankings.Values.Where(r => r.State == TexasId).Distinct().OrderBy(r => r.Rank).Take(12).ToArray();
+                            break;
+                        default:
+                            break;
+                    }
+
+                    Recruit.ToCsvFile(recruits, $"{scenario}.csv");
+                    CreateRecruitTable(tw, name, $"{scenario}Table");
+                }
+                finally
+                {
+                    tw.Write(@"</body>");
+                }
+            }
+        }
+        
         public static void CreateRecruitsPage(MaddenDatabase db)
         {
+            CreateFeatureRecruitPage(db, Elite11);
+            CreateFeatureRecruitPage(db, SimpsonSelect);
+            CreateFeatureRecruitPage(db, MrTexas);
             using (var tw = new StreamWriter("./Archive/Reports/hsaaroster.html", false))
             {
                     Utility.WriteNavBarAndHeader(tw, "All American Game Rosters", "loadHSAAData");
                     tw.WriteLine("<table><tr><td width=800 height=40></td></tr></table>");
                     tw.WriteLine("<table width=800 cellpadding=20 cellspacing=0><tr><td width=100% align=left colspan=20>");
                     tw.WriteLine("<table cellpadding=0 cellspacing=0 width=100%>");
-                    tw.WriteLine("<tr><td class=c8 width=100%><center><img border=0 src=../HTML/Logos/ESPNU.jpg></center></td><td class=c8></td></tr>	 <tr><td class=c3 width=800 align=center colspan=8><b>| <a href='recruits.html'>Recruits</a> | | <a href='hsaaroster.html'>All American Game Rosters</a> | | <a href='RecruitingRankings.html'>National Team Recruiting Rankings</a> || <a href='RecruitingRankingsConf.html'>Recruiting Rankings by Conference</a> |</b></td></tr>");
+                    tw.WriteLine("<tr><td class=c8 width=100%><center><img border=0 src=../HTML/Logos/ESPNU.jpg></center></td><td class=c8></td></tr>	 <tr><td class=c3 width=800 align=center colspan=8><b>| <a href='recruits.html'>Recruits</a> | | <a href='elite11.html'>Elite 11</a> | | <a href='simpsonselect.html'>Simpson Select</a>| | <a href='hsaaroster.html'>All American Game Rosters</a> | | <a href='RecruitingRankings.html'>National Team Recruiting Rankings</a> | | <a href='RecruitingRankingsConf.html'>Recruiting Rankings by Conference</a> |</b></td></tr>");
                     tw.WriteLine("</table>");
                     tw.WriteLine("</td></tr>");
 
@@ -43,7 +99,7 @@ namespace EA_DB_Editor
                     tw.WriteLine("<table><tr><td width=800 height=40></td></tr></table>");
                     tw.WriteLine("<table width=800 cellpadding=20 cellspacing=0><tr><td width=100% align=left colspan=20>");
                     tw.WriteLine("<table cellpadding=0 cellspacing=0 width=100%>");
-                    tw.WriteLine("<tr><td class=c8 width=100%><center><img id='currentSchoolLogo' border=0 src=../HTML/Logos/ESPNU.jpg></center></td><td class=c8></td></tr>	 <tr><td class=c3 width=800 align=center colspan=8><b>| <a href='recruits.html'>Recruits</a> | | <a href='hsaaroster.html'>All American Game Rosters</a> | | <a href='recruits.html?juco=true'>JUCO Recruits</a> | | <a href='RecruitingRankings.html'>National Team Recruiting Rankings</a> || <a href='RecruitingRankingsConf.html'>Recruiting Rankings by Conference</a> |</b></td></tr>");
+                    tw.WriteLine("<tr><td class=c8 width=100%><center><img id='currentSchoolLogo' border=0 src=../HTML/Logos/ESPNU.jpg></center></td><td class=c8></td></tr>	 <tr><td class=c3 width=800 align=center colspan=8><b>| <a href='recruits.html'>Recruits</a> | | <a href='elite11.html'>Elite 11</a> | | <a href='simpsonselect.html'>Simpson Select</a> | | <a href='hsaaroster.html'>All American Game Rosters</a> | | <a href='recruits.html?juco=true'>JUCO Recruits</a> | | <a href='RecruitingRankings.html'>National Team Recruiting Rankings</a> | | <a href='RecruitingRankingsConf.html'>Recruiting Rankings by Conference</a> |</b></td></tr>");
                     tw.WriteLine("</table>");
                     tw.WriteLine("</td></tr>");
 
@@ -330,6 +386,8 @@ namespace EA_DB_Editor
                     HometownValue = NCAADB.lTables[96].lRecords[i].lEntries[33].Data.ToInt32(),
                     PositionGroup = NCAADB.lTables[96].lRecords[i]["RPGP"].ToInt32(),
                     PlayerYear = NCAADB.lTables[96].lRecords[i]["PYEA"].ToInt32(),
+                    Tendency = NCAADB.lTables[96].lRecords[i]["PTEN"].ToInt32(),
+                    State = NCAADB.lTables[96].lRecords[i]["STAT"].ToInt32(),
                 };
 
                 RecruitRankings.Add(recruit.RecruitId, recruit);
@@ -373,6 +431,7 @@ namespace EA_DB_Editor
             Utility.WriteData(@".\archive\reports\" + filename, sb.ToString());
         }
 
+        public int Tendency { get; set; }
         public int PlayerYear { get; set; }
         public int PositionGroup { get; set; }
         public int RecruitId { get; set; }
@@ -400,6 +459,8 @@ namespace EA_DB_Editor
                 return City.Cities.ContainsKey(this.HometownValue) ? string.Format("{0}, {1}", City.Cities[this.HometownValue].Name, City.Cities[this.HometownValue].State) : "N/A";
             }
         }
+
+        public int State { get; set; }
     
         public int CommittedTeam { get; set; }
         public int HometownValue { get; set; }

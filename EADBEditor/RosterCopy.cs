@@ -567,7 +567,7 @@ namespace EA_DB_Editor
             }
         }
 
-        static void CopyRecordData(Dictionary<string, DBData> source, Dictionary<string, DBData> destination, Func<string, bool> filter, Func<Dictionary<string, DBData>, Dictionary<string, DBData>, string, bool> editRowFilter = null)
+public        static void CopyRecordData(Dictionary<string, DBData> source, Dictionary<string, DBData> destination, Func<string, bool> filter, Func<Dictionary<string, DBData>, Dictionary<string, DBData>, string, bool> editRowFilter = null)
         {
             foreach (var dataKey in destination.Keys)
             {
@@ -608,7 +608,7 @@ namespace EA_DB_Editor
             };
         }
 
-        static Dictionary<TableKey, Dictionary<string, DBData>> CreateDictionary<TableKey>(this MaddenTable table, Func<MaddenRecord, TableKey> keyCreator, Func<MaddenRecord, bool> recordFilter, Func<Dictionary<string, DBData>, Dictionary<string, DBData>, Dictionary<string, DBData>> resolver = null)
+      public  static Dictionary<TableKey, Dictionary<string, DBData>> CreateDictionary<TableKey>(this MaddenTable table, Func<MaddenRecord, TableKey> keyCreator, Func<MaddenRecord, bool> recordFilter, Func<Dictionary<string, DBData>, Dictionary<string, DBData>, Dictionary<string, DBData>> resolver = null)
         {
             if (recordFilter == null)
                 recordFilter = record => true;
