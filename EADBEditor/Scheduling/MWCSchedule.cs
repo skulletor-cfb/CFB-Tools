@@ -7,7 +7,7 @@ namespace EA_DB_Editor
 {
     public class MWCSchedule
     {
-        private const int UTEPId = 105;
+        private const int UTEP = 105;
         private const int UNM = 60;
         private const int SDSU = 81;
         private const int Hawaii = 32;
@@ -25,14 +25,17 @@ namespace EA_DB_Editor
         private static bool initRun = false;
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
             CreateA, CreateB, 
-            CreateC, CreateA,
+            CreateC, CreateD,
+            CreateE, CreateA,
             CreateB, CreateC,
+            CreateD, CreateE,
         };
         public static Dictionary<int, HashSet<int>> MWCConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
 
         public static void Init()
         {
+            return;
             if (!initRun)
             {
                 ScenarioForSeason = CreateScenarioForSeason();
@@ -42,6 +45,7 @@ namespace EA_DB_Editor
 
         public static void ProcessMWCSchedule(Dictionary<int, TeamSchedule> schedule)
         {
+            return;
             schedule.ProcessSchedule(ScenarioForSeason, MWCConferenceSchedule, RecruitingFixup.MWCId, RecruitingFixup.MWC);
         }
 
@@ -49,13 +53,63 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2478) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2539) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(12, RecruitingFixup.MWCId, "MWC");
+            result = result.Verify(13, RecruitingFixup.MWCId, "MWC");
             MWCConferenceSchedule = result.BuildHashSet();
             return result;
         }
 
+#if true // 13 team MWC with UTEP
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Wyoming.Create(BSU, UNLV, UtahSt, SJSU),
+                CSU.Create(Wyoming,Hawaii, UTEP, SDSU),
+                AF.Create(CSU, BSU, UNM, SJSU),
+                Hawaii.Create(Wyoming, AF, Nevada, FS),
+                BSU.Create(Hawaii, UNLV, UtahSt, FS),
+                Nevada.Create(CSU, BSU, UNM, UtahSt),
+                UNLV.Create(AF, Nevada, UTEP, FS),
+                UNM.Create(Wyoming, CSU, UNLV, SDSU),
+                UTEP.Create(Wyoming, Nevada, UNM, SJSU),
+                UtahSt.Create(AF, Hawaii, UTEP, SDSU),
+                FS.Create(CSU, UTEP, UtahSt, SDSU),
+                SJSU.Create(Hawaii, Nevada, UNM, FS),
+                SDSU.Create(AF, BSU, UNLV, SJSU),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateD()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateE()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+#elif true
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
@@ -112,6 +166,7 @@ namespace EA_DB_Editor
                 SDSU.Create(AF, Nevada, UtahSt, SJSU),
             }.Create();
         }
+#endif
 
 
 
