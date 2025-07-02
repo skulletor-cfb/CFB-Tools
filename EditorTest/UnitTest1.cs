@@ -434,6 +434,72 @@ namespace EditorTest
         }
 
 
+#if true
+        [TestMethod]
+        public void SBCScheduleA()
+        {
+            SunBeltSchedule.CreateA().Verify(16, RecruitingFixup.SBCId, "SunBelt  ", false);
+            var hash = SunBeltSchedule.CreateA().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
+
+        [TestMethod]
+        public void SBCScheduleB()
+        {
+            SunBeltSchedule.CreateB().Verify(16, RecruitingFixup.SBCId, "SunBelt  ", false);
+            var hash = SunBeltSchedule.CreateB().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
+
+        [TestMethod]
+        public void SBCScheduleC()
+        {
+            SunBeltSchedule.CreateC().Verify(16, RecruitingFixup.SBCId, "SunBelt  ", false);
+            var hash = SunBeltSchedule.CreateC().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
+
+
+        [TestMethod]
+        public void SBCScheduleD()
+        {
+            SunBeltSchedule.CreateD().Verify(16, RecruitingFixup.SBCId, "SunBelt  ", false);
+            var hash = SunBeltSchedule.CreateD().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
+
+        [TestMethod]
+        public void SBCScheduleE()
+        {
+            SunBeltSchedule.CreateE().Verify(16, RecruitingFixup.SBCId, "SunBelt  ", false);
+            var hash = SunBeltSchedule.CreateE().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
+
+        [TestMethod]
+        public void SBCScheduleF()
+        {
+            SunBeltSchedule.CreateF().Verify(16, RecruitingFixup.SBCId, "SunBelt  ", false);
+            var hash = SunBeltSchedule.CreateF().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
+
+        [TestMethod]
+        public void SBCScheduleG()
+        {
+            SunBeltSchedule.CreateG().Verify(16, RecruitingFixup.SBCId, "SunBelt  ", false);
+            var hash = SunBeltSchedule.CreateG().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
+
+        [TestMethod]
+        public void SBCScheduleH()
+        {
+            SunBeltSchedule.CreateH().Verify(16, RecruitingFixup.SBCId, "SunBelt  ", false);
+            var hash = SunBeltSchedule.CreateH().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
+#elif true // 14 team real life SBC in 2024
         [TestMethod]
         public void SBCScheduleA()
         {
@@ -505,7 +571,7 @@ namespace EditorTest
             var hash = SunBeltSchedule.CreateG().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
-#if false
+#elif false
         [TestMethod]
         public void SBCScheduleA()
         {

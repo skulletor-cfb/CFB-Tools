@@ -8,6 +8,7 @@ namespace EA_DB_Editor
     {
         private static bool initRun = false;
 
+        /*
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {
             CreateA, CreateB,
             CreateC, CreateD,
@@ -17,17 +18,29 @@ namespace EA_DB_Editor
             CreateD, CreateE,
             CreateF, CreateG,
             };
+        */
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {
+            CreateA, CreateB,
+            CreateC, CreateD,
+            CreateE, CreateF,
+            CreateG, CreateH,
+
+            CreateB, CreateA,
+            CreateD, CreateC,
+            CreateF, CreateE,
+            CreateH, CreateG,
+            };
 
 
         public static Dictionary<int, HashSet<int>> SunbeltConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
 
         static HashSet<int> West = new HashSet<int>() 
-        { NT, UTSA, TexSt, ArkSt, ULM, ULL, Troy, USM};
+        { NT, UTSA, LT, ArkSt, ULM, ULL, Troy, USM, MTSU};
 
         static HashSet<int> East = new HashSet<int>()
         {
-            USA, JMU, Coastal, ODU, GASO, GSU, AppSt, UMarsh
+            USA, JMU, Coastal, ODU, GASO, GSU, AppSt, UMarsh, WKU
         };
 
         public static bool CrossDivision(int a, int b)
@@ -53,32 +66,17 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2488) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2539) % Creators.Length;
             var result = Creators[idx]();
 
-            switch(Form1.DynastyYear)
-            {
-                case 2491:
-                    result = CreateDPrime();
-                    break;
-
-                case 2497:
-                    result = CreateCPrime();
-                    break;
-
-                case 2498:
-                    result = CreateDPrime();
-                    break;
-
-                default:
-                    break;
-            }
-
-            result = result.Verify(14, RecruitingFixup.SBCId, "SunBelt");
+            result = result.Verify(16, RecruitingFixup.SBCId, "SunBelt");
             SunbeltConferenceSchedule = result.BuildHashSet();
             return result;
         }
 
+        const int LT = 43;
+        const int MTSU = 53;
+        const int WKU = 211;
         const int Coastal = 61;
         const int ODU = 234;
         const int UMarsh = 46;
@@ -100,7 +98,81 @@ namespace EA_DB_Editor
         const int NT = 64;
         const int UAB = 98;
 
-#if true // Sun Belt is real life with JMU in east
+#if true // 16 team Sun Belt with LT, WKU, MTSU
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                ArkSt.Create(USA, ULM, MTSU, WKU),
+                USA.Create(USM, LT, ULL, Coastal),
+                ULM.Create(USA, USM, ULL, MTSU, GSU),
+                USM.Create(ArkSt, LT, Troy, MTSU, AppSt),
+                LT.Create(ArkSt, ULM, Troy, GASO),
+                Troy.Create(ArkSt, USA, ULM, ULL, ODU),
+                ULL.Create(ArkSt, USM, LT, JMU),
+                MTSU.Create(USA, LT, Troy, ULL, UMarsh),
+
+                UMarsh.Create(LT, GSU, ODU, WKU),
+                JMU.Create(USM, UMarsh, GSU, Coastal),
+                AppSt.Create(ArkSt, UMarsh, JMU, GSU, Coastal),
+                GSU.Create(Troy, ODU, Coastal, GASO, WKU),
+                ODU.Create(ULM, JMU, AppSt, GASO, WKU),
+                Coastal.Create(ULL, UMarsh, ODU, GASO, WKU),
+                GASO.Create(USA, UMarsh, JMU, AppSt),
+                WKU.Create(MTSU, JMU, AppSt, GASO),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateC()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateD()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateE()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateF()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateG()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateH()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+#elif true // Sun Belt is real life with JMU in east
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
