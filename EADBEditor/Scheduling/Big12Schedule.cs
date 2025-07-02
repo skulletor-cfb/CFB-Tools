@@ -28,7 +28,7 @@ namespace EA_DB_Editor
 
         private static bool initRun = false;
 
-#if true
+#if false
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[]
         {
             CreateNDZ, CreateNDY,
@@ -86,12 +86,12 @@ namespace EA_DB_Editor
             switch (currYear)
             {
                 default:
-                    var idx = (Form1.DynastyYear - 2519) % Creators.Length;
+                    var idx = (Form1.DynastyYear - 2539) % Creators.Length;
                     result = Creators[idx]();
                     break;
             }
 
-            result = result.Verify(12, RecruitingFixup.Big12Id, "Big12");
+            result = result.Verify(16, RecruitingFixup.Big12Id, "Big12");
             Big12ConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -494,7 +494,7 @@ namespace EA_DB_Editor
             }.Create();
         }
 
-#elif true // new big 12 no division
+#elif false // new big 12 no division
         public static Dictionary<int, int[]> CreateNDY()
         {
             return new List<KeyValuePair<int, int[]>>

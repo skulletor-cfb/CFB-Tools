@@ -62,6 +62,9 @@ namespace EA_DB_Editor
 {
     public static class RecruitingFixup
     {
+        // when the american was p6, this is true
+        public const bool AmericanIsSpecial = false;
+
         // should be -1 if we haven't added any CAPs
         public static int DontChange =6;
         const int P5Cutoff = 300;
@@ -343,9 +346,6 @@ namespace EA_DB_Editor
                         case SECId:
                             allTeams.AddRange(WeightedSEC);
                             break;
-                        case Big16Id:
-                            allTeams.AddRange(WeightedBig16);
-                            break; 
                         case NotreDameId:
                             allTeams.AddRange(WeightedND);
                             break;
@@ -624,7 +624,6 @@ namespace EA_DB_Editor
        public const int ACCId = 0;
         public const int AmericanId = 3;
     public    const int Big12Id = 2;
-        public const int Big16Id = 200;
     public    const int Big10Id = 1;
         public const int CUSAId = 4;
         public const int MACId = 7;
@@ -818,7 +817,7 @@ namespace EA_DB_Editor
 #if false
         public static int[] DontFoolWith = new int[0];// American.ToArray();
 #else
-        public static int[] DontFoolWith = American.ToArray();
+        public static int[] DontFoolWith = AmericanIsSpecial ? American.ToArray() : new int[0];
 #endif
         static List<int> WeightedACC = null;
         static List<int> WeightedBig10 = null;
@@ -827,7 +826,6 @@ namespace EA_DB_Editor
         static List<int> WeightedSEC = null;
         static List<int> WeightedBYU = null;
         static List<int> WeightedND = null;
-        static List<int> WeightedBig16 = null;
         static List<int> WeightedCincy = null;
         static List<int> WeightedUCF = null;
         static List<int> WeightedUSF = null;
@@ -926,7 +924,7 @@ namespace EA_DB_Editor
             else if (count == 16 && conf == AmericanId)
                 expected = 8;
             else if (count == 16 && conf == SBCId)
-                expected = 8;
+                expected = 9;
             else if (count >= 16)
                 expected = 9;
             else if (count == 14 || count == 12 || count == 11 || count == 13 || count == 15)
@@ -946,19 +944,25 @@ namespace EA_DB_Editor
         public static bool ConferenceHomeGameCount(this TeamSchedule schedule, int teamId)
         {
             var conf = TeamAndConferences[teamId];
+            var confGames = schedule.Count(g => g != null && g.HomeTeam == teamId && teamAndConferences[g.AwayTeam] == conf);
 
-            if (conf == Pac16Id) return true;
-            if (conf == Big12Id && (Big12.Length == 16 || Big12.Length == 10)) return true;
+            if (conf == Big12Id && (Big12.Length == 16 || Big12.Length == 10))
+            {
+                return confGames == 4 || confGames == 5;
+            }
             //if (conf == AmericanId && American.Length == 16) return true;
             if (conf == AmericanId && American.Length == 10) return true;
             if (conf == IndId) return true;
             if (conf == MACId && MAC.Length == 16) return true;
             if (conf == MWCId /*&& MWC.Length == 10*/) return true;
+            if (conf == SBCId && SBC.Length == 16) 
+            {
+                return confGames == 4 || confGames == 5;
+            }
 
             //if (conf == ACCId && AccTeams > 14)
             //    return true;
 
-            var confGames = schedule.Count(g => g != null && g.HomeTeam == teamId && teamAndConferences[g.AwayTeam] == conf);
 
             if (conf == CUSAId && CUSA.Length == 5 && confGames == 2) return true;
 
@@ -994,8 +998,7 @@ namespace EA_DB_Editor
             WeightedSEC = CreateWeightedList(SEC);
             WeightedPac16 = CreateWeightedList(Pac12);
             WeightedND = CreateWeightedList(new[] { 68 });
-            WeightedBig16 = CreateWeightedList(Big12);
-
+            
             // Independent BYU gets to recruit
             WeightedBYU = TeamAndConferences[16] == IndId ? CreateWeightedList(new[] { 16 }) : new List<int>();
 
