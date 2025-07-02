@@ -35,7 +35,6 @@ namespace EA_DB_Editor
 
         public static void Init()
         {
-            return;
             if (!initRun)
             {
                 ScenarioForSeason = CreateScenarioForSeason();
@@ -45,7 +44,6 @@ namespace EA_DB_Editor
 
         public static void ProcessMWCSchedule(Dictionary<int, TeamSchedule> schedule)
         {
-            return;
             schedule.ProcessSchedule(ScenarioForSeason, MWCConferenceSchedule, RecruitingFixup.MWCId, RecruitingFixup.MWC);
         }
 
