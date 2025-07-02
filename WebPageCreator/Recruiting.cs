@@ -22,7 +22,7 @@ namespace EA_DB_Editor
         private const string SimpsonSelect = "simpsonselect";
         private const string MrTexas = "mrtexas";
         private const int TexasId = 42;
-        public static void CreateFeatureRecruitPage(MaddenDatabase db, string scenario)
+        public static void CreateFeatureRecruitPage(MaddenDatabase db, string scenario, bool isPreseason)
         {
             using (var tw = new StreamWriter($"./Archive/Reports/{scenario}.html", false))
             {
@@ -38,7 +38,7 @@ namespace EA_DB_Editor
                     tw.WriteLine("</table>");
                     tw.WriteLine("</td></tr>");
 
-                    IEnumerable<Recruit> recruits = null;
+                    Recruit[] recruits = null;
                     string name = string.Empty;
 
                     switch (scenario)
@@ -53,8 +53,16 @@ namespace EA_DB_Editor
                             name = "Simpson Select 6";
                             break;
                         case MrTexas:
+                            const int take = 12;
                             name = "Mr. Texas Football";
-                            recruits = Recruit.RecruitRankings.Values.Where(r => r.State == TexasId).Distinct().OrderBy(r => r.Rank).Take(12).ToArray();
+                            recruits = Recruit.RecruitRankings.Values.Where(r => r.State == TexasId).Distinct().OrderBy(r => r.Rank).Take(take).ToArray();
+
+                            if (!isPreseason)
+                            {
+                                var rand = new Random();
+                                var idx = rand.Next(take);
+                                name += $": {recruits[idx].FullName}";
+                            }
                             break;
                         default:
                             break;
@@ -70,11 +78,11 @@ namespace EA_DB_Editor
             }
         }
         
-        public static void CreateRecruitsPage(MaddenDatabase db)
+        public static void CreateRecruitsPage(MaddenDatabase db, bool isPreseason)
         {
-            CreateFeatureRecruitPage(db, Elite11);
-            CreateFeatureRecruitPage(db, SimpsonSelect);
-            CreateFeatureRecruitPage(db, MrTexas);
+            CreateFeatureRecruitPage(db, Elite11, isPreseason);
+            CreateFeatureRecruitPage(db, SimpsonSelect, isPreseason);
+            CreateFeatureRecruitPage(db, MrTexas, isPreseason);
             using (var tw = new StreamWriter("./Archive/Reports/hsaaroster.html", false))
             {
                     Utility.WriteNavBarAndHeader(tw, "All American Game Rosters", "loadHSAAData");
@@ -219,12 +227,12 @@ namespace EA_DB_Editor
         }
 
 
-        public static void CreateRecruitingPages(MaddenDatabase db)
+        public static void CreateRecruitingPages(MaddenDatabase db, bool isPreseason)
         {
             Recruit.CreateRecruits(db);
             Conference.Create(db);
             RecruitClassRanking.Create(db);
-            CreateRecruitsPage(db);
+            CreateRecruitsPage(db, isPreseason);
 
             #region RECRUITING_RANKINGS_HTML
             using (var tw = new StreamWriter("./Archive/Reports/RecruitingRankings.html", false))
