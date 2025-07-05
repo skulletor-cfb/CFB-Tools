@@ -119,6 +119,8 @@ namespace EA_DB_Editor
             }
         }
 
+        public static bool CUSAExists => ConfigurationManager.AppSettings["CUSAExists"].ToBool();
+
         public static string ToJson<T>(this T obj)
         {
             using (var ms = new MemoryStream())
