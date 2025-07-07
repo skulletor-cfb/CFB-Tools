@@ -358,62 +358,66 @@ namespace EA_DB_Editor
                 CUSASchedule.ProcessCUSASchedule(teamSchedule);
                 SunBeltSchedule.ProcessSunbeltSchedule(teamSchedule);
 
-                (teamSchedule, scheduleTable) = FillSchedule(false, true);
-                ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule);
-
-                //ConfScheduleFixer.G5FCSSwap(teamSchedule);
-                //(teamSchedule, scheduleTable) = FillSchedule(false, true);
-
-
-                // move aerlier in the year to ensure more chance of replacement
-                // ConfScheduleFixer.MoveReplaceableGames(teamSchedule, g => true);
-
-                /*
-                // do power conf first
-                ConfScheduleFixer.ExtraConfGameSwap(teamSchedule, g => true, g => !g.IsAmericanGame());
-
-                // now do american
-                ConfScheduleFixer.ExtraConfGameSwap(teamSchedule, g => !g.IsAmericanGame(), g => g.IsAmericanGame());
-
-                // now cross cut 
-                ConfScheduleFixer.ExtraConfGameSwap(teamSchedule);
-                */
-
-                //ConfScheduleFixer.G5FCSSwap(teamSchedule);
-                (teamSchedule, scheduleTable) = FillSchedule(false, true);
-                ConfScheduleFixer.SecFix(teamSchedule);
-                ConfScheduleFixer.AccFix(teamSchedule);
-                ConfScheduleFixer.Big10Fix(teamSchedule);
-                ConfScheduleFixer.Big12Fix(teamSchedule);
-                ConfScheduleFixer.Pac12Fix(teamSchedule);
-                ConfScheduleFixer.AmericanFix(teamSchedule);
-                ConfScheduleFixer.SunBeltFix(teamSchedule);
-                ConfScheduleFixer.CUSAFix(teamSchedule);
-                ConfScheduleFixer.MWCFix(teamSchedule);
-                ConfScheduleFixer.MACFix(teamSchedule);
-
-                (teamSchedule, scheduleTable) = FillSchedule(false, true);
-
-                /*
-                // move aerlier in the year to ensure more chance of replacement
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < 25; i++)
                 {
-                    ConfScheduleFixer.MoveReplaceableGames(teamSchedule, g => true);
                     (teamSchedule, scheduleTable) = FillSchedule(false, true);
-                }*/
+                    ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule);
 
-                // try to put non conference games earlier in the season
-                //ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule, 4);
-                //(teamSchedule, scheduleTable) = FillSchedule(false, true);
+                    //ConfScheduleFixer.G5FCSSwap(teamSchedule);
+                    //(teamSchedule, scheduleTable) = FillSchedule(false, true);
 
-                ConfScheduleFixer.SwapG5ForP5HomeTeam(teamSchedule);
-                (teamSchedule, scheduleTable) = FillSchedule(false, true);
 
-                //ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule, 4);
-                //(teamSchedule, scheduleTable) = FillSchedule(false, true);
+                    // move aerlier in the year to ensure more chance of replacement
+                    // ConfScheduleFixer.MoveReplaceableGames(teamSchedule, g => true);
 
-                ConfScheduleFixer.FcsGamesEarly(teamSchedule);
-                (teamSchedule, scheduleTable) = FillSchedule(false, true);
+                    /*
+                    // do power conf first
+                    ConfScheduleFixer.ExtraConfGameSwap(teamSchedule, g => true, g => !g.IsAmericanGame());
+
+                    // now do american
+                    ConfScheduleFixer.ExtraConfGameSwap(teamSchedule, g => !g.IsAmericanGame(), g => g.IsAmericanGame());
+
+                    // now cross cut 
+                    ConfScheduleFixer.ExtraConfGameSwap(teamSchedule);
+                    */
+
+                    //ConfScheduleFixer.G5FCSSwap(teamSchedule);
+                    (teamSchedule, scheduleTable) = FillSchedule(false, true);
+                    ConfScheduleFixer.SecFix(teamSchedule);
+                    ConfScheduleFixer.AccFix(teamSchedule);
+                    ConfScheduleFixer.Big10Fix(teamSchedule);
+                    ConfScheduleFixer.Big12Fix(teamSchedule);
+                    ConfScheduleFixer.Pac12Fix(teamSchedule);
+                    ConfScheduleFixer.AmericanFix(teamSchedule);
+                    ConfScheduleFixer.SunBeltFix(teamSchedule);
+                    ConfScheduleFixer.CUSAFix(teamSchedule);
+                    ConfScheduleFixer.MWCFix(teamSchedule);
+                    ConfScheduleFixer.MACFix(teamSchedule);
+
+                    (teamSchedule, scheduleTable) = FillSchedule(false, true);
+
+
+                    /*
+                    // move aerlier in the year to ensure more chance of replacement
+                    for (int i = 0; i < 5; i++)
+                    {
+                        ConfScheduleFixer.MoveReplaceableGames(teamSchedule, g => true);
+                        (teamSchedule, scheduleTable) = FillSchedule(false, true);
+                    }*/
+
+                    // try to put non conference games earlier in the season
+                    //ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule, 4);
+                    //(teamSchedule, scheduleTable) = FillSchedule(false, true);
+
+                    ConfScheduleFixer.SwapG5ForP5HomeTeam(teamSchedule);
+                    (teamSchedule, scheduleTable) = FillSchedule(false, true);
+
+                    //ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule, 4);
+                    //(teamSchedule, scheduleTable) = FillSchedule(false, true);
+
+                    ConfScheduleFixer.FcsGamesEarly(teamSchedule);
+                    (teamSchedule, scheduleTable) = FillSchedule(false, true);
+                }
             }
 
             RanReorder = true;

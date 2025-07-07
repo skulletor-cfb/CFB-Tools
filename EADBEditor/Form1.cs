@@ -2060,6 +2060,12 @@ namespace EA_DB_Editor
             return i % 100;
         }
 
+        /// <summary>
+        /// returns a number from 0 to range-1
+        /// RAND % range
+        /// </summary>
+        /// <param name="range"></param>
+        /// <returns></returns>
         static int RAND(int range)
         {
             var guid = Guid.NewGuid().ToByteArray().Take(4).ToArray();
@@ -3413,7 +3419,7 @@ PPOS = Position
 
             // get all the bowl teams
             var teamIds = new HashSet<int>(schedules.SelectMany(g => new[] { g.Value.Home, g.Value.Away }));
-            
+
             /*var bowlTeams = teams.Values.Where(t => teamIds.Contains(t.Id) && t.Win <= 6).OrderBy(t => t.Win).ThenByDescending(t => t.Loss).ToArray();
             foreach (var t in bowlTeams)
             {
@@ -3421,7 +3427,7 @@ PPOS = Position
                 i++;
             }*/
 
-             var bowlTeams = teams.Values.Where(t => teamIds.Contains(t.Id) && t.Rank > 25).OrderBy(t => t.Rank).ToArray();
+            var bowlTeams = teams.Values.Where(t => teamIds.Contains(t.Id) && t.Rank > 25).OrderBy(t => t.Rank).ToArray();
 
             var sb = new StringBuilder();
             foreach (var team in bowlTeams)
@@ -3962,7 +3968,7 @@ PPOS = Position
         private void cleanupCCHHToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show("no OP");
-            return; 
+            return;
 
             // find the CCHH table
             var table = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "CCHH");
@@ -4238,10 +4244,11 @@ PPOS = Position
             UpdatePoll("TCRK", "TCPR");
         }
 
+        static HashSet<int> TeamsToExclude = new HashSet<int>() { 611, 160, 161, 162, 163, 164 };
+
         private void UpdatePoll(string currentKey, string lastKey)
         {
             const string startAt = @"E:\dynastyTables";
-            var exclude = new HashSet<int>() { 611, 160, 161, 162, 163, 164};
 
             var file = new OpenFileDialog()
             {
@@ -4275,12 +4282,27 @@ PPOS = Position
                 {
                     var teamId = mr["TGID"].ToInt32();
 
-                    if (exclude.Contains(teamId))
+                    if (TeamsToExclude.Contains(teamId))
                     {
                         continue;
                     }
 
                     mr[currentKey] = dict[teamId];
+                }
+            }
+        }
+
+        private void fixSocksToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var table = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "PLAY");
+            foreach (var mr in table.lRecords)
+            {
+                var teamId = mr["TGID"].ToInt32();
+
+                if (!TeamsToExclude.Contains(teamId))
+                {
+                    var value = RAND(3);
+                    mr["PLSO"] = value.ToString();
                 }
             }
         }
