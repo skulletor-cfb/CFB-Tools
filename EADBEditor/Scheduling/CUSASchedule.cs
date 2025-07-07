@@ -179,6 +179,20 @@ namespace EA_DB_Editor
                 UTEP.Create(WKU),
             }.Create();
         }
+#elif true // 7 team CUSA minus UTEP, LT
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Army.Create(MTSU,  UTSA, FAU),
+                Navy.Create(Army, WKU, NT),
+                MTSU.Create(Navy,  NT, FAU),
+                WKU.Create(Army, MTSU,  UTSA),
+                FAU.Create( Navy, WKU, UTSA),
+                UTSA.Create(Navy, MTSU, NT),
+                NT.Create(Army, WKU, FAU ),
+            }.Create();
+        }
 #elif true // 9 team CUSA
         public static Dictionary<int, int[]> CreateA()
         {
