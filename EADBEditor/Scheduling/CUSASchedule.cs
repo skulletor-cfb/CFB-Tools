@@ -46,9 +46,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2504) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2541) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(9, RecruitingFixup.CUSAId, "CUSA");
+            result = result.Verify(7, RecruitingFixup.CUSAId, "CUSA", expectedGames: 3);
             CUSAConferenceSchedule = result.BuildHashSet();
             return result;
         }

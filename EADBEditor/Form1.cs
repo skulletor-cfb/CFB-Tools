@@ -1823,8 +1823,8 @@ namespace EA_DB_Editor
 
                 if (firstDict == null)
                 {
-                    firstDict = names.First.ToDictionary(s => s, s => 0);
-                    lastDict = names.Last.ToDictionary(s => s, s => 0);
+                    firstDict = names.First.ToDictionary(s => s, s => 0, StringComparer.OrdinalIgnoreCase);
+                    lastDict = names.Last.ToDictionary(s => s, s => 0, StringComparer.OrdinalIgnoreCase);
                 }
 
                 var numRecruits = recruitTable.lRecords.Count;

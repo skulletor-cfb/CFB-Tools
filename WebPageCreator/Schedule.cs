@@ -735,6 +735,7 @@ namespace EA_DB_Editor
             IsMayhemAtMBS,
             IsEddieRobinsonClassic,
             IsAtlantaGridironClassic,
+            IsKansasCityClassic,
         };
 
         public static string SiteIdSuffix(ScheduledGame g)
@@ -768,7 +769,21 @@ namespace EA_DB_Editor
             if (g.StadiumId == 263)
             {
                 g.GameSite = "Atlanta Gridiron Classic";
-                g.SiteId = 263263;
+                g.SiteId = id;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsKansasCityClassic(ScheduledGame g)
+        {
+            const int id = 262262;
+            KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
+            if (g.StadiumId == 262)
+            {
+                g.GameSite = "Kansas City Classic";
+                g.SiteId = id;
                 return true;
             }
 

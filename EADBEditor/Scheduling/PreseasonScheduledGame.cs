@@ -315,6 +315,7 @@ namespace EA_DB_Editor
                 game=> MatchTeams(13, game, 230, 234), // odu-jmu
                 game=> MatchTeams(13,game,65,86), //ull-ulm
                 game=> MatchTeams(13,game,7,64), //ark st - nt
+                game => MatchTeams(13, game, 43, 85), //lt-usm
 
 
 
