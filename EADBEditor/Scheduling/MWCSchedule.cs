@@ -59,6 +59,49 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
+                Wyoming.Create(Nevada, UtahSt, SJSU, UTEP),
+                CSU.Create(Wyoming, Hawaii, UNM, TexSt),
+                AF.Create(CSU, UNLV, UtahSt, SDSU),
+                Hawaii.Create(Wyoming, AF, UNLV, UTEP),
+                BSU.Create(AF, Hawaii, UNLV, FS),
+                Nevada.Create(CSU, BSU, UNM, SJSU),
+                UNLV.Create(Nevada, FS, UTEP, TexSt),
+                UNM.Create(Wyoming, BSU, SDSU, UTEP),
+                UtahSt.Create(CSU, Hawaii, Nevada, SDSU),
+                FS.Create(Wyoming, AF, Hawaii, SDSU),
+                SJSU.Create(CSU, UNM, UtahSt, FS),
+                SDSU.Create(BSU,UNLV, SJSU, TexSt),
+                UTEP.Create(Nevada, UtahSt, SJSU, TexSt),
+                TexSt.Create(AF, BSU, UNM, FS),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Wyoming.Create(AF, UtahSt, SDSU, TexSt),
+                CSU.Create(Wyoming, BSU, UNLV, FS),
+                AF.Create(CSU, Nevada, SJSU, UTEP),
+                Hawaii.Create(Wyoming, AF, SJSU, TexSt),
+                BSU.Create(Wyoming, Hawaii, UtahSt, FS),
+                Nevada.Create(Hawaii, BSU, UNM, SDSU),
+                UNLV.Create(Wyoming, Nevada, UtahSt, UTEP),
+                UNM.Create(AF, Hawaii, UNLV, UTEP),
+                UtahSt.Create(CSU, UNM, FS, TexSt),
+                FS.Create(Nevada, UNM, SDSU, UTEP),
+                SJSU.Create(BSU, UNLV, UtahSt, FS),
+                SDSU.Create(CSU, Hawaii, UNLV, SJSU),
+                UTEP.Create(CSU, BSU, SDSU, TexSt),
+                TexSt.Create(AF, Nevada, UNM, SJSU),
+            }.Create();
+        }
+
+        /*
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
                 Wyoming.Create(AF, Nevada, UtahSt, SJSU),
                 CSU.Create(Wyoming, Hawaii, UNM, SDSU),
                 AF.Create(CSU, UNLV, UtahSt, FS),
