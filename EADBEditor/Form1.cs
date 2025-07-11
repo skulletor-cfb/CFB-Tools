@@ -3326,10 +3326,10 @@ PPOS = Position
 #endif
 
             var big6Games = new HashSet<int>(new[] {
-                /*AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP5v12],
+                AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP5v12],
                 AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP6v11],
                 AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP7v10],
-                AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP8v9],*/
+                AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP8v9],
                 25, 27, 28, 17, 12, 26, 39 });
 
             var schedules = MaddenTable.FindTable(maddenDB.lTables, "SCHD").lRecords
