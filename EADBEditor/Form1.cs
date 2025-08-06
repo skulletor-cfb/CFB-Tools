@@ -1795,6 +1795,18 @@ namespace EA_DB_Editor
         private Dictionary<string, int> firstDict = null;
         private Dictionary<string, int> lastDict = null;
 
+        private Dictionary<string, int> CreateDictionary(string[] names)
+        {
+            var dict = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+            foreach(var name in names)
+            {
+                dict[name] = 0;
+            }
+
+            return dict;
+        }
+
         private void reorderRecruitsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var recruitTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPT");
@@ -1823,8 +1835,8 @@ namespace EA_DB_Editor
 
                 if (firstDict == null)
                 {
-                    firstDict = names.First.ToDictionary(s => s, s => 0, StringComparer.OrdinalIgnoreCase);
-                    lastDict = names.Last.ToDictionary(s => s, s => 0, StringComparer.OrdinalIgnoreCase);
+                    firstDict = CreateDictionary(names.First);
+                    lastDict = CreateDictionary(names.Last);
                 }
 
                 var numRecruits = recruitTable.lRecords.Count;

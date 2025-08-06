@@ -348,6 +348,7 @@ namespace EA_DB_Editor
                 ConfScheduleFixer.FcsGamesEarly(teamSchedule);*/
 
                 (teamSchedule, scheduleTable) = FillSchedule(false, true);
+
                 ACCPodSchedule.ProcessACCSchedule(teamSchedule);
                 Big12Schedule.ProcessBig12Schedule(teamSchedule);
                 Pac12Schedule.ProcessPac12Schedule(teamSchedule);

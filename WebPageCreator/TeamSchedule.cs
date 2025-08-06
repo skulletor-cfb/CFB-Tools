@@ -28,7 +28,6 @@ namespace EA_DB_Editor
         public int OpponentWinPct { get; set; }
         public int TeamId { get; set; }
         public Team Team { get { return Team.Teams[this.TeamId]; } }
-        private IEnumerable<Game> flattenedListOfGames;
 
         public TeamSchedule()
         {
@@ -100,38 +99,33 @@ namespace EA_DB_Editor
         {
             get
             {
-                if (this.flattenedListOfGames == null)
+                var temp = this.Values.SelectMany(log => log.ToArray()).ToArray();
+
+                var qf = 0;
+                var sf = 0;
+
+                // make sure quarters come before semis
+                for (int i = temp.Length - 1; i > 0; i--)
                 {
-                    var temp = this.Values.SelectMany(log => log.ToArray()).ToArray();
-
-                    var qf = 0;
-                    var sf = 0;
-
-                    // make sure quarters come before semis
-                    for (int i = temp.Length - 1; i > 0; i--)
+                    if (temp[i].PlayoffDescriptor == Game.QuarterFinalsDescription)
                     {
-                        if (temp[i].PlayoffDescriptor == Game.QuarterFinalsDescription)
-                        {
-                            qf = i;
-                        }
-                        else if (temp[i].PlayoffDescriptor == Game.SemiFinalsDescription)
-                        {
-                            sf = i;
-                        }
+                        qf = i;
                     }
-
-                    // swap them if out of order
-                    if(qf>sf)
+                    else if (temp[i].PlayoffDescriptor == Game.SemiFinalsDescription)
                     {
-                        var sfGame = temp[sf];
-                        temp[sf] = temp[qf];
-                        temp[qf] = sfGame;
+                        sf = i;
                     }
-
-                    this.flattenedListOfGames = temp;
                 }
 
-                return this.flattenedListOfGames;
+                // swap them if out of order
+                if (qf > sf)
+                {
+                    var sfGame = temp[sf];
+                    temp[sf] = temp[qf];
+                    temp[qf] = sfGame;
+                }
+
+                return temp;
             }
         }
 
