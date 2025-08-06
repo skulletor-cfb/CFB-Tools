@@ -8,9 +8,8 @@ namespace EA_DB_Editor
         private static bool initRun = false;
 
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
-            CreateA, CreateB, 
-            CreateC, CreateA,
-            CreateB, CreateC,
+            CreateA, CreateA,
+            CreateB, CreateB,
         };
 
 
@@ -40,12 +39,12 @@ namespace EA_DB_Editor
             switch (currYear)
             {
                 default:
-                    var idx = (Form1.DynastyYear - 2504) % Creators.Length;
+                    var idx = (Form1.DynastyYear - 2544) % Creators.Length;
                     result = Creators[idx]();
                     break;
             }
 
-            result = result.Verify(12, RecruitingFixup.AmericanId, "American");
+            result = result.Verify(15, RecruitingFixup.AmericanId, "American");
             AmericanConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -677,7 +676,38 @@ namespace EA_DB_Editor
                 CLT.Create(),
             }.Create();
         }
-#elif true // 12 team AAC with no div
+#elif true // 15 team AAC with no div
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                FAU.Create(USF, NT, Houston, CLT),
+                USF.Create(UCFId, UTSA, SMU, ECU),
+                UCFId.Create(FAU, Tulsa, Tulane, UAB),
+                Tulsa.Create(USF, UTSA, Rice, Temple),
+                NT.Create(UCFId, Tulsa, SMU, Rice),
+                UTSA.Create(FAU, NT, UAB, CLT),
+                SMU.Create(Houston, Tulane, UAB, ECU),
+                Rice.Create(USF, UTSA, SMU, Memphis),
+                Houston.Create(UCFId, Rice, Tulane, Temple),
+                Tulane.Create(UTSA, UAB, ECU, Temple),
+                UAB.Create(FAU, Houston, Memphis, CLT),
+                Memphis.Create(USF, Tulsa, NT, Tulane),
+                CLT.Create(UCFId, NT, Houston, Temple),
+                ECU.Create(Tulsa,Rice, Memphis, CLT),
+                Temple.Create(FAU, SMU, Memphis, ECU),
+
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+            }.Create();
+        }
+
+#elif false // 12 team AAC with no div
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>

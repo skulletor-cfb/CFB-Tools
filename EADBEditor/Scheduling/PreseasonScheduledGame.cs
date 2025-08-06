@@ -707,7 +707,14 @@ namespace EA_DB_Editor
                     week = teamSchedule.FindOpenWeeks().First();
                 }
 
-                game.SetWeek(week);
+                int? opp = null;
+
+                if (game.AwayTeam.IsFcsTeam())
+                {
+                    opp = 160;
+                }
+
+                game.SetWeek(week, opp);
                 teamSchedule[week] = game;
                 teamSchedule[currentGameWeek] = null;
             }
@@ -1470,6 +1477,7 @@ namespace EA_DB_Editor
 
         public static void CUSAFix(Dictionary<int, TeamSchedule> schedules)
         {
+            return;
             Fix(schedules, new CUSALocks(), RecruitingFixup.CUSAId);
 
             /*
@@ -1734,10 +1742,15 @@ namespace EA_DB_Editor
             this.LockedWeek = locks.CheckWeekLock(this);
         }
 
-        public void SetWeek(int week)
+        public void SetWeek(int week, int? opp = null)
         {
             this.WeekIndex = week;
             MaddenRecord["SEWN"] = week.ToString();
+
+            if (opp.HasValue && MaddenRecord["GATG"].ToInt32() != opp.Value)
+            {
+                MaddenRecord["GATG"] = opp.Value.ToString();
+            }
         }
 
         public override string ToString()
