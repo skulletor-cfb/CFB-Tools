@@ -6,6 +6,7 @@ namespace EA_DB_Editor
 {
     public class SunBeltSchedule
     {
+        public static int ExpectedConfGames = 9;
         private static bool initRun = false;
 
         /*
@@ -66,6 +67,7 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
+            // after this season, go to a 8 game schedule???
             var idx = (Form1.DynastyYear - 2544) % Creators.Length;
             var result = Creators[idx]();
 

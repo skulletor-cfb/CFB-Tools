@@ -232,6 +232,7 @@ namespace EA_DB_Editor
                         g=>MatchTeams(13, g, 25, 100), // charlotte-ecu
                         g=>MatchTeams(13, g, 18, 144), // ucf-usf
                         g=>MatchTeams(13, g, 48, 98), // memphis-uab
+                        g=>MatchTeams(13, g, 64, 232), // nt-utsa
   //                      g=>MatchTeams(13, g, 85, 96), // usm-tulane
     //                    g=>MatchTeams(12, g, 85, 98), // usm-uab
 
@@ -316,6 +317,7 @@ namespace EA_DB_Editor
                 game=> MatchTeams(13,game,65,86), //ull-ulm
                 game=> MatchTeams(13,game,7,64), //ark st - nt
                 game => MatchTeams(13, game, 43, 85), //lt-usm
+                game => MatchTeams(13, game, 53, 211), //mtsu-wku
 
 
 
@@ -773,6 +775,65 @@ namespace EA_DB_Editor
             }
         }
 
+        private static List<PreseasonScheduledGame> FindExtraAmericanGames(Dictionary<int, TeamSchedule> schedules)
+        {
+            var result = new List<PreseasonScheduledGame>();
+            var normalized = new Dictionary<int, int>();
+
+            // take away one conference game per team
+            var found = schedules.Values.SelectMany(games => games.Where(g => g != null && g.IsAmericanConferenceGame()))
+                .OrderBy(g => g.WeekIndex)
+                .Distinct().ToArray();
+
+
+            // we already did this
+            if (found.Length == (15 * 4))
+            {
+                return new List<PreseasonScheduledGame>();
+            }
+
+            found.Shuffle();
+            var queue = new Queue<PreseasonScheduledGame>(found);
+
+
+            while (result.Count < 15)
+            {
+                if (queue.Count == 0)
+                {
+                    return FindExtraBig12Games(schedules);
+                }
+
+                var game = queue.Dequeue();
+
+                var htc = 0;
+                var atc = 0;
+                // we haven't seen these teams before, easy add them
+                if ((!normalized.TryGetValue(game.HomeTeam, out htc) || htc < 2) &&
+                    (!normalized.TryGetValue(game.AwayTeam, out atc) || atc < 2))
+                {
+                    result.Add(game);
+                    normalized[game.HomeTeam] = ++htc;
+                    normalized[game.AwayTeam] = ++atc;
+
+                    if (htc >= 2)
+                    {
+                        queue.RemoveFromQueue(game.HomeTeam);
+                    }
+
+                    if (atc >= 2)
+                    {
+                        queue.RemoveFromQueue(game.AwayTeam);
+                    }
+                }
+                else
+                {
+                    queue.Enqueue(game);
+                }
+            }
+
+            return result;
+        }
+
         private static List<PreseasonScheduledGame> FindExtraBig12Games(Dictionary<int, TeamSchedule> schedules)
         {
 #if false
@@ -1108,6 +1169,7 @@ namespace EA_DB_Editor
 
             // should not remove more than 8 games, but only 1 per team
             var extraConfGames = FindExtraSunBeltGames(schedules)
+                .Concat(FindExtraAmericanGames(schedules))
                 .Concat(FindExtraAccGames(schedules));
 
             // p5-p5 games late in the season
@@ -1190,7 +1252,7 @@ namespace EA_DB_Editor
         public static void SwapG5ForP5HomeTeam(Dictionary<int, TeamSchedule> schedules)
         {
             // give me all g5 fcs games
-            var g5fcs = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsAmericanGame() && g.IsG5FCSGame())).Distinct().ToList();
+            var g5fcs = schedules.Values.SelectMany(games => games.Where(g => g != null && /*!g.IsAmericanGame() &&*/ g.IsG5FCSGame())).Distinct().ToList();
 
             // give me all p5 games
             var gamesToReplace = schedules.Values

@@ -926,7 +926,7 @@ namespace EA_DB_Editor
             else if (count == 16 && conf == AmericanId)
                 expected = 8;
             else if (count == 16 && conf == SBCId)
-                expected = 8;
+                expected = SunBeltSchedule.ExpectedConfGames;
             else if (count >= 16)
                 expected = 9;
             else if (count == 14 || count == 12 || count == 11 || count == 13 || count == 15)
@@ -959,6 +959,12 @@ namespace EA_DB_Editor
             //    return true;
 
             var confGames = schedule.Count(g => g != null && g.HomeTeam == teamId && teamAndConferences[g.AwayTeam] == conf);
+
+            if (conf == SBCId && SBC.Length == 16)
+            {
+                var expectedHomeGamesMod = SunBeltSchedule.ExpectedConfGames % 2;
+                return confGames == 4 || confGames == (4 + expectedHomeGamesMod);
+            }
 
             if (conf == CUSAId && CUSA.Length == 5 && confGames == 2) return true;
 
