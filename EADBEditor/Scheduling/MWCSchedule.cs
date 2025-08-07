@@ -7,8 +7,6 @@ namespace EA_DB_Editor
 {
     public class MWCSchedule
     {
-        private const int TexSt = 218;
-        private const int UTEP = 105;
         private const int UNM = 60;
         private const int SDSU = 81;
         private const int Hawaii = 32;
@@ -25,8 +23,9 @@ namespace EA_DB_Editor
 
         private static bool initRun = false;
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
-            CreateA, CreateA, 
-            CreateB, CreateB,
+            CreateA, CreateB, 
+            CreateC, CreateA,
+            CreateB, CreateC,
         };
         public static Dictionary<int, HashSet<int>> MWCConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
@@ -49,56 +48,13 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2541) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2545) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(14, RecruitingFixup.MWCId, "MWC");
+            result = result.Verify(12, RecruitingFixup.MWCId, "MWC");
             MWCConferenceSchedule = result.BuildHashSet();
             return result;
         }
 
-        public static Dictionary<int, int[]> CreateA()
-        {
-            return new List<KeyValuePair<int, int[]>>
-            {
-                Wyoming.Create(Nevada, UtahSt, SJSU, UTEP),
-                CSU.Create(Wyoming, Hawaii, UNM, TexSt),
-                AF.Create(CSU, UNLV, UtahSt, SDSU),
-                Hawaii.Create(Wyoming, AF, UNLV, UTEP),
-                BSU.Create(AF, Hawaii, UNLV, FS),
-                Nevada.Create(CSU, BSU, UNM, SJSU),
-                UNLV.Create(Nevada, FS, UTEP, TexSt),
-                UNM.Create(Wyoming, BSU, SDSU, UTEP),
-                UtahSt.Create(CSU, Hawaii, Nevada, SDSU),
-                FS.Create(Wyoming, AF, Hawaii, SDSU),
-                SJSU.Create(CSU, UNM, UtahSt, FS),
-                SDSU.Create(BSU,UNLV, SJSU, TexSt),
-                UTEP.Create(Nevada, UtahSt, SJSU, TexSt),
-                TexSt.Create(AF, BSU, UNM, FS),
-            }.Create();
-        }
-
-        public static Dictionary<int, int[]> CreateB()
-        {
-            return new List<KeyValuePair<int, int[]>>
-            {
-                Wyoming.Create(AF, UtahSt, SDSU, TexSt),
-                CSU.Create(Wyoming, BSU, UNLV, FS),
-                AF.Create(CSU, Nevada, SJSU, UTEP),
-                Hawaii.Create(Wyoming, AF, SJSU, TexSt),
-                BSU.Create(Wyoming, Hawaii, UtahSt, FS),
-                Nevada.Create(Hawaii, BSU, UNM, SDSU),
-                UNLV.Create(Wyoming, Nevada, UtahSt, UTEP),
-                UNM.Create(AF, Hawaii, UNLV, UTEP),
-                UtahSt.Create(CSU, UNM, FS, TexSt),
-                FS.Create(Nevada, UNM, SDSU, UTEP),
-                SJSU.Create(BSU, UNLV, UtahSt, FS),
-                SDSU.Create(CSU, Hawaii, UNLV, SJSU),
-                UTEP.Create(CSU, BSU, SDSU, TexSt),
-                TexSt.Create(AF, Nevada, UNM, SJSU),
-            }.Create();
-        }
-
-        /*
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
@@ -154,7 +110,7 @@ namespace EA_DB_Editor
                 SJSU.Create(CSU, BSU, UNM, FS),
                 SDSU.Create(AF, Nevada, UtahSt, SJSU),
             }.Create();
-        }*/
+        }
 
 
 
