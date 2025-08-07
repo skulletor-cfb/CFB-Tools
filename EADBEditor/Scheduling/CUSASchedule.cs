@@ -46,13 +46,14 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2541) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2545) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(7, RecruitingFixup.CUSAId, "CUSA", expectedGames: 3);
+            result = result.Verify(9, RecruitingFixup.CUSAId, "CUSA");
             CUSAConferenceSchedule = result.BuildHashSet();
             return result;
         }
 
+        const int TexSt = 218;
         const int LT = 43;
         const int WKU = 211;
         const int MTSU = 53;
@@ -179,18 +180,20 @@ namespace EA_DB_Editor
                 UTEP.Create(WKU),
             }.Create();
         }
-#elif true // 7 team CUSA minus UTEP, LT
+#elif true // 9 team CUSA minus with UTEP, TexSt
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Army.Create(MTSU,  UTSA, FAU),
-                Navy.Create(Army, WKU, NT),
-                MTSU.Create(Navy,  NT, FAU),
-                WKU.Create(Army, MTSU,  UTSA),
-                FAU.Create( Navy, WKU, UTSA),
-                UTSA.Create(Navy, MTSU, NT),
-                NT.Create(Army, WKU, FAU ),
+                Army.Create(MTSU,  UTSA, FAU, TexSt),
+                Navy.Create(Army, WKU, NT, UTEP),
+                MTSU.Create(Navy,  NT, FAU, TexSt),
+                WKU.Create(Army, MTSU,  UTSA, UTEP),
+                FAU.Create( Navy, WKU, UTSA, TexSt),
+                UTSA.Create(Navy, MTSU, NT, UTEP),
+                NT.Create(Army, WKU, FAU, TexSt ),
+                TexSt.Create(Navy, WKU, UTSA, UTEP),
+                UTEP.Create(Army, MTSU, FAU, NT),
             }.Create();
         }
 #elif true // 9 team CUSA
