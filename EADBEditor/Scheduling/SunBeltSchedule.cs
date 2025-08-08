@@ -53,21 +53,17 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2488) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2546) % Creators.Length;
             var result = Creators[idx]();
 
             switch(Form1.DynastyYear)
             {
-                case 2491:
-                    result = CreateDPrime();
+                case 2545:
+                    result = CreateC();
                     break;
 
-                case 2497:
-                    result = CreateCPrime();
-                    break;
-
-                case 2498:
-                    result = CreateDPrime();
+                case 2546:
+                    result = CreateA();
                     break;
 
                 default:
