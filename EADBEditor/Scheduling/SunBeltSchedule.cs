@@ -54,7 +54,7 @@ namespace EA_DB_Editor
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
             var idx = (Form1.DynastyYear - 2546) % Creators.Length;
-            var result = Creators[idx]();
+            var result = idx >= 0 ? Creators[idx]() : null;
 
             switch(Form1.DynastyYear)
             {

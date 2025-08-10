@@ -1892,12 +1892,19 @@ namespace EA_DB_Editor
                             firstList,
                             lastList);
                     }
+
+                    Defatify(recruit);
                 }
 
                 //                MessageBox.Show("First: " + maxFirst + "   Last: " + maxLast);
             }
 
             RefreshView();
+        }
+
+        static void Defatify(MaddenRecord recruit)
+        {
+            throw new Exception("Not ready yet!");
         }
 
         static void ChangeHelmet(MaddenRecord recruit, int position)
