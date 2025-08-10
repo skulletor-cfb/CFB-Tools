@@ -1426,8 +1426,8 @@ namespace EA_DB_Editor
             progressBar1.Value = 1;
             if (chkbxRecruiting.Checked == true)
             {
-                Recruiting.CreateRecruitsPage(maddenDB);
-                Recruiting.CreateRecruitingPages(maddenDB);
+                Recruiting.CreateRecruitsPage(maddenDB, false);
+                Recruiting.CreateRecruitingPages(maddenDB, false);
             }
             PocketScout.CreateTeamDirectoryPage();
 
@@ -1507,8 +1507,8 @@ namespace EA_DB_Editor
             Coach.IsPostSeason = true;
             Coach.ToCoachCsv();
             Coach.Diff();
-            Recruiting.CreateRecruitingPages(maddenDB);
-            Recruiting.CreateRecruitsPage(maddenDB);
+            Recruiting.CreateRecruitingPages(maddenDB, false);
+            Recruiting.CreateRecruitsPage(maddenDB, false);
 
             var rankings = RecruitClassRanking.TeamRankings.Values.OrderByDescending(tr => tr.Points).ThenByDescending(tr => tr.Star5).ThenByDescending(tr => tr.Star4).ThenByDescending(tr => tr.Star3).ThenByDescending(tr => tr.Star2);
             var allPoints = RecruitClassRanking.TeamRankings.Values.Sum(tr => tr.Points);
@@ -1795,7 +1795,7 @@ namespace EA_DB_Editor
             Conference.ToJsonFile();
             ScheduledGame.CreateTopGames(maddenDB, true);
             ScheduledGame.CreateOpeningWeek(maddenDB, true);
-            Recruiting.CreateRecruitsPage(maddenDB);
+            Recruiting.CreateRecruitsPage(maddenDB, true);
             PocketScout.TopClasses();
             //PocketScout.Bowls(); }
             progressBar1.Value = 0;

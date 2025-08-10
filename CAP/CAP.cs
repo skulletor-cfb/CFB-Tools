@@ -1245,6 +1245,8 @@ BSAT is arm size = numbers can be 1, 4, 5, 15, 21, 24, or 25.. */
                 new Rating( 85 , 95 , "INJ" ) ,
                 new Rating( 65 , 80 , "STA" ) ,
         };
+
+            Display();
         }
     }
 

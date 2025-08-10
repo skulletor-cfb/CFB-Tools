@@ -111,11 +111,12 @@
             this.add6V11ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.add7V10ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.add8V9ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.pollUpdateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cFPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.coachesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.fixSocksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -525,7 +526,7 @@
             // fixToolStripMenuItem
             // 
             this.fixToolStripMenuItem.Name = "fixToolStripMenuItem";
-            this.fixToolStripMenuItem.Size = new System.Drawing.Size(34, 20);
+            this.fixToolStripMenuItem.Size = new System.Drawing.Size(33, 20);
             this.fixToolStripMenuItem.Text = "Fix";
             this.fixToolStripMenuItem.Click += new System.EventHandler(this.FixRecruiting);
             // 
@@ -538,12 +539,13 @@
             this.reorderRecruitsToolStripMenuItem,
             this.transferPlayerToolStripMenuItem,
             this.assumeControlToolStripMenuItem,
+            this.fixSocksToolStripMenuItem,
             this.playerNumbersToolStripMenuItem,
             this.queryToolStripMenuItem1,
             this.preseasonScheduleFixToolStripMenuItem,
             this.readScheduleToolStripMenuItem});
             this.preseasonFixToolStripMenuItem.Name = "preseasonFixToolStripMenuItem";
-            this.preseasonFixToolStripMenuItem.Size = new System.Drawing.Size(90, 20);
+            this.preseasonFixToolStripMenuItem.Size = new System.Drawing.Size(89, 20);
             this.preseasonFixToolStripMenuItem.Text = "Preseason Fix";
             this.preseasonFixToolStripMenuItem.Click += new System.EventHandler(this.preseasonFixToolStripMenuItem_Click);
             // 
@@ -621,7 +623,7 @@
             // testToolStripMenuItem
             // 
             this.testToolStripMenuItem.Name = "testToolStripMenuItem";
-            this.testToolStripMenuItem.Size = new System.Drawing.Size(90, 20);
+            this.testToolStripMenuItem.Size = new System.Drawing.Size(91, 20);
             this.testToolStripMenuItem.Text = "Test Schedule";
             this.testToolStripMenuItem.Click += new System.EventHandler(this.testToolStripMenuItem_Click);
             // 
@@ -645,42 +647,42 @@
             // lastWeekPollToolStripMenuItem
             // 
             this.lastWeekPollToolStripMenuItem.Name = "lastWeekPollToolStripMenuItem";
-            this.lastWeekPollToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.lastWeekPollToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.lastWeekPollToolStripMenuItem.Text = "Last Week Poll";
             this.lastWeekPollToolStripMenuItem.Click += new System.EventHandler(this.lastWeekPollToolStripMenuItem_Click);
             // 
             // pollPointsToolStripMenuItem
             // 
             this.pollPointsToolStripMenuItem.Name = "pollPointsToolStripMenuItem";
-            this.pollPointsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.pollPointsToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.pollPointsToolStripMenuItem.Text = "Poll Points";
             this.pollPointsToolStripMenuItem.Click += new System.EventHandler(this.pollPointsToolStripMenuItem_Click);
             // 
             // redshritFroshToolStripMenuItem
             // 
             this.redshritFroshToolStripMenuItem.Name = "redshritFroshToolStripMenuItem";
-            this.redshritFroshToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.redshritFroshToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.redshritFroshToolStripMenuItem.Text = "Redshrit Frosh";
             this.redshritFroshToolStripMenuItem.Click += new System.EventHandler(this.redshritFroshToolStripMenuItem_Click);
             // 
             // setSunBeltCCGToolStripMenuItem
             // 
             this.setSunBeltCCGToolStripMenuItem.Name = "setSunBeltCCGToolStripMenuItem";
-            this.setSunBeltCCGToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.setSunBeltCCGToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.setSunBeltCCGToolStripMenuItem.Text = "Set AAC CCG";
             this.setSunBeltCCGToolStripMenuItem.Click += new System.EventHandler(this.setSunBeltCCGToolStripMenuItem_Click);
             // 
             // transferRuleToolStripMenuItem
             // 
             this.transferRuleToolStripMenuItem.Name = "transferRuleToolStripMenuItem";
-            this.transferRuleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.transferRuleToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.transferRuleToolStripMenuItem.Text = "Transfer Rule";
             this.transferRuleToolStripMenuItem.Click += new System.EventHandler(this.transferRuleToolStripMenuItem_Click);
             // 
             // cleanupCCHHToolStripMenuItem
             // 
             this.cleanupCCHHToolStripMenuItem.Name = "cleanupCCHHToolStripMenuItem";
-            this.cleanupCCHHToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.cleanupCCHHToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.cleanupCCHHToolStripMenuItem.Text = "Cleanup CCHH";
             this.cleanupCCHHToolStripMenuItem.Click += new System.EventHandler(this.cleanupCCHHToolStripMenuItem_Click);
             // 
@@ -692,7 +694,7 @@
             this.arizonaBowlToolStripMenuItem,
             this.venturesBowlToolStripMenuItem});
             this.bowlGamesToolStripMenuItem.Name = "bowlGamesToolStripMenuItem";
-            this.bowlGamesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.bowlGamesToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.bowlGamesToolStripMenuItem.Text = "Bowl Games";
             // 
             // cureBowlToolStripMenuItem
@@ -726,7 +728,7 @@
             // cleanupBCHHToolStripMenuItem
             // 
             this.cleanupBCHHToolStripMenuItem.Name = "cleanupBCHHToolStripMenuItem";
-            this.cleanupBCHHToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.cleanupBCHHToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.cleanupBCHHToolStripMenuItem.Text = "Cleanup BCHH";
             this.cleanupBCHHToolStripMenuItem.Click += new System.EventHandler(this.cleanupBCHHToolStripMenuItem_Click);
             // 
@@ -738,7 +740,7 @@
             this.add7V10ToolStripMenuItem,
             this.add8V9ToolStripMenuItem});
             this.playoffRound1ToolStripMenuItem.Name = "playoffRound1ToolStripMenuItem";
-            this.playoffRound1ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.playoffRound1ToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.playoffRound1ToolStripMenuItem.Text = "Playoff Round 1";
             // 
             // add5V12ToolStripMenuItem
@@ -769,6 +771,37 @@
             this.add8V9ToolStripMenuItem.Text = "Add 8 v9";
             this.add8V9ToolStripMenuItem.Click += new System.EventHandler(this.add8V9ToolStripMenuItem_Click);
             // 
+            // pollUpdateToolStripMenuItem
+            // 
+            this.pollUpdateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cFPToolStripMenuItem,
+            this.aPToolStripMenuItem,
+            this.coachesToolStripMenuItem});
+            this.pollUpdateToolStripMenuItem.Name = "pollUpdateToolStripMenuItem";
+            this.pollUpdateToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.pollUpdateToolStripMenuItem.Text = "Poll Update";
+            // 
+            // cFPToolStripMenuItem
+            // 
+            this.cFPToolStripMenuItem.Name = "cFPToolStripMenuItem";
+            this.cFPToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
+            this.cFPToolStripMenuItem.Text = "CFP";
+            this.cFPToolStripMenuItem.Click += new System.EventHandler(this.cFPToolStripMenuItem_Click);
+            // 
+            // aPToolStripMenuItem
+            // 
+            this.aPToolStripMenuItem.Name = "aPToolStripMenuItem";
+            this.aPToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
+            this.aPToolStripMenuItem.Text = "AP";
+            this.aPToolStripMenuItem.Click += new System.EventHandler(this.aPToolStripMenuItem_Click);
+            // 
+            // coachesToolStripMenuItem
+            // 
+            this.coachesToolStripMenuItem.Name = "coachesToolStripMenuItem";
+            this.coachesToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
+            this.coachesToolStripMenuItem.Text = "Coaches";
+            this.coachesToolStripMenuItem.Click += new System.EventHandler(this.coachesToolStripMenuItem_Click);
+            // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -790,36 +823,12 @@
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
-            // pollUpdateToolStripMenuItem
+            // fixSocksToolStripMenuItem
             // 
-            this.pollUpdateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.cFPToolStripMenuItem,
-            this.aPToolStripMenuItem,
-            this.coachesToolStripMenuItem});
-            this.pollUpdateToolStripMenuItem.Name = "pollUpdateToolStripMenuItem";
-            this.pollUpdateToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.pollUpdateToolStripMenuItem.Text = "Poll Update";
-            // 
-            // cFPToolStripMenuItem
-            // 
-            this.cFPToolStripMenuItem.Name = "cFPToolStripMenuItem";
-            this.cFPToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.cFPToolStripMenuItem.Text = "CFP";
-            this.cFPToolStripMenuItem.Click += new System.EventHandler(this.cFPToolStripMenuItem_Click);
-            // 
-            // aPToolStripMenuItem
-            // 
-            this.aPToolStripMenuItem.Name = "aPToolStripMenuItem";
-            this.aPToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.aPToolStripMenuItem.Text = "AP";
-            this.aPToolStripMenuItem.Click += new System.EventHandler(this.aPToolStripMenuItem_Click);
-            // 
-            // coachesToolStripMenuItem
-            // 
-            this.coachesToolStripMenuItem.Name = "coachesToolStripMenuItem";
-            this.coachesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.coachesToolStripMenuItem.Text = "Coaches";
-            this.coachesToolStripMenuItem.Click += new System.EventHandler(this.coachesToolStripMenuItem_Click);
+            this.fixSocksToolStripMenuItem.Name = "fixSocksToolStripMenuItem";
+            this.fixSocksToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
+            this.fixSocksToolStripMenuItem.Text = "Fix Socks";
+            this.fixSocksToolStripMenuItem.Click += new System.EventHandler(this.fixSocksToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -928,6 +937,7 @@
         private System.Windows.Forms.ToolStripMenuItem cFPToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aPToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem coachesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fixSocksToolStripMenuItem;
     }
 }
 

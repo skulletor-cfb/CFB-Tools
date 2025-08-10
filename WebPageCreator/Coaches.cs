@@ -50,7 +50,7 @@ namespace EA_DB_Editor
                     Exp = exp,
                     OffPlaybookId = coachTable.lRecords[i]["CPID"].ToInt32(),
                     DefPlaybookId = (DefensivePlaybook)coachTable.lRecords[i]["CDID"].ToInt32(),
-                    AlmaMaterId = coachTable.lRecords[i]["CHFT"].ToInt32(),
+                    AlmaMaterId = coachTable.lRecords[i]["CHFT"].ToInt32().GetRealTeamId(),
                     CoachBowlWin = coachTable.lRecords[i]["CBLW"].ToInt32(),
                     CoachBowlLoss = coachTable.lRecords[i]["CBLL"].ToInt32(),
                     AllAmericans = coachTable.lRecords[i]["CNAA"].ToInt32(),

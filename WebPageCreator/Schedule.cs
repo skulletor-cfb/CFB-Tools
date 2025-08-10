@@ -734,6 +734,8 @@ namespace EA_DB_Editor
             IsErikSimpsonCFBClassic,
             IsMayhemAtMBS,
             IsEddieRobinsonClassic,
+            IsAtlantaGridironClassic,
+            IsKansasCityClassic,
         };
 
         public static string SiteIdSuffix(ScheduledGame g)
@@ -759,6 +761,35 @@ namespace EA_DB_Editor
 
             return false;
         }
+
+        private static bool IsAtlantaGridironClassic(ScheduledGame g)
+        {
+            const int id = 263263;
+            KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
+            if (g.StadiumId == 263)
+            {
+                g.GameSite = "Atlanta Gridiron Classic";
+                g.SiteId = id;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsKansasCityClassic(ScheduledGame g)
+        {
+            const int id = 262262;
+            KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
+            if (g.StadiumId == 262)
+            {
+                g.GameSite = "Kansas City Classic";
+                g.SiteId = id;
+                return true;
+            }
+
+            return false;
+        }
+
 
         private static bool IsMayhemAtMBS(ScheduledGame g)
         {
@@ -1407,6 +1438,7 @@ namespace EA_DB_Editor
 
         public bool IsPlayoffGame(int highestRank)
         {
+            return false;
             return this.HomeTeam.BCSPrevious <= highestRank && this.AwayTeam.BCSPrevious <= highestRank && this.HomeTeam.BCSPrevious >= 1 && this.AwayTeam.BCSPrevious >= 1;
         }
     }

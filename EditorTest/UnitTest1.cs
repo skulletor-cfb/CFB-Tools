@@ -273,6 +273,7 @@ namespace EditorTest
         [TestMethod]
         public void MWCScheduleA()
         {
+
             MWCSchedule.CreateA().Verify(12, RecruitingFixup.MWCId, "MWC  ", false);
             var hash = MWCSchedule.CreateA().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));

@@ -1795,6 +1795,18 @@ namespace EA_DB_Editor
         private Dictionary<string, int> firstDict = null;
         private Dictionary<string, int> lastDict = null;
 
+        private Dictionary<string, int> CreateDictionary(string[] names)
+        {
+            var dict = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+            foreach(var name in names)
+            {
+                dict[name] = 0;
+            }
+
+            return dict;
+        }
+
         private void reorderRecruitsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var recruitTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPT");
@@ -1823,8 +1835,8 @@ namespace EA_DB_Editor
 
                 if (firstDict == null)
                 {
-                    firstDict = names.First.ToDictionary(s => s, s => 0);
-                    lastDict = names.Last.ToDictionary(s => s, s => 0);
+                    firstDict = CreateDictionary(names.First);
+                    lastDict = CreateDictionary(names.Last);
                 }
 
                 var numRecruits = recruitTable.lRecords.Count;
@@ -1885,9 +1897,25 @@ namespace EA_DB_Editor
                 //                MessageBox.Show("First: " + maxFirst + "   Last: " + maxLast);
             }
 
+            Defatify(recruitTable);
             RefreshView();
         }
 
+        static void Defatify(MaddenTable recruitTable)
+        {
+            foreach (var recruit in recruitTable.lRecords)
+            {
+                var currentFace = recruit["PGHE"].ToInt32();
+
+                // defatify the player
+                if (recruit["PWGT"].ToInt32() < 90 && RecruitFace.IsFatFace(currentFace))
+                {
+                    // find new face
+                    recruit["PGHE"] = RecruitFace.FindNewFace(currentFace).ToString() ;
+                }
+            }
+        }
+        
         static void ChangeHelmet(MaddenRecord recruit, int position)
         {
             switch (position)
@@ -2060,6 +2088,12 @@ namespace EA_DB_Editor
             return i % 100;
         }
 
+        /// <summary>
+        /// returns a number from 0 to range-1
+        /// RAND % range
+        /// </summary>
+        /// <param name="range"></param>
+        /// <returns></returns>
         static int RAND(int range)
         {
             var guid = Guid.NewGuid().ToByteArray().Take(4).ToArray();
@@ -2714,7 +2748,7 @@ PPOS = Position
             for (int i = 1; i <= 18; i++)
             {
                 var otherPlayers = GetPlayers(pos => pos == i);
-                var otherCandidates = otherPlayers.Values.SelectMany(p => p.Skip(2)).Where(p => p.OVR >= 85 && (p.Year == 3)).OrderByDescending(p => p.OVR).ToList();
+                var otherCandidates = otherPlayers.Values.SelectMany(p => p.Skip(2)).Where(p => p.OVR >= 85 && (p.Year >= 2)).OrderByDescending(p => p.OVR).ToList();
                 otherCandidates.ForEach(c => other.AppendLine(c.ToCsvLine()));
             }
 
@@ -3320,10 +3354,10 @@ PPOS = Position
 #endif
 
             var big6Games = new HashSet<int>(new[] {
-         //       AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP5v12],
-           //     AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP6v11],
-             //   AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP7v10],
-               // AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP8v9],
+                AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP5v12],
+                AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP6v11],
+                AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP7v10],
+                AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP8v9],
                 25, 27, 28, 17, 12, 26, 39 });
 
             var schedules = MaddenTable.FindTable(maddenDB.lTables, "SCHD").lRecords
@@ -3413,7 +3447,7 @@ PPOS = Position
 
             // get all the bowl teams
             var teamIds = new HashSet<int>(schedules.SelectMany(g => new[] { g.Value.Home, g.Value.Away }));
-            
+
             /*var bowlTeams = teams.Values.Where(t => teamIds.Contains(t.Id) && t.Win <= 6).OrderBy(t => t.Win).ThenByDescending(t => t.Loss).ToArray();
             foreach (var t in bowlTeams)
             {
@@ -3421,7 +3455,7 @@ PPOS = Position
                 i++;
             }*/
 
-             var bowlTeams = teams.Values.Where(t => teamIds.Contains(t.Id) && t.Rank > 25).OrderBy(t => t.Rank).ToArray();
+            var bowlTeams = teams.Values.Where(t => teamIds.Contains(t.Id) && t.Rank > 25).OrderBy(t => t.Rank).ToArray();
 
             var sb = new StringBuilder();
             foreach (var team in bowlTeams)
@@ -3962,7 +3996,7 @@ PPOS = Position
         private void cleanupCCHHToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show("no OP");
-            return; 
+            return;
 
             // find the CCHH table
             var table = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "CCHH");
@@ -3993,16 +4027,18 @@ PPOS = Position
         private void customFixToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // make it so that a recrutied player changes his team
-            var rcpr = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPR");
-            var recruit = rcpr.lRecords.Where(mr => mr["PRSI"].ToInt32() == 1).Single();
-            recruit["PTCM"] = "77";
+            const int chickFilaStadium = 273;
+            const int atlantaGridironClassic = 263;
+
+            var stadiumTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "STAD");
+            var sauce = stadiumTable.CreateDictionary(mr => mr["SGID"].ToInt32(), mr => true);
+            RosterCopy.CopyRecordData(sauce[chickFilaStadium], sauce[atlantaGridironClassic], dataKey => RosterCopy.STADIUM_DATA_TO_COPY.Contains(dataKey));
             return;
 
             const string stadiumFile = "jmu-stadium.txt";
             const string teamFile = "jmu-team.txt";
 
             // fiu stadium is 241
-            var stadiumTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "STAD");
             var teamTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "TEAM");
             var jmuTeam = teamTable.lRecords.Where(r => r["TGID"].ToInt32() == 230).Single();
             var jmuStadium = stadiumTable.lRecords.Where(r => r["SGID"].ToInt32() == 241).Single();
@@ -4236,10 +4272,11 @@ PPOS = Position
             UpdatePoll("TCRK", "TCPR");
         }
 
+        static HashSet<int> TeamsToExclude = new HashSet<int>() { 611, 160, 161, 162, 163, 164 };
+
         private void UpdatePoll(string currentKey, string lastKey)
         {
             const string startAt = @"E:\dynastyTables";
-            var exclude = new HashSet<int>() { 611, 160, 161, 162, 163, 164};
 
             var file = new OpenFileDialog()
             {
@@ -4273,12 +4310,27 @@ PPOS = Position
                 {
                     var teamId = mr["TGID"].ToInt32();
 
-                    if (exclude.Contains(teamId))
+                    if (TeamsToExclude.Contains(teamId))
                     {
                         continue;
                     }
 
                     mr[currentKey] = dict[teamId];
+                }
+            }
+        }
+
+        private void fixSocksToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var table = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "PLAY");
+            foreach (var mr in table.lRecords)
+            {
+                var teamId = mr["TGID"].ToInt32();
+
+                if (!TeamsToExclude.Contains(teamId))
+                {
+                    var value = RAND(3);
+                    mr["PLSO"] = value.ToString();
                 }
             }
         }
@@ -6483,7 +6535,7 @@ PPOS = Position
                                         var oppRecord = MaddenTable.Query(teamScheduleTable, query).SingleOrDefault();
                                         teamScheduleRecord["TGID"] = ro.key;
                                         oppRecord["OGID"] = ro.key;
-
+                                        
                                         // if both teams are marked as "1" then this is a neutral site game, don't do anything
                                         if ((teamScheduleRecord["THOA"] == "1" && oppRecord["THOA"] == "1") == false)
                                         {

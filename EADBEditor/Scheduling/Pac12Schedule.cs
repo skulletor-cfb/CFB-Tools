@@ -40,11 +40,6 @@ namespace EA_DB_Editor
             var creatorsToUse = CorrectCreators;
             var idx = (Form1.DynastyYear - 2483) % creatorsToUse.Length;
 
-            if( Form1.DynastyYear == 2531)
-            {
-                throw new Exception("Pac 12 moves to 9 game schedule!!");
-            }
-
             var result = creatorsToUse[idx]();
             result = result.Verify(12, RecruitingFixup.Pac16Id, "Pac12");
             Pac12ConferenceSchedule = result.BuildHashSet();

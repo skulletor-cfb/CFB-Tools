@@ -28,7 +28,6 @@ namespace EA_DB_Editor
         public int OpponentWinPct { get; set; }
         public int TeamId { get; set; }
         public Team Team { get { return Team.Teams[this.TeamId]; } }
-        private IEnumerable<Game> flattenedListOfGames;
 
         public TeamSchedule()
         {
@@ -100,12 +99,33 @@ namespace EA_DB_Editor
         {
             get
             {
-                if (this.flattenedListOfGames == null)
+                var temp = this.Values.SelectMany(log => log.ToArray()).ToArray();
+
+                var qf = 0;
+                var sf = 0;
+
+                // make sure quarters come before semis
+                for (int i = temp.Length - 1; i > 0; i--)
                 {
-                    this.flattenedListOfGames = this.Values.SelectMany(log => log.ToArray());
+                    if (temp[i].PlayoffDescriptor == Game.QuarterFinalsDescription)
+                    {
+                        qf = i;
+                    }
+                    else if (temp[i].PlayoffDescriptor == Game.SemiFinalsDescription)
+                    {
+                        sf = i;
+                    }
                 }
 
-                return this.flattenedListOfGames;
+                // swap them if out of order
+                if (qf > sf)
+                {
+                    var sfGame = temp[sf];
+                    temp[sf] = temp[qf];
+                    temp[qf] = sfGame;
+                }
+
+                return temp;
             }
         }
 
@@ -197,7 +217,7 @@ namespace EA_DB_Editor
 
         public static void ToAllSchedulesCsv(bool isPreason = false)
         {
-            string[] keys = "Week,Game,Location,OppId,Opponent,Result,Score,TeamId,TeamName,BowlId".Split(',');
+            string[] keys = "Week,Game,Location,OppId,Opponent,Result,Score,TeamId,TeamName,BowlId,PlayoffDescriptor".Split(',');
             if (isPreason)
             {
                 keys = "Week,Game,Location,OppId,Opponent,WinPredicted,Spread,TeamId,TeamName".Split(',');
@@ -213,7 +233,7 @@ namespace EA_DB_Editor
                     string line = null;
                     if (!isPreason)
                     {
-                        line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}", game.Week, game.GameNumber, game.Location, game.OpponentId, game.OpponentDescription, game.Result, game.Score, game.TeamId, game.TeamDescription, game.BowlId.HasValue ? game.BowlId.ToString() : string.Empty);
+                        line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}", game.Week, game.GameNumber, game.Location, game.OpponentId, game.OpponentDescription, game.Result, game.Score, game.TeamId, game.TeamDescription, game.BowlId.HasValue ? game.BowlId.ToString() : string.Empty, game.PlayoffDescriptor);
                     }
                     else
                     {

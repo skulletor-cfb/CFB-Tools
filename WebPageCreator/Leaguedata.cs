@@ -531,9 +531,11 @@ namespace EA_DB_Editor
                 }
             }
 
+            bool didNotEnterBowlChampLoop = true;
             var table = db.lTables[0];
             for (int i = 0; i < table.Table.currecords; i++)
             {
+                didNotEnterBowlChampLoop = false;
                 var record = table.lRecords[i];
                 var bc = new BowlChampion
                 {
@@ -552,6 +554,12 @@ namespace EA_DB_Editor
                 }
 
                 CurrentYear = Math.Max(CurrentYear, bc.Year);
+            }
+
+            // we get current year from the largest value in the file
+            if (didNotEnterBowlChampLoop)
+            {
+                CurrentYear = BowlChampions.Values.Select(bc => bc.Year).Max();
             }
 
             // if we haven't played the bowls, we need to increment the current year by 1, aka the assumption that CurrentYear is correct is only true at the end of the season
