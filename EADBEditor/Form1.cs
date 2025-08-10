@@ -1892,21 +1892,30 @@ namespace EA_DB_Editor
                             firstList,
                             lastList);
                     }
-
-                    Defatify(recruit);
                 }
 
                 //                MessageBox.Show("First: " + maxFirst + "   Last: " + maxLast);
             }
 
+            Defatify(recruitTable);
             RefreshView();
         }
 
-        static void Defatify(MaddenRecord recruit)
+        static void Defatify(MaddenTable recruitTable)
         {
-            throw new Exception("Not ready yet!");
-        }
+            foreach (var recruit in recruitTable.lRecords)
+            {
+                var currentFace = recruit["PGHE"].ToInt32();
 
+                // defatify the player
+                if (recruit["PWGT"].ToInt32() < 90 && RecruitFace.IsFatFace(currentFace))
+                {
+                    // find new face
+                    recruit["PGHE"] = RecruitFace.FindNewFace(currentFace).ToString() ;
+                }
+            }
+        }
+        
         static void ChangeHelmet(MaddenRecord recruit, int position)
         {
             switch (position)
