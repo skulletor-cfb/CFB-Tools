@@ -40,7 +40,7 @@ namespace EA_DB_Editor
         {
             using (var tw = new StreamWriter("./Archive/Reports/leaders.csv", false))
             {
-                tw.WriteLine("No,Name,PlayerClass,Position,Height,Weight,Stat1,Stat2,Stat3,Stat4,Stat5,Stat6,TableIdx,Team,TeamId");
+                tw.WriteLine("No,Name,PlayerClass,Position,Height,Weight,Stat1,Stat2,Stat3,Stat4,Stat5,Stat6,TableIdx,Team,TeamId,Face");
                 foreach (var p in PassingLeaders.Take(top))
                 {
                     CreateStatLine(p, tw, 0, new string[] { PlayerStats.PassAttempts, PlayerStats.Completions, PlayerStats.PassingYards, PlayerStats.PassingTD, PlayerStats.IntThrown, null });
@@ -110,7 +110,7 @@ namespace EA_DB_Editor
 
         public static void CreateKickStatLine(Player p, TextWriter tw, int tableIndex)
         {
-            var statline = "{0},{1},{2},{3},{4},{5}{6},{7}/{8},{9}/{10},{11}/{12},{13},{14}/{15},{16},{17},{18},{19}";
+            var statline = "{0},{1},{2},{3},{4},{5}{6},{7}/{8},{9}/{10},{11}/{12},{13},{14}/{15},{16},{17},{18},{19},{20}";
 
             tw.WriteLine(string.Format(statline,
                 p.Number, p.Name, p.CalculateYear(0), p.PositionName, p.Height.CalculateHgt(), p.Weight, string.Empty,
@@ -120,19 +120,19 @@ namespace EA_DB_Editor
                     p.CurrentYearStats.GetValueOrDefault(PlayerStats.FGLong, 0),
                     p.CurrentYearStats.GetValueOrDefault(PlayerStats.XPMade, 0), p.CurrentYearStats.GetValueOrDefault(PlayerStats.XPAtt, 0),
                     p.CurrentYearStats.GetValueOrDefault(PlayerStats.KickOffTouchBack, 0),
-                tableIndex, p.Team.Name, p.TeamId));
+                tableIndex, p.Team.Name, p.TeamId, p.Face));
         }
 
         public static void CreateStatLine(Player p, TextWriter tw, int tableIndex, string[] key)
         {
-            var statline = "{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14}";
+            var statline = "{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15}";
 
 
             tw.WriteLine(string.Format(statline,
                 p.Number, p.Name, p.CalculateYear(0), p.PositionName, p.Height.CalculateHgt(), p.Weight,
                 p.CurrentYearStats.GetIntStringValue(key[0]), p.CurrentYearStats.GetIntStringValue(key[1]), p.CurrentYearStats.GetIntStringValue(key[2]),
                 p.CurrentYearStats.GetIntStringValue(key[3]), p.CurrentYearStats.GetIntStringValue(key[4]), p.CurrentYearStats.GetIntStringValue(key[5]),
-                tableIndex, p.Team.Name, p.TeamId));
+                tableIndex, p.Team.Name, p.TeamId, p.Face));
         }
 
 
@@ -185,7 +185,8 @@ namespace EA_DB_Editor
                     Weight = record.GetInt(125) + 160,
                     GamesPlayed = record.GetInt(148),
                     Position = record.GetInt(114),
-                    City = record.GetInt(33)
+                    City = record.GetInt(33),
+                    Face = record["PGHE"].ToInt32(),
                 };
 
                 // add player to the rosters
@@ -715,6 +716,7 @@ namespace EA_DB_Editor
         public int Position { get; set; }
         public int TeamId { get; set; }
         public int Id { get; set; }
+        public int Face { get; set; }
         public Team Team { get { return Team.Teams[this.TeamId]; } }
     }
 
