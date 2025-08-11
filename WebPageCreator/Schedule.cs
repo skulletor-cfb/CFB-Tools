@@ -1369,16 +1369,16 @@ namespace EA_DB_Editor
 
         public void WriteToTable(StringBuilder sb, PlayerStats p, string[] keys, int tableIndex)
         {
-            sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14}",
+            sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15}",
                 p.Player.Number, p.Player.Name, p.Player.CalculateYear(0), p.Player.PositionName, p.Player.Height.CalculateHgt(), p.Player.Weight,
                 p.GetIntStringValue(keys[0]), p.GetIntStringValue(keys[1]), p.GetIntStringValue(keys[2]), p.GetIntStringValue(keys[3]),
-                p.GetIntStringValue(keys[4]), p.GetIntStringValue(keys[5]), p.GetIntStringValue(keys[6]), p.Player.TeamId, tableIndex));
+                p.GetIntStringValue(keys[4]), p.GetIntStringValue(keys[5]), p.GetIntStringValue(keys[6]), p.Player.TeamId, tableIndex,p.Player.Face));
         }
 
         public string CreateStatsTable(string file)
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("No,Name,PlayerClass,Position,Height,Weight,Stat1,Stat2,Stat3,Stat4,Stat5,Stat6,Stat7,TeamId,TableId");
+            sb.AppendLine("No,Name,PlayerClass,Position,Height,Weight,Stat1,Stat2,Stat3,Stat4,Stat5,Stat6,Stat7,TeamId,TableId,Face");
 
             var passStats = GamePlayerStats.Values.Where(p => p.GetIntValue(PlayerStats.PassAttempts) > 0 && PlayerDB.Players.ContainsKey(p.PlayerId)).OrderByDescending(p => p.Player.TeamId) //sort by team
                 .ThenByDescending(p => p.GetIntValue(PlayerStats.PassingYards))

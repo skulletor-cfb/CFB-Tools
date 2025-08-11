@@ -265,7 +265,7 @@ namespace EA_DB_Editor
             foreach (var team in Team.Teams.Values)
             {
                 var sb = new StringBuilder();
-                sb.AppendLine("No,Name,Year,Position,Height,Weight,Ovr,Spd,Acc,Agl,Str,Awr,City,State");
+                sb.AppendLine("No,Name,Year,Position,Height,Weight,Ovr,Spd,Acc,Agl,Str,Awr,Face,City,State,Face");
 
                 if (PlayerDB.Rosters.ContainsKey(team.Id))
                 {
@@ -278,10 +278,10 @@ namespace EA_DB_Editor
                             state = City.Cities[player.City].State;
                         }
 
-                        sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13}",
+                        sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15}",
                             player.Number, player.Name, player.CalculateYear(0), player.PositionName,
                             player.Height.CalculateHgt(), player.Weight, player.Ovr, player.Spd, player.Acc,
-                            player.Agl, player.Str, player.Awr, city, state));
+                            player.Agl, player.Str, player.Awr, player.Face, city, state,player.Face));
                     }
 
                     Utility.WriteData(string.Format(@".\archive\reports\teamroster{0}.csv", team.Id), sb.ToString());
@@ -335,7 +335,7 @@ namespace EA_DB_Editor
             }
 
             var sb = new StringBuilder();
-            sb.AppendLine("No,Name,Year,Position,Height,Weight,Ovr,Spd,Acc,Agl,Str,Awr,City,State,TeamId");
+            sb.AppendLine("No,Name,Year,Position,Height,Weight,Ovr,Spd,Acc,Agl,Str,Awr,City,State,TeamId,Face");
 
             foreach (var team in Team.Teams.Values)
             {
@@ -351,10 +351,10 @@ namespace EA_DB_Editor
                             state = City.Cities[player.City].State;
                         }
 
-                        sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14}",
+                        sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15}",
                             player.Number, player.Name, player.CalculateYear(0), player.PositionName,
                             player.Height.CalculateHgt(), player.Weight, player.Ovr, player.Spd, player.Acc,
-                            player.Agl, player.Str, player.Awr, city, state, team.Id));
+                            player.Agl, player.Str, player.Awr, city, state, team.Id, player.Face));
                     }
                 }
             }
@@ -442,16 +442,16 @@ namespace EA_DB_Editor
 
             string currentAwardName = string.Empty;
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Number,Name,Year,Position,Height,Weight,Ovr,Team,TeamId,AwardId,AwardName");
+            sb.AppendLine("Number,Name,Year,Position,Height,Weight,Ovr,Team,TeamId,AwardId,AwardName,Face");
             foreach (var key in Award.Awards.Keys)
             {
                 foreach (var award in Award.Awards[key].Where(a => a.Year == BowlChampion.CurrentYear).OrderBy(a => a.Rank))
                 {
                     var name = Award.GetAwardName(award.Id);
-                    sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}",
+                    sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11}",
                         award.Player.Number, award.Player.Name, award.Player.CalculateYear(0),
                         award.Player.PositionName, award.Player.Height.CalculateHgt(), award.Player.Weight,
-                        award.Player.Ovr, award.Player.Team.Name, award.Player.TeamId, award.Id, currentAwardName == name ? string.Empty : name));
+                        award.Player.Ovr, award.Player.Team.Name, award.Player.TeamId, award.Id, currentAwardName == name ? string.Empty : name, award.Player.Face));
                     currentAwardName = name;
                 }
             }
@@ -461,7 +461,7 @@ namespace EA_DB_Editor
 
         public static void WriteStatLines(StringBuilder sb, IEnumerable<PlayerStats> playerStatBooks, string[] keys, int tableIndex, bool careerStats)
         {
-            var statline = "{0},{1} {2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15}";
+            var statline = "{0},{1} {2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16}";
 
             foreach (var p in playerStatBooks)
             {
@@ -478,13 +478,14 @@ namespace EA_DB_Editor
                     keys[5] != null ? p.GetValueOrDefault(keys[5], 0).ToString() : string.Empty,
                     keys[6] != null ? p.GetValueOrDefault(keys[6], 0).ToString() : string.Empty,
                     tableIndex,
-                    careerStats ? p.Year.ToString() : string.Empty));
+                    careerStats ? p.Year.ToString() : string.Empty,
+                    p.Player.Face));
             }
         }
 
         public static void WritePlaceKickLines(StringBuilder sb, List<PlayerStats> playerStatBooks, int tableIndex, bool careerStats)
         {
-            var statline = "{0},{1} {2},{3},{4},{5},{6},{7}/{8},{9}/{10},{11}/{12},{13},{14}/{15},{16},{17},{18},{19}";
+            var statline = "{0},{1} {2},{3},{4},{5},{6},{7}/{8},{9}/{10},{11}/{12},{13},{14}/{15},{16},{17},{18},{19},{20}";
             foreach (var p in playerStatBooks.OrderByDescending(p => p.Points))
             {
                 if (PlayerDB.Players.ContainsKey(p.PlayerId) == false || (p.Player.Year - (PlayerDB.CurrentYear - p.Year) < -1))
@@ -500,7 +501,8 @@ namespace EA_DB_Editor
                     p.GetValueOrDefault(PlayerStats.KickOffTouchBack, 0),
                     p.GetValueOrDefault(PlayerStats.KickGamesPlayed, 0),
                     tableIndex,
-                    careerStats ? p.Year.ToString() : string.Empty));
+                    careerStats ? p.Year.ToString() : string.Empty,
+                    p.Player.Face));
             }
         }
 
@@ -555,7 +557,7 @@ namespace EA_DB_Editor
 
                 //after each player has been analyzed, we now need to start writing our csv
                 StringBuilder sb = new StringBuilder();
-                sb.AppendLine("No,Name,PlayerClass,Position,Height,Weight,Stat1,Stat2,Stat3,Stat4,Stat5,Stat6,Games,TableIdx,Year");
+                sb.AppendLine("No,Name,PlayerClass,Position,Height,Weight,Stat1,Stat2,Stat3,Stat4,Stat5,Stat6,Games,TableIdx,Year,Face");
 
                 // write passing table
                 WriteStatLines(sb, passStats.OrderByDescending(p => p.GetValueOrDefault(PlayerStats.PassAttempts, 0)).ThenByDescending(p => p.GetValueOrDefault(PlayerStats.PassingYards, 0)),
