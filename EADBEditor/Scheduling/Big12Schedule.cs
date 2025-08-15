@@ -60,6 +60,12 @@ namespace EA_DB_Editor
 
             var idx = (Form1.DynastyYear - 2546) % Creators.Length;
 
+            if (Form1.DynastyYear == 2547)
+            {
+                // just replay A again
+                idx = 0;
+            }
+
             if (idx == 5 || idx == 11)
             {
                 MessageBox.Show("Is SMU still the right call???  Or time to evaluate?");

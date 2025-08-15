@@ -36,6 +36,13 @@ namespace EA_DB_Editor
         {
             var currYear = Form1.DynastyYear;
             var idx = (Form1.DynastyYear - 2546) % Creators.Length;
+
+            if(Form1.DynastyYear == 2547)
+            {
+                // just replay A again
+                idx = 0; 
+            }
+
             var result = Creators[idx]();
 
 
@@ -80,6 +87,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
+                USF.Create(UCF, CLT, Cincy, Tulane),
+                UCF.Create(ECU, Temple, Tulsa, Rice),
+                ECU.Create(CLT, Temple, Rice, Memphis),
+                CLT.Create(UCF, Cincy, Houston, Tulane),
+                Cincy.Create(ECU, Temple, Tulane, UAB),
+                Temple.Create(USF, Houston, UAB, Memphis),
+                Tulsa.Create(USF, CLT, Cincy, Houston),
+                Rice.Create(Cincy, Temple, Tulsa, UAB),
+                Houston.Create(USF, ECU, Rice, Memphis),
+                Tulane.Create(UCF, Tulsa, Houston, UAB),
+                UAB.Create(UCF, ECU, Tulsa, Memphis),
+                Memphis.Create(USF, CLT, Rice, Tulane),
             }.Create();
         }
 
@@ -87,6 +106,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
+                USF.Create(),
+                UCF.Create(),
+                ECU.Create(),
+                CLT.Create(),
+                Cincy.Create(),
+                Temple.Create(),
+                Tulsa.Create(),
+                Rice.Create(),
+                Houston.Create(),
+                Tulane.Create(),
+                UAB.Create(),
+                Memphis.Create(),
             }.Create();
         }
     }
