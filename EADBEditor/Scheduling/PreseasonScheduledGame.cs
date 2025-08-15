@@ -1556,6 +1556,7 @@ namespace EA_DB_Editor
                 var leftAwayGames = 0;
                 var rightAwayGames = 0;
 
+                // not more than 2 away games
                 for (int i = week + 1; i < awaySchedule.Length; i++)
                 {
                     if (awaySchedule[i] == null) continue;
@@ -1587,6 +1588,52 @@ namespace EA_DB_Editor
                 if (
                     (leftAwayGames > 0 && rightAwayGames > 0) ||
                     (leftAwayGames >= 2 || rightAwayGames >= 2))
+                {
+                    RejectedOnce.Add(game);
+
+                    var conf = RecruitingFixup.TeamAndConferences[awayTeam];
+                    var findLate = conf == RecruitingFixup.Pac16Id || conf == RecruitingFixup.Big10Id || conf == RecruitingFixup.MACId || conf == RecruitingFixup.SBCId || conf == RecruitingFixup.CUSAId || conf == RecruitingFixup.AmericanId || conf == RecruitingFixup.MWCId;
+
+                    var finalTry = FindCommonOpenWeek(homeSchedule.FindOpenWeeks(week), awaySchedule.FindOpenWeeks(week), findLate, out var nextOpen) ? nextOpen : week;
+                    return AssignGame(game, schedules, finalTry);
+                }
+
+                // not more than 2 home games
+                var homeTeam = game.HomeTeam;
+                var leftHomeGames = 0;
+                var rightHomeGames = 0;
+
+                for (int i = week + 1; i < awaySchedule.Length; i++)
+                {
+                    if (homeSchedule[i] == null) continue;
+
+                    if (homeSchedule[i].HomeTeam == homeTeam)
+                    {
+                        rightHomeGames++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                for (int i = week - 1; i >= 0; i--)
+                {
+                    if (homeSchedule[i] == null) continue;
+
+                    if (homeSchedule[i].HomeTeam == homeTeam)
+                    {
+                        leftHomeGames++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                if (
+                    (leftHomeGames > 0 && leftHomeGames > 0) ||
+                    (rightHomeGames >= 2 || rightHomeGames >= 2))
                 {
                     RejectedOnce.Add(game);
 
