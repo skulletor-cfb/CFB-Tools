@@ -29,8 +29,8 @@ namespace EA_DB_Editor
                 .Concat(Generate(151, 159, Ethnicity.Medium))
                 .Concat(Generate(160, 170, Ethnicity.Dark))
                 .Concat(Generate(184, 221, Ethnicity.Dark))
-                .Concat(Generate(233, 250, Ethnicity.Dark))
-                .Concat(Generate(Ethnicity.Dark, 253, 254, 255, 256, 257))
+                .Concat(Generate(233, 246, Ethnicity.Dark))
+  //              .Concat(Generate(Ethnicity.Dark, 253, 254, 255, 256, 257))
                 .ToList();
 
             FatFaces = Array.Empty<RecruitFace>()
@@ -41,7 +41,7 @@ namespace EA_DB_Editor
                 .Concat(Generate(141, 151, Ethnicity.Medium))
                 .Concat(Generate(170, 183, Ethnicity.Dark))
                 .Concat(Generate(223, 232, Ethnicity.Dark))
-                .Concat(Generate(Ethnicity.Dark, 251, 252))
+//                .Concat(Generate(Ethnicity.Dark, 251, 252))
                 .ToList();
 
             FatFacesSet = new HashSet<int>(FatFaces.Select(f => f.Id));
