@@ -434,6 +434,22 @@ namespace EditorTest
             File.Copy(form.FilePath, @"d:\vso\test\test.mc02");
         }
 
+        [TestMethod]
+        public void SECScheduleA()
+        {
+            SECSchedule.CreateA().Verify(14, RecruitingFixup.SECId, "SEC ", false);
+            var hash = SECSchedule.CreateA().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void SECScheduleB()
+        {
+            SECSchedule.CreateB().Verify(14, RecruitingFixup.SECId, "SEC ", false);
+            var hash = SECSchedule.CreateB().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
 
         [TestMethod]
         public void SBCScheduleA()

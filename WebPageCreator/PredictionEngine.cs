@@ -109,6 +109,7 @@ namespace EA_DB_Editor
             {13, new[]{ (2462, 2467) } }, // Sun Belt
             {0, new []{(2477, 2478 ), (2485, int.MaxValue)} }, // acc
             {7, new[]{(2491, int.MaxValue)} }, // MAC
+            {11, new[]{(2548, int.MaxValue)} }, // sec
         };
 
         public static bool ConferenceHasNoDivisions(int confId)
