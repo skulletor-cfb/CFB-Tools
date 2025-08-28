@@ -44,9 +44,9 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void ProcessPac12Schedule(Dictionary<int, TeamSchedule> schedule)
+        public static void ProcessSECSchedule(Dictionary<int, TeamSchedule> schedule)
         {
-            schedule.ProcessSchedule(ScenarioForSeason, SECConfSchedule, RecruitingFixup.Pac16Id, RecruitingFixup.Pac12);
+            schedule.ProcessSchedule(ScenarioForSeason, SECConfSchedule, RecruitingFixup.SECId, RecruitingFixup.SEC);
         }
 
 

@@ -330,6 +330,7 @@ namespace EA_DB_Editor
             Big10Schedule.Init();
             CUSASchedule.Init();
             SunBeltSchedule.Init();
+            SECSchedule.Init();
 
             var (teamSchedule, scheduleTable) = FillSchedule(!RanReorder);
 
@@ -358,6 +359,7 @@ namespace EA_DB_Editor
                 MACSchedule.ProcessMACSchedule(teamSchedule);
                 CUSASchedule.ProcessCUSASchedule(teamSchedule);
                 SunBeltSchedule.ProcessSunbeltSchedule(teamSchedule);
+                SECSchedule.ProcessSECSchedule(teamSchedule);
 
                 for (int i = 0; i < 25; i++)
                 {
