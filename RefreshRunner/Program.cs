@@ -6,6 +6,10 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs.Specialized;
+using Azure.Storage;
 
 namespace RefreshRunner
 {
@@ -317,6 +321,9 @@ namespace RefreshRunner
             }
         }
 
+        // dont check this in
+        static string accessKey = "no";
+
         static void Dump()
         {
             const string saveFiles = @"E:\rpcs3\dev_hdd0\home\00000001\savedata";
@@ -355,6 +362,16 @@ namespace RefreshRunner
 
                 File.Delete(table);
             }
+
+            var client = new BlobServiceClient(
+                new Uri("https://squabsgyros.blob.core.windows.net"),
+                new StorageSharedKeyCredential("squabsgyros", accessKey));
+
+            var containerClient = client.GetBlobContainerClient("dynasty");
+            var teamClientClient = containerClient.GetBlobClient(Path.GetFileName(teamFile));
+            var schdClientClient = containerClient.GetBlobClient(Path.GetFileName(schdFile));
+            teamClientClient.Upload(teamFile);
+            schdClientClient.Upload(schdFile);
 
             return;
             // read the data
