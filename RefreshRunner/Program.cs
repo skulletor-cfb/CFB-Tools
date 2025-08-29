@@ -370,8 +370,8 @@ namespace RefreshRunner
             var containerClient = client.GetBlobContainerClient("dynasty");
             var teamClientClient = containerClient.GetBlobClient(Path.GetFileName(teamFile));
             var schdClientClient = containerClient.GetBlobClient(Path.GetFileName(schdFile));
-            teamClientClient.Upload(teamFile);
-            schdClientClient.Upload(schdFile);
+            teamClientClient.Upload(teamFile, overwrite: true);
+            schdClientClient.Upload(schdFile, overwrite: true);
 
             return;
             // read the data
