@@ -4138,6 +4138,8 @@ PPOS = Position
 
         private void AddPlayoffGame(int gameNumber, string startTime, string day = "5") => AddBowlGame(gameNumber, 0, day, true, startTime);
 
+        private static HashSet<int> TeamsAdded = new HashSet<int>();
+
         private void AddBowlGame(int gameNumber, int stadium, string day = "5", bool isPlayoffGame = false, string startTime = StartTime)
         {
             TeamEntry homeEntry = new TeamEntry("Home team");
@@ -4145,10 +4147,26 @@ PPOS = Position
             TeamEntry stadiumEntry = new TeamEntry("Choose home stadium");
             if (homeEntry.ShowDialog() == DialogResult.OK)
             {
+                if (TeamsAdded.Contains(homeEntry.TeamId))
+                {
+                    MessageBox.Show($"{homeEntry.TeamId} already added");
+                    return;
+                }
+
                 if (awayEntry.ShowDialog() == DialogResult.OK)
                 {
+                    if (TeamsAdded.Contains(awayEntry.TeamId))
+                    {
+                        MessageBox.Show($"{awayEntry.TeamId} already added");
+                        return;
+                    }
+
                     if (!isPlayoffGame || stadiumEntry.ShowDialog() == DialogResult.OK)
                     {
+                        // we add teams that have been added into the mix
+                        TeamsAdded.Add(homeEntry.TeamId);
+                        TeamsAdded.Add(awayEntry.TeamId);
+
                         //find stadium id for home team
                         var home = homeEntry.TeamId;
                         var away = awayEntry.TeamId;
