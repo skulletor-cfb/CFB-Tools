@@ -261,6 +261,12 @@ BSAT is arm size = numbers can be 1, 4, 5, 15, 21, 24, or 25.. */
             this.Min = Min;
             this.Name = Name;
         }
+
+        public Rating(string name, int value)
+        {
+            this.Name = name;
+            this.Value = value;
+        }
         public int GetRandomRating()
         {
             int mod = 0;//(Max - Min) / 4;
@@ -313,7 +319,17 @@ BSAT is arm size = numbers can be 1, 4, 5, 15, 21, 24, or 25.. */
         public virtual void CreatePlayer()
         {
         }
-        public void Display()
+        public void Display() { this.GenerateRatings(); }
+
+        public void GenerateRatings()
+        {
+            for (int i = 0; i < Ratings.Length; i++)
+            {
+                Ratings[i].GetRandomRating();
+            }
+        }
+
+        public void Show()
         {
             Console.WriteLine(this.Pos);
             Height = GetRandomHeight();
@@ -321,12 +337,37 @@ BSAT is arm size = numbers can be 1, 4, 5, 15, 21, 24, or 25.. */
             Console.WriteLine("{0}'{1}\"   {2} LBS", Height / 12, Height % 12, Weight);
             for (int i = 0; i < Ratings.Length; i++)
             {
-                Console.WriteLine("{0}     {1}", Ratings[i].Name, Ratings[i].GetRandomRating());
+                Console.WriteLine("{0}     {1}", Ratings[i].Name, Ratings[i].Value);
             }
             Console.WriteLine(String.Empty);
             Console.WriteLine(String.Empty);
             Console.WriteLine(String.Empty);
             Console.WriteLine(String.Empty);
+        }
+
+        public void Combine(Player p)
+        {
+            this.GenerateRatings();
+            p.GenerateRatings();
+            var mine = Ratings.ToDictionary(r => r.Name, r => r.Value);
+            var source = p.Ratings.ToDictionary(r => r.Name, r => r.Value);
+
+            foreach(var kvp in source)
+            {
+                if(mine.ContainsKey(kvp.Key) )
+                {
+                    if (mine[kvp.Key] < kvp.Value)
+                    {
+                        mine[kvp.Key] = kvp.Value;
+                    }
+                }
+                else
+                {
+                    mine[kvp.Key] = kvp.Value;
+                }
+            }
+
+            this.Ratings = mine.Select(kvp => new Rating(kvp.Key, kvp.Value)).ToArray();
         }
 
         public static Dictionary<string, string> RatingMap = new Dictionary<string, string>()

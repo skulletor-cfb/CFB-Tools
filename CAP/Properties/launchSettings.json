@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CAP": {
+      "commandName": "Project",
+      "commandLineArgs": "WR_Speed WR_Possession"
+    }
+  }
+}

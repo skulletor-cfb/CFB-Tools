@@ -17,10 +17,20 @@ namespace CAP
                 return;
             }
 
-            foreach(var arg in args)
+            if (args.Length == 2)
+            {
+                var  a=CAPGen.GetPlayer(Enum.Parse<ProfileId>(args[0]));
+                var b = CAPGen.GetPlayer(Enum.Parse<ProfileId>(args[1]));
+                a.Combine(b);
+                a.Show();
+                return;
+            }
+
+            foreach (var arg in args)
             {
                 var value = Enum.Parse<ProfileId>(arg);
-                CAPGen.GetPlayer(value);
+               var player= CAPGen.GetPlayer(value);
+                player.Show();
             }
         }
     }
