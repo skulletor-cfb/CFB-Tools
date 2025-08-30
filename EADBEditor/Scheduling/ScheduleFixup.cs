@@ -1395,16 +1395,10 @@ namespace EA_DB_Editor
                 // cu-csu play at 184
                 else if (MatchTeams(homeTeam, awayTeam, new[] { 22, 23 }))
                 {
-                    // 0 = rocky mountain showdown, 1 = @CU, 2 = @CSU, 3=@CU
-                    var rotation = (Form1.DynastyYear - 2516) % 4;
-
-                    if (true || rotation == 0)
-                    {
-                        gameRecord["SGID"] = "184";
-                        query["TGID"] = awayTeam.ToString();
-                        teamScheduleRecord = MaddenTable.Query(teamSchedules, query).Single();
-                        teamScheduleRecord["THOA"] = "1";
-                    }
+                    gameRecord["SGID"] = "184";
+                    query["TGID"] = awayTeam.ToString();
+                    teamScheduleRecord = MaddenTable.Query(teamSchedules, query).Single();
+                    teamScheduleRecord["THOA"] = "1";
                 }
                 // UF-UGA play at 183
                 else if (MatchTeams(homeTeam, awayTeam, new[] { 27, 30 }))
@@ -1457,7 +1451,7 @@ namespace EA_DB_Editor
                 }
 
                 // smu-tcu play at 279 when smu is in big 12 on friday night
-                else if (MatchTeams(homeTeam, awayTeam, new[] { 83, 89 }))
+                else if (false && MatchTeams(homeTeam, awayTeam, new[] { 83, 89 }))
                 {
                     gameRecord["SGID"] = "257";
                     gameRecord["GDAT"] = "4";
