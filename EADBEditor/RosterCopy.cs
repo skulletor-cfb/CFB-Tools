@@ -85,7 +85,7 @@ namespace EA_DB_Editor
                 else if (copyAction == CopyAction.Roster)
                 {
                     CopyPlayers(continuation, FindTable(sourceTablesForRoster, "PLAY"), FindTable(sourceTablesForRoster, "DCHT"), FindTable(destination.lTables, "PLAY"), FindTable(destination.lTables, "DCHT"));
-
+                    return;
 
                     if (MessageBox.Show("Recruit ratings and playbook, etc", "Do you want to copy over team data?", MessageBoxButtons.YesNo) == DialogResult.Yes)
                     {
@@ -293,6 +293,29 @@ namespace EA_DB_Editor
             // first we group by team, so what we have is a Dictionary key'd by team id, and each bucket has a Dictionary keyed by PlayerId
             var sourceTeams = playersSource.lRecords.GroupBy(mr => mr["TGID"].ToInt32()).ToDictionary(group => group.Key, group => group.ToList().ToDictionary(mr => mr["PGID"].ToInt32()));
             var sourceDepthChart = depthChartSource.lRecords.GroupBy(mr => mr["TGID"].ToInt32()).ToDictionary(group => group.Key, group => group.ToList().ToDictionary(mr => new DepthChartKey(mr["PPOS"].ToInt32(), mr["ddep"].ToInt32())));
+
+            var miami = sourceTeams[49];
+            var usc = sourceTeams[102];
+            var bama = sourceTeams[3];
+            var osu = sourceTeams[70];
+            var from = new[] { miami, usc, bama, osu };
+
+            for(int i = 160; i <= 163; i++)
+            {
+                foreach( var player in from[i - 160].Take(69))
+                {
+                    var teamId = player.Value["TGID"].ToInt32();
+                    var playerId = player.Key;
+                    var playerIndex = playerId % teamId;
+
+                    player.Value["TGID"] = i.ToString();
+                    player.Value["PGID"] = ((i*70)+playerIndex).ToString();
+                    playersDestination.lRecords.Add(player.Value);
+                }
+            }
+
+            return;
+
             var destTeams = playersDestination.lRecords.GroupBy(mr => mr["TGID"].ToInt32()).ToDictionary(group => group.Key, group => group.ToList().ToDictionary(mr => mr["PGID"].ToInt32()));
             var destDepthChart = depthChartDestination.lRecords.GroupBy(mr => mr["TGID"].ToInt32()).ToDictionary(group => group.Key, group => group.ToList().ToDictionary(mr => new DepthChartKey(mr["PPOS"].ToInt32(), mr["ddep"].ToInt32())));
 
