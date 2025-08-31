@@ -1276,9 +1276,10 @@ namespace EA_DB_Editor
                     Loss = record.GetInt(1)
                 };
 
-                if ((seasonRecord.Win + seasonRecord.Loss) < 10)
+                // check to see if the team went 16-0
+                if (seasonRecord.Win < 4)
                 {
-                    seasonRecord.Win += 16;
+                    seasonRecord.Win += BowlChampion.IsNationalChampionshipYear(teamId, seasonRecord.Year) ? 16 : 0;
                 }
  
                 teamSeasonRecords.Add(seasonRecord.Year, seasonRecord);
