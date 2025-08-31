@@ -255,6 +255,7 @@ namespace EA_DB_Editor
         const int CincyId = 20;
         const int UCFId = 18;
         const int USFId = 144;
+        const int BSUId = 12;
 
         static Lazy<Dictionary<int, int[]>> ConfStateAssignments = new Lazy<Dictionary<int, int[]>>(CreateConferenceAssignmentsForStates, true);
 
@@ -267,14 +268,14 @@ namespace EA_DB_Editor
             dict.Add(1,allConf); //AK
             dict.Add(2, new int[] { Pac16Id, BYUId }); //AZ
             dict.Add(3, new int[] { SECId }); //AR
-            dict.Add(4, new int[] { Pac16Id , NotreDameId, Pac16Id, NotreDameId,BYUId }); //CA
+            dict.Add(4, new int[] { Pac16Id , NotreDameId, Pac16Id, NotreDameId,BYUId, BSUId, }); //CA
             dict.Add(5, new int[] { TeamAndConferences[22], NotreDameId, BYUId }); //CO
             dict.Add(6, new int[] { ACCId,Big10Id , NotreDameId}); //CT
             dict.Add(7, new int[] { ACCId, Big10Id ,NotreDameId}); //DE
             dict.Add(8, new int[] { SECId,ACCId , SECId, ACCId, UCFId, USFId }); //FL
             dict.Add(9, new int[] { SECId, ACCId }); //GA
             dict.Add(10, new int[] { Pac16Id, NotreDameId  }); //HI
-            dict.Add(11, new int[] { Pac16Id, BYUId }); //ID
+            dict.Add(11, new int[] { Pac16Id, BYUId, BSUId }); //ID
             dict.Add(12, new int[] { Big10Id,NotreDameId }); //IL
             dict.Add(13, new int[] { Big10Id, NotreDameId }); //IN
             dict.Add(14, new int[] { Big10Id, NotreDameId,Big12Id }); //IA
@@ -288,9 +289,9 @@ namespace EA_DB_Editor
             dict.Add(22, new int[] { Big10Id,NotreDameId }); //MN
             dict.Add(23, new int[] { SECId }); //MS
             dict.Add(24, new int[] { SECId,Big12Id}); //MO
-            dict.Add(25, new int[] { Pac16Id,NotreDameId}); //MT
+            dict.Add(25, new int[] { Pac16Id,NotreDameId, BSUId }); //MT
             dict.Add(26, new int[] { Big12Id }); //NE
-            dict.Add(27, new int[] { Pac16Id,NotreDameId, BYUId }); //NV
+            dict.Add(27, new int[] { Pac16Id,NotreDameId, BYUId, BSUId }); //NV
             dict.Add(28, new int[] { ACCId,Big10Id,NotreDameId }); //NH
             dict.Add(29, new int[] { ACCId, Big10Id, NotreDameId }); //NJ
             dict.Add(30, new int[] { Pac16Id,Big12Id,NotreDameId }); //NM
@@ -299,17 +300,17 @@ namespace EA_DB_Editor
             dict.Add(33, new int[] { Pac16Id,NotreDameId, BYUId }); //ND
             dict.Add(34, new int[] { Big10Id,NotreDameId, Big10Id, NotreDameId, Big10Id, NotreDameId, CincyId }); //OH
             dict.Add(35, new int[] { Big12Id }); //OK
-            dict.Add(36, new int[] { Pac16Id }); //OR
+            dict.Add(36, new int[] { Pac16Id, BSUId }); //OR
             dict.Add(37, new int[] { ACCId,Big10Id,NotreDameId, CincyId }); //PA
             dict.Add(38, new int[] { ACCId, Big10Id, NotreDameId }); //RI
             dict.Add(39, new int[] { ACCId,SECId }); //SC
             dict.Add(40, new int[] { Pac16Id,Big12Id,NotreDameId, BYUId }); //SD
             dict.Add(41, new int[] { SECId , SECId}); //TN
             dict.Add(42, new int[] { Big12Id,SECId,NotreDameId }); //TX
-            dict.Add(43, new int[] { Pac16Id, NotreDameId , BYUId }); //UT
+            dict.Add(43, new int[] { Pac16Id, NotreDameId , BYUId , BSUId }); //UT
             dict.Add(44, new int[] { ACCId, Big10Id, NotreDameId }); //VT
             dict.Add(45, new int[] { ACCId,  NotreDameId }); //VA
-            dict.Add(46, new int[] { Pac16Id }); //WA
+            dict.Add(46, new int[] { Pac16Id, BSUId }); //WA
             dict.Add(47, new int[] {ACCId }); //WV
             dict.Add(49, allConf); //WY
             dict.Add(48, new int[] { Big10Id,NotreDameId }); //WI
@@ -360,6 +361,9 @@ namespace EA_DB_Editor
                             break;
                         case USFId:
                             allTeams.AddRange(WeightedUSF);
+                            break;
+                        case BSUId:
+                            allTeams.AddRange(WeightedBSU);
                             break;
                         default:
                             break; 
@@ -831,6 +835,7 @@ namespace EA_DB_Editor
         static List<int> WeightedCincy = null;
         static List<int> WeightedUCF = null;
         static List<int> WeightedUSF = null;
+        static List<int> WeightedBSU = null;
 
         public static int[] TeamsOnTheirOwn()
         {
@@ -1024,6 +1029,15 @@ namespace EA_DB_Editor
             else
             {
                 WeightedUSF = CreateWeightedList(Array.Empty<int>());
+            }
+
+            if (BSUId.IsP5())
+            {
+                WeightedBSU = CreateWeightedList(new[] { BSUId });
+            }
+            else
+            {
+                WeightedBSU = CreateWeightedList(Array.Empty<int>());
             }
         }
 
