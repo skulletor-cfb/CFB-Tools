@@ -298,18 +298,48 @@ namespace EA_DB_Editor
             var usc = sourceTeams[102];
             var bama = sourceTeams[3];
             var osu = sourceTeams[70];
+            var miamidc = sourceDepthChart[49];
+            var uscdc = sourceDepthChart[102];
+            var bamadc = sourceDepthChart[3];
+            var osudc = sourceDepthChart[70];
+
             var from = new[] { miami, usc, bama, osu };
 
-            for(int i = 160; i <= 163; i++)
+            // depth charts
+            void CopyDepthChart(int sourceId, int destId, IEnumerable<MaddenRecord> records)
             {
-                foreach( var player in from[i - 160].Take(69))
+                var ignore = (sourceId * 70) + 69;
+
+                foreach (var mr in records)
+                {
+                    var playerId = mr["PGID"].ToInt32();
+
+                    if (playerId == ignore) continue;
+
+                    var playerIndex = playerId % sourceId;
+                    mr["TGID"] = destId.ToString();
+                    mr["PGID"] = ((destId * 70) + playerIndex).ToString();
+                    depthChartDestination.lRecords.Add(mr);
+                }
+            }
+           
+            CopyDepthChart(49, 160, sourceDepthChart[49].Values);
+            CopyDepthChart(102, 161, sourceDepthChart[102].Values);
+            CopyDepthChart(3, 162, sourceDepthChart[3].Values);
+            CopyDepthChart(70, 163, sourceDepthChart[70].Values);
+
+
+            // players
+            for (int i = 160; i <= 163; i++)
+            {
+                foreach (var player in from[i - 160].Take(69))
                 {
                     var teamId = player.Value["TGID"].ToInt32();
                     var playerId = player.Key;
                     var playerIndex = playerId % teamId;
 
                     player.Value["TGID"] = i.ToString();
-                    player.Value["PGID"] = ((i*70)+playerIndex).ToString();
+                    player.Value["PGID"] = ((i * 70) + playerIndex).ToString();
                     playersDestination.lRecords.Add(player.Value);
                 }
             }
