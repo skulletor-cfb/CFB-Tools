@@ -317,7 +317,7 @@ namespace EA_DB_Editor
 
                     if (playerId == ignore) continue;
 
-                    var playerIndex = playerId % sourceId;
+                    var playerIndex = playerId % 70;
                     mr["TGID"] = destId.ToString();
                     mr["PGID"] = ((destId * 70) + playerIndex).ToString();
                     var newMr = depthChartDestination.AddNewRecord();
@@ -325,7 +325,7 @@ namespace EA_DB_Editor
                 }
             }
            
-            CopyDepthChart(49, 160, sourceDepthChart[49].Values);
+            CopyDepthChart(49, 901, sourceDepthChart[49].Values);
             /*
             CopyDepthChart(102, 161, sourceDepthChart[102].Values);
             CopyDepthChart(3, 162, sourceDepthChart[3].Values);
@@ -333,11 +333,11 @@ namespace EA_DB_Editor
             */
 
             // players
-            var start = 160;
-            var end = 160; // make this 163
+            var start = 901;
+            var end = 901; // make this 163
             for (int i = start; i <= end; i++)
             {
-                foreach (var player in from[i - 160].Take(69))
+                foreach (var player in from[i - start].Take(69))
                 {
                     var teamId = player.Value["TGID"].ToInt32();
                     var playerId = player.Key;

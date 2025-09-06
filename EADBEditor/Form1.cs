@@ -4026,58 +4026,12 @@ PPOS = Position
 
         private void customFixToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // make it so that a recrutied player changes his team
-            const int chickFilaStadium = 273;
-            const int atlantaGridironClassic = 263;
-
-            var stadiumTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "STAD");
-            var sauce = stadiumTable.CreateDictionary(mr => mr["SGID"].ToInt32(), mr => true);
-            RosterCopy.CopyRecordData(sauce[chickFilaStadium], sauce[atlantaGridironClassic], dataKey => RosterCopy.STADIUM_DATA_TO_COPY.Contains(dataKey));
-            return;
-
-            const string stadiumFile = "jmu-stadium.txt";
-            const string teamFile = "jmu-team.txt";
-
-            // fiu stadium is 241
-            var teamTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "TEAM");
-            var jmuTeam = teamTable.lRecords.Where(r => r["TGID"].ToInt32() == 230).Single();
-            var jmuStadium = stadiumTable.lRecords.Where(r => r["SGID"].ToInt32() == 241).Single();
-#if false // copy JMU from v21
-            var dict = new Dictionary<string, string>();
-            var include = new HashSet<string>(RosterCopy.STADIUM_DATA_TO_COPY, StringComparer.OrdinalIgnoreCase);
-
-            foreach (var f in stadiumTable.lFields)
-            {
-                if (include.Contains(f.Abbreviation))
-                {
-                    dict[f.Abbreviation] = jmuStadium[f.Abbreviation];
-                }
-            }
-
-            dict.ToJsonFile(stadiumFile);
-
-            dict = new Dictionary<string, string>();
-
-            foreach (var f in teamTable.lFields)
-            {
-                dict[f.Abbreviation] = jmuTeam[f.Abbreviation];
-            }
-
-            dict.ToJsonFile(teamFile);
-#else // apply jmu changes
-            var team = teamFile.FromJsonFile<Dictionary<string, string>>();
-            var stad = stadiumFile.FromJsonFile<Dictionary<string, string>>();
-
-            foreach (var kvp in team)
-            {
-                jmuTeam[kvp.Key] = kvp.Value;
-            }
-
-            foreach (var kvp in stad)
-            {
-                jmuStadium[kvp.Key] = kvp.Value;
-            }
-#endif
+            // dupe USA into another team
+            var team = MaddenTable.FindMaddenTable(maddenDB.lTables, "TEAM");
+            var usa = team.lRecords.Where(mr => mr["TGID"].ToInt32() == 235).FirstOrDefault();
+            var notUSA = team.AddNewRecord();
+            notUSA.CopyData(usa);
+            notUSA["TGID"] = "901";
         }
 
 
