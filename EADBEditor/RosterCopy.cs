@@ -305,6 +305,7 @@ namespace EA_DB_Editor
 
             var from = new[] { miami, usc, bama, osu };
 
+            
             // depth charts
             void CopyDepthChart(int sourceId, int destId, IEnumerable<MaddenRecord> records)
             {
@@ -319,31 +320,38 @@ namespace EA_DB_Editor
                     var playerIndex = playerId % sourceId;
                     mr["TGID"] = destId.ToString();
                     mr["PGID"] = ((destId * 70) + playerIndex).ToString();
-                    depthChartDestination.lRecords.Add(mr);
+                    var newMr = depthChartDestination.AddNewRecord();
+                    newMr.CopyData(mr);
                 }
             }
            
             CopyDepthChart(49, 160, sourceDepthChart[49].Values);
+            /*
             CopyDepthChart(102, 161, sourceDepthChart[102].Values);
             CopyDepthChart(3, 162, sourceDepthChart[3].Values);
             CopyDepthChart(70, 163, sourceDepthChart[70].Values);
-
+            */
 
             // players
-            for (int i = 160; i <= 163; i++)
+            var start = 160;
+            var end = 160; // make this 163
+            for (int i = start; i <= end; i++)
             {
                 foreach (var player in from[i - 160].Take(69))
                 {
                     var teamId = player.Value["TGID"].ToInt32();
                     var playerId = player.Key;
-                    var playerIndex = playerId % teamId;
+                    var playerIndex = playerId % 70;
 
                     player.Value["TGID"] = i.ToString();
                     player.Value["PGID"] = ((i * 70) + playerIndex).ToString();
-                    playersDestination.lRecords.Add(player.Value);
+                    player.Value["POID"] = player.Value["PGID"];
+                    var mr = playersDestination.AddNewRecord();
+                    mr.CopyDataKeys(player.Value);
                 }
             }
 
+            playersDestination.lRecords = playersDestination.lRecords.OrderBy(mr => mr["PGID"].ToInt32()).ToList();
             return;
 
             var destTeams = playersDestination.lRecords.GroupBy(mr => mr["TGID"].ToInt32()).ToDictionary(group => group.Key, group => group.ToList().ToDictionary(mr => mr["PGID"].ToInt32()));

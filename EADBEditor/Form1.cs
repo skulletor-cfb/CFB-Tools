@@ -5068,11 +5068,23 @@ PPOS = Position
 		public int		infosize		= 40;
 
 		public long		fieldStart		= 0;
-		public long		dataStart		= 0;
+		public long		_dataStart		= 0;
 
 		public UInt32	calcPcrc		= 0;
 		public UInt32	calcHcrc		= 0;
 
+
+        public long dataStart
+        {
+            get
+            {
+                return _dataStart;
+            }
+            set
+            {
+                _dataStart = value;
+            }
+        }
 
 		public DBTable( )
 		{	TableName		= "";
@@ -5638,13 +5650,28 @@ PPOS = Position
 				lEntries.Add( n );
 			}
 		}
-		public void CopyData( MaddenRecord org )
-		{	if( org.lEntries.Count != lEntries.Count )
-				return;
 
-			for( int i=0; i < lEntries.Count; i++ )
-				lEntries[i].Data	= org.lEntries[i].Data;
-		}
+        public void CopyDataKeys(MaddenRecord org)
+        {
+            foreach( var entry in lEntries)
+            {
+                var key = entry.GetFieldName();
+
+                if (!org.lEntries.Any(d => d.field.name == key || d.field.Abbreviation==key))
+                    continue;
+
+                entry.Data = org[key];
+            }
+        }
+
+        public void CopyData(MaddenRecord org)
+        {
+            if (org.lEntries.Count != lEntries.Count)
+                return;
+
+            for (int i = 0; i < lEntries.Count; i++)
+                lEntries[i].Data = org.lEntries[i].Data;
+        }
 		public void WriteRecord( int entryNum, byte[] buffer, bool isScheduleTable )
 		{	BitStream	bits	= new BitStream( );
 
