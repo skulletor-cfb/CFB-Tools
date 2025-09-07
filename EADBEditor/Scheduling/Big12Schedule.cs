@@ -80,6 +80,7 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
+            return null;
             Dictionary<int, int[]> result = null;
             var currYear = Form1.DynastyYear;
 
@@ -117,6 +118,7 @@ namespace EA_DB_Editor
 
         public static void ProcessBig12Schedule(Dictionary<int, TeamSchedule> schedule)
         {
+            return;
             schedule.ProcessSchedule(
                 ScenarioForSeason,
                 Big12ConferenceSchedule,
