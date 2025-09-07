@@ -51,7 +51,7 @@ namespace EA_DB_Editor
         {
             var idx = (Form1.DynastyYear - 2551) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(12, RecruitingFixup.MWCId, "MWC");
+            result = result.Verify(14, RecruitingFixup.MWCId, "MWC");
             MWCConferenceSchedule = result.BuildHashSet();
             return result;
         }
