@@ -6,10 +6,6 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
-using Azure.Storage.Blobs.Specialized;
-using Azure.Storage;
 
 namespace RefreshRunner
 {
@@ -18,7 +14,7 @@ namespace RefreshRunner
         static string PreSeasonFile = "DYNASTY-Y{0}";
         static string EndOfSeason = "DYNASTY-Q5";
         static string EndOfRecruting = "DYNASTY-Q7";
-        static string ArchiveDir = @"e:\NCAA_2014\Archive";
+        static string ArchiveDir = @"d:\NCAA_2014\Archive";
         static string EndOfSeasonArchiveDir = @"D:\OneDrive\ncaa\EndOfSeasonArchive";
         static string SeasonsFile = ArchiveDir + @"\seasons";
         static string ReportsDir = @".\archive\reports";
@@ -42,26 +38,26 @@ namespace RefreshRunner
         static int ContinuationConfig8 = 417; //this is 2430-2487
         static int ContinuationConfig9 = 475; //this is 2488-2539
         static int ContinuationConfig10 = ContinuationConfig9 + 52; //this is 2540-2597
-        static string ContinationDir1 = @"e:\NCAA_2014\Archive\2067_Miami_HC_(15-0)_Week_EOY";
-        static string ContinationDir2 = @"e:\NCAA_2014\Archive\2125_Season";
-        static string ContinationDir3 = @"e:\NCAA_2014\Archive\2183_Season";
-        static string ContinationDir4 = @"e:\NCAA_2014\Archive\2197_Season";
-        static string ContinationDir5 = @"e:\NCAA_2014\Archive\2255_Season";
-        static string ContinationDir6 = @"e:\NCAA_2014\Archive\2313_Season";
-        static string ContinationDir7 = @"e:\NCAA_2014\Archive\2371_Season";
-        static string ContinationDir8 = @"e:\NCAA_2014\Archive\2429_Season";
-        static string ContinationDir9 = @"e:\NCAA_2014\Archive\2487_Season";
-        static string ContinationDir10 = @"e:\NCAA_2014\Archive\2539_Season";
-        static string CF1 = @"e:\NCAA_2014\Archive\Continuation68to125\continuationfile.txt";
-        static string CF2 = @"e:\NCAA_2014\Archive\Continuation126to183\continuationfile.txt";
-        static string CF3 = @"e:\NCAA_2014\Archive\Continuation184to197\continuationfile.txt";
-        static string CF4 = @"e:\NCAA_2014\Archive\Continuation198to255\continuationfile.txt";
-        static string CF5 = @"e:\NCAA_2014\Archive\Continuation256to313\continuationfile.txt";
-        static string CF6 = @"e:\NCAA_2014\Archive\Continuation314to371\continuationfile.txt";
-        static string CF7 = @"e:\NCAA_2014\Archive\Continuation372to429\continuationfile.txt";
-        static string CF8 = @"e:\NCAA_2014\Archive\Continuation430to487\continuationfile.txt";
-        static string CF9 = @"E:\NCAA_2014\Archive\Continuation488to539\continuationfile.txt";
-        static string CF10 = @"e:\NCAA_2014\Archive\continuationfile.txt";
+        static string ContinationDir1 = @"d:\NCAA_2014\Archive\2067_Miami_HC_(15-0)_Week_EOY";
+        static string ContinationDir2 = @"d:\NCAA_2014\Archive\2125_Season";
+        static string ContinationDir3 = @"d:\NCAA_2014\Archive\2183_Season";
+        static string ContinationDir4 = @"d:\NCAA_2014\Archive\2197_Season";
+        static string ContinationDir5 = @"d:\NCAA_2014\Archive\2255_Season";
+        static string ContinationDir6 = @"d:\NCAA_2014\Archive\2313_Season";
+        static string ContinationDir7 = @"d:\NCAA_2014\Archive\2371_Season";
+        static string ContinationDir8 = @"d:\NCAA_2014\Archive\2429_Season";
+        static string ContinationDir9 = @"d:\NCAA_2014\Archive\2487_Season";
+        static string ContinationDir10 = @"d:\NCAA_2014\Archive\2539_Season";
+        static string CF1 = @"d:\NCAA_2014\Archive\Continuation68to125\continuationfile.txt";
+        static string CF2 = @"d:\NCAA_2014\Archive\Continuation126to183\continuationfile.txt";
+        static string CF3 = @"d:\NCAA_2014\Archive\Continuation184to197\continuationfile.txt";
+        static string CF4 = @"d:\NCAA_2014\Archive\Continuation198to255\continuationfile.txt";
+        static string CF5 = @"d:\NCAA_2014\Archive\Continuation256to313\continuationfile.txt";
+        static string CF6 = @"d:\NCAA_2014\Archive\Continuation314to371\continuationfile.txt";
+        static string CF7 = @"d:\NCAA_2014\Archive\Continuation372to429\continuationfile.txt";
+        static string CF8 = @"d:\NCAA_2014\Archive\Continuation430to487\continuationfile.txt";
+        static string CF9 = @"d:\NCAA_2014\Archive\Continuation488to539\continuationfile.txt";
+        static string CF10 = @"d:\NCAA_2014\Archive\continuationfile.txt";
         static int SetNeutralSiteYear = 156; // the year 2206 in dynasty before this we need
         const string OldNeutralSiteValue = "271,272,276,273,{150;150},{275;277;186},{147;169;153;168},182,184,183";
         const string OldStadiumNickNameOverride = "Stadium=271,BeforeWeek=2,NickName=Cowboys Classic;Stadium=184,BeforeWeek=3,NickName=Rocky Mountain Showdown;Stadium=276,BeforeWeek=3,NickName=Chicago Kickoff;Stadium=183,BeforeWeek=16,NickName=World's Largest Outdoor Cocktail Party;Stadium=182,BeforeWeek=16,NickName=Red River Shootout;Stadium=150,BeforeWeek=2,NickName=Fiesta Kickoff;Stadium=275,BeforeWeek=2,NickName=Atlantic Kickoff;Stadium=186,BeforeWeek=2,NickName=Atlantic Kickoff;Stadium=277,BeforeWeek=2,NickName=Atlantic Kickoff;Stadium=147,BeforeWeek=2,NickName=Sunshine State Kickoff;Stadium=169,BeforeWeek=2,NickName=Sunshine State Kickoff;Stadium=153,BeforeWeek=2,NickName=Sunshine State Kickoff;Stadium=168,BeforeWeek=2,NickName=Sunshine State Kickoff;";
@@ -326,8 +322,8 @@ namespace RefreshRunner
 
         static void Dump()
         {
-            const string saveFiles = @"E:\rpcs3\dev_hdd0\home\00000001\savedata";
-            const string outputDirectory = @"e:\dynastyTables";
+            const string saveFiles = @"d:\rpcs3\dev_hdd0\home\00000001\savedata";
+            const string outputDirectory = @"d:\dynastyTables";
             const string teamFile = outputDirectory + @"\team.csv";
             const string schdFile = outputDirectory + @"\schd.csv";
 
@@ -363,6 +359,7 @@ namespace RefreshRunner
                 File.Delete(table);
             }
 
+#if false
             var client = new BlobServiceClient(
                 new Uri("https://squabsgyros.blob.core.windows.net"),
                 new StorageSharedKeyCredential("squabsgyros", accessKey));
@@ -374,6 +371,7 @@ namespace RefreshRunner
             schdClientClient.Upload(schdFile, overwrite: true);
 
             return;
+#endif
             // read the data
             var csv = File.ReadAllText(teamFile);
             form.SetClipboard(csv);
@@ -398,7 +396,7 @@ namespace RefreshRunner
                 var appDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString());
                 var form = CreateForm(appDomain);
 
-                var records = File.ReadAllLines(@"e:\NCAA_2014\Archive\2246_Season\thr.csv").Skip(1)
+                var records = File.ReadAllLines(@"d:\NCAA_2014\Archive\2246_Season\thr.csv").Skip(1)
                     .Select(line =>
                     {
                     var split = line.Split(',');
@@ -406,7 +404,7 @@ namespace RefreshRunner
                     })
                     .ToDictionary(a => Tuple.Create(a.TeamId, a.Year));
 
-                var bowlChamps = File.ReadAllLines(@"e:\NCAA_2014\Archive\2246_Season\bowlchamps.csv").Skip(1)
+                var bowlChamps = File.ReadAllLines(@"d:\NCAA_2014\Archive\2246_Season\bowlchamps.csv").Skip(1)
                     .Select(line =>
                     {
                         var split = line.Split(',');
@@ -415,7 +413,7 @@ namespace RefreshRunner
                     .GroupBy(a => Tuple.Create(a.TeamId, a.Year))
                     .ToDictionary(g => g.Key, g => g.ToArray());
 
-                var ccChamps = File.ReadAllLines(@"e:\NCAA_2014\Archive\2246_Season\cc.csv").Skip(1)
+                var ccChamps = File.ReadAllLines(@"d:\NCAA_2014\Archive\2246_Season\cc.csv").Skip(1)
                     .Select(line =>
                     {
                         var split = line.Split(',');
@@ -508,7 +506,7 @@ namespace RefreshRunner
         static Form1 CreateForm(AppDomain appDomain)
         {
             var form = (Form1)appDomain.CreateInstanceAndUnwrap(typeof(Form1).Assembly.FullName, typeof(Form1).FullName);
-            form.SetArchiveLocation(@"e:\NCAA_2014\archive");
+            form.SetArchiveLocation(@"d:\NCAA_2014\archive");
             return form;
         }
 
