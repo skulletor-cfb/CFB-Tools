@@ -768,7 +768,7 @@ namespace EA_DB_Editor
 
         private static List<PreseasonScheduledGame> FindExtraBig12Games(Dictionary<int, TeamSchedule> schedules)
         {
-#if false
+#if true
             var result = new List<PreseasonScheduledGame>();
             var normalized = new Dictionary<int, int>();
 
@@ -1101,7 +1101,8 @@ namespace EA_DB_Editor
 
             // should not remove more than 8 games, but only 1 per team
             var extraConfGames = FindExtraSunBeltGames(schedules)
-                .Concat(FindExtraAccGames(schedules));
+                .Concat(FindExtraAccGames(schedules))
+                .Concat(FindExtraBig12Games(schedules));
 
             // p5-p5 games late in the season
             var replaceableGamesP5 = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsRivalryGame() && !g.IsConferenceGame() && !g.IsFCSGame() && g.IsP5Game() && g.WeekIndex > 4)).Distinct().OrderByDescending(g => g.WeekIndex).ToArray();
