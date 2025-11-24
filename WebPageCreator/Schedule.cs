@@ -736,6 +736,7 @@ namespace EA_DB_Editor
             IsEddieRobinsonClassic,
             IsAtlantaGridironClassic,
             IsKansasCityClassic,
+            IsUnionJackClassic,
         };
 
         public static string SiteIdSuffix(ScheduledGame g)
@@ -762,11 +763,25 @@ namespace EA_DB_Editor
             return false;
         }
 
+        private static bool IsUnionJackClassic(ScheduledGame g)
+        {
+            const int id = 267762;
+            KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
+            if (g.StadiumId == 267 && Form1.CalendarYear >= 2552)
+            {
+                g.GameSite = "Union Jack Classic";
+                g.SiteId = id;
+                return true;
+            }
+
+            return false;
+        }
+
         private static bool IsAtlantaGridironClassic(ScheduledGame g)
         {
             const int id = 263263;
             KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
-            if (g.StadiumId == 263)
+            if (g.StadiumId == 263 && Form1.CalendarYear >= 2537)
             {
                 g.GameSite = "Atlanta Gridiron Classic";
                 g.SiteId = id;
