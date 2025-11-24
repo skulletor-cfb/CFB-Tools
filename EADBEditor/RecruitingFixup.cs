@@ -537,10 +537,7 @@ namespace EA_DB_Editor
 
         static bool ShouldReplaceForAAC(int rank, int teamId)
         {
-            if (rank <= P5Cutoff)
-                return true;
-
-            return  !DontFoolWith.Contains(teamId);
+            return false;
         }
 
         static HashSet<int> changedFaces = new HashSet<int>();
@@ -815,7 +812,7 @@ namespace EA_DB_Editor
 
         static string[] academies = { "1", "8", "57" };
         public static int[] OnTheirOwn = TeamsOnTheirOwn();
-#if false
+#if true
         public static int[] DontFoolWith = new int[0];// American.ToArray();
 #else
         public static int[] DontFoolWith = American.ToArray();
