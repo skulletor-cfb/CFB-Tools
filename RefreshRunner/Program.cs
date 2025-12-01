@@ -113,6 +113,7 @@ namespace RefreshRunner
             return string.Format(PreSeasonFile, suffix);
         }
 
+        [STAThread]
         static void Main(string[] args)
         {
             if (args.Length == 1 && args[0] == "dump")
@@ -322,7 +323,7 @@ namespace RefreshRunner
 
         static void Dump()
         {
-            const string saveFiles = @"d:\rpcs3\dev_hdd0\home\00000001\savedata";
+            const string saveFiles = @"c:\rpcs3\dev_hdd0\home\00000001\savedata";
             const string outputDirectory = @"d:\dynastyTables";
             const string teamFile = outputDirectory + @"\team.csv";
             const string schdFile = outputDirectory + @"\schd.csv";
@@ -374,15 +375,15 @@ namespace RefreshRunner
 #endif
             // read the data
             var csv = File.ReadAllText(teamFile);
-            form.SetClipboard(csv);
+//            form.SetClipboard(csv);
             Console.WriteLine("Copy TEAM table");
-            Console.ReadLine();
+  //          Console.ReadLine();
 
 
             csv = File.ReadAllText(schdFile);
-            form.SetClipboard(csv);
+    //        form.SetClipboard(csv);
             Console.WriteLine("Copy SCHD table");
-            Console.ReadLine();
+      //      Console.ReadLine();
         }
 
         static void ReadCoachData()
