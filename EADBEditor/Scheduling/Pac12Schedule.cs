@@ -50,7 +50,7 @@ namespace EA_DB_Editor
         const int WSU = 111;
         const int OSU = 75;
         const int UO = 74;
-        const int BYU = 16;
+        const int CU = 22;
         const int Utah = 103;
         const int Stanford = 87;
         const int Cal = 17;
@@ -59,21 +59,21 @@ namespace EA_DB_Editor
         const int Arizona = 4;
         const int ASU = 5;
 
-#if true // Pac 12 no division setup (pac nw/cal teams all play eachother.  cal-pnw 50%, against AZ/UT 75% (8 year cycle)
+        // Pac 12 no division setup (pac nw/cal teams all play eachother.  cal-pnw 50%, against AZ/UT 75% (8 year cycle)
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Wash.Create(WSU, BYU, Stanford, Arizona),
+                Wash.Create(WSU, CU, Stanford, Arizona),
                 WSU.Create(OSU, Utah, Cal, ASU),
-                OSU.Create(Wash, UO, BYU, USC),
+                OSU.Create(Wash, UO, CU, USC),
                 UO.Create(Wash, WSU, Utah, UCLA),
-                BYU.Create(WSU, UO, Utah, Arizona),
+                CU.Create(WSU, UO, Utah, Arizona),
                 Utah.Create(Wash, OSU, UCLA, ASU),
 
-                Stanford.Create(OSU, BYU, Cal, UCLA),
+                Stanford.Create(OSU, CU, Cal, UCLA),
                 Cal.Create(UO, Utah, USC, ASU),
-                USC.Create(Wash, BYU, Stanford, UCLA),
+                USC.Create(Wash, CU, Stanford, UCLA),
                 UCLA.Create(WSU, Cal, Arizona, ASU),
                 Arizona.Create(OSU, Stanford, Cal, USC),
                 ASU.Create(UO, Stanford, USC, Arizona),
@@ -84,17 +84,17 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Wash.Create(WSU, BYU, Cal , ASU),
+                Wash.Create(WSU, CU, Cal , ASU),
                 WSU.Create(OSU, Utah, Stanford, USC),
-                OSU.Create(Wash, UO, BYU, UCLA),
+                OSU.Create(Wash, UO, CU, UCLA),
                 UO.Create(Wash, WSU, Utah, Arizona),
-                BYU.Create(WSU, UO, Utah, ASU),
+                CU.Create(WSU, UO, Utah, ASU),
                 Utah.Create(Wash, OSU, USC, Arizona),
 
                 Stanford.Create(UO, Utah, Cal, UCLA),
-                Cal.Create(OSU, BYU, USC, ASU),
+                Cal.Create(OSU, CU, USC, ASU),
                 USC.Create(UO, Stanford, UCLA, ASU),
-                UCLA.Create(Wash, BYU, Cal , Arizona),
+                UCLA.Create(Wash, CU, Cal , Arizona),
                 Arizona.Create(WSU, Stanford, Cal, USC),
                 ASU.Create(OSU, Stanford, UCLA, Arizona),
             }.Create();
@@ -104,18 +104,18 @@ namespace EA_DB_Editor
             return new List<KeyValuePair<int, int[]>>
             {
                 Wash.Create(WSU, ASU, Stanford, Utah),
-                WSU.Create(OSU, Arizona, Cal, BYU),
+                WSU.Create(OSU, Arizona, Cal, CU),
                 OSU.Create(Wash, UO, ASU, USC),
                 UO.Create(Wash, WSU, Arizona, UCLA),
                 ASU.Create(WSU, UO, Arizona, Utah),
-                Arizona.Create(Wash, OSU, UCLA, BYU),
+                Arizona.Create(Wash, OSU, UCLA, CU),
 
                 Stanford.Create(OSU, ASU, Cal, UCLA),
-                Cal.Create(UO, Arizona, USC, BYU),
+                Cal.Create(UO, Arizona, USC, CU),
                 USC.Create(Wash, ASU, Stanford, UCLA),
-                UCLA.Create(WSU, Cal, Utah, BYU),
+                UCLA.Create(WSU, Cal, Utah, CU),
                 Utah.Create(OSU, Stanford, Cal, USC),
-                BYU.Create(UO, Stanford, USC, Utah),
+                CU.Create(UO, Stanford, USC, Utah),
             }.Create();
         }
 
@@ -123,97 +123,20 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Wash.Create(WSU, ASU, Cal , BYU),
+                Wash.Create(WSU, ASU, Cal , CU),
                 WSU.Create(OSU, Arizona, Stanford, USC),
                 OSU.Create(Wash, UO, ASU, UCLA),
                 UO.Create(Wash, WSU, Arizona, Utah),
-                ASU.Create(WSU, UO, Arizona, BYU),
+                ASU.Create(WSU, UO, Arizona, CU),
                 Arizona.Create(Wash, OSU, USC, Utah),
 
                 Stanford.Create(UO, Arizona, Cal, UCLA),
-                Cal.Create(OSU, ASU, USC, BYU),
-                USC.Create(UO, Stanford, UCLA, BYU),
+                Cal.Create(OSU, ASU, USC, CU),
+                USC.Create(UO, Stanford, UCLA, CU),
                 UCLA.Create(Wash, ASU, Cal , Utah),
                 Utah.Create(WSU, Stanford, Cal, USC),
-                BYU.Create(OSU, Stanford, UCLA, Utah),
+                CU.Create(OSU, Stanford, UCLA, Utah),
             }.Create();
         }
-#elif false
-        public static Dictionary<int, int[]> CreateA()
-        {
-            return new List<KeyValuePair<int, int[]>>
-            {
-                Wash.Create(WSU, BYU, Stanford, Arizona),
-                WSU.Create(OSU, Utah, Cal, ASU),
-                OSU.Create(Wash, UO, BYU, USC),
-                UO.Create(Wash, WSU, Utah, UCLA),
-                BYU.Create(WSU, UO, Utah, Arizona),
-                Utah.Create(Wash, OSU, UCLA, ASU),
-                Stanford.Create(OSU, BYU, Cal, UCLA),
-                Cal.Create(UO, Utah, USC, ASU),
-                USC.Create(Wash, BYU, Stanford, UCLA),
-                UCLA.Create(WSU, Cal, Arizona, ASU),
-                Arizona.Create(OSU, Stanford, Cal, USC),
-                ASU.Create(UO, Stanford, USC, Arizona),
-            }.Create();
-        }
-
-        public static Dictionary<int, int[]> CreateB()
-        {
-            return new List<KeyValuePair<int, int[]>>
-            {
-                Wash.Create(WSU, BYU, Cal , ASU),
-                WSU.Create(OSU, Utah, Stanford, USC),
-                OSU.Create(Wash, UO, BYU, UCLA),
-                UO.Create(Wash, WSU, Utah, Arizona),
-                BYU.Create(WSU, UO, Utah, ASU),
-                Utah.Create(Wash, OSU, USC, Arizona),
-                Stanford.Create(UO, Utah, Cal, UCLA),
-                Cal.Create(OSU, BYU, USC, ASU),
-                USC.Create(UO, Stanford, UCLA, ASU),
-                UCLA.Create(Wash, BYU, Cal , Arizona),
-                Arizona.Create(WSU, Stanford, Cal, USC),
-                ASU.Create(OSU, Stanford, UCLA, Arizona),
-            }.Create();
-        }
-#else
-        public static Dictionary<int, int[]> CreateA()
-        {
-            return new Dictionary<int, int[]>()
-            {
-                { 110, new[]{111,87,102,4 } },
-                { 111, new[]{75,17,103,99 } },
-                { 75, new[]{110,74,87,102 } },
-                { 74, new[]{110,111,17,5 } },
-                { 87, new[]{111,74,17,16 } },
-                { 17, new[]{110,75,5,103 } },
-                { 102, new[]{87,99,5,103 } },
-                { 99, new[]{74,17,4,16} },
-                { 4, new[]{75,87,102,103} },
-                { 5, new[]{111,99,4,16} },
-                { 16, new[]{110,75,102,4} },
-                { 103, new[]{74,99,5,16} },
-            };
-        }
-
-        public static Dictionary<int, int[]> CreateB()
-        {
-            return new Dictionary<int, int[]>()
-            {
-                { 110, new[]{111,87,5,103 } },
-                { 111, new[]{75,17,102,4 } },
-                { 75, new[]{110,74,87,99 } },
-                { 74, new[]{110,111,17,4 } },
-                { 87, new[]{111,74,17,5 } },
-                { 17, new[]{110,75,102,16 } },
-                { 102, new[]{74,99,5,16 } },
-                { 99, new[]{110,87,4,103} },
-                { 4, new[]{17,16,102,103} },
-                { 5, new[]{75,99,103,4} },
-                { 16, new[]{111,74,99,5} },
-                { 103, new[]{75,87,102,16} },
-            };
-        }
-#endif
     }
 }
