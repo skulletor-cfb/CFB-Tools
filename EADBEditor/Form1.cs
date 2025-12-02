@@ -4085,6 +4085,19 @@ PPOS = Position
         bool mytleBeachBowlAdded = false;
         bool arizonaBowlAdded = false;
         bool venturesBowlAdded = false;
+        bool veteransBowlAdded = false;
+
+        private void saluteToVeteransBowlToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(veteransBowlAdded)
+            {
+                MessageBox.Show("Salute to Veterans Bowl already added!");
+                return;
+            }
+
+            AddBowlGame(AdditionalGameProvider.VeteransBowl, 256);
+            veteransBowlAdded = true;
+        }
 
         private void cureBowlToolStripMenuItem_Click(object sender, EventArgs e)
         {

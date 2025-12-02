@@ -255,6 +255,7 @@ namespace EA_DB_Editor
         const int CincyId = 20;
         const int UCFId = 18;
         const int USFId = 144;
+        const int LSUId = 45;
 
         static Lazy<Dictionary<int, int[]>> ConfStateAssignments = new Lazy<Dictionary<int, int[]>>(CreateConferenceAssignmentsForStates, true);
 
@@ -280,7 +281,7 @@ namespace EA_DB_Editor
             dict.Add(14, new int[] { Big10Id, NotreDameId,Big12Id }); //IA
             dict.Add(15, new int[] { Big12Id }); //KS
             dict.Add(16, new int[] { TeamAndConferences[44], SECId}); //KY
-            dict.Add(17, new int[] { SECId }); //LA
+            dict.Add(17, new int[] { SECId, LSUId }); //LA
             dict.Add(18, new int[] { ACCId,Big10Id,NotreDameId }); //ME
             dict.Add(19, new int[] {  ACCId,  NotreDameId }); //MD
             dict.Add(20, new int[] { ACCId, NotreDameId }); //MA
@@ -360,6 +361,9 @@ namespace EA_DB_Editor
                             break;
                         case USFId:
                             allTeams.AddRange(WeightedUSF);
+                            break;
+                        case LSUId:
+                            allTeams.AddRange(WeightedLSU);
                             break;
                         default:
                             break; 
@@ -831,6 +835,7 @@ namespace EA_DB_Editor
         static List<int> WeightedCincy = null;
         static List<int> WeightedUCF = null;
         static List<int> WeightedUSF = null;
+        static List<int> WeightedLSU = null;
 
         public static int[] TeamsOnTheirOwn()
         {
@@ -997,7 +1002,8 @@ namespace EA_DB_Editor
             WeightedBig16 = CreateWeightedList(Big12);
 
             // Independent BYU gets to recruit
-            WeightedBYU = TeamAndConferences[16] == IndId ? CreateWeightedList(new[] { 16 }) : new List<int>();
+            WeightedBYU = TeamAndConferences[16] == IndId ? CreateWeightedList(new[] { BYUId }) : new List<int>();
+            WeightedLSU = CreateWeightedList(new[] { LSUId });
 
             if (CincyId.IsP5())
             {

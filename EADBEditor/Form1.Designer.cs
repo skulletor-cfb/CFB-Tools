@@ -88,6 +88,7 @@
             this.reorderRecruitsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.transferPlayerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.assumeControlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fixSocksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.playerNumbersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.queryToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.preseasonScheduleFixToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -116,7 +117,7 @@
             this.aPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.coachesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.fixSocksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saluteToVeteransBowlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -591,6 +592,13 @@
             this.assumeControlToolStripMenuItem.Text = "Assume Control";
             this.assumeControlToolStripMenuItem.Click += new System.EventHandler(this.assumeControlToolStripMenuItem_Click);
             // 
+            // fixSocksToolStripMenuItem
+            // 
+            this.fixSocksToolStripMenuItem.Name = "fixSocksToolStripMenuItem";
+            this.fixSocksToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
+            this.fixSocksToolStripMenuItem.Text = "Fix Socks";
+            this.fixSocksToolStripMenuItem.Click += new System.EventHandler(this.fixSocksToolStripMenuItem_Click);
+            // 
             // playerNumbersToolStripMenuItem
             // 
             this.playerNumbersToolStripMenuItem.Name = "playerNumbersToolStripMenuItem";
@@ -647,42 +655,42 @@
             // lastWeekPollToolStripMenuItem
             // 
             this.lastWeekPollToolStripMenuItem.Name = "lastWeekPollToolStripMenuItem";
-            this.lastWeekPollToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.lastWeekPollToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.lastWeekPollToolStripMenuItem.Text = "Last Week Poll";
             this.lastWeekPollToolStripMenuItem.Click += new System.EventHandler(this.lastWeekPollToolStripMenuItem_Click);
             // 
             // pollPointsToolStripMenuItem
             // 
             this.pollPointsToolStripMenuItem.Name = "pollPointsToolStripMenuItem";
-            this.pollPointsToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.pollPointsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.pollPointsToolStripMenuItem.Text = "Poll Points";
             this.pollPointsToolStripMenuItem.Click += new System.EventHandler(this.pollPointsToolStripMenuItem_Click);
             // 
             // redshritFroshToolStripMenuItem
             // 
             this.redshritFroshToolStripMenuItem.Name = "redshritFroshToolStripMenuItem";
-            this.redshritFroshToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.redshritFroshToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.redshritFroshToolStripMenuItem.Text = "Redshrit Frosh";
             this.redshritFroshToolStripMenuItem.Click += new System.EventHandler(this.redshritFroshToolStripMenuItem_Click);
             // 
             // setSunBeltCCGToolStripMenuItem
             // 
             this.setSunBeltCCGToolStripMenuItem.Name = "setSunBeltCCGToolStripMenuItem";
-            this.setSunBeltCCGToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.setSunBeltCCGToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.setSunBeltCCGToolStripMenuItem.Text = "Set AAC CCG";
             this.setSunBeltCCGToolStripMenuItem.Click += new System.EventHandler(this.setSunBeltCCGToolStripMenuItem_Click);
             // 
             // transferRuleToolStripMenuItem
             // 
             this.transferRuleToolStripMenuItem.Name = "transferRuleToolStripMenuItem";
-            this.transferRuleToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.transferRuleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.transferRuleToolStripMenuItem.Text = "Transfer Rule";
             this.transferRuleToolStripMenuItem.Click += new System.EventHandler(this.transferRuleToolStripMenuItem_Click);
             // 
             // cleanupCCHHToolStripMenuItem
             // 
             this.cleanupCCHHToolStripMenuItem.Name = "cleanupCCHHToolStripMenuItem";
-            this.cleanupCCHHToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.cleanupCCHHToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.cleanupCCHHToolStripMenuItem.Text = "Cleanup CCHH";
             this.cleanupCCHHToolStripMenuItem.Click += new System.EventHandler(this.cleanupCCHHToolStripMenuItem_Click);
             // 
@@ -692,43 +700,44 @@
             this.cureBowlToolStripMenuItem,
             this.myrtleBeachBowlToolStripMenuItem,
             this.arizonaBowlToolStripMenuItem,
-            this.venturesBowlToolStripMenuItem});
+            this.venturesBowlToolStripMenuItem,
+            this.saluteToVeteransBowlToolStripMenuItem});
             this.bowlGamesToolStripMenuItem.Name = "bowlGamesToolStripMenuItem";
-            this.bowlGamesToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.bowlGamesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.bowlGamesToolStripMenuItem.Text = "Bowl Games";
             // 
             // cureBowlToolStripMenuItem
             // 
             this.cureBowlToolStripMenuItem.Name = "cureBowlToolStripMenuItem";
-            this.cureBowlToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.cureBowlToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
             this.cureBowlToolStripMenuItem.Text = "Cure Bowl";
             this.cureBowlToolStripMenuItem.Click += new System.EventHandler(this.cureBowlToolStripMenuItem_Click);
             // 
             // myrtleBeachBowlToolStripMenuItem
             // 
             this.myrtleBeachBowlToolStripMenuItem.Name = "myrtleBeachBowlToolStripMenuItem";
-            this.myrtleBeachBowlToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.myrtleBeachBowlToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
             this.myrtleBeachBowlToolStripMenuItem.Text = "Myrtle Beach Bowl";
             this.myrtleBeachBowlToolStripMenuItem.Click += new System.EventHandler(this.myrtleBeachBowlToolStripMenuItem_Click);
             // 
             // arizonaBowlToolStripMenuItem
             // 
             this.arizonaBowlToolStripMenuItem.Name = "arizonaBowlToolStripMenuItem";
-            this.arizonaBowlToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.arizonaBowlToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
             this.arizonaBowlToolStripMenuItem.Text = "Arizona Bowl";
             this.arizonaBowlToolStripMenuItem.Click += new System.EventHandler(this.arizonaBowlToolStripMenuItem_Click);
             // 
             // venturesBowlToolStripMenuItem
             // 
             this.venturesBowlToolStripMenuItem.Name = "venturesBowlToolStripMenuItem";
-            this.venturesBowlToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.venturesBowlToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
             this.venturesBowlToolStripMenuItem.Text = "68 Ventures Bowl";
             this.venturesBowlToolStripMenuItem.Click += new System.EventHandler(this.venturesBowlToolStripMenuItem_Click);
             // 
             // cleanupBCHHToolStripMenuItem
             // 
             this.cleanupBCHHToolStripMenuItem.Name = "cleanupBCHHToolStripMenuItem";
-            this.cleanupBCHHToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.cleanupBCHHToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.cleanupBCHHToolStripMenuItem.Text = "Cleanup BCHH";
             this.cleanupBCHHToolStripMenuItem.Click += new System.EventHandler(this.cleanupBCHHToolStripMenuItem_Click);
             // 
@@ -740,7 +749,7 @@
             this.add7V10ToolStripMenuItem,
             this.add8V9ToolStripMenuItem});
             this.playoffRound1ToolStripMenuItem.Name = "playoffRound1ToolStripMenuItem";
-            this.playoffRound1ToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.playoffRound1ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.playoffRound1ToolStripMenuItem.Text = "Playoff Round 1";
             // 
             // add5V12ToolStripMenuItem
@@ -778,7 +787,7 @@
             this.aPToolStripMenuItem,
             this.coachesToolStripMenuItem});
             this.pollUpdateToolStripMenuItem.Name = "pollUpdateToolStripMenuItem";
-            this.pollUpdateToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.pollUpdateToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.pollUpdateToolStripMenuItem.Text = "Poll Update";
             // 
             // cFPToolStripMenuItem
@@ -823,12 +832,12 @@
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
-            // fixSocksToolStripMenuItem
+            // saluteToVeteransBowlToolStripMenuItem
             // 
-            this.fixSocksToolStripMenuItem.Name = "fixSocksToolStripMenuItem";
-            this.fixSocksToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
-            this.fixSocksToolStripMenuItem.Text = "Fix Socks";
-            this.fixSocksToolStripMenuItem.Click += new System.EventHandler(this.fixSocksToolStripMenuItem_Click);
+            this.saluteToVeteransBowlToolStripMenuItem.Name = "saluteToVeteransBowlToolStripMenuItem";
+            this.saluteToVeteransBowlToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
+            this.saluteToVeteransBowlToolStripMenuItem.Text = "Salute to Veterans Bowl";
+            this.saluteToVeteransBowlToolStripMenuItem.Click += new System.EventHandler(this.saluteToVeteransBowlToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -938,6 +947,7 @@
         private System.Windows.Forms.ToolStripMenuItem aPToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem coachesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fixSocksToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saluteToVeteransBowlToolStripMenuItem;
     }
 }
 
