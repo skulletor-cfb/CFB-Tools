@@ -101,6 +101,7 @@ namespace EA_DB_Editor
             int texasId = 42;
             int caliId = 4;
             int floridaId = 8;
+            const int louisianaId = 17;
             var positionGroups = new int[] { 1, 2, 3, 4, 0, 1, 5, 6, 7, 0, 8, 0, 9, 10, 11, 12, 13, 14 };
             var recruitPitchTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPR");
             // select 25 random positions:  5 from Texas, 15 from SEC country, 5 elsewhere, 5 from florida
@@ -125,6 +126,7 @@ namespace EA_DB_Editor
             var secPosition = positionsToLookFor.Pop(20);
             var nationalPosition = positionsToLookFor.Pop(10);
             var hawaiiPosition = positionsToLookFor.Pop(3);
+            var laPosition = positionsToLookFor.Pop(8);
 
             // get the lowest ranked freshman at the position we have selected
             var caliRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && caliPosition.Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == caliId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
@@ -134,7 +136,8 @@ namespace EA_DB_Editor
             var nationalRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && nationalPosition.Contains(r["RPGP"].ToInt32()) && SECStates.Concat(new[] { texasId, caliId }).Contains(r["STAT"].ToInt32()) == false).OrderByDescending(r => r["RCRK"].ToInt32()).Take(500).ToArray();
             var athRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && r["RPGP"].ToInt32() == 18).OrderByDescending(r => r["RCRK"].ToInt32()).Take(3).ToArray();
             var hawaiiRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && hawaiiPosition.Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == 10).OrderByDescending(r => r["RCRK"].ToInt32()).Take(2000).ToArray();
-   
+            var laRecruits = recruitTable.lRecords.Where(r => r["PYEA"].ToInt32() == 0 && flPosition.Contains(r["RPGP"].ToInt32()) && r["STAT"].ToInt32() == louisianaId).OrderByDescending(r => r["RCRK"].ToInt32()).Take(1000).ToArray();
+
             List<MaddenRecord> records = new List<MaddenRecord>();
             FillList(records, caliRecruits, caliPosition);
             FillList(records, texasRecruits, texPosition);
@@ -142,6 +145,7 @@ namespace EA_DB_Editor
             FillList(records, secRecruits, secPosition);
             FillList(records, nationalRecruits, nationalPosition);
             FillList(records, hawaiiRecruits, hawaiiPosition);
+            FillList(records, laRecruits, laPosition);
 
             // ATH recruits get a 5-20 adder to each stat
             foreach (var ath in athRecruits)
