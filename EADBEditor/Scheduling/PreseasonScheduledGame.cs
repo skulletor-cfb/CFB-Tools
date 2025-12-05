@@ -144,6 +144,8 @@ namespace EA_DB_Editor
                         g => MatchTeams(7,g,11,94), //BU-TT in week 7
                         g => MatchTeams(12, g, 39, 58), // neb-ku week 12
                         g => MatchTeams(13, g, 22, 72), // cu-ok st week 13
+                        g => MatchTeams(13, g, 20, 38), //cincy-isu
+                        g => MatchTeams(13, g, 18, 33), // hou-ucf
                     };
                 }
 
