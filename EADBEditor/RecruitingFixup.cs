@@ -260,6 +260,7 @@ namespace EA_DB_Editor
         const int UCFId = 18;
         const int USFId = 144;
         const int LSUId = 45;
+        const int SMUId = 83;
 
         static Lazy<Dictionary<int, int[]>> ConfStateAssignments = new Lazy<Dictionary<int, int[]>>(CreateConferenceAssignmentsForStates, true);
 
@@ -271,7 +272,7 @@ namespace EA_DB_Editor
             dict.Add(0, new int[] { SECId }); //AL
             dict.Add(1,allConf); //AK
             dict.Add(2, new int[] { Pac16Id, BYUId }); //AZ
-            dict.Add(3, new int[] { SECId }); //AR
+            dict.Add(3, new int[] { SECId, SMUId }); //AR
             dict.Add(4, new int[] { Pac16Id , NotreDameId, Pac16Id, NotreDameId,BYUId }); //CA
             dict.Add(5, new int[] { TeamAndConferences[22], NotreDameId, BYUId }); //CO
             dict.Add(6, new int[] { ACCId,Big10Id , NotreDameId}); //CT
@@ -303,14 +304,14 @@ namespace EA_DB_Editor
             dict.Add(32, new int[] { ACCId }); //NC
             dict.Add(33, new int[] { Pac16Id,NotreDameId, BYUId }); //ND
             dict.Add(34, new int[] { Big10Id,NotreDameId, Big10Id, NotreDameId, Big10Id, NotreDameId, CincyId }); //OH
-            dict.Add(35, new int[] { Big12Id }); //OK
+            dict.Add(35, new int[] { Big12Id, SMUId }); //OK
             dict.Add(36, new int[] { Pac16Id }); //OR
             dict.Add(37, new int[] { ACCId,Big10Id,NotreDameId, CincyId }); //PA
             dict.Add(38, new int[] { ACCId, Big10Id, NotreDameId }); //RI
             dict.Add(39, new int[] { ACCId,SECId }); //SC
             dict.Add(40, new int[] { Pac16Id,Big12Id,NotreDameId, BYUId }); //SD
             dict.Add(41, new int[] { SECId , SECId}); //TN
-            dict.Add(42, new int[] { Big12Id,SECId,NotreDameId }); //TX
+            dict.Add(42, new int[] { Big12Id,SECId,NotreDameId, SMUId }); //TX
             dict.Add(43, new int[] { Pac16Id, NotreDameId , BYUId }); //UT
             dict.Add(44, new int[] { ACCId, Big10Id, NotreDameId }); //VT
             dict.Add(45, new int[] { ACCId,  NotreDameId }); //VA
@@ -368,6 +369,9 @@ namespace EA_DB_Editor
                             break;
                         case LSUId:
                             allTeams.AddRange(WeightedLSU);
+                            break;
+                        case SMUId:
+                            allTeams.AddRange(WeightedSMU);
                             break;
                         default:
                             break; 
@@ -823,7 +827,7 @@ namespace EA_DB_Editor
 
         static string[] academies = { "1", "8", "57" };
         public static int[] OnTheirOwn = TeamsOnTheirOwn();
-#if false
+#if true
         public static int[] DontFoolWith = new int[0];// American.ToArray();
 #else
         public static int[] DontFoolWith = American.ToArray();
@@ -840,11 +844,13 @@ namespace EA_DB_Editor
         static List<int> WeightedUCF = null;
         static List<int> WeightedUSF = null;
         static List<int> WeightedLSU = null;
+        static List<int> WeightedSMU = null;
 
         public static int[] TeamsOnTheirOwn()
         {
+            var independentTeams = SMUId.IsIndependentSMU() ? new[] { SMUId } : Array.Empty<int>();
             return ScheduleFixup.FindUserControllerTeams(true)
-                //.Concat(new[] {  })
+                .Concat(independentTeams)
                 .Where(team => !team.IsP5OrND()).ToArray();
         }
 
@@ -1034,6 +1040,15 @@ namespace EA_DB_Editor
             else
             {
                 WeightedUSF = CreateWeightedList(Array.Empty<int>());
+            }
+
+            if (SMUId.IsIndependentSMU())
+            {
+                WeightedSMU = CreateWeightedList(new[] { SMUId });
+            }
+            else
+            {
+                WeightedSMU = CreateWeightedList(Array.Empty<int>());
             }
         }
 

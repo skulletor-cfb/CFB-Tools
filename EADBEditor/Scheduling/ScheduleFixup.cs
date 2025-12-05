@@ -119,6 +119,11 @@ namespace EA_DB_Editor
             return false;
         }
 
+        public static bool IsIndependentSMU(this int id)
+        {
+            return id==83 && RecruitingFixup.TeamAndConferences[id] == RecruitingFixup.IndId;
+        }
+
         public static bool IsIndependentBYU(this int byuId)
         {
             return byuId == 16 && RecruitingFixup.TeamAndConferences[byuId] == RecruitingFixup.IndId;
