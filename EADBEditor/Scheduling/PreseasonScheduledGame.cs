@@ -140,7 +140,6 @@ namespace EA_DB_Editor
                         // IsBSUTCU,
                         IsISUKSU,
                         IsTexasOU,
-                        g => MatchTeams(13, g, 20, 38), // ISU-Cincy end the season when they play
                         g => MatchTeams(7,g,11,94), //BU-TT in week 7
                         g => MatchTeams(12, g, 39, 58), // neb-ku week 12
                         g => MatchTeams(13, g, 22, 72), // cu-ok st week 13
@@ -1490,7 +1489,31 @@ namespace EA_DB_Editor
 
         public static void AmericanFix(Dictionary<int, TeamSchedule> schedules)
         {
-            Fix(schedules, new AmericanLocks(), RecruitingFixup.AmericanId);
+            Fix(
+                schedules, 
+                new AmericanLocks(), 
+                RecruitingFixup.AmericanId,
+                s =>
+                {
+                    // find ucf-usf game and set it to week 14
+                    var game = s[144].Where(g => g != null && g.OpponentId(144) == 18).FirstOrDefault();
+                    if (game != null)
+                    {
+                        if (!game.AssignGame(s, 3))
+                        {
+                            if (!game.AssignGame(s, 4))
+                            {
+                                if (!game.AssignGame(s, 2))
+                                {
+                                    if (!game.AssignGame(s, 14))
+                                    {
+                                        game.AssignGame(s, 20);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
         }
 
         public static void Big10Fix(Dictionary<int, TeamSchedule> schedules)
@@ -1500,7 +1523,31 @@ namespace EA_DB_Editor
 
         public static void Big12Fix(Dictionary<int, TeamSchedule> schedules)
         {
-            Fix(schedules, new Big12Locks(), RecruitingFixup.Big12Id);
+            Fix(
+                schedules,
+                new Big12Locks(),
+                RecruitingFixup.Big12Id,
+                s=>
+                {
+                    // find ucf-usf game and set it to week 14
+                    var game = s[18].Where(g => g != null && g.OpponentId(18) == 144).FirstOrDefault();
+                    if (game != null)
+                    {
+                        if (!game.AssignGame(s, 3))
+                        {
+                            if (!game.AssignGame(s, 4))
+                            {
+                                if (!game.AssignGame(s, 2))
+                                {
+                                    if (!game.AssignGame(s, 14))
+                                    {
+                                        game.AssignGame(s, 20);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
         }
 
         public static void SecFix(Dictionary<int, TeamSchedule> schedules)
