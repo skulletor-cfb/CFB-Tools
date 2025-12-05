@@ -953,7 +953,7 @@ namespace EA_DB_Editor
             else if (count == 7)
                 expected = 6;
             else if (count >= 4)
-                expected = count - 1;
+                expected = 6;
 
             return current == expected;
         }
@@ -979,7 +979,7 @@ namespace EA_DB_Editor
 
             if (conf == CUSAId && CUSA.Length == 7 && confGames == 3) return true;
 
-            if (conf == CUSAId && CUSA.Length == 4 && (confGames == 2 || confGames == 1)) return true;
+            if (conf == CUSAId && CUSA.Length == 4 && confGames == 3 ) return true;
 
             if (conf == CUSAId && CUSA.Length == 6 && (confGames == 2 || confGames == 3)) return true;
 
