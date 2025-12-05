@@ -106,6 +106,7 @@
             this.myrtleBeachBowlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.arizonaBowlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.venturesBowlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saluteToVeteransBowlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cleanupBCHHToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.playoffRound1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.add5V12ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -117,7 +118,7 @@
             this.aPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.coachesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.saluteToVeteransBowlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.xboxBowlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -701,7 +702,8 @@
             this.myrtleBeachBowlToolStripMenuItem,
             this.arizonaBowlToolStripMenuItem,
             this.venturesBowlToolStripMenuItem,
-            this.saluteToVeteransBowlToolStripMenuItem});
+            this.saluteToVeteransBowlToolStripMenuItem,
+            this.xboxBowlToolStripMenuItem});
             this.bowlGamesToolStripMenuItem.Name = "bowlGamesToolStripMenuItem";
             this.bowlGamesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.bowlGamesToolStripMenuItem.Text = "Bowl Games";
@@ -733,6 +735,13 @@
             this.venturesBowlToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
             this.venturesBowlToolStripMenuItem.Text = "68 Ventures Bowl";
             this.venturesBowlToolStripMenuItem.Click += new System.EventHandler(this.venturesBowlToolStripMenuItem_Click);
+            // 
+            // saluteToVeteransBowlToolStripMenuItem
+            // 
+            this.saluteToVeteransBowlToolStripMenuItem.Name = "saluteToVeteransBowlToolStripMenuItem";
+            this.saluteToVeteransBowlToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
+            this.saluteToVeteransBowlToolStripMenuItem.Text = "Salute to Veterans Bowl";
+            this.saluteToVeteransBowlToolStripMenuItem.Click += new System.EventHandler(this.saluteToVeteransBowlToolStripMenuItem_Click);
             // 
             // cleanupBCHHToolStripMenuItem
             // 
@@ -832,12 +841,12 @@
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
-            // saluteToVeteransBowlToolStripMenuItem
+            // xboxBowlToolStripMenuItem
             // 
-            this.saluteToVeteransBowlToolStripMenuItem.Name = "saluteToVeteransBowlToolStripMenuItem";
-            this.saluteToVeteransBowlToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
-            this.saluteToVeteransBowlToolStripMenuItem.Text = "Salute to Veterans Bowl";
-            this.saluteToVeteransBowlToolStripMenuItem.Click += new System.EventHandler(this.saluteToVeteransBowlToolStripMenuItem_Click);
+            this.xboxBowlToolStripMenuItem.Name = "xboxBowlToolStripMenuItem";
+            this.xboxBowlToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
+            this.xboxBowlToolStripMenuItem.Text = "Xbox Bowl";
+            this.xboxBowlToolStripMenuItem.Click += new System.EventHandler(this.xboxBowlToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -948,6 +957,7 @@
         private System.Windows.Forms.ToolStripMenuItem coachesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fixSocksToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saluteToVeteransBowlToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem xboxBowlToolStripMenuItem;
     }
 }
 
