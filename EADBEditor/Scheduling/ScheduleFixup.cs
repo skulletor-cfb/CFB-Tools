@@ -129,6 +129,12 @@ namespace EA_DB_Editor
             return byuId == 16 && RecruitingFixup.TeamAndConferences[byuId] == RecruitingFixup.IndId;
         }
 
+        public static bool IsIndependentP5(this int id)
+        {
+            return id.IsIndependentBYU() ||
+                id.IsIndependentSMU();
+        }
+
         public static bool RanG5Fixup = false;
 
         public static (Dictionary<int, TeamSchedule> teamSchedule, MaddenRecord[] scheduleTable) FillSchedule(bool reorderNeedsToBeRun, bool dontShowMessageBox = false)
@@ -159,7 +165,7 @@ namespace EA_DB_Editor
                 mr["SEWT"] = mr["SEWN"];
 
                 // switch if G5 is hosting P5
-                if (!RanG5Fixup && (awayTeam.IsP5() && !homeTeam.IsP5() && !homeTeam.IsServiceAcademy() && !IsRivalryGame(homeTeam, awayTeam) && !homeTeam.IsIndependentBYU()) ||
+                if (!RanG5Fixup && (awayTeam.IsP5() && !homeTeam.IsP5() && !homeTeam.IsServiceAcademy() && !IsRivalryGame(homeTeam, awayTeam) && !homeTeam.IsIndependentP5()) ||
                     homeTeam.IsFcsTeam())
                 {
                     var g5 = homeTeam;
