@@ -48,7 +48,7 @@ namespace EA_DB_Editor
             { BowlId + 6, "CFP 6 v 11" },
             { BowlId + 7, "CFP 5 v 12" },
             { BowlId + 8, "Salute to Veterans Bowl" },
-            { BowlId + 8, "Xbox Bowl" },
+            { BowlId + 9, "Xbox Bowl" },
         };
     }
 }
