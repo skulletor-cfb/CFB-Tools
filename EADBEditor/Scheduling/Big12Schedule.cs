@@ -241,11 +241,11 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                HOU.Create(Texas, Colorado, OkSt, UCF),
+                HOU.Create(Baylor, Colorado, OkSt, UCF),
                 TCU.Create(HOU, OU, KSU, UCF),
-                Baylor.Create(HOU, TCU, Nebraska, KSU),
+                Baylor.Create(Texas, TCU, Nebraska, KSU),
                 TT.Create(TCU, Baylor, Colorado, KU),
-                Texas.Create(Baylor, TT, ISU, Cincy),
+                Texas.Create(HOU, TT, ISU, Cincy),
                 OU.Create(TT, Texas, OkSt, ISU),
                 Nebraska.Create(TCU, OU, KU, UCF),
                 Colorado.Create(Texas, Nebraska, KU, Cincy),
