@@ -86,7 +86,7 @@ namespace EA_DB_Editor
             switch (currYear)
             {
                 default:
-                    var idx = (Form1.DynastyYear - 2546) % Creators.Length;
+                    var idx = (Form1.DynastyYear - 2547) % Creators.Length;
                     result = Creators[idx]();
                     break;
             }
