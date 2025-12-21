@@ -30,6 +30,7 @@ namespace EA_DB_Editor
         static public bool mc02Recalc = false;
         public static Form1 MainForm;
         public static bool PreseasonScheduleEdit = false;
+        public static bool EditingSchedule = false; 
 
         public static Form1 CreateForm(AppDomain appDomain)
         {
@@ -454,6 +455,7 @@ namespace EA_DB_Editor
                 if (openFileDialog.FileName.ToUpper().Contains("Schedule.xml".ToUpper()))
                 {
                     PreseasonScheduleEdit = true;
+                    EditingSchedule = true;
                 }
 
                 ReadXMLConfig(openFileDialog.FileName);
