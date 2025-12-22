@@ -18,6 +18,7 @@ namespace EA_DB_Editor
         private const int CFB5v12 = 987050;
         private const int SaluteVetsBowl = 987051;
         private const int XboxBowl = 987052;
+        private const int FGSChampionship = 987053;
 
         private static HashSet<int> AugmentedBowls = new HashSet<int>()
         {
@@ -27,6 +28,7 @@ namespace EA_DB_Editor
             MobileAlabamaBowl,
             SaluteVetsBowl,
             XboxBowl,
+            FGSChampionship,
         };
 
         public bool IsAugmentedBowl => AugmentedBowls.Contains(this.Id);
@@ -155,6 +157,20 @@ namespace EA_DB_Editor
                 ConferenceTieInSelection2 = 1,
             };
 
+            var fgsChampionship = new Bowl
+            {
+                Id = FGSChampionship,
+                Name = "FGS Championship Game",
+                Week = 20,
+                Game = 53,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+
+
             var cfp8v9 = new Bowl
             {
                 Id = CFB8v9,
@@ -209,6 +225,7 @@ namespace EA_DB_Editor
             Bowls.Add(venturesBowl.Key, venturesBowl);
             Bowls.Add(saluteVetsBowl.Key, saluteVetsBowl);
             Bowls.Add(xboxBowl.Key, xboxBowl);
+            Bowls.Add(fgsChampionship.Key, fgsChampionship);
             Bowls.Add(cfp8v9.Key, cfp8v9);
             Bowls.Add(cfp7v10.Key, cfp7v10);
             Bowls.Add(cfp6v11.Key, cfp6v11);

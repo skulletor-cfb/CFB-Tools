@@ -19,6 +19,7 @@ namespace EA_DB_Editor
         public const int CFP5v12 = NationalChampId + 8;
         public const int VeteransBowl = NationalChampId + 9;
         public const int XboxBowl = NationalChampId + 10;
+        public const int FGSChampionship = NationalChampId + 11; 
         public const int BowlId = 45;
 
         public static Dictionary<int, int> BowlIdToAddedGame = new Dictionary<int, int>()
@@ -33,6 +34,7 @@ namespace EA_DB_Editor
             { BowlId + 7, CFP5v12},
             { BowlId + 8, VeteransBowl },
             { BowlId + 9, XboxBowl },
+            { BowlId + 10, FGSChampionship },
         };
 
         public static Dictionary<int, int> AddedGameToBowlId = BowlIdToAddedGame.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
@@ -49,6 +51,7 @@ namespace EA_DB_Editor
             { BowlId + 7, "CFP 5 v 12" },
             { BowlId + 8, "Salute to Veterans Bowl" },
             { BowlId + 9, "Xbox Bowl" },
+            { BowlId + 10, "FGS Championship Game" },
         };
     }
 }

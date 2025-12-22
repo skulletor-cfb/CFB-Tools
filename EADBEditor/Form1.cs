@@ -3362,6 +3362,17 @@ PPOS = Position
                 AdditionalGameProvider.AddedGameToBowlId[AdditionalGameProvider.CFP8v9],
                 25, 27, 28, 17, 12, 26, 39 });
 
+            var potentialG5PlayoffBowls = MaddenTable.FindTable(maddenDB.lTables, "SCHD").lRecords
+                .Where(mr => mr["SEWN"].ToInt32() == 18 || mr["SEWN"].ToInt32() == 19)
+                .ToDictionary(mr => mr["SGNM"].ToInt32(),
+                mr => new
+                {
+                    GameNumber = mr["SGNM"].ToInt32(),
+                    WeekNumber = mr["SEWN"].ToInt32(),
+                    Away = mr["GATG"].ToInt32(),
+                    Home = mr["GHTG"].ToInt32(),
+                });
+
             var schedules = MaddenTable.FindTable(maddenDB.lTables, "SCHD").lRecords
                 .Where(mr => mr["SEWN"].ToInt32() > 16)
                 .ToDictionary(mr => mr["SGNM"].ToInt32(),
@@ -3413,6 +3424,21 @@ PPOS = Position
                 matchups.Add(string.Join(",", "", "", "", "", "", "", "", ""));
             }
 
+            // get g5 teams
+            var g5Teams = MaddenTable.FindTable(maddenDB.lTables, "TEAM").lRecords
+                .Where(team => team["TBRK"].ToInt32() >= 1 && team["TBRK"].ToInt32() <= 126 && team.TeamId().IsG5())
+                .ToDictionary(team => team["TGID"].ToInt32(),
+                team =>
+                new
+                {
+                    Id = team["TGID"].ToInt32(),
+                    Rank = team["TBRK"].ToInt32(),
+                    ConfId = team["CGID"].ToInt32(),
+                    Win = team["TSWI"].ToInt32(),
+                    Loss = team["TSLO"].ToInt32(),
+                });
+
+
             // get ranked teams
             var teams = MaddenTable.FindTable(maddenDB.lTables, "TEAM").lRecords
                 .Where(team => team["TBRK"].ToInt32() >= 1 && team["TBRK"].ToInt32() <= 126)
@@ -3432,7 +3458,27 @@ PPOS = Position
                 .Take(10)
                 .ToDictionary(c => c["TGID"].ToInt32(), c => c["CGID"].ToInt32());
 
-            int i = 0;
+            int g5Rank = 1;
+            var g5Rankings = new List<string>();
+            var confChampsFound = 0; 
+            foreach (var kvp in g5Teams.OrderBy(t => t.Value.Rank))
+            {
+                var confChamp = string.Empty;
+                if (champs.ContainsKey(kvp.Value.Id))
+                {
+                    confChamp = RecruitingFixup.ConferenceNames[champs[kvp.Value.Id]];
+                    confChampsFound++;
+                }
+
+                g5Rankings.Add($"{g5Rank++},{RecruitingFixup.TeamNames[kvp.Value.Id]},{confChamp}");
+
+                if(confChampsFound == 5)
+                {
+                    break;
+                }
+            }
+
+                int i = 0;
             foreach (var kvp in teams.OrderBy(t => t.Value.Rank).Where(t => t.Value.Rank <= 25))
             {
                 matchups[i] = string.Join(",", matchups[i], string.Empty, string.Empty, string.Empty, kvp.Value.Rank, RecruitingFixup.TeamNames[kvp.Value.Id]);
@@ -3466,6 +3512,7 @@ PPOS = Position
             }
 
             matchups.Add("************");
+            g5Rankings.Add("************");
 
             var bowlEligibleTeams = teams.Values.Where(t => !teamIds.Contains(t.Id) && t.Rank > 25 && t.Win >= 5).OrderByDescending(t => t.Win).ThenBy(t => t.Loss).ThenBy(t => t.Rank).ToArray();
             foreach (var team in bowlEligibleTeams)
@@ -3473,7 +3520,23 @@ PPOS = Position
                 matchups.Add(string.Join(",", RecruitingFixup.TeamNames[team.Id], RecruitingFixup.ConferenceNames[team.ConfId], string.Format("{0} -- {1}", team.Win, team.Loss)));
             }
 
+            // all the potential playoff bowls
+            foreach (var game in bowlTable.Where(b => !big6Games.Contains(b.Key)).OrderBy(b => b.Value.GameNumber))
+            {
+                var bowl = game.Value;
+
+                if (potentialG5PlayoffBowls.TryGetValue(bowl.GameNumber, out var scheduledGame))
+                {
+
+                    if (scheduledGame.Home == 1023) continue;
+
+                    g5Rankings.Add(bowl.Name);
+                }
+            }
+
+
             File.WriteAllLines("bowlmatchups.csv", matchups);
+            File.WriteAllLines("G5Rankings.csv", g5Rankings);
         }
 
         private void bowlMatchupsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -4089,12 +4152,34 @@ PPOS = Position
         bool venturesBowlAdded = false;
         bool veteransBowlAdded = false;
         bool xboxBowlAdded = false;
+        bool fgsChampionshipAdded = false;
+
+        private void fGSChampionshipToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (fgsChampionshipAdded)
+            {
+                MessageBox.Show("FGS Championship already added!");
+                return;
+            }
+
+            TeamEntry stadiumEntry = new TeamEntry("Choose Championship stadium");
+
+            if (stadiumEntry.DialogResult != DialogResult.OK)
+            {
+                return;
+            }
+
+            int stadium = stadiumEntry.TeamId;
+
+            AddBowlGame(AdditionalGameProvider.FGSChampionship, stadium, day: "4", startTime: "1200", bowlWeek: "20");
+            fgsChampionshipAdded = true;
+        }
 
         private void xboxBowlToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (xboxBowlAdded)
             {
-                MessageBox.Show("Salute to Veterans Bowl already added!");
+                MessageBox.Show("Xbox Bowl already added!");
                 return;
             }
 
@@ -4168,7 +4253,7 @@ PPOS = Position
 
         private static HashSet<int> TeamsAdded = new HashSet<int>();
 
-        private void AddBowlGame(int gameNumber, int stadium, string day = "5", bool isPlayoffGame = false, string startTime = StartTime)
+        private void AddBowlGame(int gameNumber, int stadium, string day = "5", bool isPlayoffGame = false, string startTime = StartTime, string bowlWeek = "18")
         {
             TeamEntry homeEntry = new TeamEntry("Home team");
             TeamEntry awayEntry = new TeamEntry("Away team");
@@ -4199,7 +4284,7 @@ PPOS = Position
                         var home = homeEntry.TeamId;
                         var away = awayEntry.TeamId;
                         var gameNum = gameNumber.ToString();
-                        var week = "18";
+                        var week = bowlWeek;
                         var teamQuery = new Dictionary<string, string>();
 
                         // the stadium team is either the home team or the stadium team
