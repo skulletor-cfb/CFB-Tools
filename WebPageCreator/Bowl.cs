@@ -225,7 +225,7 @@ namespace EA_DB_Editor
             Bowls.Add(venturesBowl.Key, venturesBowl);
             Bowls.Add(saluteVetsBowl.Key, saluteVetsBowl);
             Bowls.Add(xboxBowl.Key, xboxBowl);
-            Bowls.Add(fgsChampionship.Key, fgsChampionship);
+//            Bowls.Add(fgsChampionship.Key, fgsChampionship);
             Bowls.Add(cfp8v9.Key, cfp8v9);
             Bowls.Add(cfp7v10.Key, cfp7v10);
             Bowls.Add(cfp6v11.Key, cfp6v11);

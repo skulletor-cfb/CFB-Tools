@@ -6748,6 +6748,35 @@ PPOS = Position
 
                         case "TextBox":
                         default:
+#if false
+                            // if I change the school a recruit commits to , the PINT table has to change too
+                            if (mr.Table.Abbreviation == "RCPR" && f.Abbreviation == "PTCM")
+                            {
+                                var pintTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "PINT");
+                                var currValue = mr["PTCM"];
+                                var recruitId = mr["PRSI"];
+                                var newTeam = f.EditControl.Text;
+
+                                // get all offers for recruit
+                                var offers = pintTable.lRecords.Where(recruit => recruit["PRSI"] == recruitId).ToArray();
+
+                                // get the current offer
+                                var realOffer = offers.Where(r => r["TGID"] == currValue).FirstOrDefault();
+
+                                // get the new offer
+                                var newOffer = offers.Where(r => r["TGID"] == newTeam).FirstOrDefault();
+
+                                if (newOffer == null)
+                                {
+                                    realOffer["TGID"] = newTeam;
+                                }
+                                else
+                                {
+                                    realOffer["PRSO"] = "1";
+                                    newOffer["PRSO"] = "2";
+                                }
+                            }
+#endif
 
                             // we are changing the week in bowl games, we need to update TSCH table
                             if (mr.Table.Abbreviation == "SCHD" && !Form1.PreseasonScheduleEdit && f.Abbreviation == "SEWN")
