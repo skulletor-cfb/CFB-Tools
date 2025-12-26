@@ -823,10 +823,10 @@ namespace EA_DB_Editor
 
         static string[] academies = { "1", "8", "57" };
         public static int[] OnTheirOwn = TeamsOnTheirOwn();
-#if false
-        public static int[] DontFoolWith = new int[0];// American.ToArray();
+#if true
+        public static int[] DontFoolWith = new int[]{BYUId};// American.ToArray();
 #else
-        public static int[] DontFoolWith = American.ToArray();
+         public static int[] DontFoolWith = American.ToArray();
 #endif
         static List<int> WeightedACC = null;
         static List<int> WeightedBig10 = null;
@@ -845,7 +845,9 @@ namespace EA_DB_Editor
         {
             return ScheduleFixup.FindUserControllerTeams(true)
                 //.Concat(new[] {  })
-                .Where(team => !team.IsP5OrND()).ToArray();
+                .Where(team => !team.IsP5OrND())
+                .Concat(new[] { BYUId })
+                .ToArray();
         }
 
         public static bool IsServiceAcademy(this int teamId)
