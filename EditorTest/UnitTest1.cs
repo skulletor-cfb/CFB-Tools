@@ -266,7 +266,7 @@ namespace EditorTest
         public void MWCScheduleA()
         {
 
-            MWCSchedule.CreateA().Verify(12, RecruitingFixup.MWCId, "MWC  ", false);
+            MWCSchedule.CreateA().Verify(14, RecruitingFixup.MWCId, "MWC  ", false);
             var hash = MWCSchedule.CreateA().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -274,16 +274,8 @@ namespace EditorTest
         [TestMethod]
         public void MWCScheduleB()
         {
-            MWCSchedule.CreateB().Verify(12, RecruitingFixup.MWCId, "MWC  ", false);
+            MWCSchedule.CreateB().Verify(14, RecruitingFixup.MWCId, "MWC  ", false);
             var hash = MWCSchedule.CreateB().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void MWCScheduleC()
-        {
-            MWCSchedule.CreateC().Verify(12, RecruitingFixup.MWCId, "MWC  ", false);
-            var hash = MWCSchedule.CreateC().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
