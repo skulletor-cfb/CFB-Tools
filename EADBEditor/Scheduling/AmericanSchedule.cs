@@ -90,6 +90,20 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
+                NT.Create(Rice, Memphis, Navy, USF),
+                UTSA.Create(NT, Tulsa, Tulane, Army),
+                Rice.Create(UTSA, Tulane, Navy, CLT),
+                Tulsa.Create(NT, Rice, Tulane, Army),
+                Tulane.Create(UAB, Army, FAU, ECU),
+                Memphis.Create(Rice, Tulane, Temple, ECU),
+                UAB.Create(UTSA, Tulsa, Memphis, Temple),
+                Navy.Create(Memphis, Army, FAU, ECU),
+                Army.Create(UAB, Temple, USF, CLT),
+                Temple.Create(NT, Tulsa, Navy , USF),
+                FAU.Create(UTSA, Tulsa, UAB, CLT),
+                USF.Create(Rice, Memphis, FAU, ECU),
+                ECU.Create(UTSA, Temple, FAU, CLT),
+                CLT.Create(NT, UAB, Navy, USF),
             }.Create();
         }
     }
