@@ -119,6 +119,11 @@ namespace EA_DB_Editor
             return false;
         }
 
+        public static bool IsIndependent(this int teamId)
+        {
+            return RecruitingFixup.TeamAndConferences[teamId] == RecruitingFixup.IndId;
+        }
+
         public static bool IsIndependentBYU(this int byuId)
         {
             return byuId == 16 && RecruitingFixup.TeamAndConferences[byuId] == RecruitingFixup.IndId;
@@ -495,7 +500,7 @@ namespace EA_DB_Editor
                     {
                         notes += "No P5 Opponents.  ";
                     }
-                    else if (p5Opp > 1 && tsch.Key.IsP5())
+                    else if (p5Opp > 1 && (tsch.Key.IsP5() || tsch.Key.IsIndependent()))
                     {
                         notes += p5Opp + " P5 Opponents.  ";
                     }
@@ -1457,7 +1462,7 @@ namespace EA_DB_Editor
                 }
 
                 // smu-tcu play at 279 when smu is in big 12 on friday night
-                else if (MatchTeams(homeTeam, awayTeam, new[] { 83, 89 }))
+                else if (false && MatchTeams(homeTeam, awayTeam, new[] { 83, 89 }))
                 {
                     gameRecord["SGID"] = "257";
                     gameRecord["GDAT"] = "4";
@@ -1468,7 +1473,7 @@ namespace EA_DB_Editor
                 }
 
                 // houston-rice play at 272 on friday night
-                else if (MatchTeams(homeTeam, awayTeam, new[] { 33, 79 }))
+                else if (false && MatchTeams(homeTeam, awayTeam, new[] { 33, 79 }))
                 {
                     gameRecord["SGID"] = "272";
                     gameRecord["GDAT"] = "4";
