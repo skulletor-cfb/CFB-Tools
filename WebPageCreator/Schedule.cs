@@ -737,6 +737,7 @@ namespace EA_DB_Editor
             IsAtlantaGridironClassic,
             IsKansasCityClassic,
             IsUnionJackClassic,
+            IsCFBBrasil,
         };
 
         public static string SiteIdSuffix(ScheduledGame g)
@@ -758,6 +759,20 @@ namespace EA_DB_Editor
             if(g.SiteId == id)
             {
                 g.GameSite += " " + SiteIdSuffix(g);
+            }
+
+            return false;
+        }
+
+        private static bool IsCFBBrasil(ScheduledGame g)
+        {
+            const int id = 270270270;
+            KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
+            if (g.StadiumId == 270 && Form1.CalendarYear >= 2561)
+            {
+                g.GameSite = "CFB Brasil";
+                g.SiteId = id;
+                return true;
             }
 
             return false;
