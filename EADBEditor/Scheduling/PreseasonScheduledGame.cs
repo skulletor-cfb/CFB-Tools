@@ -1490,7 +1490,31 @@ namespace EA_DB_Editor
 
         public static void AmericanFix(Dictionary<int, TeamSchedule> schedules)
         {
-            Fix(schedules, new AmericanLocks(), RecruitingFixup.AmericanId);
+            Fix(
+                schedules,
+                new AmericanLocks(),
+                RecruitingFixup.AmericanId,
+                s =>
+                {
+                    // find ucf-usf game and set it to week 14
+                    var game = s[144].Where(g => g != null && g.OpponentId(144) == 18).FirstOrDefault();
+                    if (game != null)
+                    {
+                        if (!game.AssignGame(s, 3))
+                        {
+                            if (!game.AssignGame(s, 4))
+                            {
+                                if (!game.AssignGame(s, 2))
+                                {
+                                    if (!game.AssignGame(s, 14))
+                                    {
+                                        game.AssignGame(s, 20);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
         }
 
         public static void Big10Fix(Dictionary<int, TeamSchedule> schedules)
