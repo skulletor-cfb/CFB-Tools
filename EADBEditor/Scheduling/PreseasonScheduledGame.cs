@@ -140,10 +140,11 @@ namespace EA_DB_Editor
                         // IsBSUTCU,
                         IsISUKSU,
                         IsTexasOU,
-                        g => MatchTeams(13, g, 20, 38), // ISU-Cincy end the season when they play
                         g => MatchTeams(7,g,11,94), //BU-TT in week 7
-                        g => MatchTeams(12, g, 39, 58), // neb-ku week 12
+                        g => MatchTeams(13, g, 38, 58), // neb-isu
                         g => MatchTeams(13, g, 22, 72), // cu-ok st week 13
+                        g => MatchTeams(13, g, 18, 20), //cincy-ucf
+                        g => MatchTeams(13, g, 33, 83), // hou-smuf
                     };
                 }
 
@@ -204,12 +205,12 @@ namespace EA_DB_Editor
 
         public int? IsNUOU(PreseasonScheduledGame game)
         {
-            return MatchTeams(13 + Is10TeamBig12Modifier, game, 58, 71);
+            return MatchTeams(12 + Is10TeamBig12Modifier, game, 58, 71);
         }
 
         public int? IsOSUOU(PreseasonScheduledGame game)
         {
-            return MatchTeams(12 + Is10TeamBig12Modifier, game, 72, 71);
+            return MatchTeams(13 + Is10TeamBig12Modifier, game, 72, 71);
         }
 
     }
