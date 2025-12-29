@@ -770,7 +770,7 @@ namespace EA_DB_Editor
             KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
             if (g.StadiumId == 270 && Form1.CalendarYear >= 2561)
             {
-                g.GameSite = "CFB Brasil";
+                g.GameSite = "College Football Brasil";
                 g.SiteId = id;
                 return true;
             }
