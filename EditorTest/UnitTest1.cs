@@ -293,7 +293,7 @@ namespace EditorTest
         {
             Big10Schedule.CreateA().Verify(12, RecruitingFixup.Big10Id, "Big10 ", false);
             var hash = Big10Schedule.CreateA().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
         }
 
 
@@ -302,7 +302,7 @@ namespace EditorTest
         {
             Big10Schedule.CreateB().Verify(12, RecruitingFixup.Big10Id, "Big10 ", false);
             var hash = Big10Schedule.CreateB().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
         }
 
         [TestMethod]
@@ -310,41 +310,7 @@ namespace EditorTest
         {
             Big10Schedule.CreateC().Verify(12, RecruitingFixup.Big10Id, "Big10 ", false);
             var hash = Big10Schedule.CreateC().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void Big10ScheduleX()
-        {
-            Big10Schedule.CreateX().Verify(12, RecruitingFixup.Big10Id, "Big10 ", false);
-            var hash = Big10Schedule.CreateX().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-
-        [TestMethod]
-        public void Big10ScheduleY()
-        {
-            Big10Schedule.CreateY().Verify(12, RecruitingFixup.Big10Id, "Big10 ", false);
-            var hash = Big10Schedule.CreateY().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void Big10ScheduleZ()
-        {
-            Big10Schedule.CreateZ().Verify(12, RecruitingFixup.Big10Id, "Big10 ", false);
-            var hash = Big10Schedule.CreateZ().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-#if false
-        [TestMethod]
-        public void Big10ScheduleE()
-        {
-            Big10Schedule.CreateE().Verify(12, RecruitingFixup.Big10Id, "Big10 ", false);
-            var hash = Big10Schedule.CreateE().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
         }
 
         [TestMethod]
@@ -352,53 +318,18 @@ namespace EditorTest
         {
             Big10Schedule.CreateD().Verify(12, RecruitingFixup.Big10Id, "Big10 ", false);
             var hash = Big10Schedule.CreateD().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
         }
 
 
         [TestMethod]
-        public void Big10ScheduleG()
+        public void Big10ScheduleE()
         {
-            Big10Schedule.CreateG().Verify(12, RecruitingFixup.Big10Id, "Big10 ", false);
-            var hash = Big10Schedule.CreateG().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+            Big10Schedule.CreateE().Verify(12, RecruitingFixup.Big10Id, "Big10 ", false);
+            var hash = Big10Schedule.CreateE().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
         }
 
-
-        [TestMethod]
-        public void Big10ScheduleF()
-        {
-            Big10Schedule.CreateF().Verify(12, RecruitingFixup.Big10Id, "Big10 ", false);
-            var hash = Big10Schedule.CreateF().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-
-        [TestMethod]
-        public void Big10ScheduleI()
-        {
-            Big10Schedule.CreateI().Verify(12, RecruitingFixup.Big10Id, "Big10 ", false);
-            var hash = Big10Schedule.CreateI().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void Big10ScheduleH()
-        {
-            Big10Schedule.CreateH().Verify(12, RecruitingFixup.Big10Id, "Big10 ", false);
-            var hash = Big10Schedule.CreateH().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-
-        [TestMethod]
-        public void Big10ScheduleJ()
-        {
-            Big10Schedule.CreateJ().Verify(12, RecruitingFixup.Big10Id, "Big10 ", false);
-            var hash = Big10Schedule.CreateJ().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-#endif
 
 
         [TestMethod]
