@@ -3222,24 +3222,8 @@ PPOS = Position
             }
 
             var scheduleTable = MaddenTable.FindTable(maddenDB.lTables, "SCHD").lRecords.Where(r => r["SEYR"].ToInt32() == 0);
-            var list = new List<Dictionary<string, string>>();
-            foreach (var record in scheduleTable)
-            {
-                list.Add(new Dictionary<string, string>()
-                {
-                    {"GATG", record["GATG"] },
-                    {"GHTG", record["GHTG"] },
-                    {"GTOD", record["GTOD"] },
-                    {"SGNM", record["SGNM"] },
-                    {"SEWN", record["SEWN"] },
-                    {"SEWT", record["SEWT"] },
-                    {"GDAT", record["GDAT"] },
-                    {"GFFU", record["GFFU"] },
-                    {"GMFX", record["GMFX"] },
-                });
-            }
-
-            list.ToJsonFile(SCHDFILE);
+            var nationalSchedule = NationalSchedule.Create(scheduleTable, RecruitingFixup.TeamAbbreviations, RecruitingFixup.TeamNames);
+            nationalSchedule.ToJsonFile(SCHDFILE);
 
             var teamScheduleTable = MaddenTable.FindTable(maddenDB.lTables, "TSCH");
             var teamTable = MaddenTable.FindTable(maddenDB.lTables, "TEAM");
@@ -3320,12 +3304,13 @@ PPOS = Position
 
         private void importScheduleToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var list = SCHDFILE.FromJsonFile<List<Dictionary<string, string>>>();
+            var schedule = SCHDFILE.FromJsonFile<NationalSchedule>();
             var scheduleTable = MaddenTable.FindTable(maddenDB.lTables, "SCHD").lRecords.Where(r => r["SEYR"].ToInt32() == 0).ToList();
 
-            for (int i = 0; i < list.Count; i++)
+            for (int i = 0; i < schedule.Games.Count; i++)
             {
-                foreach (var kvp in list[i])
+                var dict = schedule.Games[i].ToJson().FromJsonString<Dictionary<string, string>>();
+                foreach (var kvp in dict)
                 {
                     scheduleTable[i][kvp.Key] = kvp.Value;
                 }

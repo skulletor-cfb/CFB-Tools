@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdditionalGameProvider.cs" />
+    <Compile Include="NationalSchedule.cs" />
     <Compile Include="RecruitFace.cs" />
     <Compile Include="Scheduling\AmericanPodSchedule.cs" />
     <Compile Include="RecruitAllAmericans.cs" />
