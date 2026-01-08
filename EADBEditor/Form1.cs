@@ -2606,6 +2606,43 @@ namespace EA_DB_Editor
             ScheduleFixup.ReadSchedule();
         }
 
+        string ReadTeamConferenceSchedule()
+        {
+            var teamTable = MaddenTable.FindTable(this.maddenDB.lTables, "TEAM");
+            var teamConfRecords = teamTable.lRecords.ToDictionary(mr => mr["TGID"].ToInt32(), mr => new { W = mr["tscw"].ToInt32(), L = mr["tscl"].ToInt32() });
+            var teamScheduleTable = MaddenTable.FindTable(this.maddenDB.lTables, "TSCH");
+            var dict = new Dictionary<int, List<int>>();
+
+            foreach (var mr in teamScheduleTable.lRecords)
+            {
+                var week = mr["SEWN"].ToInt32();
+
+                if (week > 13) continue;
+
+                var tgid = mr["TGID"].ToInt32();
+                if (!dict.TryGetValue(tgid, out var list))
+                {
+                    list = dict[tgid] = new List<int>();
+                }
+
+                var opp = mr["OGID"].ToInt32();
+                if (opp != 1023 && RecruitingFixup.TeamsInSameConference(tgid, opp))
+                {
+                    list.Add(opp);
+                }
+            }
+
+            var sb = new StringBuilder();
+            foreach (var kvp in dict.OrderBy(kvp=> RecruitingFixup.TeamNames[kvp.Key]))
+            {
+                var oppWin = kvp.Value.Sum(i => teamConfRecords[i].W);
+                var oppLoss = kvp.Value.Sum(i => teamConfRecords[i].L);
+                sb.AppendLine($"{RecruitingFixup.TeamNames[kvp.Key]},{oppWin},{oppLoss}");
+            }
+
+            return sb.ToString();
+        }
+
         public class TransferCandidate
         {
             public int Id { get; set; }
@@ -3272,7 +3309,8 @@ PPOS = Position
                 sb.AppendLine($"{RecruitingFixup.TeamNames[team.Key]},{team.Value.WinPct},{team.Value.Win},{team.Value.Loss}");
             }
 
-            File.WriteAllText(Path.Combine(dir, "Conference-Opp-Records.csv"), sb.ToString());
+//            File.WriteAllText(Path.Combine(dir, "Conference-Opp-Records.csv"), sb.ToString());
+            File.WriteAllText(Path.Combine(dir, "Conference-Opp-Records.csv"), ReadTeamConferenceSchedule());
         }
 
         public class ConferenceRecord
