@@ -144,6 +144,8 @@ namespace EA_DB_Editor
                         g => MatchTeams(7,g,11,94), //BU-TT in week 7
                         g => MatchTeams(12, g, 39, 58), // neb-ku week 12
                         g => MatchTeams(13, g, 22, 72), // cu-ok st week 13
+                        g => MatchTeams(4, g, 83, 89), //TCU-SMU week 4
+                        g => MatchTeams(13, g, 33, 83), //hou-smu week 13
                     };
                 }
 
@@ -225,25 +227,12 @@ namespace EA_DB_Editor
                 {
                     lockChecks = new Func<PreseasonScheduledGame, int?>[]
                     {
-    //                    g=>MatchTeams(13, g, 8, 57), // army-navy
-//                        g=>MatchTeams(13, g, 64, 232), // nt-utsa
-                        g=>MatchTeams(13, g, 33, 83), // hou-smu
+                        g=>MatchTeams(13, g, 8, 57), // army-navy
+                        g=>MatchTeams(13, g, 64, 232), // nt-utsa
                         g=>MatchTeams(13, g, 79, 97), // rice-tulsa
                         g=>MatchTeams(13, g, 25, 100), // charlotte-ecu
-                        g=>MatchTeams(13, g, 18, 144), // ucf-usf
                         g=>MatchTeams(13, g, 48, 98), // memphis-uab
-  //                      g=>MatchTeams(13, g, 85, 96), // usm-tulane
-    //                    g=>MatchTeams(12, g, 85, 98), // usm-uab
-
-      //                  g=>MatchTeams(12, g, 90, 232), // utsa-temple
-        //                g=>MatchTeams(6, g, 48, 85), // usm-memphis
-                        g=>MatchTeams(7, g, 18, 97), // ucf-tulsa
-                        g=>MatchTeams(6, g, 18, 25), // ucf-ecu
-          //              g=>MatchTeams(7, g, 25, 85), // usm-ecu
-                        g=>MatchTeams(6, g, 79, 83), // rice-smu
-                        g=>MatchTeams(6, g, 33, 97), // hou-tulsa
                         g=>MatchTeams(6, g, 79, 96), // tulane-rice
-                        g=>MatchTeams(8, g, 33, 79), // hou-rice
                     };
                 }
 
@@ -768,7 +757,7 @@ namespace EA_DB_Editor
 
         private static List<PreseasonScheduledGame> FindExtraBig12Games(Dictionary<int, TeamSchedule> schedules)
         {
-#if false
+#if true
             var result = new List<PreseasonScheduledGame>();
             var normalized = new Dictionary<int, int>();
 
