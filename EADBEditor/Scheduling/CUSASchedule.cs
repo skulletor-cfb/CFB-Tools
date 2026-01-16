@@ -23,8 +23,8 @@ namespace EA_DB_Editor
     public class CUSASchedule
     {
         private static bool initRun = false;
-        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] { 
-            CreateA, CreateA, 
+        public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {
+            CreateA, CreateA,
         };
         public static Dictionary<int, HashSet<int>> CUSAConferenceSchedule = null;
         public static Dictionary<int, int[]> ScenarioForSeason = null;
@@ -46,9 +46,9 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2550) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2564) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(9, RecruitingFixup.CUSAId, "CUSA");
+            result = result.Verify(4, RecruitingFixup.CUSAId, "CUSA", expectedGames: 2, ifNotExpectedThen: 1);
             CUSAConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -56,26 +56,16 @@ namespace EA_DB_Editor
         const int LT = 43;
         const int WKU = 211;
         const int MTSU = 53;
-        const int FAU = 229;
-        const int Army = 8;
-        const int Navy=  57;
         const int UTEP = 105;
-        const int NT = 64;
-        const int UTSA = 232;
 
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Army.Create(MTSU, LT, UTEP, UTSA),
-                Navy.Create(Army, WKU, FAU, NT),
-                MTSU.Create(Navy, LT, UTEP, NT),
-                WKU.Create(Army, MTSU, LT, UTSA),
-                LT.Create(Navy, FAU, UTEP, UTSA),
-                FAU.Create(Army, MTSU, WKU, NT),
-                UTEP.Create(Navy, WKU, FAU, UTSA),
-                UTSA.Create(Navy, MTSU, FAU, NT),
-                NT.Create(Army, WKU, LT, UTEP),
+                MTSU.Create(LT, UTEP ),
+                WKU.Create( MTSU, LT),
+                LT.Create( UTEP ),
+                UTEP.Create(WKU ),
             }.Create();
         }
     }
