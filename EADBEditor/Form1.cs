@@ -2507,7 +2507,7 @@ namespace EA_DB_Editor
                 record["CRBT"] = "50";
                 record["COTY"] = "0";
 
-                var isNewCoach = record["CYCD"].ToInt32() == 0;
+                var isNewCoach = record["CYCD"].ToInt32() == 0 && record["TGID"].ToInt32() != 1023;
                 var playbook = record["CPID"].ToInt32();
                 int style = 1;
 
