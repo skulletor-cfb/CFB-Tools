@@ -466,6 +466,7 @@ namespace EA_DB_Editor
 
                     var homeGames = tsch.Value.Where(g => g != null && g.HomeTeam == tsch.Key).Count();
                     var ooc = tsch.Value.Where(g => g != null && !g.IsConferenceGame()).ToArray();
+                    var confGames = tsch.Value.Where(g => g != null && g.IsConferenceGame()).ToArray();
                     var p5Opp = ooc.Count(g => g.IsP5Game());
                     var fcsOpp = ooc.Count(g => g.AwayTeam.IsFcsTeam());
                     var g5Opp = ooc.Count(g => g.IsG5Game());
@@ -483,25 +484,34 @@ namespace EA_DB_Editor
                         //P5vsG5 += (ooc.Length - g5Opp);
                     }
 
-                    if(homeGames < 5)
+                    if(homeGames < 6 )
                     {
-                        //notes += $"{homeGames} home games.  ";
+                        if (tsch.Key.IsP5())
+                        {
+                            notes += $"{homeGames} home games.  ";
+                        }
+                        else if(homeGames < 5)
+                        {
+                            notes += $"{homeGames} home games.  ";
+                        }
                     }
 
                     if (tsch.Value.Count(g => g != null) != 12)
                         notes += "Wrong game count.  ";
 
-                    if (p5Opp == 0 && tsch.Key.IsP5())
+                    // p5 teams need to play 10 p5 games, either 9 + 1 or 8+2
+                    var totalP5Games = (p5Opp + confGames.Length);
+                    if (tsch.Key.IsP5())
                     {
-                        notes += "No P5 Opponents.  ";
-                    }
-                    else if (p5Opp > 1 && tsch.Key.IsP5())
-                    {
-                        notes += p5Opp + " P5 Opponents.  ";
-                    }
-                    else if (g5Opp > 0 && tsch.Key.IsP5() == false)
-                    {
-                        // notes += g5Opp + " G5 Opponents.  ";
+                        if (p5Opp == 0 )
+                        {
+                            notes += "No P5 Opponents.  ";
+                        }
+                        else if(totalP5Games != 10)
+                        {
+                            notes += $"{totalP5Games} P5 opponents ({confGames.Length}:{p5Opp}).  ";
+                        }
+
                     }
 
                     if (ooc.Length != ooc.Select(g => g.OpponentId(tsch.Key)).Distinct().Count())
