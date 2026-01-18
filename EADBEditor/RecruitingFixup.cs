@@ -824,7 +824,7 @@ namespace EA_DB_Editor
         static string[] academies = { "1", "8", "57" };
         public static int[] OnTheirOwn = TeamsOnTheirOwn();
 #if true
-        public static int[] DontFoolWith = new int[] { 144 };
+        public static int[] DontFoolWith = new int[] { };
 #else
         public static int[] DontFoolWith = American.ToArray();
 #endif
@@ -921,6 +921,11 @@ namespace EA_DB_Editor
 
             if (conf == IndId) return true;
 
+            if (conf == CUSAId) return current == 3 || current == 6;
+
+            if( conf == Big10Id || conf == Pac16Id)
+                return current == 9;
+
             if (conf == Big12Id && count == 16)
                 expected = 9;
 
@@ -955,9 +960,10 @@ namespace EA_DB_Editor
         public static bool ConferenceHomeGameCount(this TeamSchedule schedule, int teamId)
         {
             var conf = TeamAndConferences[teamId];
+            var confGames = schedule.Count(g => g != null && g.HomeTeam == teamId && teamAndConferences[g.AwayTeam] == conf);
 
-            if (conf == Pac16Id) return true;
-            if (conf == Big12Id && (Big12.Length == 16 || Big12.Length == 10)) return true;
+            if (conf == Pac16Id || conf == Big10Id) return confGames == 4 || confGames == 5;
+            if (conf == Big12Id && (Big12.Length == 16 || Big12.Length == 10)) return confGames == 4 || confGames == 5;
             //if (conf == AmericanId && American.Length == 16) return true;
             if (conf == AmericanId && American.Length == 10) return true;
             if (conf == IndId) return true;
@@ -967,13 +973,12 @@ namespace EA_DB_Editor
             //if (conf == ACCId && AccTeams > 14)
             //    return true;
 
-            var confGames = schedule.Count(g => g != null && g.HomeTeam == teamId && teamAndConferences[g.AwayTeam] == conf);
 
             if (conf == CUSAId && CUSA.Length == 5 && confGames == 2) return true;
 
             if (conf == CUSAId && CUSA.Length == 7 && confGames == 3) return true;
 
-            if (conf == CUSAId && CUSA.Length == 4 && (confGames == 2 || confGames == 1)) return true;
+            if (conf == CUSAId && CUSA.Length == 4 && (confGames == 2 || confGames == 1 || confGames == 3)) return true;
 
             if (conf == CUSAId && CUSA.Length == 6 && (confGames == 2 || confGames == 3)) return true;
 
