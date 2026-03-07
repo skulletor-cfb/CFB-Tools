@@ -738,6 +738,7 @@ namespace EA_DB_Editor
             IsKansasCityClassic,
             IsUnionJackClassic,
             IsCFBBrasil,
+            IsMusicCityKickoff,
         };
 
         public static string SiteIdSuffix(ScheduledGame g)
@@ -759,6 +760,20 @@ namespace EA_DB_Editor
             if(g.SiteId == id)
             {
                 g.GameSite += " " + SiteIdSuffix(g);
+            }
+
+            return false;
+        }
+
+        private static bool IsMusicCityKickoff(ScheduledGame g)
+        {
+            const int id = 165165165;
+            KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
+            if (g.StadiumId == 165 && Form1.CalendarYear >= 2565)
+            {
+                g.GameSite = "Music City Kickoff";
+                g.SiteId = id;
+                return true;
             }
 
             return false;
