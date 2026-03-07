@@ -4026,12 +4026,62 @@ PPOS = Position
 
         private void customFixToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // dupe USA into another team
-            var team = MaddenTable.FindMaddenTable(maddenDB.lTables, "TEAM");
-            var usa = team.lRecords.Where(mr => mr["TGID"].ToInt32() == 235).FirstOrDefault();
-            var notUSA = team.AddNewRecord();
-            notUSA.CopyData(usa);
-            notUSA["TGID"] = "901";
+            // dupe USA into another team in TEAM table
+            if (false)
+            {
+                var team = MaddenTable.FindMaddenTable(maddenDB.lTables, "TEAM");
+                var usa = team.lRecords.Where(mr => mr["TGID"].ToInt32() == 235).FirstOrDefault();
+                var notUSA = team.AddNewRecord();
+                notUSA.CopyData(usa);
+                notUSA["TGID"] = "901";
+            }
+
+            // copy to STTM
+            if (false)
+            {
+                var team = MaddenTable.FindMaddenTable(maddenDB.lTables, "STTM");
+                var usa = team.lRecords.Where(mr => mr["TGID"].ToInt32() == 235).FirstOrDefault();
+                var notUSA = team.AddNewRecord();
+                notUSA.CopyData(usa);
+                notUSA["TGID"] = "901";
+                notUSA["TOID"] = "901";
+                notUSA["CGID"] = "5";
+                notUSA["DGID"] = "30";
+                notUSA["SLNU"] = "191";
+            }
+
+            // copy to COCH table
+            if (false)
+            {
+                int start = 765;
+                var team = MaddenTable.FindMaddenTable(maddenDB.lTables, "COCH");
+                var cskl = MaddenTable.FindMaddenTable(maddenDB.lTables, "CSKL");
+                var coaches = team.lRecords.Where(mr => mr["TGID"].ToInt32() == 235).ToArray();
+                var coachesToRemove = team.lRecords
+                    .Where(mr => mr["TGID"].ToInt32() == 1023 && (mr["CCID"].ToInt32() < 297 || mr["CCID"].ToInt32()> 311))
+                    .Take(3)
+                    .ToArray();
+
+                foreach (var c in coachesToRemove)
+                {
+                    team.RemoveRecord(c);
+                }
+
+                foreach (var coach in coaches)
+                {
+                    var ccid = start.ToString();
+                    start++;
+                    var newCoach = team.AddNewRecord();
+                    newCoach.CopyData(coach);
+                    newCoach["CCID"] = ccid;
+                    newCoach["TGID"] = "901";
+
+                    var skillRecord = cskl.lRecords.Where(c => c["CCID"] == coach["CCID"]).FirstOrDefault();
+                    var newSkill = cskl.AddNewRecord();
+                    newSkill.CopyData(skillRecord);
+                    newSkill["CCID"] = ccid;
+                }
+            }
         }
 
 
