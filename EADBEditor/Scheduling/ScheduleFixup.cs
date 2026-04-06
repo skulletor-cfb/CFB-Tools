@@ -510,7 +510,8 @@ namespace EA_DB_Editor
                         {
                             notes += "No P5 Opponents.  ";
                         }
-                        else if(totalP5Games != 10)
+                        // TODO IF WE GO TO PLAY 10 REVIST THI
+                        else // if(totalP5Games != 10)
                         {
                             notes += $"{totalP5Games} P5 opponents ({confGames.Length}:{p5Opp}).  ";
                         }
