@@ -38,7 +38,7 @@ namespace EA_DB_Editor
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
             var creatorsToUse = CorrectCreators;
-            var idx = (Form1.DynastyYear - 2563) % creatorsToUse.Length;
+            var idx = (Form1.DynastyYear - 2566) % creatorsToUse.Length;
 
             var result = creatorsToUse[idx]();
             result = result.Verify(12, RecruitingFixup.Pac16Id, "Pac12");
