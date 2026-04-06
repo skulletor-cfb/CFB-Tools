@@ -923,55 +923,46 @@ namespace EA_DB_Editor
 
         static int monotronic = 200;
 
-        private static void TemporarilyRemoveGameFromSchedule(Dictionary<int, TeamSchedule> schedules, PreseasonScheduledGame game)
+        private static void TemporarilyRemoveFcsGameFromSchedule(Dictionary<int, TeamSchedule> schedules, PreseasonScheduledGame game)
         {
             var gameIndex = game.WeekIndex;
             var home = game.HomeTeam;
             var homeSchd = schedules[home];
             homeSchd[gameIndex] = null;
+            homeSchd.AddUnscheduledGame(game, GetGameNumber());
+        }
 
-            if (gameIndex < 5)
+        private static void TemporarilyRemoveGameFromSchedule(Dictionary<int, TeamSchedule> schedules, PreseasonScheduledGame game)
+        {
+            var gameIndex = game.WeekIndex;
+            var home = game.HomeTeam;
+            var away = game.AwayTeam;
+            var homeSchd = schedules[home];
+            var awaySchd = schedules[away];
+            homeSchd[gameIndex] = null;
+            awaySchd[gameIndex] = null;
+
+            if (gameIndex < 5 && FindCommonOpenWeek(homeSchd.FindOpenWeeksWithBuffer(), awaySchd.FindOpenWeeksWithBuffer(), true, out var week))
             {
-                homeSchd.AddUnscheduledGame(game, GetGameNumber());
-            }
-
-            if (schedules.TryGetValue(game.AwayTeam, out var awaySchedule))
-            {
-                awaySchedule[gameIndex] = null;
-
-                if (!game.AwayTeam.IsFcsTeam() && gameIndex < 5)
-                {
-                    awaySchedule.AddUnscheduledGame(game, GetGameNumber());
-                }
+                var gameNum = GetGameNumber();
+                homeSchd.SetUnscheduleGame(game, week, gameNum);
+                awaySchd.SetUnscheduleGame(game, week, gameNum);
             }
         }
 
-        /// <summary>
-        /// all this function should do is remove all conference games from the and put non conf early in the schedule
-        /// </summary>
-        /// <param name="schedules"></param>
-        /// <param name="confWeek"></param>
-        public static void MoveNonConfGamesEarly(Dictionary<int, TeamSchedule> schedules, int confWeek = 13)
+        public static void TryMoveNonConfGamesEarly(Dictionary<int, TeamSchedule> schedules)
         {
             // remove all fcs games from schedules
             var fcs = schedules.Values.SelectMany(games => games.Where(g => g != null && g.IsFCSGame())).Distinct().OrderBy(g => g.WeekIndex).ToArray();
             foreach (var game in fcs)
             {
-                TemporarilyRemoveGameFromSchedule(schedules, game);
+                TemporarilyRemoveFcsGameFromSchedule(schedules, game);
             }
 
-            var conf = schedules.Values.SelectMany(games => games.Where(g => g != null && g.IsConferenceGame() && !g.IsSecConfGame())).Distinct().OrderBy(g => g.WeekIndex).ToArray();
-            var nonConf = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsLateSeasonRivalryGame() && !g.IsConferenceGame() && !g.IsFCSGame())).Distinct().OrderByDescending(g => g.WeekIndex).ToArray();
-            var secNonConf = nonConf.Where(g => g.IsSECNonConferenceGame());
-            var theRest = nonConf.Where(g => !g.IsSECNonConferenceGame());
-
-            foreach (var psg in conf.Concat(nonConf))
-            {
-                TemporarilyRemoveGameFromSchedule(schedules, psg);
-            }
+            var nonConf = schedules.Values.SelectMany(games => games.Where(g => g != null && g.Week > 4 && !g.IsLateSeasonRivalryGame() && !g.IsConferenceGame() && !g.IsFCSGame())).Distinct().OrderByDescending(g => g.WeekIndex).ToArray();
 
             // non conf go earlier
-            foreach (var game in secNonConf.Concat(theRest))
+            foreach (var game in nonConf)
             {
                 var gameIndex = game.WeekIndex;
                 var home = game.HomeTeam;
@@ -985,8 +976,70 @@ namespace EA_DB_Editor
                     game.GameNumber = monotronic++;
                     homeSchd[opening] = game;
                     awaySchd[opening] = game;
-                    //homeSchd[gameIndex] = null;
-                    //awaySchd[gameIndex] = null;
+                    homeSchd[gameIndex] = null;
+                    awaySchd[gameIndex] = null;
+                }
+            }
+
+            // put the fcs game back for each team, sec gets them late
+            foreach (var game in fcs)
+            {
+                var home = game.HomeTeam;
+                var homeSchd = schedules[home];
+                var openWeek = (home.IsSECTeam() || home == 68) ? homeSchd.FindLastOpenWeekForFcs() : homeSchd.FindOpenWeeks().First();
+
+                // set the game in the schedule
+                game.SetWeek(openWeek);
+                game.GameNumber = monotronic++;
+                homeSchd[openWeek] = game;
+            }
+
+            FcsGamesEarly(schedules);
+        }
+
+        /// <summary>
+        /// all this function should do is remove all conference games from the and put non conf early in the schedule
+        /// </summary>
+        /// <param name="schedules"></param>
+        /// <param name="confWeek"></param>
+        public static void MoveNonConfGamesEarly(Dictionary<int, TeamSchedule> schedules, int confWeek = 13)
+        {
+            // remove all fcs games from schedules
+            var fcs = schedules.Values.SelectMany(games => games.Where(g => g != null && g.IsFCSGame())).Distinct().OrderBy(g => g.WeekIndex).ToArray();
+            foreach (var game in fcs)
+            {
+                TemporarilyRemoveFcsGameFromSchedule(schedules, game);
+            }
+
+            var conf = schedules.Values.SelectMany(games => games.Where(g => g != null && g.IsConferenceGame() && !g.IsSecConfGame())).Distinct().OrderBy(g => g.WeekIndex).ToArray();
+            var nonConf = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsLateSeasonRivalryGame() && !g.IsConferenceGame() && !g.IsFCSGame())).Distinct().OrderByDescending(g => g.WeekIndex).ToArray();
+
+            foreach (var psg in conf.Concat(nonConf))
+            {
+                TemporarilyRemoveGameFromSchedule(schedules, psg);
+            }
+
+            // reread these
+            nonConf = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsLateSeasonRivalryGame() && !g.IsConferenceGame() && !g.IsFCSGame())).Distinct().OrderByDescending(g => g.WeekIndex).ToArray();
+            fcs = schedules.Values.SelectMany(games => games.Where(g => g != null && g.IsFCSGame())).Distinct().OrderBy(g => g.WeekIndex).ToArray();
+
+            // non conf go earlier
+            foreach (var game in nonConf)
+            {
+                var gameIndex = game.WeekIndex;
+                var home = game.HomeTeam;
+                var away = game.AwayTeam;
+                var homeSchd = schedules[home];
+                var awaySchd = schedules[away];
+
+                if (FindCommonOpenWeek(homeSchd.FindOpenWeeks(), awaySchd.FindOpenWeeks(), out var opening))
+                {
+                    game.SetWeek(opening);
+                    game.GameNumber = monotronic++;
+                    homeSchd[opening] = game;
+                    awaySchd[opening] = game;
+                    homeSchd[gameIndex] = null;
+                    awaySchd[gameIndex] = null;
                 }
             }
 

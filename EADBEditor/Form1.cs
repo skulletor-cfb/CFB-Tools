@@ -2609,7 +2609,7 @@ namespace EA_DB_Editor
         string ReadTeamConferenceSchedule()
         {
             var teamTable = MaddenTable.FindTable(this.maddenDB.lTables, "TEAM");
-            var teamConfRecords = teamTable.lRecords.ToDictionary(mr => mr["TGID"].ToInt32(), mr => new { W = mr["tscw"].ToInt32(), L = mr["tscl"].ToInt32() });
+            var teamConfRecords = teamTable.lRecords.ToDictionary(mr => mr["TGID"].ToInt32(), mr => new { W = mr["tscw"].ToInt32(), L = mr["tscl"].ToInt32(), Conf = mr["CGID"].ToInt32() });
             var teamScheduleTable = MaddenTable.FindTable(this.maddenDB.lTables, "TSCH");
             var dict = new Dictionary<int, List<int>>();
 
@@ -2633,7 +2633,7 @@ namespace EA_DB_Editor
             }
 
             var sb = new StringBuilder();
-            foreach (var kvp in dict.OrderBy(kvp=> RecruitingFixup.TeamNames[kvp.Key]))
+            foreach (var kvp in dict.OrderBy(kvp=> teamConfRecords[kvp.Key].Conf).ThenByDescending(kvp=> kvp.Value.Sum(i => teamConfRecords[i].W)))
             {
                 var oppWin = kvp.Value.Sum(i => teamConfRecords[i].W);
                 var oppLoss = kvp.Value.Sum(i => teamConfRecords[i].L);

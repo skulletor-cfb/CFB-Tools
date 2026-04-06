@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace EA_DB_Editor
 {
@@ -124,8 +125,24 @@ namespace EA_DB_Editor
                 RecruitingFixup.Big12);
         }
 
-        private static (PreseasonScheduledGame[],int) GetAllConferenceGames(this Dictionary<int, TeamSchedule> schedule, Dictionary<int, int[]> homeSchedules)
+        private static (PreseasonScheduledGame[], int) GetAllConferenceGames(this Dictionary<int, TeamSchedule> schedule, Dictionary<int, int[]> homeSchedules)
         {
+#if true
+            var result = new HashSet<PreseasonScheduledGame>();
+
+            foreach (var kvp in homeSchedules)
+            {
+                foreach (var g in schedule[kvp.Key].GetAllConferenceGames())
+                {
+                    if (!result.Add(g))
+                    {
+                        Console.WriteLine(g.ToString());
+                    }
+                }
+            }
+            return (result.ToArray(), result.Count);
+
+#else
             int games = 0; 
             var result = new List<PreseasonScheduledGame>();
 
@@ -136,6 +153,7 @@ namespace EA_DB_Editor
             }
 
             return (result.Distinct().ToArray(), games);
+#endif
         }
 
 

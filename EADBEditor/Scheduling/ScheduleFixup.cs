@@ -418,6 +418,9 @@ namespace EA_DB_Editor
                     //ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule, 4);
                     //(teamSchedule, scheduleTable) = FillSchedule(false, true);
 
+                    ConfScheduleFixer.TryMoveNonConfGamesEarly(teamSchedule);
+                    (teamSchedule, scheduleTable) = FillSchedule(false, true);
+
                     ConfScheduleFixer.FcsGamesEarly(teamSchedule);
                     (teamSchedule, scheduleTable) = FillSchedule(false, true);
                 }
