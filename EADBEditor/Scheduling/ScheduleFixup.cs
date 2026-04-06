@@ -495,7 +495,7 @@ namespace EA_DB_Editor
                         }
                         else if(homeGames < 5)
                         {
-                            notes += $"{homeGames} home games.  ";
+                           // notes += $"{homeGames} home games.  ";
                         }
                     }
 
@@ -513,7 +513,7 @@ namespace EA_DB_Editor
                         // TODO IF WE GO TO PLAY 10 REVIST THI
                         else // if(totalP5Games != 10)
                         {
-                            notes += $"{totalP5Games} P5 opponents ({confGames.Length}:{p5Opp}).  ";
+                            // notes += $"{totalP5Games} P5 opponents ({confGames.Length}:{p5Opp}).  ";
                         }
 
                     }

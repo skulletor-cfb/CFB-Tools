@@ -923,8 +923,8 @@ namespace EA_DB_Editor
 
             if (conf == CUSAId) return current == 3 || current == 6;
 
-            if( conf == Big10Id || conf == Pac16Id)
-                return current == 9;
+            //if( conf == Big10Id || conf == Pac16Id)
+              //  return current == 9;
 
             if (conf == Big12Id && count == 16)
                 expected = 9;
