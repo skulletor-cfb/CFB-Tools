@@ -1487,6 +1487,12 @@ namespace EA_DB_Editor
                     success = true;
                 }
 
+                if (!success && game.AssignGame(schedules, 15))
+                {
+                    filled.Add(game);
+                    success = true;
+                }
+
                 if (success)
                 {
                     allConfGames.Remove(game.GetKey());
