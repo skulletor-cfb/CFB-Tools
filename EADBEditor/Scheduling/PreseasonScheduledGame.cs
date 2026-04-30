@@ -226,7 +226,7 @@ namespace EA_DB_Editor
                     lockChecks = new Func<PreseasonScheduledGame, int?>[]
                     {
     //                    g=>MatchTeams(13, g, 8, 57), // army-navy
-//                        g=>MatchTeams(13, g, 64, 232), // nt-utsa
+                        g=>MatchTeams(13, g, 64, 232), // nt-utsa
                         g=>MatchTeams(13, g, 33, 83), // hou-smu
                         g=>MatchTeams(13, g, 79, 97), // rice-tulsa
                         g=>MatchTeams(13, g, 25, 100), // charlotte-ecu

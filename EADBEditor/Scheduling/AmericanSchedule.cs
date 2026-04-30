@@ -19,6 +19,8 @@ namespace EA_DB_Editor
         
         public static void Init()
         {
+            // TODO once we get to the final state of realignment, we can fix this
+            return;
             if (!initRun)
             {
                 ScenarioForSeason = CreateScenarioForSeason();
@@ -28,6 +30,8 @@ namespace EA_DB_Editor
 
         public static void ProcessAmericanSchedule(Dictionary<int, TeamSchedule> schedule)
         {
+            // TODO once we get to the final state of realignment, we can fix this
+            return;
              schedule.ProcessSchedule(ScenarioForSeason, AmericanConferenceSchedule, RecruitingFixup.AmericanId, RecruitingFixup.American);
         }
 
