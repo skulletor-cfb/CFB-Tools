@@ -17,6 +17,8 @@ namespace EA_DB_Editor
     }
     public static class RosterCopy
     {
+        public const int TeamToAdd = 160;
+
         static FieldList lMappedFields = new FieldList();
         static List<MaddenTable> lMappedTables = new List<MaddenTable>();
         static List<View> lMappedViews = new List<View>();
@@ -325,7 +327,7 @@ namespace EA_DB_Editor
                 }
             }
            
-            CopyDepthChart(49, 901, sourceDepthChart[49].Values);
+            CopyDepthChart(49, TeamToAdd, sourceDepthChart[49].Values);
             /*
             CopyDepthChart(102, 161, sourceDepthChart[102].Values);
             CopyDepthChart(3, 162, sourceDepthChart[3].Values);
@@ -333,8 +335,8 @@ namespace EA_DB_Editor
             */
 
             // players
-            var start = 901;
-            var end = 901; // make this 163
+            var start = TeamToAdd;
+            var end = TeamToAdd; // make this 163
             for (int i = start; i <= end; i++)
             {
                 foreach (var player in from[i - start].Take(69))

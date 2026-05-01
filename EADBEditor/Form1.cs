@@ -4027,13 +4027,24 @@ PPOS = Position
         private void customFixToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // dupe USA into another team in TEAM table
-            if (false)
+            if (true)
             {
                 var team = MaddenTable.FindMaddenTable(maddenDB.lTables, "TEAM");
                 var usa = team.lRecords.Where(mr => mr["TGID"].ToInt32() == 235).FirstOrDefault();
                 var notUSA = team.AddNewRecord();
                 notUSA.CopyData(usa);
-                notUSA["TGID"] = "901";
+                notUSA["TGID"] = RosterCopy.TeamToAdd.ToString();
+                notUSA["TOID"] = RosterCopy.TeamToAdd.ToString();
+                notUSA["TSID"] = RosterCopy.TeamToAdd.ToString();
+                notUSA["TLNA"] = "Jacksonville State";
+                notUSA["TDNA"] = "Jacksonville State";
+                notUSA["TMNA"] = "Gamecocks";
+                notUSA["TMNC"] = "Gamecocks";
+                notUSA["TSNA"] = "JAX ST";
+                //notUSA["SGID"] = RosterCopy.TeamToAdd.ToString();
+                //notUSA["TMCP"] = "160";
+                //notUSA["TGRP"] = "401";
+                notUSA["TGPT"] = RosterCopy.TeamToAdd.ToString();
             }
 
             // copy to STTM
@@ -4043,15 +4054,15 @@ PPOS = Position
                 var usa = team.lRecords.Where(mr => mr["TGID"].ToInt32() == 235).FirstOrDefault();
                 var notUSA = team.AddNewRecord();
                 notUSA.CopyData(usa);
-                notUSA["TGID"] = "901";
-                notUSA["TOID"] = "901";
+                notUSA["TGID"] = RosterCopy.TeamToAdd.ToString();
+                notUSA["TOID"] = RosterCopy.TeamToAdd.ToString();
                 notUSA["CGID"] = "5";
                 notUSA["DGID"] = "30";
                 notUSA["SLNU"] = "191";
             }
 
             // copy to COCH table
-            if (false)
+            if (true)
             {
                 int start = 765;
                 var team = MaddenTable.FindMaddenTable(maddenDB.lTables, "COCH");
@@ -4074,7 +4085,7 @@ PPOS = Position
                     var newCoach = team.AddNewRecord();
                     newCoach.CopyData(coach);
                     newCoach["CCID"] = ccid;
-                    newCoach["TGID"] = "901";
+                    newCoach["TGID"] = RosterCopy.TeamToAdd.ToString();
 
                     var skillRecord = cskl.lRecords.Where(c => c["CCID"] == coach["CCID"]).FirstOrDefault();
                     var newSkill = cskl.AddNewRecord();
