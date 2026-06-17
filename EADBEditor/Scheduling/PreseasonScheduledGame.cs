@@ -143,7 +143,7 @@ namespace EA_DB_Editor
                         g => MatchTeams(13, g, 20, 38), // ISU-Cincy end the season when they play
                         g => MatchTeams(7,g,11,94), //BU-TT in week 7
                         g => MatchTeams(12, g, 39, 58), // neb-ku week 12
-                        g => MatchTeams(13, g, 22, 72), // cu-ok st week 13
+                        g => MatchTeams(13, g, 33, 83), // smu-hou week 13
                     };
                 }
 
@@ -225,12 +225,11 @@ namespace EA_DB_Editor
                 {
                     lockChecks = new Func<PreseasonScheduledGame, int?>[]
                     {
-    //                    g=>MatchTeams(13, g, 8, 57), // army-navy
-//                        g=>MatchTeams(13, g, 64, 232), // nt-utsa
-                        g=>MatchTeams(13, g, 33, 83), // hou-smu
+                        g=>MatchTeams(13, g, 8, 57), // army-navy
+                        g=>MatchTeams(13, g, 64, 232), // nt-utsa
                         g=>MatchTeams(13, g, 79, 97), // rice-tulsa
                         g=>MatchTeams(13, g, 25, 100), // charlotte-ecu
-                        g=>MatchTeams(13, g, 18, 144), // ucf-usf
+                        g=>MatchTeams(13, g, 144, 229), // usf-fau
                         g=>MatchTeams(13, g, 48, 98), // memphis-uab
   //                      g=>MatchTeams(13, g, 85, 96), // usm-tulane
     //                    g=>MatchTeams(12, g, 85, 98), // usm-uab
