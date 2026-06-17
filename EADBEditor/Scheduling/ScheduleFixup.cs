@@ -468,16 +468,20 @@ namespace EA_DB_Editor
                     string notes = string.Empty;
 
                     var homeGames = tsch.Value.Where(g => g != null && g.HomeTeam == tsch.Key).Count();
+                    var confGameCount = tsch.Value.Where(g => g != null && !g.IsConferenceGame()).Count();
                     var ooc = tsch.Value.Where(g => g != null && !g.IsConferenceGame()).ToArray();
                     var p5Opp = ooc.Count(g => g.IsP5Game());
                     var fcsOpp = ooc.Count(g => g.AwayTeam.IsFcsTeam());
                     var g5Opp = ooc.Count(g => g.IsG5Game());
+                    var expectedP5GameCount = 0;
+
                     FCSGames += fcsOpp;
 
                     if (tsch.Key.IsP5())
                     {
                         P5Matchups += p5Opp;
                         P5vsG5 += (ooc.Length - p5Opp -fcsOpp);
+                        expectedP5GameCount = 10 - confGameCount;
                     }
 
                     if (tsch.Key.IsG5())
@@ -494,15 +498,15 @@ namespace EA_DB_Editor
                     if (tsch.Value.Count(g => g != null) != 12)
                         notes += "Wrong game count.  ";
 
-                    if (p5Opp == 0 && tsch.Key.IsP5())
+                    // in the play 10 era, we need to play 10 P5 opps
+                    if (tsch.Key.IsP5())
                     {
-                        notes += "No P5 Opponents.  ";
+                        if (p5Opp != expectedP5GameCount)
+                        {
+                            notes += p5Opp + " P5 Opponents.  ";
+                        }
                     }
-                    else if (p5Opp > 1 && tsch.Key.IsP5())
-                    {
-                        notes += p5Opp + " P5 Opponents.  ";
-                    }
-                    else if (g5Opp > 0 && tsch.Key.IsP5() == false)
+                    else if (g5Opp > 0)
                     {
                         // notes += g5Opp + " G5 Opponents.  ";
                     }
@@ -562,7 +566,10 @@ namespace EA_DB_Editor
                             //     needMorePower5GAmes.Add(tsch.Key);
                         }
 
-                        notes += string.Format(",G5 with not enough {0} P5 Opponents.  ", p5OppForG5);
+                        if (p5OppForG5 == 0)
+                        {
+                            notes += string.Format(",G5 with not enough {0} P5 Opponents.  ", p5OppForG5);
+                        }
 
                         if (!tsch.Key.IsAmericanTeam())
                         {
