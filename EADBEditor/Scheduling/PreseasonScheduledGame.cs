@@ -143,6 +143,7 @@ namespace EA_DB_Editor
                         g => MatchTeams(13, g, 20, 38), // ISU-Cincy end the season when they play
                         g => MatchTeams(7,g,11,94), //BU-TT in week 7
                         g => MatchTeams(12, g, 39, 58), // neb-ku week 12
+                        g => MatchTeams(4, g, 83, 89), //TCU-SMU week 4
                         g => MatchTeams(13, g, 33, 83), // smu-hou week 13
                     };
                 }
@@ -1567,7 +1568,19 @@ namespace EA_DB_Editor
 
         public static void Big12Fix(Dictionary<int, TeamSchedule> schedules)
         {
-            Fix(schedules, new Big12Locks(), RecruitingFixup.Big12Id);
+            Fix(
+                schedules, 
+                new Big12Locks(), 
+                RecruitingFixup.Big12Id,
+                s =>
+                {
+                    // find USF/UCF game and set it to week 14
+                    var game = s[18].Where(g => g != null && g.OpponentId(144) == 18).FirstOrDefault();
+                    if (game != null)
+                    {
+                        game.AssignGame(s, 14);
+                    }
+                });
         }
 
         public static void SecFix(Dictionary<int, TeamSchedule> schedules)

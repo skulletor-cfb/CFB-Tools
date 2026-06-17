@@ -1467,7 +1467,7 @@ namespace EA_DB_Editor
                 }
 
                 // smu-tcu play at 279 when smu is in big 12 on friday night
-                else if (MatchTeams(homeTeam, awayTeam, new[] { 83, 89 }))
+                else if (false && MatchTeams(homeTeam, awayTeam, new[] { 83, 89 }))
                 {
                     gameRecord["SGID"] = "257";
                     gameRecord["GDAT"] = "4";
@@ -1478,7 +1478,7 @@ namespace EA_DB_Editor
                 }
 
                 // houston-rice play at 272 on friday night
-                else if (MatchTeams(homeTeam, awayTeam, new[] { 33, 79 }))
+                else if (false && MatchTeams(homeTeam, awayTeam, new[] { 33, 79 }))
                 {
                     gameRecord["SGID"] = "272";
                     gameRecord["GDAT"] = "4";
@@ -1489,14 +1489,14 @@ namespace EA_DB_Editor
                 }
 
                 // colorado-nebraska play on black friday primetime
-                else if (MatchTeams(homeTeam, awayTeam, new[] { 22, 58 }) && week == 13)
+                else if (false && MatchTeams(homeTeam, awayTeam, new[] { 22, 58 }) && week == 13)
                 {
                     gameRecord["GDAT"] = "4";
                     gameRecord["GTOD"] = "1200";
                 }
 
                 // ou-nebraska play on black friday primetime
-                else if (MatchTeams(homeTeam, awayTeam, new[] { 58, 71 }) && week == 13)
+                else if (false && MatchTeams(homeTeam, awayTeam, new[] { 58, 71 }) && week == 13)
                 {
                     gameRecord["GDAT"] = "4";
                     gameRecord["GTOD"] = "1200";
@@ -1524,7 +1524,7 @@ namespace EA_DB_Editor
                 }
 
                 // usf-ucf play at 8pm too
-                else if (MatchTeams(homeTeam, awayTeam, new[] { 18, 144 }) && week == 13)
+                else if (false && MatchTeams(homeTeam, awayTeam, new[] { 18, 144 }) && week == 13)
                 {
                     gameRecord["GDAT"] = "4";
                     gameRecord["GTOD"] = "1200";
