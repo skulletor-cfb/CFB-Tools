@@ -926,6 +926,11 @@ namespace EA_DB_Editor
                 return current == 9;
             }
 
+            if(conf == CUSAId && count == 4)
+            {
+                return current == 6;
+            }
+
             if (conf == Big12Id && count == 16)
                 expected = 9;
 
@@ -961,6 +966,11 @@ namespace EA_DB_Editor
         {
             var conf = TeamAndConferences[teamId];
             var confGames = schedule.Count(g => g != null && g.HomeTeam == teamId && teamAndConferences[g.AwayTeam] == conf);
+
+            if (conf == CUSAId)
+            {
+                return confGames == 3;
+            }
 
             if (conf == Big12Id) 
             {

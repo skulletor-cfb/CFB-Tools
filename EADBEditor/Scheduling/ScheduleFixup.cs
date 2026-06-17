@@ -468,7 +468,7 @@ namespace EA_DB_Editor
                     string notes = string.Empty;
 
                     var homeGames = tsch.Value.Where(g => g != null && g.HomeTeam == tsch.Key).Count();
-                    var confGameCount = tsch.Value.Where(g => g != null && !g.IsConferenceGame()).Count();
+                    var confGameCount = tsch.Value.Where(g => g != null && g.IsConferenceGame()).Count();
                     var ooc = tsch.Value.Where(g => g != null && !g.IsConferenceGame()).ToArray();
                     var p5Opp = ooc.Count(g => g.IsP5Game());
                     var fcsOpp = ooc.Count(g => g.AwayTeam.IsFcsTeam());
