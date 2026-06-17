@@ -71,6 +71,7 @@ namespace EA_DB_Editor
 
         public static void Init()
         {
+            return;
             if (!initRun)
             {
                 ScenarioForSeason = CreateScenarioForSeason();
@@ -118,6 +119,7 @@ namespace EA_DB_Editor
 
         public static void ProcessBig12Schedule(Dictionary<int, TeamSchedule> schedule)
         {
+            return;
             schedule.ProcessSchedule(
                 ScenarioForSeason,
                 Big12ConferenceSchedule,
