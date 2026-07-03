@@ -12,7 +12,7 @@ namespace FutureScheduleReader
 {
     public partial class Form1 : Form
     {
-        private const int TeamCount = 68; // change to 69 when BYU joins a conference
+        private const int TeamCount = 69; // change to 69 when BYU joins a conference
         private static ExcelApp.Application excelApp;
         List<(int year, string away, string home)> list = new List<(int year, string away, string home)>();
         int start = 0;

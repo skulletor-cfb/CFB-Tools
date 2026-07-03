@@ -1007,7 +1007,7 @@ namespace EA_DB_Editor
 
         public static bool IsP5OrND(this int teamId)
         {
-            return teamId.IsP5() || teamId == 68;
+            return teamId.IsP5() || teamId == 68 || (TeamAndConferences[BYUId] == IndId && teamId == BYUId);
         }
 
         static void SetWeightedArrays()

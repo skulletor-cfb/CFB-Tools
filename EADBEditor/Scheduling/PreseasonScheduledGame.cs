@@ -140,7 +140,7 @@ namespace EA_DB_Editor
                         // IsBSUTCU,
                         IsISUKSU,
                         IsTexasOU,
-                        g => MatchTeams(13, g, 20, 38), // ISU-Cincy end the season when they play
+                        //g => MatchTeams(13, g, 20, 38), // ISU-Cincy end the season when they play
                         g => MatchTeams(7,g,11,94), //BU-TT in week 7
                         g => MatchTeams(12, g, 39, 58), // neb-ku week 12
                         g => MatchTeams(4, g, 83, 89), //TCU-SMU week 4
@@ -1575,7 +1575,7 @@ namespace EA_DB_Editor
                 s =>
                 {
                     // find USF/UCF game and set it to week 14
-                    var game = s[18].Where(g => g != null && g.OpponentId(144) == 18).FirstOrDefault();
+                    var game = s[18].Where(g => g != null && g.OpponentId(18) == 144).FirstOrDefault();
                     if (game != null)
                     {
                         game.AssignGame(s, 14);
