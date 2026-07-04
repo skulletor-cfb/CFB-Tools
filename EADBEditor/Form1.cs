@@ -3830,7 +3830,7 @@ PPOS = Position
             // find all the freshman players
             var playerTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "PLAY");
 
-#if false
+#if true
             // any players without a redshirt are set to current season, allowing for 5 years of eligibility
             var playersToRedshirt = playerTable.lRecords.Where(mr => mr["TGID"].ToInt32() != 1023 && mr["PRSD"].ToInt32() == 0 && mr["PYEA"].ToInt32() < 3).ToList();
 
