@@ -314,7 +314,7 @@ namespace EA_DB_Editor
                 game => MatchTeams(13, game, 143, 235), //usa-troy
                 game=> MatchTeams(13, game, 230, 234), // odu-jmu
                 game=> MatchTeams(13,game,65,86), //ull-ulm
-                game=> MatchTeams(13,game,7,64), //ark st - nt
+                game=> MatchTeams(13,game,43,85), //lt-usm
 
 
 
@@ -416,9 +416,9 @@ namespace EA_DB_Editor
                 game => MatchTeams(13, game, 53, 211), //wku-mtsu
                 game=> MatchTeams(13,game,8,57), //army-navy
                 game => MatchTeams(12, game, 64, 232), //nt-UTSA
-                game => MatchTeams(13, game, 218, 232), //nt-UTSA
+                game => MatchTeams(13, game, 218, 232), //tsu-UTSA
                 //game=> MatchTeams(13,game,85,98), //usm-uab
-                //game => MatchTeams(6, game, 43, 85), //lt-usm
+                // game => MatchTeams(13, game, 43, 85), //lt-usm
 
 #if false
                 game => MatchTeams(6, game, 53, 143), //mtsu-troy
