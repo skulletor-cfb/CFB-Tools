@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ListViewEx;
+using MC02Handler;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -12,10 +14,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
-
-using ListViewEx;
-
-using MC02Handler;
 
 namespace EA_DB_Editor
 {
@@ -2856,26 +2854,8 @@ PPOS = Position
             }
             catch { }
 
-            Dictionary<int, TeamRosterFilled> spotsFilled = new Dictionary<int, TeamRosterFilled>();
 
-            // all team ranges start at a multiple of 70 and go to a multiple of 70 -1 (e.g.  140-209)
-            foreach (var player in MaddenTable.FindTable(maddenDB.lTables, "PLAY").lRecords.Where(mr => mr["TGID"].ToInt32() != 1023))
-            {
-                var team = player["TGID"].ToInt32();
-                var pgid = player["PGID"].ToInt32();
-
-                if (spotsFilled.ContainsKey(team) == false)
-                {
-                    spotsFilled[team] = new TeamRosterFilled(team);
-                }
-
-                spotsFilled[team].Spots[pgid % 70] = true;
-
-                if (spotsFilled[team].Offset == 0)
-                {
-                    spotsFilled[team].Offset = (pgid / 70) * 70;
-                }
-            }
+            var spotsFilled = TransferPortal.FindOpenRosterSpots();
 
             sb = new StringBuilder();
             foreach (var value in spotsFilled.Values.OrderBy(v => v.Team))
@@ -4087,12 +4067,7 @@ PPOS = Position
 
         private void transferRuleToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var transferTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "TRAN");
-
-            foreach (var mr in transferTable.lRecords)
-            {
-                mr["TRYR"] = "1";
-            }
+            TransferPortal.MakeTransfersImmediatelyEligble();
         }
 
         private void dumpRostersToolStripMenuItem_Click(object sender, EventArgs e)
@@ -4507,6 +4482,16 @@ PPOS = Position
                 }
             }
         }
+
+        private void createTransferPortalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // transfers are eligble
+            TransferPortal.MakeTransfersImmediatelyEligble();
+
+            // build the data we need
+            TransferPortal.BuildTeamRosterPicture();
+        }
+
     }
 
     [DataContract]
