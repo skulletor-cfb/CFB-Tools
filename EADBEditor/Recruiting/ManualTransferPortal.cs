@@ -234,6 +234,7 @@ namespace EA_DB_Editor
                         Redshirted = mr["PRSD"].ToInt32() == 2,
                         State = PlayerStates.TryGetValue(mr["RCHD"].ToInt32(), out var st) ? st : "unknown",
                         Position = mr["PPOS"].ToInt32().ToPositionName(),
+                        PositionNumber = mr["PPOS"].ToInt32(),
                     })
                 .ToDictionary(g => g.Key, g => g.OrderByDescending(p => p.OVR).ThenBy(p => p.Year).ToArray());
         }
