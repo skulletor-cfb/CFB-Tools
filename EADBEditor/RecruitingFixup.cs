@@ -214,7 +214,7 @@ namespace EA_DB_Editor
 
         static void SetStatesForRecruit(MaddenTable pitchTable, MaddenRecord recruitInfo)
         {
-            var recruit = FindRecruit(pitchTable, recruitInfo["PRSI"].ToInt32());
+            var recruit = TransferPortal.FindRecruit(pitchTable, recruitInfo["PRSI"].ToInt32());
             var state = recruitInfo["STAT"].ToInt32();
             var pitches = new[] { 1, 3, 4, 5, 6, 8, 9, 12, 13 };
             var selected = new List<int>();
@@ -470,7 +470,7 @@ namespace EA_DB_Editor
             {
                 // PT01-PT10 are the top teams
                 // PTCM is the committed team
-                var recruit = FindRecruit(pitchTable, recruitId);
+                var recruit = TransferPortal.FindRecruit(pitchTable, recruitId);
 
                 if (recruitId > DontChange)
                 {
@@ -604,25 +604,6 @@ namespace EA_DB_Editor
 
         static int[] skillPlayers = { 1, 13, 14, 15, 16, 17, 18 };
         static int[] linePlayers = {  5, 6, 7, 8, 9, 10, 11, 12 };
-
-        static MaddenRecord FindRecruit(MaddenTable pitchTable, int recruitId)
-        {
-            foreach (var recruit in pitchTable.lRecords)
-            {
-                foreach (var entry in recruit.lEntries)
-                {
-                    if (entry.field.Abbreviation == "PRSI")
-                    {
-                        if (Int32.Parse(entry.Data) == recruitId)
-                        {
-                            return recruit;
-                        }
-                    }
-                }
-            }
-
-            throw new Exception("bad data");
-        }
 
         public static bool IsIndependentG5(this int teamId)
         {
