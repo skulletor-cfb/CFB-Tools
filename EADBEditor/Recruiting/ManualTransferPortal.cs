@@ -1,11 +1,15 @@
-﻿using System;
+﻿using EA_DB_Editor.CAPGen;
+using System;
 using System.Collections.Generic;
+using System.Drawing.Text;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using static EA_DB_Editor.Form1;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace EA_DB_Editor
 {
@@ -26,68 +30,26 @@ namespace EA_DB_Editor
                 }
             }
 
-            /*
-             * EASP = heisman watch?  (kemp, stanford, stephens,nichols, maxwell)
-MCOV = media coverage
-DCHT = depth chart  player id, team id, pos=0, depth =0
-PLAY = player table
-
-PGID - player id
-TGID - team id
-PFNA - first name 
-PLNA - last name
-PYEA - year (3) = senior
-POVR = overall
-PPOS = Position
-             */
-            Dictionary<int, TransferCandidate[]> GetPlayers(Func<int, bool> positionPredicate = null)
-            {
-                if (positionPredicate == null) positionPredicate = i => true;
-                // QB depth chart
-                return MaddenTable.FindTable(maddenDB.lTables, "PLAY").lRecords.Where(mr => mr["TGID"].ToInt32() != 1023 && positionPredicate(mr["PPOS"].ToInt32()))
-                    .GroupBy(
-                        mr => mr["TGID"].ToInt32(),
-                        mr => new TransferCandidate
-                        {
-                            Id = mr["PGID"].ToInt32(),
-                            OVR = mr["POVR"].ToInt32(),
-                            Year = mr["PYEA"].ToInt32(),
-                            First = mr["PFNA"],
-                            Last = mr["PLNA"],
-                            Team = RecruitingFixup.TeamNames[mr["TGID"].ToInt32()],
-                            TeamId = mr["TGID"].ToInt32(),
-                            Redshirted = mr["PRSD"].ToInt32() == 2,
-                            State = PlayerStates.TryGetValue(mr["RCHD"].ToInt32(), out var st) ? st : "unknown",
-                            Position = mr["PPOS"].ToInt32().ToPositionName(),
-                        })
-                    .ToDictionary(g => g.Key, g => g.OrderByDescending(p => p.OVR).ThenBy(p => p.Year).ToArray());
-            }
-
             DumpRosters(maddenDB);
 
             // each one with SR backup greater than 85
             // not Qbs, 3rd stringers
             var other = new StringBuilder();
-            for (int i = 1; i <= 18; i++)
-            {
-                var otherPlayers = GetPlayers(pos => pos == i);
-                var otherCandidates = otherPlayers.Values.SelectMany(p => p.Skip(2)).Where(p => p.OVR >= 85 && (p.Year >= 2)).OrderByDescending(p => p.OVR).ToList();
-                otherCandidates.ForEach(c => other.AppendLine(c.ToCsvLine()));
-            }
+            FindTransferPortalCandidates(maddenDB, other);
 
-            // g5 superstars, jr/sr above 95
+            // g5 superstars, sr above 95, jr above 88
             var g5stars = new StringBuilder();
 
             for (int i = 0; i <= 18; i++)
             {
-                var otherPlayers = GetPlayers(pos => pos == i);
-                var otherCandidates = otherPlayers.Values.SelectMany(p => p).Where(p => p.TeamId.IsG5() && p.OVR >= 95 && (p.Year >= 2)).OrderByDescending(p => p.OVR).ToList();
+                var otherPlayers = GetPlayers(maddenDB, pos => pos == i);
+                var otherCandidates = otherPlayers.Values.SelectMany(p => p).Where(IsG5Superstar).OrderByDescending(p => p.OVR).ToList();
                 otherCandidates.ForEach(c => g5stars.AppendLine(c.ToCsvLine()));
             }
 
             // QBs
-            var players = GetPlayers(pos => pos == 0);
-            var candidates = players.Values.SelectMany(p => p.Skip(1)).Where(p => p.OVR >= 85 && (p.Year == 3 || (p.Year == 2 && p.Redshirted))).OrderByDescending(p => p.OVR).ToList();
+            var players = GetPlayers(maddenDB, pos => pos == 0);
+            var candidates = players.Values.SelectMany(GetBackupQB).Where(p => p.OVR >= 85 && (p.Year == 3 || (p.Year == 2 && p.Redshirted))).OrderByDescending(p => p.OVR).ToList();
             var inNeed = players.Where(kvp => kvp.Key.IsP5OrND() && kvp.Value.First().OVR < 90).Select(kvp => kvp.Value.First().Team).ToList();
             var g5InNeed = players.Where(kvp => !kvp.Key.IsFcsTeam() && !kvp.Key.IsP5OrND() && kvp.Value.First().OVR < 85).Select(kvp => kvp.Value.First().Team).ToList();
             inNeed.AddRange(g5InNeed);
@@ -233,6 +195,111 @@ PPOS = Position
                     File.WriteAllText(file, roster.ToString());
                 }
                 catch { }
+            }
+        }
+
+        /// <summary>
+        /// EASP = heisman watch?  (kemp, stanford, stephens, nichols, maxwell)
+        /// MCOV = media coverage
+        ///     DCHT = depth chart player id, team id, pos = 0, depth = 0
+        /// PLAY = player table
+
+        /// PGID - player id
+        /// TGID - team id
+        /// PFNA - first name
+        /// PLNA - last name
+        /// PYEA - year(3) = senior
+        /// POVR = overall
+        /// PPOS = Position
+        /// </summary>
+        /// <param name="maddenDB"></param>
+        /// <param name="positionPredicate"></param>
+        /// <returns></returns>
+        private static Dictionary<int, TransferCandidate[]> GetPlayers(MaddenDatabase maddenDB, Func<int, bool> positionPredicate = null)
+        {
+            if (positionPredicate == null) positionPredicate = i => true;
+            // QB depth chart
+            return MaddenTable.FindTable(maddenDB.lTables, "PLAY").lRecords.Where(mr => mr["TGID"].ToInt32() != 1023 && positionPredicate(mr["PPOS"].ToInt32()))
+                .GroupBy(
+                    mr => mr["TGID"].ToInt32(),
+                    mr => new TransferCandidate
+                    {
+                        Id = mr["PGID"].ToInt32(),
+                        OVR = mr["POVR"].ToInt32(),
+                        Year = mr["PYEA"].ToInt32(),
+                        First = mr["PFNA"],
+                        Last = mr["PLNA"],
+                        Team = RecruitingFixup.TeamNames[mr["TGID"].ToInt32()],
+                        TeamId = mr["TGID"].ToInt32(),
+                        Redshirted = mr["PRSD"].ToInt32() == 2,
+                        State = PlayerStates.TryGetValue(mr["RCHD"].ToInt32(), out var st) ? st : "unknown",
+                        Position = mr["PPOS"].ToInt32().ToPositionName(),
+                    })
+                .ToDictionary(g => g.Key, g => g.OrderByDescending(p => p.OVR).ThenBy(p => p.Year).ToArray());
+        }
+
+        private static bool IsG5Superstar(TransferCandidate player)
+        {
+            return player.TeamId.IsG5() && ((player.Year == 3 && player.OVR >= 95) || (player.Year == 2 && player.OVR >= 88));
+        }
+
+        private static IEnumerable<TransferCandidate> GetBackupQB(TransferCandidate[] players) => players.Skip(1);
+
+        private static IEnumerable<TransferCandidate> GetThirdStringers(TransferCandidate[] players)
+        {
+            if (players.Length == 0)
+            {
+                return Array.Empty<TransferCandidate>();
+            }
+
+            var skipCount = HowManyToSkip(players[0].PositionNumber);
+            return players.Skip(skipCount);
+        }
+
+        private static void FindTransferPortalCandidates(MaddenDatabase maddenDB, StringBuilder other)
+        {
+            // we use position groups
+            GetPlayersByPosition(maddenDB, other, 1);
+            GetPlayersByPosition(maddenDB, other, 2);
+            GetPlayersByPosition(maddenDB, other, 3);
+            GetPlayersByPosition(maddenDB, other, 4);
+            GetPlayersByPosition(maddenDB, other, 5, 9);
+            GetPlayersByPosition(maddenDB, other, 6, 8);
+            GetPlayersByPosition(maddenDB, other, 7);
+            GetPlayersByPosition(maddenDB, other, 10, 11);
+            GetPlayersByPosition(maddenDB, other, 12);
+            GetPlayersByPosition(maddenDB, other, 13, 15);
+            GetPlayersByPosition(maddenDB, other, 14);
+            GetPlayersByPosition(maddenDB, other, 16);
+            GetPlayersByPosition(maddenDB, other, 17);
+            GetPlayersByPosition(maddenDB, other, 18);
+        }
+
+        private static void GetPlayersByPosition(MaddenDatabase maddenDB, StringBuilder other, params int[] position)
+        {
+            var otherPlayers = GetPlayers(maddenDB, pos => position.Contains(pos));
+            var otherCandidates = otherPlayers.Values.SelectMany(GetThirdStringers).Where(p => p.OVR >= 85 && (p.Year >= 2)).OrderByDescending(p => p.OVR).ToList();
+            otherCandidates.ForEach(c => other.AppendLine(c.ToCsvLine()));
+        }
+
+        private static int HowManyToSkip(int position)
+        {
+            switch (position)
+            {
+                case 3: // wr
+                case 16: // cb
+                case 5:
+                case 9: // OT
+                case 6:
+                case 8: // OG
+                case 10:
+                case 11: // DE
+                case 13:
+                case 15: // OLB
+                    return 3;
+ 
+                default:
+                    return 2;
             }
         }
     }
