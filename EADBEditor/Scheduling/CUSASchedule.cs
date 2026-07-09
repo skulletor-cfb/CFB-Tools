@@ -53,7 +53,7 @@ namespace EA_DB_Editor
             return result;
         }
 
-        const int TexSt = 218;
+        const int LT = 43;
         const int WKU = 211;
         const int MTSU = 53;
         const int FAU = 229;
@@ -67,15 +67,15 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Army.Create(MTSU, TexSt, UTEP, UTSA),
+                Army.Create(MTSU, LT, UTEP, UTSA),
                 Navy.Create(Army, WKU, FAU, NT),
-                MTSU.Create(Navy, TexSt, UTEP, NT),
-                WKU.Create(Army, MTSU, TexSt, UTSA),
-                TexSt.Create(Navy, FAU, UTEP, UTSA),
+                MTSU.Create(Navy, LT, UTEP, NT),
+                WKU.Create(Army, MTSU, LT, UTSA),
+                LT.Create(Navy, FAU, UTEP, UTSA),
                 FAU.Create(Army, MTSU, WKU, NT),
                 UTEP.Create(Navy, WKU, FAU, UTSA),
                 UTSA.Create(Navy, MTSU, FAU, NT),
-                NT.Create(Army, WKU, TexSt, UTEP),
+                NT.Create(Army, WKU, LT, UTEP),
             }.Create();
         }
     }
