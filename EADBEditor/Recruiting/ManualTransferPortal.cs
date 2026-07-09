@@ -471,6 +471,9 @@ namespace EA_DB_Editor
             Dictionary<int, List<RecruitInfo>> recruitClasses,
             Dictionary<int, Stack<int>> rosterSpots)
         {
+#if true
+            sb.AppendLine(player.ToCsvLine());
+#else
             var teamsRecruiting = new (string Team, int PlayerId)[5];
             var idx = 0;
             var teamMatch = new HashSet<long>();
@@ -494,6 +497,7 @@ namespace EA_DB_Editor
             teamsRecruiting.Shuffle();
             var teamList = teamsRecruiting.Select(t => $"{t.Team},{t.PlayerId}");
             sb.AppendLine($"{player.ToCsvLine()},,,{string.Join(",", teamList)}");
+#endif
         }
 
         private static void ShouldCoachPoach(this TransferCandidate player, StringBuilder sb, List<TransferCandidate> roster, List<RecruitInfo> incoming, Stack<int> rosterSpots)
