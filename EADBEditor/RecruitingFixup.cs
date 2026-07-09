@@ -63,7 +63,7 @@ namespace EA_DB_Editor
     public static class RecruitingFixup
     {
         // should be -1 if we haven't added any CAPs
-        public static int DontChange = 6;
+        public static int DontChange = 5;
         const int P5Cutoff = 300;
 
         public static Random RAND = new Random(BitConverter.ToInt32(Guid.NewGuid().ToByteArray().Take(4).ToArray(), 0));
