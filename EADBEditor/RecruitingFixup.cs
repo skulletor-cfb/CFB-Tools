@@ -63,7 +63,7 @@ namespace EA_DB_Editor
     public static class RecruitingFixup
     {
         // should be -1 if we haven't added any CAPs
-        public static int DontChange =6;
+        public static int DontChange = 6;
         const int P5Cutoff = 300;
 
         public static Random RAND = new Random(BitConverter.ToInt32(Guid.NewGuid().ToByteArray().Take(4).ToArray(), 0));
@@ -153,7 +153,7 @@ namespace EA_DB_Editor
                 foreach (var rating in Player.RatingMap.Keys)
                 {
                     var curr = ath[rating].ToInt32();
-                    curr+=RAND.Next(5, 21);
+                    curr += RAND.Next(5, 21);
                     if (curr > 99)
                         curr = 99;
                     ath[rating] = curr.ToString();
@@ -225,7 +225,7 @@ namespace EA_DB_Editor
                     selected.Add(p);
             }
 
-            if(pitches.Contains(recruitInfo["IMP1"].ToInt32())==false)recruitInfo["IMP1"] = selected[0].ToString();
+            if (pitches.Contains(recruitInfo["IMP1"].ToInt32()) == false) recruitInfo["IMP1"] = selected[0].ToString();
             if (pitches.Contains(recruitInfo["IMP2"].ToInt32()) == false) recruitInfo["IMP2"] = selected[1].ToString();
             if (pitches.Contains(recruitInfo["IMP3"].ToInt32()) == false) recruitInfo["IMP3"] = selected[2].ToString();
 
@@ -269,60 +269,60 @@ namespace EA_DB_Editor
             #region state stuff
             var dict = new Dictionary<int, int[]>();
             dict.Add(0, new int[] { SECId }); //AL
-            dict.Add(1,allConf); //AK
+            dict.Add(1, allConf); //AK
             dict.Add(2, new int[] { Pac16Id, BYUId }); //AZ
             dict.Add(3, new int[] { SECId }); //AR
-            dict.Add(4, new int[] { Pac16Id , NotreDameId, Pac16Id, NotreDameId,BYUId }); //CA
+            dict.Add(4, new int[] { Pac16Id, NotreDameId, Pac16Id, NotreDameId, BYUId }); //CA
             dict.Add(5, new int[] { TeamAndConferences[22], NotreDameId, BYUId }); //CO
-            dict.Add(6, new int[] { ACCId,Big10Id , NotreDameId}); //CT
-            dict.Add(7, new int[] { ACCId, Big10Id ,NotreDameId}); //DE
-            dict.Add(8, new int[] { SECId,ACCId , SECId, ACCId, UCFId, USFId }); //FL
+            dict.Add(6, new int[] { ACCId, Big10Id, NotreDameId }); //CT
+            dict.Add(7, new int[] { ACCId, Big10Id, NotreDameId }); //DE
+            dict.Add(8, new int[] { SECId, ACCId, SECId, ACCId, UCFId, USFId }); //FL
             dict.Add(9, new int[] { SECId, ACCId }); //GA
-            dict.Add(10, new int[] { Pac16Id, NotreDameId  }); //HI
+            dict.Add(10, new int[] { Pac16Id, NotreDameId }); //HI
             dict.Add(11, new int[] { Pac16Id, BYUId }); //ID
-            dict.Add(12, new int[] { Big10Id,NotreDameId }); //IL
+            dict.Add(12, new int[] { Big10Id, NotreDameId }); //IL
             dict.Add(13, new int[] { Big10Id, NotreDameId }); //IN
-            dict.Add(14, new int[] { Big10Id, NotreDameId,Big12Id }); //IA
+            dict.Add(14, new int[] { Big10Id, NotreDameId, Big12Id }); //IA
             dict.Add(15, new int[] { Big12Id }); //KS
-            dict.Add(16, new int[] { TeamAndConferences[44], SECId}); //KY
+            dict.Add(16, new int[] { TeamAndConferences[44], SECId }); //KY
             dict.Add(17, new int[] { SECId, LSUId }); //LA
-            dict.Add(18, new int[] { ACCId,Big10Id,NotreDameId }); //ME
-            dict.Add(19, new int[] {  ACCId,  NotreDameId }); //MD
+            dict.Add(18, new int[] { ACCId, Big10Id, NotreDameId }); //ME
+            dict.Add(19, new int[] { ACCId, NotreDameId }); //MD
             dict.Add(20, new int[] { ACCId, NotreDameId }); //MA
-            dict.Add(21, new int[] { Big10Id,NotreDameId, CincyId }); //MI
-            dict.Add(22, new int[] { Big10Id,NotreDameId }); //MN
+            dict.Add(21, new int[] { Big10Id, NotreDameId, CincyId }); //MI
+            dict.Add(22, new int[] { Big10Id, NotreDameId }); //MN
             dict.Add(23, new int[] { SECId }); //MS
-            dict.Add(24, new int[] { SECId,Big12Id}); //MO
-            dict.Add(25, new int[] { Pac16Id,NotreDameId}); //MT
+            dict.Add(24, new int[] { SECId, Big12Id }); //MO
+            dict.Add(25, new int[] { Pac16Id, NotreDameId }); //MT
             dict.Add(26, new int[] { Big12Id }); //NE
-            dict.Add(27, new int[] { Pac16Id,NotreDameId, BYUId }); //NV
-            dict.Add(28, new int[] { ACCId,Big10Id,NotreDameId }); //NH
+            dict.Add(27, new int[] { Pac16Id, NotreDameId, BYUId }); //NV
+            dict.Add(28, new int[] { ACCId, Big10Id, NotreDameId }); //NH
             dict.Add(29, new int[] { ACCId, Big10Id, NotreDameId }); //NJ
-            dict.Add(30, new int[] { Pac16Id,Big12Id,NotreDameId }); //NM
+            dict.Add(30, new int[] { Pac16Id, Big12Id, NotreDameId }); //NM
             dict.Add(31, new int[] { ACCId, Big10Id, NotreDameId }); //NY
             dict.Add(32, new int[] { ACCId }); //NC
-            dict.Add(33, new int[] { Pac16Id,NotreDameId, BYUId }); //ND
-            dict.Add(34, new int[] { Big10Id,NotreDameId, Big10Id, NotreDameId, Big10Id, NotreDameId, CincyId }); //OH
+            dict.Add(33, new int[] { Pac16Id, NotreDameId, BYUId }); //ND
+            dict.Add(34, new int[] { Big10Id, NotreDameId, Big10Id, NotreDameId, Big10Id, NotreDameId, CincyId }); //OH
             dict.Add(35, new int[] { Big12Id }); //OK
             dict.Add(36, new int[] { Pac16Id }); //OR
-            dict.Add(37, new int[] { ACCId,Big10Id,NotreDameId, CincyId }); //PA
+            dict.Add(37, new int[] { ACCId, Big10Id, NotreDameId, CincyId }); //PA
             dict.Add(38, new int[] { ACCId, Big10Id, NotreDameId }); //RI
-            dict.Add(39, new int[] { ACCId,SECId }); //SC
-            dict.Add(40, new int[] { Pac16Id,Big12Id,NotreDameId, BYUId }); //SD
-            dict.Add(41, new int[] { SECId , SECId}); //TN
-            dict.Add(42, new int[] { Big12Id,SECId,NotreDameId }); //TX
-            dict.Add(43, new int[] { Pac16Id, NotreDameId , BYUId }); //UT
+            dict.Add(39, new int[] { ACCId, SECId }); //SC
+            dict.Add(40, new int[] { Pac16Id, Big12Id, NotreDameId, BYUId }); //SD
+            dict.Add(41, new int[] { SECId, SECId }); //TN
+            dict.Add(42, new int[] { Big12Id, SECId, NotreDameId }); //TX
+            dict.Add(43, new int[] { Pac16Id, NotreDameId, BYUId }); //UT
             dict.Add(44, new int[] { ACCId, Big10Id, NotreDameId }); //VT
-            dict.Add(45, new int[] { ACCId,  NotreDameId }); //VA
+            dict.Add(45, new int[] { ACCId, NotreDameId }); //VA
             dict.Add(46, new int[] { Pac16Id }); //WA
-            dict.Add(47, new int[] {ACCId }); //WV
+            dict.Add(47, new int[] { ACCId }); //WV
             dict.Add(49, allConf); //WY
-            dict.Add(48, new int[] { Big10Id,NotreDameId }); //WI
+            dict.Add(48, new int[] { Big10Id, NotreDameId }); //WI
             dict.Add(50, allConf); //CN
             dict.Add(51, allConf); //DC
             #endregion
 
-            var teams  = new Dictionary<int,int[]>();
+            var teams = new Dictionary<int, int[]>();
             SetWeightedArrays();
 
             foreach (var kvp in dict)
@@ -350,7 +350,7 @@ namespace EA_DB_Editor
                             break;
                         case Big16Id:
                             allTeams.AddRange(WeightedBig16);
-                            break; 
+                            break;
                         case NotreDameId:
                             allTeams.AddRange(WeightedND);
                             break;
@@ -370,7 +370,7 @@ namespace EA_DB_Editor
                             allTeams.AddRange(WeightedLSU);
                             break;
                         default:
-                            break; 
+                            break;
                     }
                 }
 
@@ -460,7 +460,7 @@ namespace EA_DB_Editor
                 }
             }
 
-            if(recruitId < DontChange) { return; }
+            if (recruitId < DontChange) { return; }
 
             List<int> teams = new List<int>();
             List<int> subs = new List<int>();
@@ -548,7 +548,7 @@ namespace EA_DB_Editor
             if (rank <= P5Cutoff)
                 return true;
 
-            return  !DontFoolWith.Contains(teamId);
+            return !DontFoolWith.Contains(teamId);
         }
 
         static HashSet<int> changedFaces = new HashSet<int>();
@@ -603,23 +603,23 @@ namespace EA_DB_Editor
         }
 
         static int[] skillPlayers = { 1, 13, 14, 15, 16, 17, 18 };
-        static int[] linePlayers = {  5, 6, 7, 8, 9, 10, 11, 12 };
+        static int[] linePlayers = { 5, 6, 7, 8, 9, 10, 11, 12 };
 
         public static bool IsIndependentG5(this int teamId)
         {
-            return TeamAndConferences[teamId] == IndId && teamId != 16 && teamId != 68 ;
+            return TeamAndConferences[teamId] == IndId && teamId != 16 && teamId != 68;
         }
 
-       public const int ACCId = 0;
+        public const int ACCId = 0;
         public const int AmericanId = 3;
-    public    const int Big12Id = 2;
+        public const int Big12Id = 2;
         public const int Big16Id = 200;
-    public    const int Big10Id = 1;
+        public const int Big10Id = 1;
         public const int CUSAId = 4;
         public const int MACId = 7;
         public const int MWCId = 9;
         public const int Pac16Id = 10;
-        public  const int SECId = 11;
+        public const int SECId = 11;
         public const int SBCId = 13;
         public const int IndId = 5;
         private static Dictionary<int, int> teamAndConferences;
@@ -663,7 +663,7 @@ namespace EA_DB_Editor
                     try
                     {
                         teamAndConferences = Form1.MainForm.maddenDB.lTables[167].lRecords
-                            .Where( mr=> mr.lEntries[40].Data.ToInt32()!=611&& mr.lEntries[40].Data.ToInt32() != 300)
+                            .Where(mr => mr.lEntries[40].Data.ToInt32() != 611 && mr.lEntries[40].Data.ToInt32() != 300)
                             .ToDictionary(mr => mr.lEntries[40].Data.ToInt32(), record => record.lEntries[36].Data.ToInt32());
                     }
                     catch
@@ -685,7 +685,7 @@ namespace EA_DB_Editor
                     try
                     {
                         teamAndDivisions = Form1.MainForm.maddenDB.lTables[167].lRecords
-                            .Where(mr => mr.lEntries[40].Data.ToInt32() != 611 && mr.lEntries[37].ToInt32()!=30&& mr.lEntries[40].Data.ToInt32() != 300)
+                            .Where(mr => mr.lEntries[40].Data.ToInt32() != 611 && mr.lEntries[37].ToInt32() != 30 && mr.lEntries[40].Data.ToInt32() != 300)
                             .ToDictionary(mr => mr.lEntries[40].Data.ToInt32(), record => record.lEntries[37].Data.ToInt32());
                     }
                     catch
@@ -788,7 +788,21 @@ namespace EA_DB_Editor
             return false;
         }
 
-        static Dictionary<int, int> PrestigeMap;
+        private static Dictionary<int, int> prestigeMap;
+        public static Dictionary<int, int> PrestigeMap
+        {
+            get
+            {
+                if (prestigeMap == null)
+                {
+                    var table = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "TEAM");
+                    prestigeMap = table.lRecords.ToDictionary(mr => mr["TGID"].ToInt32(), mr => mr["TPRX"].ToInt32());
+                }
+
+                return prestigeMap;
+
+            }
+        }
         public static int[] ACCConfTeams { get { return TeamAndConferences.Where(kvp => kvp.Value == ACCId).Select(kvp => kvp.Key).ToArray(); } }
         public static int[] ACC { get { return TeamAndConferences.Where(kvp => kvp.Value == ACCId).Select(kvp => kvp.Key).Concat(new[] { 68 }).Distinct().ToArray(); } }
 
@@ -796,11 +810,11 @@ namespace EA_DB_Editor
         public static int[] Big12 { get { return TeamAndConferences.Where(kvp => kvp.Value == Big12Id).Select(kvp => kvp.Key).ToArray(); } }
         public static int[] Pac12 { get { return TeamAndConferences.Where(kvp => kvp.Value == Pac16Id).Select(kvp => kvp.Key).ToArray(); } }
         public static int[] SEC { get { return TeamAndConferences.Where(kvp => kvp.Value == SECId).Select(kvp => kvp.Key).ToArray(); } }
-     public   static int[] American { get { return TeamAndConferences.Where(kvp => kvp.Value == AmericanId).Select(kvp => kvp.Key).ToArray(); } }
-     public   static int[] MAC { get { return TeamAndConferences.Where(kvp => kvp.Value == MACId).Select(kvp => kvp.Key).ToArray(); } }
-     public   static int[] CUSA { get { return TeamAndConferences.Where(kvp => kvp.Value == CUSAId).Select(kvp => kvp.Key).ToArray(); } }
-      public  static int[] SBC { get { return TeamAndConferences.Where(kvp => kvp.Value == SBCId).Select(kvp => kvp.Key).ToArray(); } }
-     public   static int[] MWC { get { return TeamAndConferences.Where(kvp => kvp.Value == MWCId).Select(kvp => kvp.Key).ToArray(); } }
+        public static int[] American { get { return TeamAndConferences.Where(kvp => kvp.Value == AmericanId).Select(kvp => kvp.Key).ToArray(); } }
+        public static int[] MAC { get { return TeamAndConferences.Where(kvp => kvp.Value == MACId).Select(kvp => kvp.Key).ToArray(); } }
+        public static int[] CUSA { get { return TeamAndConferences.Where(kvp => kvp.Value == CUSAId).Select(kvp => kvp.Key).ToArray(); } }
+        public static int[] SBC { get { return TeamAndConferences.Where(kvp => kvp.Value == SBCId).Select(kvp => kvp.Key).ToArray(); } }
+        public static int[] MWC { get { return TeamAndConferences.Where(kvp => kvp.Value == MWCId).Select(kvp => kvp.Key).ToArray(); } }
 
         static string[] academies = { "1", "8", "57" };
         public static int[] OnTheirOwn = TeamsOnTheirOwn();
@@ -831,9 +845,9 @@ namespace EA_DB_Editor
 
         public static bool IsServiceAcademy(this int teamId)
         {
-            return  academies.Contains(teamId.ToString());
+            return academies.Contains(teamId.ToString());
         }
-        
+
         /// <summary>
         /// Whether or not ateam is in the Power5
         /// </summary>
@@ -881,12 +895,12 @@ namespace EA_DB_Editor
             return count < 12;
         }
 
-        public static bool TooManyFcsGameCheck(this int  teamId, int fcsGAmes)
+        public static bool TooManyFcsGameCheck(this int teamId, int fcsGAmes)
         {
             var conf = TeamAndConferences[teamId];
             var count = TeamAndConferences.Count(kvp => kvp.Value == conf && kvp.Key != 68);
 
-            if( count <=6 )
+            if (count <= 6)
             {
                 return fcsGAmes > 2;
             }
@@ -976,8 +990,6 @@ namespace EA_DB_Editor
             if (WeightedACC != null)
                 return;
 
-            var table = Form1.MainForm.maddenDB.lTables.Where(t => t.Abbreviation == "TEAM").First();
-            PrestigeMap = table.lRecords.ToDictionary(mr => mr["TGID"].ToInt32(), mr => mr["TPRX"].ToInt32());
             WeightedACC = CreateWeightedList(ACCConfTeams);
             WeightedBig10 = CreateWeightedList(Big10);
             WeightedBig12 = CreateWeightedList(Big12);
@@ -1042,7 +1054,7 @@ namespace EA_DB_Editor
             return idx < a.Count ? a[idx] : b[idx - a.Count];
         }
 
-        static int SelectFromConferences(List<int> first,List<int> second, List<int> third, int recruitRating)
+        static int SelectFromConferences(List<int> first, List<int> second, List<int> third, int recruitRating)
         {
             var all = first.Concat(second).Concat(third).ToList();
             all = recruitRating > 3 ? all : all.Distinct().ToList();
