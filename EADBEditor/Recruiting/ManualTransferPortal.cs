@@ -15,58 +15,63 @@ namespace EA_DB_Editor
 {
     internal static class ManualTransferPortal
     {
+        internal static void WriteTransferPortalFiles(MaddenDatabase maddenDB)
+    {
+        if (PlayerStates.Count == 0)
+        {
+            var lines = File.ReadAllLines("cities.csv");
+
+            foreach (var line in lines)
+            {
+                var split = line.Split(',');
+                PlayerStates.Add(split[0].Trim().ToInt32(), split[2].Trim());
+            }
+        }
+
+        DumpRosters(maddenDB);
+
+        // each one with SR backup greater than 85
+        // not Qbs, 3rd stringers
+        var other = FindTransferPortalCandidates(maddenDB);
+
+        // g5 superstars, sr above 95, jr above 88
+        var g5stars = FindG5tars(maddenDB);
+
+        // find qbs to transfer
+        var qbs = FindQBs(maddenDB);
+
+        // coach might be able to bring new players
+        var poach = CoachPoachCandidates(maddenDB);
+        try
+        {
+            File.WriteAllText("transfercandidates.csv", qbs.ToString());
+            File.WriteAllText("transferPortal.csv", other.ToString());
+            File.WriteAllText("g5stars.csv", g5stars.ToString());
+            File.WriteAllText("coachpoach.csv", poach.ToString());
+        }
+        catch { }
+
+
+        var spotsFilled = TransferPortal.FindOpenRosterSpots();
+
+        var sb = new StringBuilder();
+        foreach (var value in spotsFilled.Values.OrderBy(v => v.Team))
+        {
+            sb.AppendLine(value.ToCsv());
+        }
+
+        try
+        {
+            File.WriteAllText("Roster.csv", sb.ToString());
+        }
+        catch { }
+    }
+
         public static Dictionary<int, string> PlayerStates = new Dictionary<int, string>();
 
         public static void RunTransferPortal(MaddenDatabase maddenDB)
         {
-            if (PlayerStates.Count == 0)
-            {
-                var lines = File.ReadAllLines("cities.csv");
-
-                foreach (var line in lines)
-                {
-                    var split = line.Split(',');
-                    PlayerStates.Add(split[0].Trim().ToInt32(), split[2].Trim());
-                }
-            }
-
-            DumpRosters(maddenDB);
-
-            // each one with SR backup greater than 85
-            // not Qbs, 3rd stringers
-            var other = FindTransferPortalCandidates(maddenDB);
-
-            // g5 superstars, sr above 95, jr above 88
-            var g5stars = FindG5tars(maddenDB);
-
-            // find qbs to transfer
-            var qbs = FindQBs(maddenDB);
-
-            // coach might be able to bring new players
-            var poach = CoachPoachCandidates(maddenDB);
-            try
-            {
-                File.WriteAllText("transfercandidates.csv", qbs.ToString());
-                File.WriteAllText("transferPortal.csv", other.ToString());
-                File.WriteAllText("g5stars.csv", g5stars.ToString());
-                File.WriteAllText("coachpoach.csv", poach.ToString());
-            }
-            catch { }
-
-
-            var spotsFilled = TransferPortal.FindOpenRosterSpots();
-
-            var sb = new StringBuilder();
-            foreach (var value in spotsFilled.Values.OrderBy(v => v.Team))
-            {
-                sb.AppendLine(value.ToCsv());
-            }
-
-            try
-            {
-                File.WriteAllText("Roster.csv", sb.ToString());
-            }
-            catch { }
+            WriteTransferPortalFiles(maddenDB);
 
             var entry = new PlayerEntry();
             if (entry.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -126,6 +131,8 @@ namespace EA_DB_Editor
                     }
                 }
             }
+
+            WriteTransferPortalFiles(maddenDB);
         }
         public static void DumpRosters(MaddenDatabase maddenDB)
         {
@@ -355,6 +362,28 @@ namespace EA_DB_Editor
             }
         }
 
+        private static bool IsLateralOrBetterMove(this MaddenRecord mr, Dictionary<int, int> teamPrestigeMap)
+        {
+            var newTeam = mr["TGID"].ToInt32();
+            var previousTeam = mr["CLTF"].ToInt32();
+            var previousTeamPrestige = teamPrestigeMap.TryGetValue(previousTeam, out var prestige) ? prestige : 0;
+            var newteamPrestige = teamPrestigeMap.TryGetValue(newTeam, out var newPrestige) ? newPrestige : 0;
+
+            // did i go to a higher prestige team?
+            if (newteamPrestige > previousTeamPrestige)
+            {
+                return true;
+            }
+
+            // equal prestige but new team is p5
+            if(newteamPrestige == previousTeamPrestige && newTeam.IsP5OrND())
+            {
+                return true;
+            }
+
+            // went from g5 to g5 or p5 to g5
+            return false;
+        }
 
         /// <summary>
         /// when a g5 coach goes to p5, he might poach players from his old team.  
@@ -382,7 +411,7 @@ namespace EA_DB_Editor
             var prestigeUpgradeCoaches = coachTable.lRecords
                 .Where(mr => mr["CTYR"].ToInt32() == 0)
                 .Where(mr => mr["COPS"].ToInt32() == 0)
-                .Where(mr => teamPrestigeMap[mr["TGID"].ToInt32()] > (teamPrestigeMap.TryGetValue(mr["CLTF"].ToInt32(), out var prestige) ? prestige : 0))
+                .Where(mr => mr.IsLateralOrBetterMove(teamPrestigeMap))
                 .ToArray();
 
             var rosterSpotsDict = TransferPortal.FindOpenRosterSpots();
