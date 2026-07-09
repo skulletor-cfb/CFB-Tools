@@ -738,7 +738,7 @@ namespace EA_DB_Editor
         /// </summary>
         /// <typeparam name="T">Array element type.</typeparam>
         /// <param name="array">Array to shuffle.</param>
-        static void Shuffle<T>(this T[] array)
+        public static void Shuffle<T>(this T[] array)
         {
             int n = array.Length;
             for (int i = 0; i < (n - 1); i++)
