@@ -11,9 +11,12 @@ namespace EA_DB_Editor
 {
     internal class TransferPortal
     {
-
+        private static bool transfersEligbleRun = false;
         public static void MakeTransfersImmediatelyEligble()
         {
+            if (transfersEligbleRun) return;
+
+            transfersEligbleRun = true;
             var transferTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "TRAN");
 
             foreach (var mr in transferTable.lRecords)
@@ -149,6 +152,7 @@ namespace EA_DB_Editor
         public int PositionGroup { get; }
         public int Overall { get; }
         public string Name { get; }
+        public int Position { get; }
 
 
         public RecruitInfo(MaddenRecord mr, int id, int teamId)
@@ -159,6 +163,17 @@ namespace EA_DB_Editor
             this.PositionGroup = mr["RPGP"].ToInt32();
             this.Overall = mr["POVR"].ToInt32(); //rcov is pre scout
             this.Name = $"{mr.lEntries[14].Data} {mr.lEntries[15].Data}";
+            this.PositionGroup = mr.lEntries[106].Data.ToInt32();
+        }
+
+        public TransferCandidate ToTransferCandidate()
+        {
+            return new TransferCandidate
+            {
+                OVR = this.Overall,
+                PositionNumber = this.Position,
+                Year = 0,
+            };
         }
 
         private static Dictionary<int, string> States = new Dictionary<int, string>()

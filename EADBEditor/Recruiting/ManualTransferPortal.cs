@@ -13,7 +13,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace EA_DB_Editor
 {
-    internal class ManualTransferPortal
+    internal static class ManualTransferPortal
     {
         public static Dictionary<int, string> PlayerStates = new Dictionary<int, string>();
 
@@ -34,59 +34,29 @@ namespace EA_DB_Editor
 
             // each one with SR backup greater than 85
             // not Qbs, 3rd stringers
-            var other = new StringBuilder();
-            FindTransferPortalCandidates(maddenDB, other);
+            var other = FindTransferPortalCandidates(maddenDB);
 
             // g5 superstars, sr above 95, jr above 88
-            var g5stars = new StringBuilder();
+            var g5stars = FindG5tars(maddenDB);
 
-            for (int i = 0; i <= 18; i++)
-            {
-                var otherPlayers = GetPlayers(maddenDB, pos => pos == i);
-                var otherCandidates = otherPlayers.Values.SelectMany(p => p).Where(IsG5Superstar).OrderByDescending(p => p.OVR).ToList();
-                otherCandidates.ForEach(c => g5stars.AppendLine(c.ToCsvLine()));
-            }
+            // find qbs to transfer
+            var qbs = FindQBs(maddenDB);
 
-            // QBs
-            var players = GetPlayers(maddenDB, pos => pos == 0);
-            var candidates = players.Values.SelectMany(GetBackupQB).Where(p => p.OVR >= 85 && (p.Year == 3 || (p.Year == 2 && p.Redshirted))).OrderByDescending(p => p.OVR).ToList();
-            var inNeed = players.Where(kvp => kvp.Key.IsP5OrND() && kvp.Value.First().OVR < 90).Select(kvp => kvp.Value.First().Team).ToList();
-            var g5InNeed = players.Where(kvp => !kvp.Key.IsFcsTeam() && !kvp.Key.IsP5OrND() && kvp.Value.First().OVR < 85).Select(kvp => kvp.Value.First().Team).ToList();
-            inNeed.AddRange(g5InNeed);
-
-            StringBuilder sb = new StringBuilder();
-
-            // write transfers
-            candidates.ForEach(c => sb.AppendLine(c.ToCsvLine()));
-            //inNeed.ForEach(c => sb.AppendLine(c));
-            sb.AppendLine();
-
-            // each teams QB depth chart
-            foreach (var dc in players.Values.Where(tc => inNeed.Contains(tc.First().Team)).OrderBy(tc => tc.First().P5).ThenBy(tc => tc.First().OVR).ThenBy(tc => tc.First().Team))
-            {
-                sb.AppendLine(string.Empty);
-                sb.AppendLine(string.Empty);
-                foreach (var p in dc)
-                {
-                    sb.AppendLine(p.ToCsvLine());
-                }
-            }
-
-            sb.AppendLine(string.Empty);
-            sb.AppendLine(string.Empty);
-
+            // coach might be able to bring new players
+            var poach = CoachPoachCandidates(maddenDB);
             try
             {
-                File.WriteAllText("transfercandidates.csv", sb.ToString());
+                File.WriteAllText("transfercandidates.csv", qbs.ToString());
                 File.WriteAllText("transferPortal.csv", other.ToString());
                 File.WriteAllText("g5stars.csv", g5stars.ToString());
+                File.WriteAllText("coachpoach.csv", poach.ToString());
             }
             catch { }
 
 
             var spotsFilled = TransferPortal.FindOpenRosterSpots();
 
-            sb = new StringBuilder();
+            var sb = new StringBuilder();
             foreach (var value in spotsFilled.Values.OrderBy(v => v.Team))
             {
                 sb.AppendLine(value.ToCsv());
@@ -201,7 +171,7 @@ namespace EA_DB_Editor
         /// <summary>
         /// EASP = heisman watch?  (kemp, stanford, stephens, nichols, maxwell)
         /// MCOV = media coverage
-        ///     DCHT = depth chart player id, team id, pos = 0, depth = 0
+        /// DCHT = depth chart player id, team id, pos = 0, depth = 0
         /// PLAY = player table
 
         /// PGID - player id
@@ -257,8 +227,55 @@ namespace EA_DB_Editor
             return players.Skip(skipCount);
         }
 
-        private static void FindTransferPortalCandidates(MaddenDatabase maddenDB, StringBuilder other)
+        private static StringBuilder FindQBs(MaddenDatabase maddenDB)
         {
+            // QBs
+            var players = GetPlayers(maddenDB, pos => pos == 0);
+            var candidates = players.Values.SelectMany(GetBackupQB).Where(p => p.OVR >= 85 && (p.Year == 3 || (p.Year == 2 && p.Redshirted))).OrderByDescending(p => p.OVR).ToList();
+            var inNeed = players.Where(kvp => kvp.Key.IsP5OrND() && kvp.Value.First().OVR < 90).Select(kvp => kvp.Value.First().Team).ToList();
+            var g5InNeed = players.Where(kvp => !kvp.Key.IsFcsTeam() && !kvp.Key.IsP5OrND() && kvp.Value.First().OVR < 85).Select(kvp => kvp.Value.First().Team).ToList();
+            inNeed.AddRange(g5InNeed);
+
+            StringBuilder sb = new StringBuilder();
+
+            // write transfers
+            candidates.ForEach(c => sb.AppendLine(c.ToCsvLine()));
+            //inNeed.ForEach(c => sb.AppendLine(c));
+            sb.AppendLine();
+
+            // each teams QB depth chart
+            foreach (var dc in players.Values.Where(tc => inNeed.Contains(tc.First().Team)).OrderBy(tc => tc.First().P5).ThenBy(tc => tc.First().OVR).ThenBy(tc => tc.First().Team))
+            {
+                sb.AppendLine(string.Empty);
+                sb.AppendLine(string.Empty);
+                foreach (var p in dc)
+                {
+                    sb.AppendLine(p.ToCsvLine());
+                }
+            }
+
+            sb.AppendLine(string.Empty);
+            sb.AppendLine(string.Empty);
+            return sb;
+        }
+
+        private static StringBuilder FindG5tars(MaddenDatabase maddenDB)
+        {
+            var sb = new StringBuilder();
+            for (int i = 0; i <= 18; i++)
+            {
+                var otherPlayers = GetPlayers(maddenDB, pos => pos == i);
+                var otherCandidates = otherPlayers.Values.SelectMany(p => p).Where(IsG5Superstar).OrderByDescending(p => p.OVR).ToList();
+                otherCandidates.ForEach(c => sb.AppendLine(c.ToCsvLine()));
+            }
+
+            return sb;
+        }
+
+        private static StringBuilder FindTransferPortalCandidates(MaddenDatabase maddenDB)
+        {
+            var other = new StringBuilder();
+
             // we use position groups
             GetPlayersByPosition(maddenDB, other, 1);
             GetPlayersByPosition(maddenDB, other, 2);
@@ -274,6 +291,8 @@ namespace EA_DB_Editor
             GetPlayersByPosition(maddenDB, other, 16);
             GetPlayersByPosition(maddenDB, other, 17);
             GetPlayersByPosition(maddenDB, other, 18);
+
+            return other;
         }
 
         private static void GetPlayersByPosition(MaddenDatabase maddenDB, StringBuilder other, params int[] position)
@@ -298,10 +317,181 @@ namespace EA_DB_Editor
                 case 13:
                 case 15: // OLB
                     return 3;
- 
+
                 default:
                     return 2;
             }
         }
+
+        private static int StarterCount(int position)
+        {
+            switch (position)
+            {
+                case 5: // OT
+                case 9: // OT
+                case 6: // OG
+                case 8: // OG
+                case 10: // DE
+                case 11: // DE
+                case 12: // DT
+                case 13: // OLB
+                case 15: // OLB
+                case 16: // cb
+                    return 2;
+
+                case 3: // wr
+                    return 3;
+
+                case 0: // QB
+                case 1: // HB
+                case 2: // FB
+                case 4: // TE
+                case 7: // C
+                case 14: // MLB
+                case 17: // FS
+                case 18: // SS
+                default:
+                    return 1;
+            }
+        }
+
+
+        /// <summary>
+        /// when a g5 coach goes to p5, he might poach players from his old team.  
+        /// </summary>
+        /// <param name="maddenDB"></param>
+        /// <returns></returns>
+        private static StringBuilder CoachPoachCandidates(MaddenDatabase maddenDB)
+        {
+            var sb = new StringBuilder();
+            var coachTable = MaddenTable.FindMaddenTable(maddenDB.lTables, "COCH");
+            var teamTable = MaddenTable.FindMaddenTable(maddenDB.lTables, "TEAM");
+            var teamPrestigeMap = teamTable.lRecords.ToDictionary(mr => mr["TGID"].ToInt32(), mr => mr["TPRX"].ToInt32());
+            var allPlayers = GetPlayers(maddenDB);
+            var reviewed = new HashSet<int>();
+
+            // new head coaches
+            var newPowerCoaches = coachTable.lRecords
+                .Where(mr => mr["CTYR"].ToInt32() == 0)
+                .Where(mr => mr["COPS"].ToInt32() == 0)
+                .Where(mr => mr["TGID"].ToInt32().IsP5OrND())
+                .Where(mr => mr["CLTF"].ToInt32().IsG5())
+                .ToArray();
+
+            // coaches who went to a higher prestige team
+            var prestigeUpgradeCoaches = coachTable.lRecords
+                .Where(mr => mr["CTYR"].ToInt32() == 0)
+                .Where(mr => mr["COPS"].ToInt32() == 0)
+                .Where(mr => teamPrestigeMap[mr["TGID"].ToInt32()] > (teamPrestigeMap.TryGetValue(mr["CLTF"].ToInt32(), out var prestige) ? prestige : 0))
+                .ToArray();
+
+            var rosterSpotsDict = TransferPortal.FindOpenRosterSpots();
+            var recruitClasses = TransferPortal.FindCommittedRecruits();
+
+            foreach (var coach in newPowerCoaches.Concat(prestigeUpgradeCoaches))
+            {
+                var currentTeamBeingReviewed = coach["TGID"].ToInt32();
+                if (reviewed.Contains(currentTeamBeingReviewed))
+                {
+                    continue;
+                }
+
+                reviewed.Add(currentTeamBeingReviewed);
+
+                var rosterSpots = new Stack<int>(rosterSpotsDict[currentTeamBeingReviewed].NotFilled);
+                var newRoster = allPlayers[currentTeamBeingReviewed];
+                var recruits = recruitClasses[currentTeamBeingReviewed];
+
+                // get all players from my old team
+                var oldTeamRoster = allPlayers.TryGetValue(coach["CLTF"].ToInt32(), out var roster) ? roster : Array.Empty<TransferCandidate>();
+
+                // no players, we continue
+                if (oldTeamRoster.Length == 0) continue;
+
+                sb.AppendLine($"{RecruitingFixup.TeamNames[coach["TGID"].ToInt32()]} {coach["CFNM"]} {coach["CLNM"]}");
+                var candidates = oldTeamRoster.Where(p => (p.OVR >= 85 && (p.Year >= 2)) || (p.OVR >= 80 && p.Year == 1) || (p.OVR >= 75 && p.Year == 0)).OrderByDescending(p => p.OVR).ToList();
+                candidates.ForEach(c => c.ShouldCoachPoach(sb, newRoster, recruits, rosterSpots));
+                sb.AppendLine();
+            }
+
+            return sb;
+        }
+
+        private static void ShouldCoachPoach(this TransferCandidate player, StringBuilder sb, TransferCandidate[] roster,  List<RecruitInfo> incoming, Stack<int> rosterSpots)
+        {
+            // if i'm better than what they have, i should transfer
+            if(rosterSpots.Count == 0 || !player.ShouldPlayerTransfer(roster, incoming))
+            {
+                return;
+            }
+
+             sb.AppendLine($"{player.ToCsvLine()},,,{rosterSpots.Pop()}");
+        }
+
+        private static bool ShouldPlayerTransfer(this TransferCandidate player, TransferCandidate[] roster, List<RecruitInfo> incoming)
+        {
+            // find the existing players at my position group
+            var fullRoster = roster.Concat(incoming.Select(r => r.ToTransferCandidate())).ToList();
+            var competition = fullRoster.Where(p => p.SamePositionGroup(player)).ToList();
+            var depth = StarterCount(player.PositionNumber);
+
+            // if I'm a senior i need to crack the starting lineup
+            if (player.Year == 3)
+            {
+                return competition.Where(p => p.OVR > player.OVR).Count() < depth;
+            }
+
+            // if i'm a junior  I need to be in 2 deep
+            if( player.Year == 2)
+            {
+                return competition.Where(p => p.OVR > player.OVR).Count() <= depth;
+            }
+
+            // if i'm a sophomore I need to be in 3 deep
+            if (player.Year == 1)
+            {
+                return competition.Where(p => p.OVR > player.OVR).Count() <= (depth+1);
+            }
+
+            // if i'm a freshman, i should be better than incoming recruits and other freshman
+            if (player.Year == 0)
+            {
+                return competition.Where(p => p.OVR > player.OVR && p.Year == 0).Count() == 0;
+            }
+
+            return false;
+        }
+
+        private static bool SamePositionGroup(this TransferCandidate player, TransferCandidate other)
+        {
+            // same position is easy
+            if (player.PositionNumber == other.PositionNumber)
+            {
+                return true;
+            }
+
+            if (player.IsOT && other.IsOT)
+            {
+                return true;
+            }
+
+            if (player.IsOG && other.IsOG)
+            {
+                return true;
+            }
+
+            if (player.IsDE && other.IsDE)
+            {
+                return true;
+            }
+
+            if (player.IsOLB && other.IsOLB)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
     }
 }
