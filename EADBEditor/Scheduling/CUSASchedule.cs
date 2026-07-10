@@ -31,7 +31,6 @@ namespace EA_DB_Editor
 
         public static void Init()
         {
-            return;
             if (!initRun)
             {
                 ScenarioForSeason = CreateScenarioForSeason();
@@ -41,14 +40,13 @@ namespace EA_DB_Editor
 
         public static void ProcessCUSASchedule(Dictionary<int, TeamSchedule> schedule)
         {
-            return;
             schedule.ProcessSchedule(ScenarioForSeason, CUSAConferenceSchedule, RecruitingFixup.CUSAId, RecruitingFixup.CUSA);
         }
 
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2573) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2576) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(4, RecruitingFixup.CUSAId, "CUSA", expectedGames: 2, ifNotExpectedThen: 1);
             CUSAConferenceSchedule = result.BuildHashSet();
