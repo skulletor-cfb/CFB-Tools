@@ -63,7 +63,6 @@
     <Compile Include="AdditionalGameProvider.cs" />
     <Compile Include="NationalSchedule.cs" />
     <Compile Include="RecruitFace.cs" />
-    <Compile Include="Scheduling\AmericanPodSchedule.cs" />
     <Compile Include="RecruitAllAmericans.cs" />
     <Compile Include="Scheduling\ACCPodSchedule.cs" />
     <Compile Include="Scheduling\AmericanSchedule.cs" />
