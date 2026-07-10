@@ -84,6 +84,7 @@
     <Compile Include="ConfigCopySelection.Designer.cs">
       <DependentUpon>ConfigCopySelection.cs</DependentUpon>
     </Compile>
+    <Compile Include="Scheduling\ConferenceLocks.cs" />
     <Compile Include="Scheduling\SECSchedule.cs" />
     <Compile Include="Scheduling\TeamSchedule.cs" />
     <Compile Include="Scheduling\CUSASchedule.cs" />
