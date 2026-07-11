@@ -52,9 +52,8 @@ namespace EA_DB_Editor
 
             DumpRosters(maddenDB);
 
-            // each one with SR backup greater than 85
-            // not Qbs, 3rd stringers
-            var other = FindTransferPortalCandidates(maddenDB);
+            // coach might be able to bring new players
+            var poach = CoachPoachCandidates(maddenDB);
 
             // g5 superstars, sr above 95, jr above 88
             var g5stars = FindG5tars(maddenDB);
@@ -62,8 +61,10 @@ namespace EA_DB_Editor
             // find qbs to transfer
             var qbs = FindQBs(maddenDB);
 
-            // coach might be able to bring new players
-            var poach = CoachPoachCandidates(maddenDB);
+            // each one with SR backup greater than 85
+            // not Qbs, 3rd stringers
+            var other = FindTransferPortalCandidates(maddenDB);
+
             try
             {
                 File.WriteAllText("transfercandidates.csv", qbs.ToString());
@@ -516,7 +517,6 @@ namespace EA_DB_Editor
         {
             var teamsRecruiting = new (string Team, int PlayerId)[5];
             var idx = 0;
-            var teamMatch = new HashSet<long>();
 
             for (int i = 0; i < 20; i++)
             {
