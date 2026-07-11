@@ -137,6 +137,7 @@ namespace EA_DB_Editor
                             player["TGID"] = (to / 70).ToString();
                             PlayersTransferred.Add(to);
                             TransferPortalClass.SignPlayer(player["TGID"].ToInt32(), player["PPOS"].ToInt32());
+                            TransferLog(from, to);
                         }
                     }
                 }
@@ -150,12 +151,27 @@ namespace EA_DB_Editor
                         player["TGID"] = (entry.To / 70).ToString();
                         PlayersTransferred.Add(entry.To);
                         TransferPortalClass.SignPlayer(player["TGID"].ToInt32(), player["PPOS"].ToInt32());
+                        TransferLog(entry.From, entry.To);
                     }
                 }
 
                 WriteTransferPortalFiles(maddenDB);
                 TransferPortalClass.ResetTeamBids(); 
             }
+        }
+
+        private static bool firstTime = true;
+        private static void TransferLog(int from, int to)
+        {
+            const string log = "transferlog.csv";
+
+            // keep it new per process
+            if (firstTime)
+            {
+                File.Delete(log);
+                firstTime = false;
+            }
+            File.AppendAllLines(log, new[] { $"{from},{to}" });
         }
 
         public static void DumpRosters(MaddenDatabase maddenDB)
@@ -275,7 +291,7 @@ namespace EA_DB_Editor
             StringBuilder sb = new StringBuilder();
 
             // write transfers
-            candidates.ForEach(c => c.FindPlayerDestinations(sb, PrestigeListMode.P5G5));
+            candidates.ForEach(c => c.FindPlayerDestinations(sb, TeamFilter.P5G5));
             sb.AppendLine();
 
             // each teams QB depth chart
@@ -299,7 +315,7 @@ namespace EA_DB_Editor
         /// so randomized 6*, 5*, etc....
         /// </summary>
         /// <returns></returns>
-        private static int[] BuildRandomizedPrestigeListX(PrestigeListMode mode)
+        private static int[] BuildRandomizedPrestigeListX(TeamFilter mode)
         {
             var result = new List<int>();
 
@@ -315,16 +331,16 @@ namespace EA_DB_Editor
 
             switch (mode)
             {
-                case PrestigeListMode.P5:
+                case TeamFilter.P5:
                     return p5.ToArray();
 
-                case PrestigeListMode.G5:
+                case TeamFilter.G5:
                     return g5.ToArray();
 
-                case PrestigeListMode.P5G5:
+                case TeamFilter.P5G5:
                     return p5.Concat(g5).ToArray();
 
-                case PrestigeListMode.G5P5:
+                case TeamFilter.G5P5:
                     return g5.Concat(p5).ToArray();
 
                 default:
@@ -341,7 +357,7 @@ namespace EA_DB_Editor
             {
                 var otherPlayers = GetPlayers(pos => pos == i);
                 var otherCandidates = otherPlayers.Values.SelectMany(p => p).Where(IsG5Superstar).OrderByDescending(p => p.OVR).ToList();
-                otherCandidates.ForEach(c => c.FindPlayerDestinations(sb, PrestigeListMode.P5));
+                otherCandidates.ForEach(c => c.FindPlayerDestinations(sb, TeamFilter.P5));
             }
 
             return sb;
@@ -374,7 +390,7 @@ namespace EA_DB_Editor
         {
             var otherPlayers = GetPlayers(pos => position.Contains(pos));
             var otherCandidates = otherPlayers.Values.SelectMany(GetThirdStringers).Where(p => p.OVR >= 85 && (p.Year >= 2)).OrderByDescending(p => p.OVR).ToList();
-            otherCandidates.ForEach(c => c.FindPlayerDestinations(other, PrestigeListMode.P5G5));
+            otherCandidates.ForEach(c => c.FindPlayerDestinations(other, TeamFilter.P5G5));
         }
 
         private static int HowManyToSkip(int position)
@@ -513,18 +529,20 @@ namespace EA_DB_Editor
         private static void FindPlayerDestinations(
             this TransferCandidate player,
             StringBuilder sb,
-            PrestigeListMode recruiters)
+            TeamFilter recruiters)
         {
             var teamsRecruiting = new (string Team, int PlayerId)[5];
+            var teamSelected = new HashSet<int>();
             var idx = 0;
 
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 25; i++)
             {
                 // player looks into a team they might want to go to
                 var team = TeamRecruiter.ResearchTeam(player, recruiters, 10*(i/10));
 
                 // the team may or may not offer, if they don't offer, we keep going
-                if (availableRosterSpots[team].Count == 0 ||  // team has no space available
+                if (!teamSelected.Add(team) || // team already offered
+                    availableRosterSpots[team].Count == 0 ||  // team has no space available
                     !player.ShouldPlayerTransfer(teamRosters[team], recruitClasses[team], true)||  // not the right spot for the player
                     !TransferPortalClass.OfferPlayer(team, player)) // team has offer offers out
                 {
