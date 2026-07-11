@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EA_DB_Editor
 {
-    internal enum PrestigeListMode
+    internal enum TeamFilter
     {
         None,
         P5,
@@ -39,7 +39,7 @@ namespace EA_DB_Editor
         /// returns a team a player might be interested in
         /// </summary>
         /// <param name="player"></param>
-        public static int ResearchTeam(TransferCandidate player, PrestigeListMode desiredPrestige, int mod = 0)
+        public static int ResearchTeam(TransferCandidate player, TeamFilter desiredTeam, int mod = 0)
         {
             TeamRecruiter[] teamsToLookAt = null;
             var compromiseMeter = player.OVR - mod;
@@ -59,9 +59,9 @@ namespace EA_DB_Editor
 
             var result = teamsToLookAt[Form1.RAND(teamsToLookAt.Length)].TeamId;
 
-            if (desiredPrestige == PrestigeListMode.P5 && !result.IsP5OrND())
+            if (desiredTeam == TeamFilter.P5 && !result.IsP5OrND())
             {
-                return ResearchTeam(player, desiredPrestige, mod);
+                return ResearchTeam(player, desiredTeam, mod);
             }
 
             return result;
