@@ -1,4 +1,5 @@
 ﻿using EA_DB_Editor.CAPGen;
+using EA_DB_Editor.Recruiting;
 using System;
 using System.Collections.Generic;
 using System.Drawing.Text;
@@ -15,8 +16,24 @@ namespace EA_DB_Editor
 {
     internal static class ManualTransferPortal
     {
-        internal static void WriteTransferPortalFiles(MaddenDatabase maddenDB)
+        public static Dictionary<int, string> PlayerStates = new Dictionary<int, string>();
+
+        /// <summary>
+        ///  once a  player has transferred , we don't want to have them move again in an offseason
+        /// </summary>
+        private static HashSet<int> PlayersTransferred = new HashSet<int>();
+
+        private static Dictionary<int, TeamRosterFilled> teamRosterSnapshot;
+
+        private static Dictionary<int, List<RecruitInfo>> recruitClasses;
+
+        private static Dictionary<int, List<TransferCandidate>> teamRosters;
+
+        private static Dictionary<int, Stack<int>> availableRosterSpots;
+
+        public static void WriteTransferPortalFiles(MaddenDatabase maddenDB)
         {
+            // we need to know states first
             if (PlayerStates.Count == 0)
             {
                 var lines = File.ReadAllLines("cities.csv");
@@ -27,6 +44,11 @@ namespace EA_DB_Editor
                     PlayerStates.Add(split[0].Trim().ToInt32(), split[2].Trim());
                 }
             }
+
+            recruitClasses = TransferPortal.FindCommittedRecruits();
+            teamRosterSnapshot = TransferPortal.FindOpenRosterSpots();
+            teamRosters = GetPlayers(maddenDB);
+            availableRosterSpots = teamRosterSnapshot.ToDictionary(kvp => kvp.Key, kvp => new Stack<int>(kvp.Value.NotFilled));
 
             DumpRosters(maddenDB);
 
@@ -51,11 +73,8 @@ namespace EA_DB_Editor
             }
             catch { }
 
-
-            var spotsFilled = TransferPortal.FindOpenRosterSpots();
-
             var sb = new StringBuilder();
-            foreach (var value in spotsFilled.Values.OrderBy(v => v.Team))
+            foreach (var value in teamRosterSnapshot.Values.OrderBy(v => v.Team))
             {
                 sb.AppendLine(value.ToCsv());
             }
@@ -66,8 +85,6 @@ namespace EA_DB_Editor
             }
             catch { }
         }
-
-        public static Dictionary<int, string> PlayerStates = new Dictionary<int, string>();
 
         public static void RunTransferPortal(MaddenDatabase maddenDB)
         {
@@ -118,6 +135,7 @@ namespace EA_DB_Editor
                             player["PGID"] = to.ToString();
                             player["TGID"] = (to / 70).ToString();
                             PlayersTransferred.Add(to);
+                            TransferPortalClass.SignPlayer(player["TGID"].ToInt32(), player["PPOS"].ToInt32());
                         }
                     }
                 }
@@ -130,17 +148,15 @@ namespace EA_DB_Editor
                         player["PGID"] = entry.To.ToString();
                         player["TGID"] = (entry.To / 70).ToString();
                         PlayersTransferred.Add(entry.To);
+                        TransferPortalClass.SignPlayer(player["TGID"].ToInt32(), player["PPOS"].ToInt32());
                     }
                 }
-            }
 
-            WriteTransferPortalFiles(maddenDB);
+                WriteTransferPortalFiles(maddenDB);
+                TransferPortalClass.ResetTeamBids(); 
+            }
         }
 
-        /// <summary>
-        ///  once a  player has transferred , we don't want to have them move again in an offseason
-        /// </summary>
-        public static HashSet<int> PlayersTransferred = new HashSet<int>();
         public static void DumpRosters(MaddenDatabase maddenDB)
         {
             Dictionary<int, List<TransferCandidate>> GetRosters()
@@ -199,11 +215,10 @@ namespace EA_DB_Editor
         /// <param name="maddenDB"></param>
         /// <param name="positionPredicate"></param>
         /// <returns></returns>
-        private static Dictionary<int, List<TransferCandidate>> GetPlayers(MaddenDatabase maddenDB, Func<int, bool> positionPredicate = null)
+        private static Dictionary<int, List<TransferCandidate>> GetPlayers(MaddenDatabase maddenDB)
         {
-            if (positionPredicate == null) positionPredicate = i => true;
             // QB depth chart
-            return MaddenTable.FindTable(maddenDB.lTables, "PLAY").lRecords.Where(mr => mr["TGID"].ToInt32() != 1023 && positionPredicate(mr["PPOS"].ToInt32()))
+            return MaddenTable.FindTable(maddenDB.lTables, "PLAY").lRecords.Where(mr => mr["TGID"].ToInt32() != 1023)
                 .GroupBy(
                     mr => mr["TGID"].ToInt32(),
                     mr => new TransferCandidate
@@ -221,6 +236,12 @@ namespace EA_DB_Editor
                         PositionNumber = mr["PPOS"].ToInt32(),
                     })
                 .ToDictionary(g => g.Key, g => g.OrderByDescending(p => p.OVR).ThenBy(p => p.Year).ToList());
+        }
+
+        private static Dictionary<int, List<TransferCandidate>> GetPlayers(Func<int, bool> positionPredicate = null)
+        {
+            if (positionPredicate == null) positionPredicate = i => true;
+            return teamRosters.ToDictionary(kvp=> kvp.Key, kvp => kvp.Value.Where(p => positionPredicate(p.PositionNumber)).ToList());
         }
 
         private static bool IsG5Superstar(TransferCandidate player)
@@ -243,13 +264,8 @@ namespace EA_DB_Editor
 
         private static StringBuilder FindQBs(MaddenDatabase maddenDB)
         {
-            var rosterSpotsDict = TransferPortal.FindOpenRosterSpots().ToDictionary(kvp => kvp.Key, kvp => new Stack<int>(kvp.Value.NotFilled));
-            var recruitClasses = TransferPortal.FindCommittedRecruits();
-            var qbNeedyTeams = RecruitingFixup.PrestigeMap.Where(kvp => kvp.Key.IsP5OrND()).OrderByDescending(kvp => kvp.Value).Select(kvp => kvp.Key)
-                .Concat(RecruitingFixup.PrestigeMap.Where(kvp => kvp.Key.IsG5()).OrderByDescending(kvp => kvp.Value).Select(kvp => kvp.Key)).ToArray();
-
             // QBs
-            var players = GetPlayers(maddenDB, pos => pos == 0);
+            var players = GetPlayers(pos => pos == 0);
             var candidates = players.Values.SelectMany(GetBackupQB).Where(p => p.OVR >= 85 && (p.Year == 3 || (p.Year == 2 && p.Redshirted))).OrderByDescending(p => p.OVR).ToList();
             var inNeed = players.Where(kvp => kvp.Key.IsP5OrND() && kvp.Value.First().OVR < 90).Select(kvp => kvp.Value.First().Team).ToList();
             var g5InNeed = players.Where(kvp => !kvp.Key.IsFcsTeam() && !kvp.Key.IsP5OrND() && kvp.Value.First().OVR < 85).Select(kvp => kvp.Value.First().Team).ToList();
@@ -258,8 +274,7 @@ namespace EA_DB_Editor
             StringBuilder sb = new StringBuilder();
 
             // write transfers
-            candidates.ForEach(c => c.FindPlayerDestinations(sb, qbNeedyTeams, players, recruitClasses, rosterSpotsDict));
-            //inNeed.ForEach(c => sb.AppendLine(c));
+            candidates.ForEach(c => c.FindPlayerDestinations(sb, PrestigeListMode.P5G5));
             sb.AppendLine();
 
             // each teams QB depth chart
@@ -278,19 +293,54 @@ namespace EA_DB_Editor
             return sb;
         }
 
+        /// <summary>
+        /// List of teams in prestige order, randomized so that we don't always have the same teams at the top of the list
+        /// so randomized 6*, 5*, etc....
+        /// </summary>
+        /// <returns></returns>
+        private static int[] BuildRandomizedPrestigeListX(PrestigeListMode mode)
+        {
+            var result = new List<int>();
+
+            for (int i = 6; i >= 1; i--)
+            {
+                var teams = RecruitingFixup.PrestigeMap.Where(kvp => kvp.Value == i).Select(kvp => kvp.Key).ToArray();
+                teams.Shuffle();
+                result.AddRange(teams);
+            }
+
+            var p5 = result.Where(t => t.IsP5OrND());
+            var g5 = result.Where(t => t.IsG5());
+
+            switch (mode)
+            {
+                case PrestigeListMode.P5:
+                    return p5.ToArray();
+
+                case PrestigeListMode.G5:
+                    return g5.ToArray();
+
+                case PrestigeListMode.P5G5:
+                    return p5.Concat(g5).ToArray();
+
+                case PrestigeListMode.G5P5:
+                    return g5.Concat(p5).ToArray();
+
+                default:
+                    break;
+            }
+
+            return result.ToArray();
+        }
+
         private static StringBuilder FindG5tars(MaddenDatabase maddenDB)
         {
-            var rosterSpotsDict = TransferPortal.FindOpenRosterSpots().ToDictionary(kvp => kvp.Key, kvp => new Stack<int>(kvp.Value.NotFilled));
-            var recruitClasses = TransferPortal.FindCommittedRecruits();
-            var rosters = GetPlayers(maddenDB);
-            var p5Teams = RecruitingFixup.PrestigeMap.Where(kvp => kvp.Key.IsP5OrND()).OrderByDescending(kvp => kvp.Value).Select(kvp => kvp.Key).ToArray();
-
             var sb = new StringBuilder();
             for (int i = 0; i <= 18; i++)
             {
-                var otherPlayers = GetPlayers(maddenDB, pos => pos == i);
+                var otherPlayers = GetPlayers(pos => pos == i);
                 var otherCandidates = otherPlayers.Values.SelectMany(p => p).Where(IsG5Superstar).OrderByDescending(p => p.OVR).ToList();
-                otherCandidates.ForEach(c => c.FindPlayerDestinations(sb, p5Teams, rosters, recruitClasses, rosterSpotsDict));
+                otherCandidates.ForEach(c => c.FindPlayerDestinations(sb, PrestigeListMode.P5));
             }
 
             return sb;
@@ -321,9 +371,9 @@ namespace EA_DB_Editor
 
         private static void GetPlayersByPosition(MaddenDatabase maddenDB, StringBuilder other, params int[] position)
         {
-            var otherPlayers = GetPlayers(maddenDB, pos => position.Contains(pos));
+            var otherPlayers = GetPlayers(pos => position.Contains(pos));
             var otherCandidates = otherPlayers.Values.SelectMany(GetThirdStringers).Where(p => p.OVR >= 85 && (p.Year >= 2)).OrderByDescending(p => p.OVR).ToList();
-            otherCandidates.ForEach(c => other.AppendLine(c.ToCsvLine()));
+            otherCandidates.ForEach(c => c.FindPlayerDestinations(other, PrestigeListMode.P5G5));
         }
 
         private static int HowManyToSkip(int position)
@@ -413,7 +463,6 @@ namespace EA_DB_Editor
             var coachTable = MaddenTable.FindMaddenTable(maddenDB.lTables, "COCH");
             var teamTable = MaddenTable.FindMaddenTable(maddenDB.lTables, "TEAM");
             var teamPrestigeMap = teamTable.lRecords.ToDictionary(mr => mr["TGID"].ToInt32(), mr => mr["TPRX"].ToInt32());
-            var allPlayers = GetPlayers(maddenDB);
             var reviewed = new HashSet<int>();
 
             // new head coaches
@@ -431,9 +480,6 @@ namespace EA_DB_Editor
                 .Where(mr => mr.IsLateralOrBetterMove(teamPrestigeMap))
                 .ToArray();
 
-            var rosterSpotsDict = TransferPortal.FindOpenRosterSpots();
-            var recruitClasses = TransferPortal.FindCommittedRecruits();
-
             foreach (var coach in newPowerCoaches.Concat(prestigeUpgradeCoaches))
             {
                 var currentTeamBeingReviewed = coach["TGID"].ToInt32();
@@ -444,12 +490,12 @@ namespace EA_DB_Editor
 
                 reviewed.Add(currentTeamBeingReviewed);
 
-                var rosterSpots = new Stack<int>(rosterSpotsDict[currentTeamBeingReviewed].NotFilled);
-                var newRoster = allPlayers[currentTeamBeingReviewed];
+                var newRoster = teamRosters[currentTeamBeingReviewed];
                 var recruits = recruitClasses[currentTeamBeingReviewed];
+                var rosterSpots = availableRosterSpots[currentTeamBeingReviewed];
 
                 // get all players from my old team
-                var oldTeamRoster = allPlayers.TryGetValue(coach["CLTF"].ToInt32(), out var roster) ? roster : new List<TransferCandidate>();
+                var oldTeamRoster = teamRosters.TryGetValue(coach["CLTF"].ToInt32(), out var roster) ? roster : new List<TransferCandidate>();
 
                 // no players, we continue
                 if (oldTeamRoster.Count == 0) continue;
@@ -466,32 +512,32 @@ namespace EA_DB_Editor
         private static void FindPlayerDestinations(
             this TransferCandidate player,
             StringBuilder sb,
-            int[] teams,
-            Dictionary<int, List<TransferCandidate>> rosters,
-            Dictionary<int, List<RecruitInfo>> recruitClasses,
-            Dictionary<int, Stack<int>> rosterSpots)
+            PrestigeListMode recruiters)
         {
             var teamsRecruiting = new (string Team, int PlayerId)[5];
             var idx = 0;
             var teamMatch = new HashSet<long>();
 
-            // loop through each one and see if they will recruit the player
-            foreach (var team in teams)
+            for (int i = 0; i < 20; i++)
             {
-                // g5 players want to start
-                if (rosterSpots[team].Count == 0 || !player.ShouldPlayerTransfer(rosters[team], recruitClasses[team], true))
+                // player looks into a team they might want to go to
+                var team = TeamRecruiter.ResearchTeam(player, recruiters, 10*(i/10));
+
+                // the team may or may not offer, if they don't offer, we keep going
+                if (availableRosterSpots[team].Count == 0 ||  // team has no space available
+                    !player.ShouldPlayerTransfer(teamRosters[team], recruitClasses[team], true)||  // not the right spot for the player
+                    !TransferPortalClass.OfferPlayer(team, player)) // team has offer offers out
                 {
                     continue;
                 }
 
-                teamsRecruiting[idx++] = (RecruitingFixup.TeamNames[team], rosterSpots[team].Pop());
+                teamsRecruiting[idx++] = (RecruitingFixup.TeamNames[team], availableRosterSpots[team].Pop());
 
-                // once we found 5 teams, let's go
+                // once I have 5 offers, we can go
                 if (idx >= 5)
                     break;
             }
 
-            teamsRecruiting.Shuffle();
             var teamList = teamsRecruiting.Select(t => $"{t.Team},{t.PlayerId}");
             sb.AppendLine($"{player.ToCsvLine()},,,{string.Join(",", teamList)}");
         }

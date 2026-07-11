@@ -64,8 +64,11 @@
     <Compile Include="NationalSchedule.cs" />
     <Compile Include="RecruitFace.cs" />
     <Compile Include="Recruiting\ManualTransferPortal.cs" />
+    <Compile Include="Recruiting\TeamRecruiter.cs" />
+    <Compile Include="Recruiting\TransferCandidate.cs" />
     <Compile Include="Recruiting\TransferPortal.cs" />
     <Compile Include="RecruitAllAmericans.cs" />
+    <Compile Include="Recruiting\TransferPortalClass.cs" />
     <Compile Include="Scheduling\ACCPodSchedule.cs" />
     <Compile Include="Scheduling\AmericanSchedule.cs" />
     <Compile Include="BetterListView.cs">
