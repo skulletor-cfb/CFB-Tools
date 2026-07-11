@@ -517,25 +517,25 @@ namespace EA_DB_Editor
             // if I'm a senior i need to crack the starting lineup
             if (mustBeStarter || player.Year == 3)
             {
-                return competition.Where(p => p.OVR < player.OVR).Count() < depth;
+                return competition.Where(p => p.OVR >= player.OVR).Count() < depth;
             }
 
             // if i'm a junior  I need to be in 2 deep
             if (player.Year == 2)
             {
-                return competition.Where(p => p.OVR < player.OVR).Count() <= depth;
+                return competition.Where(p => p.OVR >= player.OVR).Count() <= depth;
             }
 
             // if i'm a sophomore I need to be in 3 deep
             if (player.Year == 1)
             {
-                return competition.Where(p => p.OVR < player.OVR).Count() <= (depth + 1);
+                return competition.Where(p => p.OVR >= player.OVR).Count() <= (depth + 1);
             }
 
             // if i'm a freshman, i should be better than incoming recruits and other freshman
             if (player.Year == 0)
             {
-                return competition.Where(p => p.OVR < player.OVR && p.Year == 0).Count() == 0;
+                return competition.Where(p => p.OVR >= player.OVR && p.Year == 0).Count() == 0;
             }
 
             return false;
