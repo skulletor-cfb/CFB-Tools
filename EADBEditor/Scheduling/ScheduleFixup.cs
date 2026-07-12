@@ -1524,7 +1524,7 @@ namespace EA_DB_Editor
                 }
 
                 // usf-ucf play at 8pm too
-                else if (false && MatchTeams(homeTeam, awayTeam, new[] { 18, 144 }) && week == 13)
+                else if (MatchTeams(homeTeam, awayTeam, new[] { 18, 144 }) && week == 13)
                 {
                     gameRecord["GDAT"] = "4";
                     gameRecord["GTOD"] = "1200";
