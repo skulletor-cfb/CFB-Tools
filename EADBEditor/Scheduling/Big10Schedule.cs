@@ -23,8 +23,8 @@ namespace EA_DB_Editor
 
         private static bool initRun = false;
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {
-            CreateC, CreateC,
             CreateD, CreateD,
+            CreateC, CreateC,
             CreateB, CreateB,
             CreateE, CreateE,
             CreateA, CreateA,
@@ -79,18 +79,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                RU.Create(),
-                PSU.Create(),
-                OSU.Create(),
-                Michigan.Create(),
-                MichSt.Create(),
-                Wisconsin.Create(),
-                Indiana.Create(),
-                Purdue.Create(),
-                Minnesota.Create(),
-                Iowa.Create(),
-                Northwestern.Create(),
-                Illinois.Create(),
+                RU.Create(OSU, MichSt, Purdue, Northwestern),
+                PSU.Create(RU, OSU, Wisconsin, Indiana, Illinois),
+                OSU.Create(Michigan, Wisconsin, Purdue, Iowa),
+                Michigan.Create(RU, PSU, MichSt, Indiana, Minnesota),
+                MichSt.Create(PSU, OSU, Wisconsin, Iowa, Northwestern),
+                Wisconsin.Create(RU, Michigan, Iowa, Illinois),
+                Indiana.Create(RU, OSU, Minnesota, Iowa, Northwestern),
+                Purdue.Create(PSU, Michigan, Indiana, Illinois),
+                Minnesota.Create(OSU, MichSt, Wisconsin, Purdue, Illinois),
+                Iowa.Create(Michigan, Purdue, Minnesota, Northwestern, Illinois),
+                Northwestern.Create(PSU, Wisconsin, Purdue, Minnesota),
+                Illinois.Create(RU, MichSt, Indiana, Northwestern),
             }.Create();
         }
 
