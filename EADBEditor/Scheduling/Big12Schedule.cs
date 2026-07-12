@@ -58,7 +58,7 @@ namespace EA_DB_Editor
                     break;
             }
 
-            result = result.Verify(15, RecruitingFixup.Big12Id, "Big12");
+            result = result.Verify(15, RecruitingFixup.Big12Id, "Big12", expectedGames: 4, ifNotExpectedThen: 4);
             Big12ConferenceSchedule = result.BuildHashSet();
             return result;
         }

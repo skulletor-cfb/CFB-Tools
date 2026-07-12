@@ -370,6 +370,7 @@ namespace EA_DB_Editor
             // put the fcs game back for each team, sec gets them late
             foreach (var game in fcs)
             {
+                var currentGameWeek = game.WeekIndex;
                 var home = game.HomeTeam;
                 var homeSchd = schedules[home];
                 var openWeek = (home.IsSECTeam() || home == 68) ? homeSchd.FindLastOpenWeekForFcs() : homeSchd.FindOpenWeeks().First();
@@ -378,6 +379,7 @@ namespace EA_DB_Editor
                 game.SetWeek(openWeek);
                 game.GameNumber = monotronic++;
                 homeSchd[openWeek] = game;
+                homeSchd[currentGameWeek] = null;
             }
 
             FcsGamesEarly(schedules);
@@ -445,6 +447,7 @@ namespace EA_DB_Editor
             FcsGamesEarly(schedules);
         }
 
+#if false
         public static List<PreseasonScheduledGame> FindExtraP5Games(Dictionary<int, TeamSchedule> schedules)
         {
             // find b12 games such that we have a unique number of teams
@@ -525,6 +528,7 @@ namespace EA_DB_Editor
 
             return leftovers;
         }
+#endif
 
         public static void ReplaceFcsOnlyGames(Dictionary<int, TeamSchedule> schedules)
         {

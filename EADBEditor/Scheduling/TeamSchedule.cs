@@ -9,7 +9,7 @@ namespace EA_DB_Editor
 {
     public class TeamSchedule : IEnumerable<PreseasonScheduledGame>
     {
-        public const int ScheduleLimit = 15;
+        public const int ScheduleLimit = 16;
         private readonly PreseasonScheduledGame[] games = new PreseasonScheduledGame[ScheduleLimit * 2];
         private readonly bool isFcsTeam;
 
@@ -58,7 +58,8 @@ namespace EA_DB_Editor
         {
             var list = new List<int>();
 
-            for (int i = 0; i < ScheduleLimit; i++)
+            // don't actually let anything go to 15
+            for (int i = 0; i < ScheduleLimit-1; i++)
             {
                 if (games[i] == null)
                 {
@@ -93,14 +94,14 @@ namespace EA_DB_Editor
 
         public int FindNextOpenWeek(int notThisWeek)
         {
-
-            for (int i = notThisWeek + 1; i < ScheduleLimit; i++)
+            // earlier is better
+            for (int i = 0; i < notThisWeek; i++)
             {
                 if (games[i] == null)
                     return i;
             }
 
-            for (int i = 0; i < notThisWeek; i++)
+            for (int i = notThisWeek + 1; i < ScheduleLimit; i++)
             {
                 if (games[i] == null)
                     return i;
