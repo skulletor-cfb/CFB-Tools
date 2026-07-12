@@ -11,10 +11,10 @@ namespace EA_DB_Editor
 
         private static Func<Dictionary<int, int[]>>[] CorrectCreators = new Func<Dictionary<int, int[]>>[]
         {
-            CreateA, CreateA,
             CreateB, CreateB,
             CreateC, CreateC,
             CreateD, CreateD,
+            CreateA, CreateA,
         };
 
         public static Dictionary<int, HashSet<int>> Pac12ConferenceSchedule = null;
@@ -82,18 +82,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                USC.Create(),
-                UCLA.Create(),
-                Cal.Create(),
-                Stanford.Create(),
-                WSU.Create(),
-                Wash.Create(),
-                UO.Create(),
-                OSU.Create(),
-                ASU.Create(),
-                Arizona.Create(),
-                Utah.Create(),
-                BYU.Create(),
+                USC.Create(UCLA, Stanford, UO, ASU, Utah),
+                UCLA.Create(Cal, WSU, OSU, Arizona, BYU),
+                Cal.Create(USC, Wash, UO, ASU),
+                Stanford.Create(UCLA, Cal, OSU, Utah),
+                WSU.Create(USC, Cal, UO, ASU, BYU),
+                Wash.Create(UCLA, Stanford, WSU, OSU, Arizona),
+                UO.Create(Stanford, Wash, ASU, Utah),
+                OSU.Create(USC, WSU, UO, Arizona, BYU),
+                ASU.Create(UCLA, Wash, Arizona, Utah),
+                Arizona.Create(Cal, Stanford, UO, BYU),
+                Utah.Create(Cal, WSU, OSU, Arizona),
+                BYU.Create(USC, Stanford, Wash, ASU, Utah),
             }.Create();
         }
         public static Dictionary<int, int[]> CreateC()
