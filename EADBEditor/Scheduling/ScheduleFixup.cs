@@ -581,7 +581,7 @@ namespace EA_DB_Editor
                         notes += ",";
                     }
 
-                    sb.AppendLine(string.Format("{0},,{1},,{2}", RecruitingFixup.TeamNames[tsch.Key], string.Join(",", tsch.Value.Take(TeamSchedule.ScheduleLimit).Select((ts, idx) => ts == null ? string.Empty : string.Format("{0}{1}", idx == 1 ? prefix : string.Empty, ts.Opponent(tsch.Key)))), notes));
+                    sb.AppendLine(string.Format("{0},,{1},,{2}", RecruitingFixup.TeamNames[tsch.Key], string.Join(",", tsch.Value.Take(TeamSchedule.ScheduleDisplayLimit).Select((ts, idx) => ts == null ? string.Empty : string.Format("{0}{1}", idx == 1 ? prefix : string.Empty, ts.Opponent(tsch.Key)))), notes));
                 }
 
                 needMoreG5Games = Randomize(needMoreG5Games);

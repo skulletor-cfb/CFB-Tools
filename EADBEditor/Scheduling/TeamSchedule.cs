@@ -9,7 +9,9 @@ namespace EA_DB_Editor
 {
     public class TeamSchedule : IEnumerable<PreseasonScheduledGame>
     {
+        // these can be the same if you figure out how to properly build a schedule
         public const int ScheduleLimit = 16;
+        public const int ScheduleDisplayLimit = 15;
         private readonly PreseasonScheduledGame[] games = new PreseasonScheduledGame[ScheduleLimit * 2];
         private readonly bool isFcsTeam;
 
