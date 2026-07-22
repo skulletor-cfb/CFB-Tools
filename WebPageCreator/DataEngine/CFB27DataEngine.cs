@@ -12,6 +12,16 @@ namespace EA_DB_Editor
         {
         }
 
+        public Dictionary<string, Bowl> CreateBowlTable()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Dictionary<int, TeamSchedule> CreateTeamSchedule(bool isPreseason)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool IsSeasonOver()
         {
             throw new NotImplementedException();

@@ -33,50 +33,13 @@ namespace EA_DB_Editor
         {
         }
 
-        public static void Create(MaddenDatabase db, bool isPreseason)
+        public static void Create(IDataEngine dataEngine, bool isPreseason)
         {
-            Bowl.Create(db, isPreseason);
+            Bowl.Create(dataEngine, isPreseason);
             if (TeamSchedules != null)
                 return;
 
-            TeamSchedules = new Dictionary<int, TeamSchedule>();
-            TeamSchedule teamSchedule;
-
-            var table = db.lTables[113];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var teamId = table.lRecords[i].lEntries[2].Data.ToInt32().GetRealTeamId();
-
-                // get or create team schedule
-                if (TeamSchedules.TryGetValue(teamId, out teamSchedule) == false)
-                {
-                    teamSchedule = new TeamSchedule();
-                    teamSchedule.TeamId = teamId;
-                    TeamSchedules[teamId] = teamSchedule;
-                }
-
-                // now add to a team schedule
-                var game = new Game
-                {
-                    IsHomeGame = table.lRecords[i].lEntries[0].Data.ToInt32() > 0,
-                    OpponentId = table.lRecords[i].lEntries[1].Data.ToInt32().GetRealTeamId(),
-                    GameNumber = table.lRecords[i].lEntries[3].Data.ToInt32(),
-                    Week = table.lRecords[i].lEntries[4].Data.ToInt32(),
-                    TeamId = teamId
-                };
-
-                if (game.Week > 14 && isPreseason)
-                    continue;
-
-                List<Game> gamesForWeek;
-                if (!teamSchedule.TryGetValue(game.Week, out gamesForWeek))
-                {
-                    gamesForWeek = new List<Game>();
-                    teamSchedule.Add(game.Week, gamesForWeek);
-                }
-
-                gamesForWeek.Add(game);
-            }
+            TeamSchedules = dataEngine.CreateTeamSchedule(isPreseason);
         }
 
         public static void CalculateOpponentMetrics(MaddenDatabase db, bool isPreseason)

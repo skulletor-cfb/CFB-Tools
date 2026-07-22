@@ -22,5 +22,17 @@ namespace EA_DB_Editor
         /// </summary>
         /// <returns>return true if it is over</returns>
         bool IsSeasonOver();
+
+        /// <summary>
+        /// Reads metadata about bowls
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<string, Bowl> CreateBowlTable();
+
+        /// <summary>
+        /// creates the team schedule
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<int, TeamSchedule> CreateTeamSchedule(bool isPreseason);
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EA_DB_Editor
 {
-    public class NCAA14DataEngine: IDataEngine
+    public class NCAA14DataEngine : IDataEngine
     {
         public NCAA14DataEngine(MaddenDatabase db)
         {
@@ -52,6 +52,223 @@ namespace EA_DB_Editor
             }
 
             return currentYear;
+        }
+
+        public Dictionary<int, TeamSchedule> CreateTeamSchedule(bool isPreseason)
+        {
+            var TeamSchedules = new Dictionary<int, TeamSchedule>();
+            var table = this.MaddenDatabase.lTables[113];
+
+            for (int i = 0; i < table.Table.currecords; i++)
+            {
+                var teamId = table.lRecords[i].lEntries[2].Data.ToInt32().GetRealTeamId();
+
+                // get or create team schedule
+                if (TeamSchedules.TryGetValue(teamId, out var teamSchedule) == false)
+                {
+                    teamSchedule = new TeamSchedule();
+                    teamSchedule.TeamId = teamId;
+                    TeamSchedules[teamId] = teamSchedule;
+                }
+
+                // now add to a team schedule
+                var game = new Game
+                {
+                    IsHomeGame = table.lRecords[i].lEntries[0].Data.ToInt32() > 0,
+                    OpponentId = table.lRecords[i].lEntries[1].Data.ToInt32().GetRealTeamId(),
+                    GameNumber = table.lRecords[i].lEntries[3].Data.ToInt32(),
+                    Week = table.lRecords[i].lEntries[4].Data.ToInt32(),
+                    TeamId = teamId
+                };
+
+                if (game.Week > 14 && isPreseason)
+                    continue;
+
+                List<Game> gamesForWeek;
+                if (!teamSchedule.TryGetValue(game.Week, out gamesForWeek))
+                {
+                    gamesForWeek = new List<Game>();
+                    teamSchedule.Add(game.Week, gamesForWeek);
+                }
+
+                gamesForWeek.Add(game);
+            }
+
+            return TeamSchedules;
+        }
+
+
+        public Dictionary<string, Bowl> CreateBowlTable()
+        {
+            var bowls = new Dictionary<string, Bowl>();
+            var table = this.MaddenDatabase.lTables[129];
+            for (int i = 0; i < table.Table.currecords; i++)
+            {
+                var bowl = new Bowl
+                {
+                    Id = table.lRecords[i].lEntries[15].Data.ToInt32(),
+                    Name = table.lRecords[i].lEntries[8].Data,
+                    Week = table.lRecords[i].lEntries[12].Data.ToInt32(),
+                    Game = table.lRecords[i].lEntries[10].Data.ToInt32(),
+                    ConferenceTieInId1 = table.lRecords[i]["BCI1"].ToInt32(),
+                    ConferenceTieInId2 = table.lRecords[i]["BCI2"].ToInt32(),
+                    ConferenceTieInSelection1 = table.lRecords[i]["BCR1"].ToInt32(),
+                    ConferenceTieInSelection2 = table.lRecords[i]["BCR2"].ToInt32(),
+                };
+
+                if (Bowl.BowlIdOverrides.ContainsKey(bowl.Id) && Bowl.BowlIdOverrides[bowl.Id].Item2 <= BowlChampion.CurrentYear)
+                    bowl.Id = Bowl.BowlIdOverrides[bowl.Id].Item1;
+
+                if (bowl.Game != 255)
+                    bowls.Add(bowl.Key, bowl);
+            }
+
+            var cureBowl = new Bowl
+            {
+                Id = Bowl.CureBowl,
+                Name = "Cure Bowl",
+                Week = 18,
+                Game = 43,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+            var mbBowl = new Bowl
+            {
+                Id = Bowl.MyrtleBeachBowl,
+                Name = "Myrtle Beach Bowl",
+                Week = 18,
+                Game = 44,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+            var arizonaBowl = new Bowl
+            {
+                Id = Bowl.ArizonaBowl,
+                Name = "Arizona Bowl",
+                Week = 18,
+                Game = 45,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+            var saluteVetsBowl = new Bowl
+            {
+                Id = Bowl.SaluteVetsBowl,
+                Name = "Salute to Veterans Bowl",
+                Week = 18,
+                Game = 51,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+            var xboxBowl = new Bowl
+            {
+                Id = Bowl.XboxBowl,
+                Name = "Xbox Bowl",
+                Week = 18,
+                Game = 52,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+            var venturesBowl = new Bowl
+            {
+                Id = Bowl.MobileAlabamaBowl,
+                Name = "68 Ventures Bowl",
+                Week = 18,
+                Game = 46,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+            var fgsChampionship = new Bowl
+            {
+                Id = Bowl.FGSChampionship,
+                Name = "FGS Championship Game",
+                Week = 20,
+                Game = 53,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+
+
+            var cfp8v9 = new Bowl
+            {
+                Id = Bowl.CFB8v9,
+                Name = "CFP 1st Round 8v9",
+                Week = 18,
+                Game = 47,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+            var cfp7v10 = new Bowl
+            {
+                Id = Bowl.CFB7v10,
+                Name = "CFP 1st Round 7v10",
+                Week = 18,
+                Game = 48,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+            var cfp6v11 = new Bowl
+            {
+                Id = Bowl.CFB6v11,
+                Name = "CFP 1st Round 6v11",
+                Week = 18,
+                Game = 49,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+            var cfp5v12 = new Bowl
+            {
+                Id = Bowl.CFB5v12,
+                Name = "CFP 1st Round 5v12",
+                Week = 18,
+                Game = 50,
+                ConferenceTieInId1 = 0,
+                ConferenceTieInId2 = 1,
+                ConferenceTieInSelection1 = 0,
+                ConferenceTieInSelection2 = 1,
+            };
+
+            bowls.Add(cureBowl.Key, cureBowl);
+            bowls.Add(mbBowl.Key, mbBowl);
+            bowls.Add(arizonaBowl.Key, arizonaBowl);
+            bowls.Add(venturesBowl.Key, venturesBowl);
+            bowls.Add(saluteVetsBowl.Key, saluteVetsBowl);
+            bowls.Add(xboxBowl.Key, xboxBowl);
+            //            Bowls.Add(fgsChampionship.Key, fgsChampionship);
+            bowls.Add(cfp8v9.Key, cfp8v9);
+            bowls.Add(cfp7v10.Key, cfp7v10);
+            bowls.Add(cfp6v11.Key, cfp6v11);
+            bowls.Add(cfp5v12.Key, cfp5v12);
+            return bowls;
         }
     }
 }

@@ -143,12 +143,12 @@ namespace EA_DB_Editor
             return lastNames.Length == 0 ? null : lastNames.First();
         }
 
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
             if (Rosters != null)
                 return;
 
-            BowlChampion.Create(db);
+            BowlChampion.Create(dataEngine);
             CurrentYear = BowlChampion.CurrentYear; // CurrentYear doesn't need to function on continuation year -ContinuationData.ContinuationYear;
 
             Rosters = new Dictionary<int, List<Player>>();

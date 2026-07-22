@@ -1389,9 +1389,9 @@ namespace EA_DB_Editor
             CalendarYear = year;
 
             City.Create();
-            TeamSchedule.Create(maddenDB, isPreseason);
+            TeamSchedule.Create(this.DataEngine, isPreseason);
             PlayerDB.Create(maddenDB);
-            Bowl.Create(maddenDB,isPreseason);
+            Bowl.Create(this.DataEngine, isPreseason);
             Coach.Create(maddenDB);
             RecruitClassRanking.Create(maddenDB);
             Stadium.Create(maddenDB);
@@ -1774,7 +1774,7 @@ namespace EA_DB_Editor
             }
         }
 
-        private void button9_Click(object sender, EventArgs e)
+        private void CreatePreseasonMagazine_Click(object sender, EventArgs e)
         {
             CreatePreseasonMagazine(true);
         }
@@ -1794,7 +1794,7 @@ namespace EA_DB_Editor
 
             AllAmerican.CreateReport(true);
 
-            Bowl.Create(maddenDB, true);
+            Bowl.Create(this.DataEngine, true);
             // coaches won't change from start and end, so emit them
             Coach.CreatePage(maddenDB, true);
 
