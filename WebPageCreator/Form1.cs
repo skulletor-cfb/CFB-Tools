@@ -29,6 +29,8 @@ namespace EA_DB_Editor
         public View currentView = null;
         static public bool mc02Recalc = false;
         public static Form1 MainForm;
+        public static readonly string CFB27Exporter = ConfigurationManager.AppSettings["CFB27Exporter"];
+        public static readonly int CFB27StartingYear = ConfigurationManager.AppSettings["CFB27StartingYear"].ToInt32();
 
         public string  CookCoaches()
         {
@@ -443,8 +445,27 @@ namespace EA_DB_Editor
             return false;
         }
 
+        const string DynastyFilePrefix = "DYNASTY-Y";
+
         public void OpenDynastyFile(string file)
         {
+            // file names should be DYNASTY-YXXX where XXX is a year.  2026 = 26, 2577 = 577
+            var year = file.Substring(file.IndexOf(DynastyFilePrefix) + DynastyFilePrefix.Length).ToInt32();
+            if (year >= CFB27StartingYear)
+            {
+                var directory = Path.GetDirectoryName(file);
+                var exedir = Path.GetDirectoryName(CFB27Exporter);
+                Process.Start(
+                    new ProcessStartInfo
+                    {
+                        WorkingDirectory = exedir,
+                        FileName = CFB27Exporter,
+                        Arguments = $"-InputFile {file} -J -OutputDirectory {directory}",
+                        CreateNoWindow = true,
+                    });
+                return;
+            }
+
             Cursor.Current = Cursors.WaitCursor;
             maddenDB = new MaddenDatabase(file);
 
