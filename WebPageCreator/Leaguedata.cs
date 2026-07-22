@@ -502,12 +502,12 @@ namespace EA_DB_Editor
 
         public static string BowlChampionsTable => Path.Combine(@".\archive\..\BowlChampionsTable");
 
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
             if (BowlChampions != null)
                 return;
 
-            ContinuationData.Create(db);
+            ContinuationData.Create(dataEngine);
 
 
             if (File.Exists(BowlChampionsTable))
@@ -532,29 +532,7 @@ namespace EA_DB_Editor
             }
 
             bool didNotEnterBowlChampLoop = true;
-            var table = db.lTables[0];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                didNotEnterBowlChampLoop = false;
-                var record = table.lRecords[i];
-                var bc = new BowlChampion
-                {
-                    TeamId = record.GetInt(0).GetRealTeamId(),
-                    Year = record.GetInt(1) + ContinuationData.ContinuationYear,
-                    BowlId = record.GetInt(2)
-                };
-
-                if (Bowl.BowlIdOverrides.ContainsKey(bc.BowlId) && Bowl.BowlIdOverrides[bc.BowlId].Item2 <= bc.Year)
-                    bc.BowlId = Bowl.BowlIdOverrides[bc.BowlId].Item1;
-
-
-                if (!BowlChampions.ContainsKey(bc.GetKey()))
-                {
-                    BowlChampions.Add(bc.GetKey(), bc);
-                }
-
-                CurrentYear = Math.Max(CurrentYear, bc.Year);
-            }
+            CurrentYear = dataEngine.ReadBowlChampions(didNotEnterBowlChampLoop, CurrentYear, BowlChampions);
 
             // we get current year from the largest value in the file
             if (didNotEnterBowlChampLoop)
@@ -563,7 +541,7 @@ namespace EA_DB_Editor
             }
 
             // if we haven't played the bowls, we need to increment the current year by 1, aka the assumption that CurrentYear is correct is only true at the end of the season
-            if (ScheduledGame.IsSeasonOver(db) == false)
+            if (!dataEngine.IsSeasonOver())
             {
                 CurrentYear = CurrentYear + 1;
             }

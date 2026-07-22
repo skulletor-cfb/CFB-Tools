@@ -147,16 +147,6 @@ namespace EA_DB_Editor
         public static HashSet<NeutralSiteGame> KickOffGames = new HashSet<NeutralSiteGame>(ConfigurationManager.AppSettings["NeutralSiteGamesForRecords"].Split(',').Select(i => NeutralSiteGame.Create(i, GameIdFwder)));
         public static Dictionary<string, ScheduledGame> Schedule;
 
-        public static bool IsSeasonOver(MaddenDatabase db)
-        {
-            // check to see if the season is still going on
-            // BUGBUG if the NCG has been played, but the week hasn't advanced this info is incorrect, but that's probably ok
-            var record = db.lTables[161].lRecords.OrderByDescending(mr => mr.lEntries[12].Data.ToInt32()).Take(1).First();
-
-            // if the score is 0-0 the season is not over
-            return !(record.lEntries[1].Data.ToInt32() == 0 && record.lEntries[2].Data.ToInt32() == 0);
-        }
-
         #region opening week helper
         public static bool IsRivalryGame(int homeTeam, int awayTeam)
         {

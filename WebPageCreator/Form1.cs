@@ -1,20 +1,17 @@
-﻿using System;
+﻿using ListViewEx;
+using MC02Handler;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
-using System.Text;
 using System.IO;
-using System.Threading;
+using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 using System.Xml;
-using BetterListViewNS;
-using MC02Handler;
-using ListViewEx;
-using System.Linq;
-using System.Diagnostics;
-using System.Configuration;
 
 
 namespace EA_DB_Editor
@@ -32,9 +29,11 @@ namespace EA_DB_Editor
         public static readonly string CFB27Exporter = ConfigurationManager.AppSettings["CFB27Exporter"];
         public static readonly int CFB27StartingYear = ConfigurationManager.AppSettings["CFB27StartingYear"].ToInt32();
 
+        public IDataEngine DataEngine { get ; private set; }
+
         public string  CookCoaches()
         {
-            BowlChampion.Create(this.maddenDB);
+            BowlChampion.Create(this.DataEngine);
             Team.Create(this.maddenDB, true);
             Coach.Create(this.maddenDB);
             return Coach.Coaches.ToJson();
@@ -455,7 +454,7 @@ namespace EA_DB_Editor
             {
                 var directory = Path.GetDirectoryName(file);
                 var exedir = Path.GetDirectoryName(CFB27Exporter);
-                Process.Start(
+                var process = Process.Start(
                     new ProcessStartInfo
                     {
                         WorkingDirectory = exedir,
@@ -463,6 +462,8 @@ namespace EA_DB_Editor
                         Arguments = $"-InputFile {file} -J -OutputDirectory {directory}",
                         CreateNoWindow = true,
                     });
+                process.WaitForExit();
+                this.DataEngine = new CFB27DataEngine(directory);
                 return;
             }
 
@@ -488,6 +489,7 @@ namespace EA_DB_Editor
 
             this.Text = maddenDB.realfileName.Substring(maddenDB.realfileName.LastIndexOf('\\') + 1);
             Cursor.Current = Cursors.Default;
+            this.DataEngine = new NCAA14DataEngine(maddenDB);
         }
 
         public void SetClipboard(string s)
@@ -1379,8 +1381,8 @@ namespace EA_DB_Editor
         private void FillDB(bool isPreseason)
         {
             // make sure we have a filled DB            
-            ContinuationData.Create(maddenDB);
-            BowlChampion.Create(maddenDB);
+            ContinuationData.Create(this.DataEngine);
+            BowlChampion.Create(this.DataEngine);
 
             // this is basically the new directory we create for the season, when creating a preseason magazine, we go ahead and do an "archive"
             var year = BowlChampion.CurrentYear + Utility.StartingYear;
@@ -1404,7 +1406,7 @@ namespace EA_DB_Editor
             TeamSeasonStats.Create(maddenDB);
             HistoricTeamRecord.Create(maddenDB);
             Team.Create(maddenDB,isPreseason);
-            AllAmerican.Create(maddenDB,isPreseason);
+            AllAmerican.Create(this.DataEngine, maddenDB,isPreseason);
             TeamDepthChart.Create(maddenDB,isPreseason);
             MediaCoverage.Create(maddenDB,isPreseason);
 

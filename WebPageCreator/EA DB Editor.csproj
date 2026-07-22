@@ -117,6 +117,9 @@
       <DependentUpon>ConfigCopySelection.cs</DependentUpon>
     </Compile>
     <Compile Include="ContinuationData.cs" />
+    <Compile Include="DataEngine\CFB27DataEngine.cs" />
+    <Compile Include="DataEngine\IDataEngine.cs" />
+    <Compile Include="DataEngine\NCAA14DataEngine.cs" />
     <Compile Include="DirectoryCopy.cs" />
     <Compile Include="FilterForm.cs">
       <SubType>Form</SubType>
