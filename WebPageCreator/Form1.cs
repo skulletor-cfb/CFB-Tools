@@ -1406,7 +1406,7 @@ namespace EA_DB_Editor
             TeamSeasonStats.Create(maddenDB);
             HistoricTeamRecord.Create(maddenDB);
             Team.Create(maddenDB,isPreseason);
-            AllAmerican.Create(this.DataEngine, maddenDB,isPreseason);
+            AllAmerican.Create(this.DataEngine, isPreseason);
             TeamDepthChart.Create(maddenDB,isPreseason);
             MediaCoverage.Create(maddenDB,isPreseason);
 

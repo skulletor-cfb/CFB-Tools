@@ -36,34 +36,12 @@ namespace EA_DB_Editor
 
         private static Dictionary<int, Conference> conferences;
         public static Dictionary<int, Conference> Conferences { get { return conferences; } }
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
             if (conferences != null)
                 return;
 
-            conferences = new Dictionary<int, Conference>();
-
-            for (int i = 0; i < db.lTables[134].Table.currecords; i++)
-            {
-                var conf = new Conference
-                {
-                    Id = db.lTables[134].lRecords[i].lEntries[0].Data.ToInt32(),
-                    LeagueId = db.lTables[134].lRecords[i].lEntries[1].Data.ToInt32(),
-                    Name = db.lTables[134].lRecords[i].lEntries[2].Data
-                };
-
-                conferences.Add(conf.Id, conf);
-            }
-
-            // now go thru the divisions
-            var table = db.lTables[136];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var confId = table.lRecords[i].lEntries[0].Data.ToInt32();
-                var division = new Division(table.lRecords[i]);
-                conferences[confId].Divisions.Add(division);
-            }
-
+            conferences = dataEngine.ReadConferenceMetadata();
             ToJsonFile();
         }
 

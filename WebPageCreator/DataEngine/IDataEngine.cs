@@ -52,5 +52,18 @@ namespace EA_DB_Editor
         /// get the stats
         /// </summary>
         void ReadStats();
+
+        /// <summary>
+        /// reads the conference metadata
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<int, Conference> ReadConferenceMetadata();
+
+        /// <summary>
+        /// reads team metadata
+        /// </summary>
+        /// <param name="isPreseason"></param>
+        /// <returns></returns>
+        Dictionary<int, Team> ReadTeams(bool isPreseason);
     }
 }

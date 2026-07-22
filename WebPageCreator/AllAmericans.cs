@@ -20,9 +20,9 @@ namespace EA_DB_Editor
             if (AllAmericans != null)
                 return;
 
-            PlayerDB.Create(db);
-            Conference.Create(db);
-            Team.Create(db, isPreseason);
+            PlayerDB.Create(dataEngine);
+            Conference.Create(dataEngine);
+            Team.Create(dataEngine, isPreseason);
             BowlChampion.Create(dataEngine);
 
             AllAmericans = dataEngine.CreateAllAmericans();

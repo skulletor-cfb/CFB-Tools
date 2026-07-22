@@ -46,5 +46,15 @@ namespace EA_DB_Editor
         {
             throw new NotImplementedException();
         }
+
+        public Dictionary<int, Conference> ReadConferenceMetadata()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Dictionary<int, Team> ReadTeams(bool isPreseason)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

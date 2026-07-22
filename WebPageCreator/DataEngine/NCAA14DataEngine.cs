@@ -15,6 +15,63 @@ namespace EA_DB_Editor
 
         public MaddenDatabase MaddenDatabase { get; }
 
+        public Dictionary<int, Team> ReadTeams(bool isPreseason)
+        {
+            var teams = new Dictionary<int, Team>();
+            var table = MaddenDatabase.lTables[167];
+            for (int i = 0; i < table.Table.currecords; i++)
+            {
+                var teamId = table.lRecords[i].lEntries[40].Data.ToInt32().GetRealTeamId();
+
+                // don't look at any team with an id greater than 235 and less than 901 which is the first teambuilder team id
+                if (teamId > 235 && teamId < 901)
+                    continue;
+
+                var team = new Team(table.lRecords[i], MaddenDatabase, isPreseason);
+                teams.Add(team.Id, team);
+            }
+
+
+            if (!teams.ContainsKey(61))
+                teams.Add(61, new Team(61, "New Mexico State") { ToughestPlaceToPlayRank = 1000 });
+
+            if (!teams.ContainsKey(100))
+                teams.Add(100, new Team(100, "Connecticut") { ToughestPlaceToPlayRank = 1000 });
+
+            if (!teams.ContainsKey(230))
+                teams.Add(230, new Team(230, "FIU") { ToughestPlaceToPlayRank = 1000 });
+
+            return teams;
+        }
+
+        public Dictionary<int, Conference> ReadConferenceMetadata()
+        {
+            var conferences = new Dictionary<int, Conference>();
+
+            for (int i = 0; i < MaddenDatabase.lTables[134].Table.currecords; i++)
+            {
+                var conf = new Conference
+                {
+                    Id = MaddenDatabase.lTables[134].lRecords[i].lEntries[0].Data.ToInt32(),
+                    LeagueId = MaddenDatabase.lTables[134].lRecords[i].lEntries[1].Data.ToInt32(),
+                    Name = MaddenDatabase.lTables[134].lRecords[i].lEntries[2].Data
+                };
+
+                conferences.Add(conf.Id, conf);
+            }
+
+            // now go thru the divisions
+            var table = MaddenDatabase.lTables[136];
+            for (int i = 0; i < table.Table.currecords; i++)
+            {
+                var confId = table.lRecords[i].lEntries[0].Data.ToInt32();
+                var division = new Division(table.lRecords[i]);
+                conferences[confId].Divisions.Add(division);
+            }
+
+            return conferences;
+        }
+
         public bool IsSeasonOver()
         {
             // check to see if the season is still going on

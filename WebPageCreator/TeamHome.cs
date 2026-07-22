@@ -252,50 +252,28 @@ namespace EA_DB_Editor
             return file.FromJsonFile<Team[]>();
         }
 
-        public static void Prep(MaddenDatabase db, bool isPreseason)
+        public static void Prep(IDataEngine dataEngine, bool isPreseason)
         {
             // need historic records
-            Bowl.Create(db, isPreseason);
-            HistoricTeamRecord.Create(db);
-            BowlChampion.Create(db);
-            TeamSchedule.Create(db, isPreseason);
-            ScheduledGame.Create(db, isPreseason);
-            Coach.Create(db);
-            Stadium.Create(db);
-            ConferenceChampion.Create(db);
-            TeamDraftHistory.Create(db);
+            Bowl.Create(dataEngine, isPreseason);
+            HistoricTeamRecord.Create(dataEngine);
+            BowlChampion.Create(dataEngine);
+            TeamSchedule.Create(dataEngine, isPreseason);
+            ScheduledGame.Create(dataEngine, isPreseason);
+            Coach.Create(dataEngine);
+            Stadium.Create(dataEngine);
+            ConferenceChampion.Create(dataEngine);
+            TeamDraftHistory.Create(dataEngine);
         }
 
-        public static void Create(MaddenDatabase db, bool isPreseason)
+        public static void Create(IDataEngine dataEngine, bool isPreseason)
         {
-            Prep(db, isPreseason);
+            Prep(dataEngine, isPreseason);
 
             if (Teams != null)
                 return;
 
-            Teams = new Dictionary<int, Team>();
-            var table = db.lTables[167];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var teamId = table.lRecords[i].lEntries[40].Data.ToInt32().GetRealTeamId();
-
-                // don't look at any team with an id greater than 235 and less than 901 which is the first teambuilder team id
-                if (teamId > 235 && teamId < 901)
-                    continue;
-
-                var team = new Team(table.lRecords[i], db, isPreseason);
-                Teams.Add(team.Id, team);
-            }
-
-
-            if( !Teams.ContainsKey(61))
-                Teams.Add(61, new Team(61, "New Mexico State") { ToughestPlaceToPlayRank = 1000});
-
-            if (!Teams.ContainsKey(100))
-                Teams.Add(100, new Team(100, "Connecticut") { ToughestPlaceToPlayRank = 1000 });
-
-            if(!Teams.ContainsKey(230))
-                Teams.Add(230, new Team(230, "FIU") { ToughestPlaceToPlayRank = 1000 });
+            Teams = dataEngine.ReadTeams(isPreseason);
         }
 
         public static void TopPrograms(MaddenDatabase db, bool isPreseason)
@@ -1030,7 +1008,7 @@ namespace EA_DB_Editor
         }
         public int MainRival { get; set; }
 
-        private Team(int id, string name)
+        public Team(int id, string name)
         {
             this.Id = id;
             this.Name = name;
