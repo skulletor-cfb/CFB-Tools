@@ -31,5 +31,20 @@ namespace EA_DB_Editor
         {
             throw new NotImplementedException();
         }
+
+        public List<AllAmerican> CreateAllAmericans()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CreatePlayers(Dictionary<int, List<Player>> Rosters, Dictionary<int, Player> Players)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReadStats()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

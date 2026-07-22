@@ -34,5 +34,23 @@ namespace EA_DB_Editor
         /// </summary>
         /// <returns></returns>
         Dictionary<int, TeamSchedule> CreateTeamSchedule(bool isPreseason);
+
+        /// <summary>
+        /// returns the list of all americans
+        /// </summary>
+        /// <returns></returns>
+        List<AllAmerican> CreateAllAmericans();
+
+        /// <summary>
+        /// Read the database for players
+        /// </summary>
+        /// <param name="Rosters"></param>
+        /// <param name="Players"></param>
+        void CreatePlayers(Dictionary<int, List<Player>> Rosters, Dictionary<int, Player> Players);
+
+        /// <summary>
+        /// get the stats
+        /// </summary>
+        void ReadStats();
     }
 }

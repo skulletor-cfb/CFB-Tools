@@ -15,7 +15,7 @@ namespace EA_DB_Editor
     public class AllAmerican
     {
         public static List<AllAmerican> AllAmericans { get; set; }
-        public static void Create(IDataEngine dataEngine, MaddenDatabase db, bool isPreseason)
+        public static void Create(IDataEngine dataEngine, bool isPreseason)
         {
             if (AllAmericans != null)
                 return;
@@ -25,15 +25,7 @@ namespace EA_DB_Editor
             Team.Create(db, isPreseason);
             BowlChampion.Create(dataEngine);
 
-            AllAmericans = MaddenTable.FindMaddenTable(db.lTables, "AAPL").lRecords.Where(mr => mr["SEYR"].ToInt32() == BowlChampion.DynastyFileYear && PlayerDB.Players.ContainsKey(mr["PGID"].ToInt32())).Select(mr =>
-                new AllAmerican
-                {
-                    AllAmericanTeam = (AllAmericanTeam)mr["TTYP"].ToInt32(),
-                    ReturningAllAmerican = mr["ARET"].ToInt32() != 0,
-                    Position = mr["PPOS"].ToInt32(),
-                    PlayerId = mr["PGID"].ToInt32(),
-                    ConferenceId = mr["CGID"].ToInt32()
-                }).OrderBy(p => p.ConferenceId).ThenBy(p => p.AllAmericanTeam).ThenBy(p => p.Position).ToList();
+            AllAmericans = dataEngine.CreateAllAmericans();
         }
 
         public static void CreateReport(bool isPreseason = false)

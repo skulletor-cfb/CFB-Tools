@@ -153,130 +153,10 @@ namespace EA_DB_Editor
 
             Rosters = new Dictionary<int, List<Player>>();
             Players = new Dictionary<int, Player>();
-
-            // first get the players
-            var table = db.lTables[146].lRecords; // use to trouble shoot specific player stats.Where(mr => mr.lEntries[34].Data.ToInt32() == 4896).ToList();
-            for (int i = 0; i < table.Count; i++)
-            {
-                var record = table[i];
-
-                // don't look at any player with a team id greater than 235
-                if (record.GetInt(35) > 235 && record.GetInt(35) < 901)
-                    continue;
-
-                var player = new Player
-                {
-                    Year = record.GetInt(8),
-                    FirstName = record.GetData(15),
-                    LastName = record.GetData(16),
-                    Acc = record.GetInt(29),
-                    Id = record.GetInt(34),
-                    TeamId = record.GetInt(35).GetRealTeamId(),
-                    OriginalPlayerId = record.GetInt(36),
-                    Spd = record.GetInt(39),
-                    IsRedShirt = record.GetInt(40) == 2,
-                    Agl = record.GetInt(54),
-                    Hand = record.GetInt(78),
-                    Number = record.GetInt(79),
-                    Str = record.GetInt(102),
-                    Ovr = record.GetInt(103),
-                    Awr = record.GetInt(104),
-                    Height = record.GetInt(122),
-                    Weight = record.GetInt(125) + 160,
-                    GamesPlayed = record.GetInt(148),
-                    Position = record.GetInt(114),
-                    City = record.GetInt(33),
-                    Face = record["PGHE"].ToInt32(),
-                };
-
-                // add player to the rosters
-                if (player.TeamId == 1023)
-                    continue;
-
-                Players[player.Id] = player;
-
-                List<Player> roster;
-                if (!Rosters.TryGetValue(player.TeamId, out roster))
-                {
-                    roster = new List<Player>();
-                    Rosters[player.TeamId] = roster;
-                }
-
-                roster.Add(player);
-            }
-
-
-            // add stats for all players
-            AddReturnTeamStats(db);
-            AddDefensiveStats(db);
-            AddOffensiveStats(db);
-            AddKickingStats(db);
-            AddOLStats(db);
-            AddAllPurposeStats(db);
+            dataEngine.CreatePlayers(Rosters, Players);
+            dataEngine.ReadStats();
         }
 
-        public static void AddAllPurposeStats(MaddenDatabase db)
-        {
-
-        }
-
-        public static void AddOLStats(MaddenDatabase db)
-        {
-            AddStats(db, 87, 0, 2,
-                new Tuple<string, int, Func<int, int>>[] { MakeTuple(PlayerStats.OLGamesplayed, 5), MakeTuple(PlayerStats.SacksAllowed, 4), MakeTuple(PlayerStats.Pancakes, 3) },
-                (p) =>
-                {          // add pancakes
-                    if (p[PlayerStats.Pancakes] > 0)
-                        PancakesLeaders.Add(p);
-                });
-
-        }
-
-        public static void AddStats(MaddenDatabase db, int tableIndex, int playerIdIndex, int yearIndex, Tuple<string, int, Func<int, int>>[] keys, Action<Player> leaderAction)
-        {
-            var table = db.lTables[tableIndex];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var record = table.lRecords[i];
-                var playerId = record.GetInt(playerIdIndex);
-
-                // not a player found in the players db
-                if (Players.ContainsKey(playerId) == false)
-                    continue;
-
-                var year = record.GetInt(yearIndex) + ContinuationData.ContinuationYear;
-                var player = Players[playerId];
-
-                foreach (var key in keys)
-                {
-                    var value = record.GetInt(key.Item2);
-                    if (key.Item3 != null)
-                    {
-                        value = key.Item3(value);
-                    }
-                    player.Add(year, key.Item1, value);
-                }
-
-                // add to leaderboard
-                if (year == (CurrentYear)) //+ContinuationData.ContinuationYear))
-                    leaderAction(player);
-            }
-        }
-
-        public static void AddReturnTeamStats(MaddenDatabase db)
-        {
-            var keys = new Tuple<string, int, Func<int, int>>[]{
-                MakeTuple(PlayerStats.LongestKR, 2),
-                MakeTuple(PlayerStats.LongestPR,3),
-                MakeTuple(PlayerStats.KickReturns,5),
-                MakeTuple(PlayerStats.PuntReturns,6),
-                MakeTuple(PlayerStats.ReturnGamesPlayed,7),
-                MakeTuple(PlayerStats.KRTD, 8),
-                MakeTuple(PlayerStats.PRTD, 9),
-                MakeTuple(PlayerStats.KRYds, 10),
-                MakeTuple(PlayerStats.PRYds, 11)};
-            AddStats(db, 84, 0, 4, keys, AddReturnLeaders);
-        }
 
         public static int GetSeasonRushingYardsTransform(int value)
         {
@@ -288,16 +168,6 @@ namespace EA_DB_Editor
         {
             var result = value > 10000 ? value - 32768 : value;
             return result;
-        }
-
-        private static Tuple<string, int, Func<int, int>> MakeTuple(string a, int b)
-        {
-            return MakeTuple(a, b, null);
-        }
-
-        private static Tuple<string, int, Func<int, int>> MakeTuple(string a, int b, Func<int, int> transform)
-        {
-            return new Tuple<string, int, Func<int, int>>(a, b, transform);
         }
 
         public static void AddReturnLeaders(Player player)
@@ -361,93 +231,6 @@ namespace EA_DB_Editor
                 PuntLeaders.Add(player);
         }
 
-        public static void AddDefensiveStats(MaddenDatabase db)
-        {
-            var keys = new Tuple<string, int, Func<int, int>>[]
-            {
-                MakeTuple(PlayerStats.Sacks,8),
-                MakeTuple(PlayerStats.Tackles,5),
-                MakeTuple(PlayerStats.Interceptions,11),
-                MakeTuple(PlayerStats.IntRetYds,19),
-                MakeTuple(PlayerStats.FumRecYds,18),
-                MakeTuple(PlayerStats.DefTD,17),
-                MakeTuple(PlayerStats.AssistedTackles,16),
-                MakeTuple(PlayerStats.Slft,15),
-                MakeTuple(PlayerStats.HalfSacks,14),
-                MakeTuple(PlayerStats.FumRecYds,13),
-                MakeTuple(PlayerStats.DefGP,12),
-                MakeTuple(PlayerStats.LongIntRet,3),
-                MakeTuple(PlayerStats.Safeties,4),
-                MakeTuple(PlayerStats.PassDeflections,6),
-                MakeTuple(PlayerStats.ForcedFumble,7),
-                MakeTuple(PlayerStats.BlockedKicks,9),
-                MakeTuple(PlayerStats.TackleForLoss,10)
-            };
-
-            AddStats(db, 82, 0, 2, keys, AddDefensiveLeaders);
-        }
-
-        public static void AddOffensiveStats(MaddenDatabase db)
-        {
-            var keys = new Tuple<string, int, Func<int, int>>[]
-            {
-                MakeTuple(PlayerStats.LongestPass,3),
-                MakeTuple(PlayerStats.LongestRush,4),
-                MakeTuple(PlayerStats.Receptions,6),
-                MakeTuple(PlayerStats.SacksTaken,7),
-                MakeTuple(PlayerStats.PassingYards,8,GetSeasonOffensiveYardsTransform),
-                MakeTuple(PlayerStats.RushingYards,10,GetSeasonRushingYardsTransform),
-                MakeTuple(PlayerStats.ReceivingYards,9,GetSeasonRushingYardsTransform),
-                MakeTuple(PlayerStats.ReceivingYAC,11),
-                MakeTuple(PlayerStats.PassingTD,12),
-                MakeTuple(PlayerStats.ReceivingTD,13),
-                MakeTuple(PlayerStats.RushingTD,14),
-                MakeTuple(PlayerStats.RushingYdsAfterContact,15),
-                MakeTuple(PlayerStats.Completions,16),
-                MakeTuple(PlayerStats.IntThrown,17),
-                MakeTuple(PlayerStats.OffGamesPlayed,18),
-                MakeTuple(PlayerStats.PassAttempts,20),
-                MakeTuple(PlayerStats.RushAttempts,21),
-                MakeTuple(PlayerStats.BrokenTackles,22),
-                MakeTuple(PlayerStats.Fumbles,23),
-                MakeTuple(PlayerStats.RushOver20,24)
-            };
-            AddStats(db, 86, 0, 5, keys, AddOffensiveLeaders);
-        }
-
-        public static void AddKickingStats(MaddenDatabase db)
-        {
-            var keys = new Tuple<string, int, Func<int, int>>[]
-            {
-                MakeTuple(PlayerStats.FGLong,2),
-            MakeTuple(PlayerStats.PuntLong,3),
-            MakeTuple(PlayerStats.XPAtt,5),
-            MakeTuple(PlayerStats.FGAtt,6),
-            MakeTuple(PlayerStats.PuntYds,7),
-            MakeTuple(PlayerStats.FGUnder30Att,8),
-            MakeTuple(PlayerStats.XPBlocked,9),
-            MakeTuple(PlayerStats.FGBlocked,10),
-            MakeTuple(PlayerStats.FGUnder30Made,11),
-            MakeTuple(PlayerStats.KickOffTouchBack,12),
-            MakeTuple(PlayerStats.PuntTouchback,13),
-            MakeTuple(PlayerStats.FG30to39Att,14),
-            MakeTuple(PlayerStats.FG30to39Made,15),
-            MakeTuple(PlayerStats.FG40to49Att,16),
-            MakeTuple(PlayerStats.FG40to49Made,17),
-            MakeTuple(PlayerStats.FGOver50Att,18),
-            MakeTuple(PlayerStats.FGOver50Made,19),
-            MakeTuple(PlayerStats.Kickoffs,20),
-            MakeTuple(PlayerStats.PuntsBlocked,21),
-            MakeTuple(PlayerStats.XPMade,22),
-            MakeTuple(PlayerStats.FGMade,23),
-            MakeTuple(PlayerStats.KickGamesPlayed,24),
-            MakeTuple(PlayerStats.Spat,25),
-            MakeTuple(PlayerStats.DownInside20,26),
-            MakeTuple(PlayerStats.NetPuntYards,27),
-            };
-
-            AddStats(db, 83, 0, 4, keys, AddKickingLeaders);
-        }
     }
 
     public class PlayerStats : Dictionary<string, int>
