@@ -65,5 +65,49 @@ namespace EA_DB_Editor
         /// <param name="isPreseason"></param>
         /// <returns></returns>
         Dictionary<int, Team> ReadTeams(bool isPreseason);
+
+        /// <summary>
+        /// Reads coach data
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<string, Coach> ReadCoaches();
+
+        /// <summary>
+        /// reads the historic records for a team
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<int, Dictionary<int, TeamSeasonRecord>> CreateTeamHistoricRecords();
+
+        /// <summary>
+        /// reads the game schedule
+        /// </summary>
+        /// <param name="isPreseason"></param>
+        /// <returns></returns>
+        Dictionary<string, ScheduledGame> ReadSchedule(bool isPreseason);
+
+        /// <summary>
+        /// read records for a schools
+        /// </summary>
+        /// <param name="recreateUsingRecordsFile"></param>
+        /// <returns></returns>
+        Dictionary<int, List<Record>> ReadSchoolRecords(bool recreateUsingRecordsFile);
+
+        /// <summary>
+        /// read stats for games
+        /// </summary>
+        /// <param name="games"></param>
+        void ReadGameStats(Dictionary<string, ScheduledGame> games);
+
+        /// <summary>
+        /// returns the list of conference champs
+        /// </summary>
+        /// <returns></returns>
+        List<ConferenceChampion> ReadConferenceChamps();
+
+        /// <summary>
+        /// read stadiums data
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<int, Stadium> ReadStadiums();
     }
 }

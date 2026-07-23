@@ -31,11 +31,11 @@ namespace EA_DB_Editor
 
         public IDataEngine DataEngine { get ; private set; }
 
-        public string  CookCoaches()
+        public string CookCoaches()
         {
             BowlChampion.Create(this.DataEngine);
-            Team.Create(this.maddenDB, true);
-            Coach.Create(this.maddenDB);
+            Team.Create(this.DataEngine, true);
+            Coach.Create(this.DataEngine);
             return Coach.Coaches.ToJson();
         }
 
@@ -1390,32 +1390,32 @@ namespace EA_DB_Editor
 
             City.Create();
             TeamSchedule.Create(this.DataEngine, isPreseason);
-            PlayerDB.Create(maddenDB);
+            PlayerDB.Create(this.DataEngine);
             Bowl.Create(this.DataEngine, isPreseason);
-            Coach.Create(maddenDB);
-            RecruitClassRanking.Create(maddenDB);
-            Stadium.Create(maddenDB);
-            ConferenceChampion.Create(maddenDB);
-            Recruit.CreateRecruits(maddenDB);
-            ScheduledGame.Create(maddenDB, isPreseason);
-            Award.Create(maddenDB);
-            Recruit.CreateRecruits(maddenDB);
-            NcaaRecord.Create(maddenDB);
-            PlayerDB.Create(maddenDB);
-            Conference.Create(maddenDB);
-            TeamSeasonStats.Create(maddenDB);
-            HistoricTeamRecord.Create(maddenDB);
-            Team.Create(maddenDB,isPreseason);
+            Coach.Create(this.DataEngine);
+            RecruitClassRanking.Create(this.DataEngine);
+            Stadium.Create(this.DataEngine);
+            ConferenceChampion.Create(this.DataEngine);
+            Recruit.CreateRecruits(this.DataEngine);
+            ScheduledGame.Create(this.DataEngine, isPreseason);
+            Award.Create(this.DataEngine);
+            Recruit.CreateRecruits(this.DataEngine);
+            NcaaRecord.Create(this.DataEngine);
+            PlayerDB.Create(this.DataEngine);
+            Conference.Create(this.DataEngine);
+            TeamSeasonStats.Create(this.DataEngine);
+            HistoricTeamRecord.Create(this.DataEngine);
+            Team.Create(this.DataEngine, isPreseason);
             AllAmerican.Create(this.DataEngine, isPreseason);
             TeamDepthChart.Create(maddenDB,isPreseason);
             MediaCoverage.Create(maddenDB,isPreseason);
 
             if (!isPreseason)
             {
-                TeamRecord.Commit(maddenDB);
+                TeamRecord.Commit(this.DataEngine);
             }
 
-            SchoolRecord.Create(maddenDB,true);
+            SchoolRecord.Create(this.DataEngine, true);
         }
 
         private void button1_Click(object sender, EventArgs e)

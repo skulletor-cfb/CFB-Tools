@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,6 +16,560 @@ namespace EA_DB_Editor
         }
 
         public MaddenDatabase MaddenDatabase { get; }
+
+        public Dictionary<int, Stadium> ReadStadiums()
+        {
+            var stadiums = new Dictionary<int, Stadium>();
+            var table = MaddenDatabase.lTables[163];
+            for (int i = 0; i < table.Table.currecords; i++)
+            {
+                var record = table.lRecords[i];
+                var stadium = new Stadium
+                {
+                    Id = record.GetInt(40),
+                    Capacity = record.GetInt(63),
+                    Name = record.GetData(56)
+                };
+
+                stadiums.Add(stadium.Id, stadium);
+            }
+
+            stadiums[1023] = new Stadium();
+            return stadiums;
+        }
+
+        public List<ConferenceChampion> ReadConferenceChamps()
+        {
+            var cc = new List<ConferenceChampion>();
+            var table = MaddenDatabase.lTables[20];
+            for (int i = 0; i < table.Table.currecords; i++)
+            {
+                var record = table.lRecords[i];
+                cc.Add(new ConferenceChampion
+                {
+                    ConferenceId = record.GetInt(0),
+                    TeamId = record.GetInt(1).GetRealTeamId(),
+                    Year = record.GetInt(2) + ContinuationData.ContinuationYear
+                });
+            }
+
+            return cc;
+        }
+
+        public void ReadGameStats(Dictionary<string, ScheduledGame> games)
+        {
+            // do the scoring summary for each game now
+         var   table = MaddenDatabase.lTables[6];
+            for (int i = 0; i < table.Table.currecords; i++)
+            {
+                var record = table.lRecords[i];
+                var gameNumber = record.GetInt(5);
+                var weekNumber = record.GetInt(6);
+                var game = games[ScheduledGame.CreateKey(weekNumber, gameNumber)];
+
+                // add the item to the list
+                game.Scores.Add(new GameScore
+                {
+                    TeamId = record.GetInt(0),
+                    Time = record.GetUShort(4),
+                    Quarter = record.GetUShort(8),
+                    Points = record.GetUShort(9),
+                    ScoreType = record.GetUShort(13)
+                });
+
+                game.Scores.Last().Parse();
+            }
+
+            // box score data for each game
+            table = MaddenDatabase.lTables[7];
+            for (int i = 0; i < table.Table.currecords; i++)
+            {
+                var record = table.lRecords[i];
+                var gameNumber = record.GetInt(1);
+                var weekNumber = record.GetInt(2);
+                var teamId = record.GetInt(0).GetRealTeamId();
+                var game = games[ScheduledGame.CreateKey(weekNumber, gameNumber)];
+
+                //create the box score
+                var boxScore = new TeamStat
+                {
+                    TeamId = teamId,
+                    TwoPointConversionAttempts = record.GetInt(3),
+                    Turnovers = record.GetInt(4),
+                    PassAttempts = record.GetInt(5),
+                    RushAttempts = record.GetInt(6),
+                    TwoPointConversions = record.GetInt(7),
+                    ThirdDownConversions = record.GetInt(8),
+                    FourthDownConversions = record.GetInt(9),
+                    PuntYards = record.GetInt(14),
+                    Penalties = record.GetInt(15),
+                    RedZoneFG = record.GetInt(16),
+                    IntThrown = record.GetInt(17),
+                    PassCompletions = record.GetInt(10),
+                    FirstDowns = record.GetInt(11),
+                    ThirdDownAttempts = record.GetInt(12),
+                    FourthDownAttempts = record.GetInt(13),
+                    FumblesLost = record.GetInt(18),
+                    PassYards = record.GetInt(19),
+                    KRYards = record.GetInt(20),
+                    RushTD = record.GetInt(26),
+                    OffensiveYards = record.GetInt(30),
+                    PRYards = record.GetInt(22),
+                    PassTD = record.GetInt(23),
+                    RedZoneTD = record.GetInt(24),
+                    TimeOfPossesion = record.GetInt(25),
+                    Punts = record.GetInt(27),
+                    PenaltyYards = record.GetInt(28),
+                    TotalYards = record.GetInt(29),
+                    RedZoneVisits = record.GetInt(31)
+                };
+
+                boxScore.RushYards = (int)((short)record.GetInt(21));
+
+                if (teamId == game.HomeTeamId)
+                {
+                    game.HomeTeamBoxScore = boxScore;
+                }
+                else
+                {
+                    game.AwayTeamBoxScore = boxScore;
+                }
+            }
+
+            // offensive stats
+            table = MaddenDatabase.lTables[4];
+            for (int i = 0; i < table.Table.currecords; i++)
+            {
+                var record = table.lRecords[i];
+                var gameNumber = record.GetInt(2);
+                var weekNumber = record.GetInt(3);
+                var playerId = record.GetInt(0);
+                var game = games[ScheduledGame.CreateKey(weekNumber, gameNumber)];
+
+                // create the offensive stats for the player
+                var player = new PlayerStats { PlayerId = playerId };
+
+                var passingYards = record.GetSignedInt(8, 4096);
+                var rushingYards = record.GetSignedInt(10, 2048);
+                var rececptions = record.GetInt(6);
+                var passTD = record.GetInt(13);
+                var rushTD = record.GetInt(15);
+                var recTD = record.GetInt(14);
+                var receivingYrds = record.GetSignedInt(9, 2048);
+
+                // gaya
+                player[PlayerStats.PassingYards] = passingYards;
+
+                // gaat
+                player[PlayerStats.PassAttempts] = record.GetInt(22);
+
+                // gacm
+                player[PlayerStats.Completions] = record.GetInt(17);
+
+                // gatd
+                player[PlayerStats.PassingTD] = passTD;
+
+                // gain
+                player[PlayerStats.IntThrown] = record.GetInt(18);
+
+                // guat
+                player[PlayerStats.RushAttempts] = record.GetInt(23);
+
+                // guya
+                player[PlayerStats.RushingYards] = rushingYards;
+
+                // gutd
+                player[PlayerStats.RushingTD] = rushTD;
+
+                // gctd
+                player[PlayerStats.ReceivingTD] = recTD;
+
+                // gcca
+                player[PlayerStats.Receptions] = rececptions;
+
+                // gcya
+                player[PlayerStats.ReceivingYards] = receivingYrds;
+
+                player[PlayerStats.LongestPass] = record["galN"].ToInt32();
+                player[PlayerStats.LongestReception] = record["gcrL"].ToInt32();
+                player[PlayerStats.LongestRush] = record["gulN"].ToInt32();
+
+                player.GameKey = game.Key;
+                game.GamePlayerStats.Add(playerId, player);
+                PlayerStats.OffensiveGamePerformances.Add(player);
+
+                if (player.Player != null)
+                {
+                    TeamRecord.SetNewRecord(TeamRecordKeys.PassTD, passTD, player.Player, game);
+                    TeamRecord.SetNewRecord(TeamRecordKeys.RushingTD, rushTD, player.Player, game);
+                    TeamRecord.SetNewRecord(TeamRecordKeys.RecTD, recTD, player.Player, game);
+                    TeamRecord.SetNewRecord(TeamRecordKeys.PassYds, passingYards, player.Player, game);
+                    TeamRecord.SetNewRecord(TeamRecordKeys.RushingYds, rushingYards, player.Player, game);
+                    TeamRecord.SetNewRecord(TeamRecordKeys.RecYds, receivingYrds, player.Player, game);
+                    TeamRecord.SetNewRecord(TeamRecordKeys.Receptions, rececptions, player.Player, game);
+                }
+            }
+
+            // defensive stats
+            table = MaddenDatabase.lTables[1];
+            for (int i = 0; i < table.Table.currecords; i++)
+            {
+                var record = table.lRecords[i];
+                var gameNumber = record.GetInt(1);
+                var weekNumber = record.GetInt(2);
+                var playerId = record.GetInt(0);
+                var game = games[ScheduledGame.CreateKey(weekNumber, gameNumber)];
+
+                // make sure the player is in the dictionary
+                PlayerStats player;
+                if (!game.GamePlayerStats.TryGetValue(playerId, out player))
+                {
+                    player = new PlayerStats { PlayerId = playerId };
+                    player.GameKey = game.Key;
+                    game.GamePlayerStats.Add(playerId, player);
+                }
+
+                var sacks = record.GetInt(8);
+                var halfSacks = record.GetInt(13);
+                var ints = record.GetInt(11);
+
+                // add the defensive stats
+                // gdta
+                player[PlayerStats.Tackles] = record.GetInt(5);
+
+                // gdpd
+                player[PlayerStats.PassDeflections] = record.GetInt(6);
+
+                //glff
+                player[PlayerStats.ForcedFumble] = record.GetInt(7);
+
+                // glsk
+                player[PlayerStats.Sacks] = sacks;
+
+                // gdtl
+                player[PlayerStats.TackleForLoss] = record.GetInt(10);
+
+                // gsin
+                player[PlayerStats.Interceptions] = ints;
+
+                //glfr
+                player[PlayerStats.FumbleRec] = record.GetInt(12);
+
+                // glhs
+                player[PlayerStats.HalfSacks] = halfSacks;
+
+                // gdht
+                player[PlayerStats.AssistedTackles] = record.GetInt(15);
+
+                player[PlayerStats.LongIntRet] = record["gslR"].ToInt32();
+                player[PlayerStats.IntRetYds] = record["gsiy"].ToInt32().GetSignedInt(512);
+                player[PlayerStats.FumRecYds] = record["glfy"].ToInt32().GetSignedInt(512);
+                player[PlayerStats.IntReturnedForTD] = record["gsit"].ToInt32();
+                player[PlayerStats.FumblesReturnedForTD] = record["glft"].ToInt32();
+
+                if (player.Player != null)
+                {
+                    var totalsacks = sacks + (halfSacks > 0 ? (1 + halfSacks / 2) : 0);
+
+                    TeamRecord.SetNewRecord(TeamRecordKeys.Sacks, totalsacks, player.Player, game);
+                    TeamRecord.SetNewRecord(TeamRecordKeys.INT, ints, player.Player, game);
+                }
+            }
+
+            // return starts
+            table = MaddenDatabase.lTables[3];
+            for (int i = 0; i < table.Table.currecords; i++)
+            {
+                var record = table.lRecords[i];
+                var gameNumber = record["SGNM"].ToInt32();
+                var weekNumber = record["SEWN"].ToInt32();
+                var playerId = record["PGID"].ToInt32();
+                var game = games[ScheduledGame.CreateKey(weekNumber, gameNumber)];
+
+                // return game stats
+                PlayerStats player;
+                if (!game.GamePlayerStats.TryGetValue(playerId, out player))
+                {
+                    player = new PlayerStats { PlayerId = playerId };
+                    player.GameKey = game.Key;
+                    game.GamePlayerStats.Add(playerId, player);
+                }
+
+                player[PlayerStats.KickReturns] = record["grka"].ToInt32();
+                player[PlayerStats.KRTD] = record["grkt"].ToInt32();
+                player[PlayerStats.KRYds] = record.GetSignedInt(9, 2048);
+                player[PlayerStats.LongestKR] = record["grkL"].ToInt32();
+
+                player[PlayerStats.PuntReturns] = record["grpa"].ToInt32();
+                player[PlayerStats.PRTD] = record["grpt"].ToInt32();
+                player[PlayerStats.PRYds] = record.GetSignedInt(10, 2048);
+                player[PlayerStats.LongestPR] = record["grpL"].ToInt32();
+            }
+        }
+
+        public Dictionary<int, List<Record>> ReadSchoolRecords(bool recreateUsingRecordsFile)
+        {
+            var schoolRecords = new Dictionary<int, List<Record>>();
+
+            var table = MaddenDatabase.lTables[159];
+            for (int i = 0; i < table.Table.currecords; i++)
+            {
+                var record = table.lRecords[i];
+                var teamId = record.GetInt(7);
+
+                List<Record> records;
+                if (schoolRecords.TryGetValue(teamId, out records) == false)
+                {
+                    records = new List<Record>();
+                    schoolRecords.Add(teamId, records);
+                }
+
+                var sr = new Record
+                {
+                    Type = record.GetInt(12),
+                    Description = record.GetInt(4),
+                    Holder = record.GetData(3),
+                    Value = record.GetInt(14),
+                    Opponent = record.GetData(10),
+                    Year = record.GetInt(15)
+                };
+
+                // fix the year of the holder
+                if (ContinuationData.UsingContinuationData && !string.IsNullOrWhiteSpace(record["RCDE"]))
+                {
+                    var holderYear = sr.Holder.Substring(0, 4).ToInt32();
+                    var newYear = holderYear + ContinuationData.ContinuationYear;
+                    sr.Holder = sr.Holder.Replace(holderYear.ToString(), newYear.ToString());
+                }
+
+                records.Add(sr);
+            }
+         
+            return schoolRecords;
+        }
+
+        public Dictionary<string, ScheduledGame> ReadSchedule(bool isPreseason)
+        {
+            var Schedule = new Dictionary<string, ScheduledGame>();
+            var table = MaddenDatabase.lTables[161];
+            for (int i = 0; i < table.Table.currecords; i++)
+            {
+                var game = new ScheduledGame
+                {
+                    PostSeason = table.lRecords[i].lEntries[0].Data.ToInt32(),
+                    AwayScore = table.lRecords[i].lEntries[1].Data.ToInt32(),
+                    HomeScore = table.lRecords[i].lEntries[2].Data.ToInt32(),
+                    AwayTeamId = table.lRecords[i].lEntries[6].Data.ToInt32().GetRealTeamId(),
+                    HomeTeamId = table.lRecords[i].lEntries[7].Data.ToInt32().GetRealTeamId(),
+                    DynastySeason = table.lRecords[i].lEntries[8].Data.ToInt32(),
+                    GameNumber = table.lRecords[i].lEntries[11].Data.ToInt32(),
+                    Week = table.lRecords[i].lEntries[12].Data.ToInt32(),
+                    Year = table.lRecords[i].lEntries[13].Data.ToInt32(),
+                    WentToOvertime = table.lRecords[i].lEntries[15].Data.ToInt32(),
+                    GameDay = table.lRecords[i]["GDAT"].ToInt32(),
+                    TimeOfDay = table.lRecords[i]["GTOD"].ToInt32(),
+                    StadiumId = table.lRecords[i]["SGID"].ToInt32(),
+                };
+
+                // check to see if this is an augmented bowl game
+                if (!isPreseason && Bowl.TryFindByKey(game.Week, game.GameNumber, out var bowlGame))
+                {
+                    if (bowlGame.IsAugmentedBowl)
+                    {
+                        var winner = game.AwayScore > game.HomeScore ?
+                            game.AwayTeamId : game.HomeTeamId;
+
+                        BowlChampion.AddBowlChampion(winner, bowlGame.Id);
+                    }
+                }
+
+
+                // stadium id
+                var stadiumId = table.lRecords[i].lEntries[3].Data.ToInt32();
+
+                // 1023 stadium id means it's probably a game that hasn't been filled in like a bowl or a Conf Champ Game
+                if (stadiumId == 1023)
+                    continue;
+
+                // find the STAD table and the stadium
+                var stadiumTable = MaddenDatabase.lTables.Where(tbl => tbl.Abbreviation == "STAD").SingleOrDefault();
+                var stadium = stadiumTable.lRecords.Where(record => record["SGID"].ToInt32() == stadiumId).SingleOrDefault();
+                game.GameSite = stadium.lEntries[56].Data;
+
+                TeamSchedule homeTeamSchedule;
+                TeamSchedule awayTeamSchedule;
+
+                // check to see if we have a neutral site game only for regular season games
+                // don't get to set an overrides for a week with more than 1 game
+                if (TeamSchedule.TeamSchedules.TryGetValue(game.HomeTeamId, out homeTeamSchedule) &&
+                    TeamSchedule.TeamSchedules.TryGetValue(game.AwayTeamId, out awayTeamSchedule) &&
+                    game.Week < 16 &&
+                    homeTeamSchedule[game.Week].Count == 1 &&
+                    awayTeamSchedule[game.Week].Count == 1)
+                {
+                    // both teams are marked as home means its a neutral site game
+                    if (ScheduledGame.ClassicGameEvaluators.Any(e => e(game)))
+                    {
+                        game.IsClassicGame = true;
+                    }
+                    else if (homeTeamSchedule[game.Week][0].IsHomeGame && awayTeamSchedule[game.Week][0].IsHomeGame)
+                    {
+                        game.IsNeutralSite = true;
+                        // check to see if we have an override
+                        var overrides = ScheduledGame.StadiumNickNameOverrides;
+                        //we have an override, a set of comma delimited settings seperated by semi colon
+                        if (overrides != null)
+                        {
+                            var sections = overrides.Split(';').Where(section => string.IsNullOrWhiteSpace(section) == false).ToArray();
+                            var overridenNickNames = sections.Select(s => s.Split(',').ToDictionary(str => str.Split('=')[0], right => right.Split('=')[1])).ToList();
+                            var currentNicknames = overridenNickNames.Where(s => s["Stadium"] == stadiumId.ToString() && game.Week < s["BeforeWeek"].ToInt32()).ToList();
+
+                            Dictionary<string, string> stadiumOverride = currentNicknames.Count == 1 ? currentNicknames[0] : null;
+
+                            if (stadiumOverride == null && currentNicknames.Count > 1)
+                            {
+                                stadiumOverride = currentNicknames.Where(s => s.TryGetValue("RivalryGame", out var value) && value.Contains(Math.Min(game.HomeTeamId, game.AwayTeamId).ToString() + "-" + Math.Max(game.HomeTeamId, game.AwayTeamId).ToString())).FirstOrDefault();
+                            }
+
+                            if (stadiumOverride != null)
+                            {
+                                NeutralSiteGame koGame = null;
+                                game.GameSite = stadiumOverride["NickName"];
+                                koGame = ScheduledGame.KickOffGames.Where(nsg => nsg.Contains(stadiumId)).FirstOrDefault();
+
+                                if (koGame != null)
+                                {
+                                    game.SiteId = koGame.Id;
+                                    const int PigskinClassicKickoff = 71041024;
+
+                                    if (koGame.Id == PigskinClassicKickoff)
+                                    {
+                                        game.GameSite += $" ({ScheduledGame.SiteIdSuffix(stadiumId)})";
+                                    }
+                                }
+                                else
+                                {
+                                    game.SiteId = stadiumId;
+                                }
+                            }
+                            else if (string.IsNullOrWhiteSpace(stadium["STNN"]) == false)
+                            {
+                                game.GameSite = stadium["STNN"];
+                                game.SiteId = stadiumId;
+                            }
+                        }
+                        else if (string.IsNullOrWhiteSpace(stadium["STNN"]) == false)
+                        {
+                            game.GameSite = stadium["STNN"];
+                            game.SiteId = stadiumId;
+                        }
+                    }
+                }
+
+                Schedule.Add(game.Key, game);
+            }
+
+            return Schedule;
+        }
+
+        public Dictionary<int, Dictionary<int, TeamSeasonRecord>> CreateTeamHistoricRecords()
+        {
+            var teamRecords = new Dictionary<int, Dictionary<int, TeamSeasonRecord>>();
+            var table = MaddenDatabase.lTables[114];
+            for (int i = 0; i < table.Table.currecords; i++)
+            {
+                var record = table.lRecords[i];
+                var teamId = record.GetInt(0).GetRealTeamId();
+                Dictionary<int, TeamSeasonRecord> teamSeasonRecords;
+                if (teamRecords.TryGetValue(teamId, out teamSeasonRecords) == false)
+                {
+                    // load the records from the continuation file
+                    if (ContinuationData.UsingContinuationData && ContinuationData.Instance != null && ContinuationData.Instance.TeamHistoricRecords.ContainsKey(teamId))
+                    {
+                        teamSeasonRecords = ContinuationData.Instance.TeamHistoricRecords[teamId];
+                    }
+                    else
+                    {
+                        teamSeasonRecords = new Dictionary<int, TeamSeasonRecord>();
+                    }
+
+                    teamRecords[teamId] = teamSeasonRecords;
+                }
+
+                var seasonRecord = new TeamSeasonRecord
+                {
+                    Year = record.GetInt(2) + ContinuationData.ContinuationYear,
+                    Win = record.GetInt(3),
+                    Loss = record.GetInt(1)
+                };
+
+                // check to see if the team went 16-0
+                if (seasonRecord.Win < 4)
+                {
+                    seasonRecord.Win += BowlChampion.IsNationalChampionshipYear(teamId, seasonRecord.Year) ? 16 : 0;
+                }
+
+                teamSeasonRecords.Add(seasonRecord.Year, seasonRecord);
+            }
+
+            return teamRecords;
+        }
+
+        public Dictionary<string, Coach> ReadCoaches()
+        {
+            var coaches = new Dictionary<string, Coach>();
+
+            var coachTable = MaddenDatabase.lTables[133];
+            for (int i = 0; i < MaddenDatabase.lTables[133].Table.currecords; i++)
+            {
+                // only coaches on valid teams should be analyzed
+                if (coachTable.lRecords[i].lEntries[23].Data.ToInt32().IsValidTeam() == false)
+                    continue;
+
+                int level, exp;
+                GetLevelAndXP(MaddenDatabase.lTables[132].lRecords, i, out level, out exp);
+                var coach = new Coach
+                {
+                    Id = MaddenDatabase.lTables[133].lRecords[i].lEntries[20].Data.ToInt32(),
+                    TeamId = MaddenDatabase.lTables[133].lRecords[i].lEntries[23].Data.ToInt32().GetRealTeamId(),
+                    Position = MaddenDatabase.lTables[133].lRecords[i].lEntries[100].Data.ToInt32(),
+                    FirstName = MaddenDatabase.lTables[133].lRecords[i].lEntries[65].Data,
+                    LastName = MaddenDatabase.lTables[133].lRecords[i].lEntries[66].Data,
+                    Age = MaddenDatabase.lTables[133].lRecords[i].lEntries[29].Data.ToInt32(),
+                    ContractLength = coachTable.lRecords[i].lEntries[69].Data.ToInt32(),
+                    YearsIntoContract = coachTable.lRecords[i].lEntries[88].Data.ToInt32(),
+                    YearsWithTeam = 1 + coachTable.lRecords[i].lEntries[89].Data.ToInt32(),
+                    Rating = coachTable.lRecords[i].lEntries[109].Data.ToInt32(),
+                    OriginalJob = coachTable.lRecords[i].lEntries[5].Data,
+                    CareerWin = coachTable.lRecords[i]["CCWI"].ToInt32(),
+                    CareerLoss = coachTable.lRecords[i]["CCLO"].ToInt32(),
+                    TeamWin = coachTable.lRecords[i]["CTWN"].ToInt32(),
+                    TeamLoss = coachTable.lRecords[i]["COTL"].ToInt32(),
+                    Level = level,
+                    Exp = exp,
+                    OffPlaybookId = coachTable.lRecords[i]["CPID"].ToInt32(),
+                    DefPlaybookId = (DefensivePlaybook)coachTable.lRecords[i]["CDID"].ToInt32(),
+                    AlmaMaterId = coachTable.lRecords[i]["CHFT"].ToInt32().GetRealTeamId(),
+                    CoachBowlWin = coachTable.lRecords[i]["CBLW"].ToInt32(),
+                    CoachBowlLoss = coachTable.lRecords[i]["CBLL"].ToInt32(),
+                    AllAmericans = coachTable.lRecords[i]["CNAA"].ToInt32(),
+                    Top25Classes = coachTable.lRecords[i]["CNTC"].ToInt32(),
+                    CoachOfYearAwards = coachTable.lRecords[i]["CYRA"].ToInt32(),
+                    Top25Win = coachTable.lRecords[i]["CTTW"].ToInt32(),
+                    Top25Loss = coachTable.lRecords[i]["CTTL"].ToInt32(),
+                    RivalWin = coachTable.lRecords[i]["CRVW"].ToInt32(),
+                    RivalLoss = coachTable.lRecords[i]["CRVL"].ToInt32(),
+                    LongestWinStreak = coachTable.lRecords[i]["CCLS"].ToInt32(),
+                    HeismanWinners = coachTable.lRecords[i]["CHTW"].ToInt32(),
+                    CareerConferenceChampionships = coachTable.lRecords[i]["CCTW"].ToInt32(),
+                    CareerNationalChampionships = coachTable.lRecords[i]["CNTW"].ToInt32(),
+                };
+
+                coaches.Add(coach.Key, coach);
+            }
+
+            return coaches;
+        }
 
         public Dictionary<int, Team> ReadTeams(bool isPreseason)
         {
@@ -566,6 +1122,21 @@ namespace EA_DB_Editor
             return new Tuple<string, int, Func<int, int>>(a, b, transform);
         }
 
+        #endregion
+        #region Helpers
+        private static void GetLevelAndXP(List<MaddenRecord> table, int idx, out int level, out int exp)
+        {
+            if (idx >= table.Count)
+            {
+                level = 1;
+                exp = 0;
+            }
+            else
+            {
+                level = table[idx].lEntries[8].Data.ToInt32();
+                exp = table[idx].lEntries[14].Data.ToInt32();
+            }
+        }
         #endregion
     }
 }

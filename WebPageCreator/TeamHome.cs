@@ -1220,48 +1220,12 @@ namespace EA_DB_Editor
     public class HistoricTeamRecord
     {
         public static Dictionary<int, Dictionary<int, TeamSeasonRecord>> TeamRecords { get; set; }
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
             if (TeamRecords != null)
                 return;
 
-            TeamRecords = new Dictionary<int, Dictionary<int, TeamSeasonRecord>>();
-            var table = db.lTables[114];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var record = table.lRecords[i];
-                var teamId = record.GetInt(0).GetRealTeamId();
-                Dictionary<int, TeamSeasonRecord> teamSeasonRecords;
-                if (TeamRecords.TryGetValue(teamId, out teamSeasonRecords) == false)
-                {
-                    // load the records from the continuation file
-                    if (ContinuationData.UsingContinuationData && ContinuationData.Instance != null && ContinuationData.Instance.TeamHistoricRecords.ContainsKey(teamId))
-                    {
-                        teamSeasonRecords = ContinuationData.Instance.TeamHistoricRecords[teamId];
-                    }
-                    else
-                    {
-                        teamSeasonRecords = new Dictionary<int, TeamSeasonRecord>();
-                    }
-
-                    TeamRecords[teamId] = teamSeasonRecords;
-                }
-
-                var seasonRecord = new TeamSeasonRecord
-                {
-                    Year = record.GetInt(2) + ContinuationData.ContinuationYear,
-                    Win = record.GetInt(3),
-                    Loss = record.GetInt(1)
-                };
-
-                // check to see if the team went 16-0
-                if (seasonRecord.Win < 4)
-                {
-                    seasonRecord.Win += BowlChampion.IsNationalChampionshipYear(teamId, seasonRecord.Year) ? 16 : 0;
-                }
- 
-                teamSeasonRecords.Add(seasonRecord.Year, seasonRecord);
-            }
+            TeamRecords = dataEngine.CreateTeamHistoricRecords();
         }
 
         public static void ToHistoricRecordFile(string file, int? take = null)

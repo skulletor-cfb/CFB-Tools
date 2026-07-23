@@ -329,28 +329,12 @@ namespace EA_DB_Editor
     public class Stadium
     {
         public static Dictionary<int, Stadium> Stadiums { get; set; }
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
             if (Stadiums != null)
                 return;
 
-            Stadiums = new Dictionary<int, Stadium>();
-            var table = db.lTables[163];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var record = table.lRecords[i];
-                var stadium = new Stadium
-                {
-                    Id = record.GetInt(40),
-                    Capacity = record.GetInt(63),
-                    Name = record.GetData(56)
-                };
-
-                Stadiums.Add(stadium.Id, stadium);
-            }
-
-            Stadiums[1023] = new Stadium();
-
+            Stadiums = dataEngine.ReadStadiums();
         }
 
         [DataMember]
@@ -364,25 +348,14 @@ namespace EA_DB_Editor
     public class ConferenceChampion
     {
         public static List<ConferenceChampion> ConferenceChampions;
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
-            Conference.Create(db);
+            Conference.Create(dataEngine);
 
             if (ConferenceChampions != null)
                 return;
 
-            ConferenceChampions = new List<ConferenceChampion>();
-            var table = db.lTables[20];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var record = table.lRecords[i];
-                ConferenceChampions.Add(new ConferenceChampion
-                {
-                    ConferenceId = record.GetInt(0),
-                    TeamId = record.GetInt(1).GetRealTeamId(),
-                    Year = record.GetInt(2) + ContinuationData.ContinuationYear
-                });
-            }
+            ConferenceChampions = dataEngine.ReadConferenceChamps();
 
             if (ContinuationData.UsingContinuationData && ContinuationData.Instance != null)
             {
@@ -737,7 +710,7 @@ namespace EA_DB_Editor
             return true; 
         }
         
-        public static void Create(MaddenDatabase db, bool recreateUsingRecordsFile = false)
+        public static void Create(IDataEngine dataEngine, bool recreateUsingRecordsFile = false)
         {
             if (recreateUsingRecordsFile && LoadFromBaseSchoolRecords())
                 return;
@@ -745,41 +718,7 @@ namespace EA_DB_Editor
             if (SchoolRecords != null || LoadFromBaseSchoolRecords())
                 return;
 
-            SchoolRecords = new Dictionary<int, List<Record>>();
-
-            var table = db.lTables[159];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var record = table.lRecords[i];
-                var teamId = record.GetInt(7);
-
-                List<Record> records;
-                if (SchoolRecords.TryGetValue(teamId, out records) == false)
-                {
-                    records = new List<Record>();
-                    SchoolRecords.Add(teamId, records);
-                }
-
-                var sr = new Record
-                                {
-                                    Type = record.GetInt(12),
-                                    Description = record.GetInt(4),
-                                    Holder = record.GetData(3),
-                                    Value = record.GetInt(14),
-                                    Opponent = record.GetData(10),
-                                    Year = record.GetInt(15)
-                                };
-
-                // fix the year of the holder
-                if (ContinuationData.UsingContinuationData && !string.IsNullOrWhiteSpace(record["RCDE"]))
-                {
-                    var holderYear = sr.Holder.Substring(0,4).ToInt32();
-                    var newYear = holderYear + ContinuationData.ContinuationYear;
-                    sr.Holder = sr.Holder.Replace(holderYear.ToString(), newYear.ToString());
-                }
-
-                records.Add(sr);
-            }
+            SchoolRecords = dataEngine.ReadSchoolRecords(recreateUsingRecordsFile);
         }
     }
 

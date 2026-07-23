@@ -56,5 +56,40 @@ namespace EA_DB_Editor
         {
             throw new NotImplementedException();
         }
+
+        public Dictionary<string, Coach> ReadCoaches()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Dictionary<int, Dictionary<int, TeamSeasonRecord>> CreateTeamHistoricRecords()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Dictionary<string, ScheduledGame> ReadSchedule(bool isPreseason)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Dictionary<int, List<Record>> ReadSchoolRecords(bool recreateUsingRecordsFile)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReadGameStats(Dictionary<string, ScheduledGame> games)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<ConferenceChampion> ReadConferenceChamps()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Dictionary<int, Stadium> ReadStadiums()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
