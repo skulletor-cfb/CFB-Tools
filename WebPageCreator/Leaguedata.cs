@@ -609,34 +609,12 @@ namespace EA_DB_Editor
     public class Award
     {
         public static Dictionary<int, List<Award>> Awards { get; set; }
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
             if (Awards != null)
                 return;
 
-            Awards = new Dictionary<int, List<Award>>();
-
-            var table = db.lTables[71];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var record = table.lRecords[i];
-                var awardID = record.GetInt(3);
-
-                List<Award> list;
-                if (!Awards.TryGetValue(awardID, out list))
-                {
-                    list = new List<Award>();
-                    Awards[awardID] = list;
-                }
-
-                list.Add(new Award
-                {
-                    Id = awardID,
-                    PlayerId = record.GetInt(0),
-                    Rank = record.GetInt(1),
-                    Year = record.GetInt(2) + ContinuationData.ContinuationYear
-                });
-            }
+            Awards = dataEngine.ReadAwards();
         }
 
        

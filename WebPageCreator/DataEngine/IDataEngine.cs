@@ -109,5 +109,30 @@ namespace EA_DB_Editor
         /// </summary>
         /// <returns></returns>
         Dictionary<int, Stadium> ReadStadiums();
+
+        /// <summary>
+        /// read the recruit classes
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<int, RecruitClassRanking> ReadRecruitClasses();
+
+        /// <summary>
+        /// read recruits from the dynasty
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<int, Recruit> ReadRecruits();
+
+        /// <summary>
+        /// Read awards from db
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<int, List<Award>> ReadAwards();
+
+        /// <summary>
+        /// calculates the number of free roster spots
+        /// </summary>
+        /// <param name="ranking"></param>
+        /// <returns></returns>
+        int CalculateRosterSpots(RecruitClassRanking ranking);
     }
 }

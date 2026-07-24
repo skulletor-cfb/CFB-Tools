@@ -17,6 +17,123 @@ namespace EA_DB_Editor
 
         public MaddenDatabase MaddenDatabase { get; }
 
+        public int CalculateRosterSpots(RecruitClassRanking ranking)
+        {
+            return 70 - MaddenDatabase.GetTable("PLAY").lRecords.Where(player => player["TGID"].ToInt32().GetRealTeamId() == ranking.TeamId).Count();
+        }
+
+        public Dictionary<int, List<Award>> ReadAwards()
+        {
+            var awards = new Dictionary<int, List<Award>>();
+            var table = MaddenDatabase.lTables[71];
+
+            for (int i = 0; i < table.Table.currecords; i++)
+            {
+                var record = table.lRecords[i];
+                var awardID = record.GetInt(3);
+
+                List<Award> list;
+                if (!awards.TryGetValue(awardID, out list))
+                {
+                    list = new List<Award>();
+                    awards[awardID] = list;
+                }
+
+                list.Add(new Award
+                {
+                    Id = awardID,
+                    PlayerId = record.GetInt(0),
+                    Rank = record.GetInt(1),
+                    Year = record.GetInt(2) + ContinuationData.ContinuationYear
+                });
+            }
+
+            return awards;
+        }
+
+        public Dictionary<int, Recruit> ReadRecruits()
+        {
+           var RecruitRankings = new Dictionary<int, Recruit>();
+            RecruitAllAmericans.GetRecruits(MaddenDatabase.lTables[96], MaddenDatabase.lTables[95]);
+
+            for (int i = 0; i < MaddenDatabase.lTables[96].Table.currecords; i++)
+            {
+                var record = MaddenDatabase.lTables[96].lRecords[i];
+                Recruit recruit = new Recruit
+                {
+                    RecruitId = MaddenDatabase.lTables[96].lRecords[i].lEntries[53].Data.ToInt32(),
+                    FirstName = MaddenDatabase.lTables[96].lRecords[i].lEntries[14].Data,
+                    LastName = MaddenDatabase.lTables[96].lRecords[i].lEntries[15].Data,
+                    PositionValue = MaddenDatabase.lTables[96].lRecords[i].lEntries[106].Data.ToInt32(),
+                    Rank = MaddenDatabase.lTables[96].lRecords[i].lEntries[62].Data.ToInt32(),
+                    PositionRank = MaddenDatabase.lTables[96].lRecords[i].lEntries[89].Data.ToInt32(),
+                    StarRating = MaddenDatabase.lTables[96].lRecords[i].lEntries[23].Data.ToInt32(),
+                    PreScoutOVR = MaddenDatabase.lTables[96].lRecords[i].lEntries[131].Data.ToInt32(),
+                    RealOVR = MaddenDatabase.lTables[96].lRecords[i].lEntries[95].Data.ToInt32(),
+                    IsAthlete = MaddenDatabase.lTables[96].lRecords[i].lEntries[47].Data.ToInt32() != 0,
+                    HometownValue = MaddenDatabase.lTables[96].lRecords[i].lEntries[33].Data.ToInt32(),
+                    PositionGroup = MaddenDatabase.lTables[96].lRecords[i]["RPGP"].ToInt32(),
+                    PlayerYear = MaddenDatabase.lTables[96].lRecords[i]["PYEA"].ToInt32(),
+                    Tendency = MaddenDatabase.lTables[96].lRecords[i]["PTEN"].ToInt32(),
+                    State = MaddenDatabase.lTables[96].lRecords[i]["STAT"].ToInt32(),
+                };
+
+                RecruitRankings.Add(recruit.RecruitId, recruit);
+            }
+
+            try
+            {
+                for (int i = 0; i < MaddenDatabase.lTables[95].Table.currecords; i++)
+                {
+                    var id = MaddenDatabase.lTables[95].lRecords[i].lEntries[34].Data.ToInt32();
+                    var recruit = RecruitRankings[id];
+                    recruit.CommittedTeam = MaddenDatabase.lTables[95].lRecords[i].lEntries[35].Data.ToInt32().GetRealTeamId();
+                    recruit.Team1 = MaddenDatabase.lTables[95].lRecords[i].lEntries[6].Data.ToInt32().GetRealTeamId();
+                    recruit.Team2 = MaddenDatabase.lTables[95].lRecords[i].lEntries[10].Data.ToInt32().GetRealTeamId();
+                    recruit.Team3 = MaddenDatabase.lTables[95].lRecords[i].lEntries[13].Data.ToInt32().GetRealTeamId();
+                    RecruitRankings[10000 + recruit.Rank] = recruit;
+                }
+            }
+            catch { }
+
+            return RecruitRankings;
+        }
+
+        public Dictionary<int, RecruitClassRanking> ReadRecruitClasses()
+        {
+            var teamRankings = new Dictionary<int, RecruitClassRanking>();
+            for (int i = 0; i < MaddenDatabase.lTables[97].Table.currecords; i++)
+            {
+                var ranking = new RecruitClassRanking
+                {
+                    TeamId = MaddenDatabase.lTables[97].lRecords[i].lEntries[4].Data.ToInt32().GetRealTeamId(),
+                    Points = MaddenDatabase.lTables[97].lRecords[i].lEntries[5].Data.ToInt32(),
+                    Star1 = MaddenDatabase.lTables[97].lRecords[i].lEntries[6].Data.ToInt32(),
+                    Star2 = MaddenDatabase.lTables[97].lRecords[i].lEntries[7].Data.ToInt32(),
+                    Star3 = MaddenDatabase.lTables[97].lRecords[i].lEntries[8].Data.ToInt32(),
+                    Star4 = MaddenDatabase.lTables[97].lRecords[i].lEntries[9].Data.ToInt32(),
+                    Star5 = MaddenDatabase.lTables[97].lRecords[i].lEntries[10].Data.ToInt32(),
+                };
+
+                teamRankings.Add(ranking.TeamId, ranking);
+            }
+
+            for (int i = 0; i < MaddenDatabase.lTables[167].Table.currecords; i++)
+            {
+                int teamId = MaddenDatabase.lTables[167].lRecords[i].lEntries[40].Data.ToInt32().GetRealTeamId();
+                RecruitClassRanking ranking = null;
+                if (teamRankings.TryGetValue(teamId, out ranking))
+                {
+                    ranking.ConferenceId = MaddenDatabase.lTables[167].lRecords[i].lEntries[36].Data.ToInt32();
+                    ranking.DivisionId = MaddenDatabase.lTables[167].lRecords[i].lEntries[37].Data.ToInt32();
+                    ranking.Wins = MaddenDatabase.lTables[167].lRecords[i].lEntries[61].Data.ToInt32();
+                    ranking.Losses = MaddenDatabase.lTables[167].lRecords[i].lEntries[88].Data.ToInt32();
+                }
+            }
+
+            return teamRankings;
+        }
+
         public Dictionary<int, Stadium> ReadStadiums()
         {
             var stadiums = new Dictionary<int, Stadium>();

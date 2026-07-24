@@ -91,5 +91,25 @@ namespace EA_DB_Editor
         {
             throw new NotImplementedException();
         }
+
+        public Dictionary<int, RecruitClassRanking> ReadRecruitClasses()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Dictionary<int, Recruit> ReadRecruits()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Dictionary<int, List<Award>> ReadAwards()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int CalculateRosterSpots(RecruitClassRanking ranking)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
