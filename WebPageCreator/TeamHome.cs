@@ -1295,61 +1295,12 @@ namespace EA_DB_Editor
     {
         public static Dictionary<int, TeamStat> TeamStats { get; set; }
 
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
             if (TeamStats != null)
                 return;
 
-            TeamStats = new Dictionary<int, TeamStat>();
-
-            var table = db.lTables[168];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var row = table.lRecords[i];
-                var teamId = row.GetInt(0).GetRealTeamId();
-
-                var stats = new TeamStat
-                {
-                    TeamId = teamId,
-                    TwoPointConversionAttempts = row.GetInt(1),
-                    Turnovers = row.GetInt(2),
-                    PassAttempts = row.GetInt(3),
-                    RushAttempts = row.GetInt(4),
-                    Tssa = row.GetInt(5),
-                    Tsta = row.GetInt(6),
-                    TwoPointConversions = row.GetInt(7),
-                    ThirdDownConversions = row.GetInt(8),
-                    FourthDownConversions = row.GetInt(9),
-                    FirstDowns = row.GetInt(10),
-                    ThirdDownAttempts = row.GetInt(11),
-                    FourthDownAttempts = row.GetInt(12),
-                    Penalties = row.GetInt(14),
-                    RedZoneFG = row.GetInt(16),
-                    Tsdi = row.GetInt(17),
-                    IntThrown = row.GetInt(19),
-                    RedZoneFGAllowed = row.GetInt(15),
-                    InterceptionsByDefense = row.GetInt(18),
-                    Sacks = row.GetInt(20),
-                    FumblesLost = row.GetInt(21),
-                    PassYardsAllowed = row.GetInt(22),
-                    PassYards = row.GetInt(23),
-                    OpponentsInRedZone = row.GetInt(24),
-                    FumblesRecovered = row.GetInt(25),
-                    RushYards = row.GetInt(26),
-                    PassTD = row.GetInt(27),
-                    RedZoneTDAllowed = row.GetInt(28),
-                    RedZoneTD = row.GetInt(29),
-                    RushTD = row.GetInt(30),
-                    PenaltyYards = row.GetInt(31),
-                    TotalYards = row.GetInt(32),
-                    RushingYardsAllowed = row.GetInt(33),
-                    OffensiveYards = row.GetInt(34),
-                    RedZoneVisits = row.GetInt(36),
-                    SpecialTeamYards = row.GetInt(35),
-                };
-
-                TeamStats.Add(teamId, stats);
-            }
+            TeamStats = dataEngine.ReadTeamStats();
         }
     }
 }

@@ -42,10 +42,10 @@ namespace EA_DB_Editor
             TeamSchedules = dataEngine.CreateTeamSchedule(isPreseason);
         }
 
-        public static void CalculateOpponentMetrics(MaddenDatabase db, bool isPreseason)
+        public static void CalculateOpponentMetrics(IDataEngine dataEngine, bool isPreseason)
         {
-            TeamSchedule.Create(db, isPreseason);
-            Team.Create(db,isPreseason);
+            TeamSchedule.Create(dataEngine, isPreseason);
+            Team.Create(dataEngine, isPreseason);
 
             if (opponentMetricsDone)
                 return;
@@ -241,10 +241,10 @@ namespace EA_DB_Editor
             Utility.WriteData(@".\archive\reports\tsch" + teamId + ".csv", sb.ToString());
         }
 
-        public static void ToSOSCsv(MaddenDatabase db, bool isPreseason)
+        public static void ToSOSCsv(IDataEngine dataEngine, bool isPreseason)
         {
-            TeamSchedule.Create(db, isPreseason);
-            Team.Create(db,isPreseason);
+            TeamSchedule.Create(dataEngine, isPreseason);
+            Team.Create(dataEngine, isPreseason);
 
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Team,Record,OppAvgRank,OppWin,OppLoss,OppWinPct,BCS,Coaches,Media,TeamId");

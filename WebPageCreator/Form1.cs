@@ -1449,8 +1449,8 @@ namespace EA_DB_Editor
             progressBar1.Value = 1;
             if (chkbxRecruiting.Checked == true)
             {
-                Recruiting.CreateRecruitsPage(maddenDB, false);
-                Recruiting.CreateRecruitingPages(maddenDB, false);
+                Recruiting.CreateRecruitsPage(this.DataEngine, false);
+                Recruiting.CreateRecruitingPages(this.DataEngine, false);
             }
             PocketScout.CreateTeamDirectoryPage();
 
@@ -1464,7 +1464,7 @@ namespace EA_DB_Editor
             progressBar1.Value = 3;
             if (chkbxCoaches.Checked == true)
             {
-                Coach.CreatePage(maddenDB, false);
+                Coach.CreatePage(this.DataEngine, false);
                 Coach.CreateCoachingChangePage();
             }
 
@@ -1530,8 +1530,8 @@ namespace EA_DB_Editor
             Coach.IsPostSeason = true;
             Coach.ToCoachCsv();
             Coach.Diff();
-            Recruiting.CreateRecruitingPages(maddenDB, false);
-            Recruiting.CreateRecruitsPage(maddenDB, false);
+            Recruiting.CreateRecruitingPages(this.DataEngine, false);
+            Recruiting.CreateRecruitsPage(this.DataEngine, false);
 
             var rankings = RecruitClassRanking.TeamRankings.Values.OrderByDescending(tr => tr.Points).ThenByDescending(tr => tr.Star5).ThenByDescending(tr => tr.Star4).ThenByDescending(tr => tr.Star3).ThenByDescending(tr => tr.Star2);
             var allPoints = RecruitClassRanking.TeamRankings.Values.Sum(tr => tr.Points);
@@ -1796,14 +1796,14 @@ namespace EA_DB_Editor
 
             Bowl.Create(this.DataEngine, true);
             // coaches won't change from start and end, so emit them
-            Coach.CreatePage(maddenDB, true);
+            Coach.CreatePage(this.DataEngine, true);
 
             // need to create all the team stuff to get a schedule, then predict CCG/Bowls and then redo team stuff
             Team.CreateMainPage(maddenDB, true);
 
             PredictionEngine.Create(maddenDB);
             Team.CreateMainPage(maddenDB, true);
-            Conference.Create(maddenDB);
+            Conference.Create(this.DataEngine);
             // roster and freshman won't change from the start and end of the season so just emit them now
             PocketScout.Roster(true);
             PocketScout.Freshmen(true);
@@ -1816,9 +1816,9 @@ namespace EA_DB_Editor
             TopUnits.Create(maddenDB);
             PocketScout.CreateStandingsPage(maddenDB);
             Conference.ToJsonFile();
-            ScheduledGame.CreateTopGames(maddenDB, true);
-            ScheduledGame.CreateOpeningWeek(maddenDB, true);
-            Recruiting.CreateRecruitsPage(maddenDB, true);
+            ScheduledGame.CreateTopGames(this.DataEngine, true);
+            ScheduledGame.CreateOpeningWeek(this.DataEngine, true);
+            Recruiting.CreateRecruitsPage(this.DataEngine, true);
             PocketScout.TopClasses();
             //PocketScout.Bowls(); }
             progressBar1.Value = 0;

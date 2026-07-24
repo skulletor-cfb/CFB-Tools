@@ -708,29 +708,12 @@ namespace EA_DB_Editor
 
         public static List<Record> AllTimeRecords { get; set; }
 
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
             if (AllTimeRecords != null)
                 return;
 
-            AllTimeRecords = new List<Record>();
-            var table = db.lTables[91];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var row = table.lRecords[i];
-
-                var record = new Record
-                {
-                    Description = row.GetInt(4),
-                    Holder = row.GetData(3),
-                    Value = row.GetInt(13),
-                    Opponent = row.GetData(9),
-                    Year = row.GetInt(14)
-                };
-
-                Reconcile(record);
-                AllTimeRecords.Add(record);
-            }
+            AllTimeRecords = dataEngine.ReadNcaaRecords();
         }
 
         public static void ToJson()
@@ -791,19 +774,9 @@ namespace EA_DB_Editor
         public static TeamRecord[] TeamRecords;
         public static Dictionary<int, List<TeamRecord>> TeamRecordDict;
 
-        public static void Commit(MaddenDatabase db)
+        public static void Commit(IDataEngine dataEngine)
         {
-            // pull in the latest records from the table for career/season
-            var table = db.lTables[159].lRecords.Where(mr => mr["RCDY"].ToInt32() == BowlChampion.DynastyFileYear && mr["RCDT"].ToInt32() != 0).ToArray();
-            for (int i = 0; i < table.Length; i++)
-            {
-                var record = table[i];
-                var teamId = record.GetInt(7).GetRealTeamId();
-                var holder = record["RCDH"].Substring(5);
-
-                SetNewRecord((TeamRecordKeys)record["RCDI"].ToInt32(), record["RCDV"].ToInt32(), PlayerDB.Find(teamId, holder[0], holder.Substring(2)), null, Int32.MaxValue, record["RCDT"].ToInt32());
-            }
-
+            dataEngine.CommitTeamRecords();
             TeamRecords.ToJsonFile(BaseSchoolRecordsFile, true, false);
         }
 

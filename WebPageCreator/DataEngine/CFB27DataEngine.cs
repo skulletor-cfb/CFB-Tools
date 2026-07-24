@@ -111,5 +111,25 @@ namespace EA_DB_Editor
         {
             throw new NotImplementedException();
         }
+
+        public List<Record> ReadNcaaRecords()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Dictionary<int, TeamStat> ReadTeamStats()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CommitTeamRecords()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Dictionary<int, DraftClass[]> ReadDraftHistory()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

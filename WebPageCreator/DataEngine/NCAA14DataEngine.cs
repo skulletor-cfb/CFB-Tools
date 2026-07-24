@@ -22,6 +22,30 @@ namespace EA_DB_Editor
             return 70 - MaddenDatabase.GetTable("PLAY").lRecords.Where(player => player["TGID"].ToInt32().GetRealTeamId() == ranking.TeamId).Count();
         }
 
+        public List<Record> ReadNcaaRecords()
+        {
+            var AllTimeRecords = new List<Record>();
+            var table = MaddenDatabase.lTables[91];
+            for (int i = 0; i < table.Table.currecords; i++)
+            {
+                var row = table.lRecords[i];
+
+                var record = new Record
+                {
+                    Description = row.GetInt(4),
+                    Holder = row.GetData(3),
+                    Value = row.GetInt(13),
+                    Opponent = row.GetData(9),
+                    Year = row.GetInt(14)
+                };
+
+                NcaaRecord.Reconcile(record);
+                AllTimeRecords.Add(record);
+            }
+
+            return AllTimeRecords;
+        }
+
         public Dictionary<int, List<Award>> ReadAwards()
         {
             var awards = new Dictionary<int, List<Award>>();
@@ -1065,6 +1089,98 @@ namespace EA_DB_Editor
 
                 roster.Add(player);
             }
+        }
+
+        public Dictionary<int, TeamStat> ReadTeamStats()
+        {
+            var teamStats = new Dictionary<int, TeamStat>();
+
+            var table = MaddenDatabase.lTables[168];
+            for (int i = 0; i < table.Table.currecords; i++)
+            {
+                var row = table.lRecords[i];
+                var teamId = row.GetInt(0).GetRealTeamId();
+
+                var stats = new TeamStat
+                {
+                    TeamId = teamId,
+                    TwoPointConversionAttempts = row.GetInt(1),
+                    Turnovers = row.GetInt(2),
+                    PassAttempts = row.GetInt(3),
+                    RushAttempts = row.GetInt(4),
+                    Tssa = row.GetInt(5),
+                    Tsta = row.GetInt(6),
+                    TwoPointConversions = row.GetInt(7),
+                    ThirdDownConversions = row.GetInt(8),
+                    FourthDownConversions = row.GetInt(9),
+                    FirstDowns = row.GetInt(10),
+                    ThirdDownAttempts = row.GetInt(11),
+                    FourthDownAttempts = row.GetInt(12),
+                    Penalties = row.GetInt(14),
+                    RedZoneFG = row.GetInt(16),
+                    Tsdi = row.GetInt(17),
+                    IntThrown = row.GetInt(19),
+                    RedZoneFGAllowed = row.GetInt(15),
+                    InterceptionsByDefense = row.GetInt(18),
+                    Sacks = row.GetInt(20),
+                    FumblesLost = row.GetInt(21),
+                    PassYardsAllowed = row.GetInt(22),
+                    PassYards = row.GetInt(23),
+                    OpponentsInRedZone = row.GetInt(24),
+                    FumblesRecovered = row.GetInt(25),
+                    RushYards = row.GetInt(26),
+                    PassTD = row.GetInt(27),
+                    RedZoneTDAllowed = row.GetInt(28),
+                    RedZoneTD = row.GetInt(29),
+                    RushTD = row.GetInt(30),
+                    PenaltyYards = row.GetInt(31),
+                    TotalYards = row.GetInt(32),
+                    RushingYardsAllowed = row.GetInt(33),
+                    OffensiveYards = row.GetInt(34),
+                    RedZoneVisits = row.GetInt(36),
+                    SpecialTeamYards = row.GetInt(35),
+                };
+
+                teamStats.Add(teamId, stats);
+            }
+
+            return teamStats;
+        }
+
+        public void CommitTeamRecords()
+        {
+            // pull in the latest records from the table for career/season
+            var table = MaddenDatabase.lTables[159].lRecords.Where(mr => mr["RCDY"].ToInt32() == BowlChampion.DynastyFileYear && mr["RCDT"].ToInt32() != 0).ToArray();
+            for (int i = 0; i < table.Length; i++)
+            {
+                var record = table[i];
+                var teamId = record.GetInt(7).GetRealTeamId();
+                var holder = record["RCDH"].Substring(5);
+
+                TeamRecord.SetNewRecord(
+                    (TeamRecordKeys)record["RCDI"].ToInt32(), 
+                    record["RCDV"].ToInt32(), 
+                    PlayerDB.Find(teamId, holder[0], holder.Substring(2)), 
+                    null, 
+                    Int32.MaxValue, 
+                    record["RCDT"].ToInt32());
+            }
+        }
+
+
+        public Dictionary<int, DraftClass[]> ReadDraftHistory()
+        {
+            var draftHistoryTable = MaddenTable.FindTable(MaddenDatabase.lTables, "TPHS");
+            return draftHistoryTable.lRecords.GroupBy(
+                mr => mr["TGID"].ToInt32().GetRealTeamId(),
+                mr => new DraftClass
+                {
+                    DynastyYear = mr["dryr"].ToInt32(),
+                    Round1 = mr["PDR1"].ToInt32(),
+                    Round2 = mr["PDR2"].ToInt32(),
+                    Round3 = mr["PDR3"].ToInt32(),
+                    RoundLater = mr["PDRL"].ToInt32(),
+                }).ToDictionary(g => g.Key, g => g.ToArray());
         }
         #region stat engine
         public void ReadStats()

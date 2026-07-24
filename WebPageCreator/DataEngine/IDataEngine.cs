@@ -134,5 +134,28 @@ namespace EA_DB_Editor
         /// <param name="ranking"></param>
         /// <returns></returns>
         int CalculateRosterSpots(RecruitClassRanking ranking);
+
+        /// <summary>
+        /// Reads the ncaa record book
+        /// </summary>
+        /// <returns></returns>
+        List<Record> ReadNcaaRecords();
+
+        /// <summary>
+        /// read stats for a team
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<int, TeamStat> ReadTeamStats();
+
+        /// <summary>
+        /// writes bowl/kickoff game records
+        /// </summary>
+        void CommitTeamRecords();
+
+        /// <summary>
+        /// reads the draft history table
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<int, DraftClass[]> ReadDraftHistory();
     }
 }
