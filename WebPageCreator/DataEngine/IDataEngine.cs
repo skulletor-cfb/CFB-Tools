@@ -157,5 +157,17 @@ namespace EA_DB_Editor
         /// </summary>
         /// <returns></returns>
         Dictionary<int, DraftClass[]> ReadDraftHistory();
+
+        /// <summary>
+        /// reads media coverage about teams
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<int, MediaCoverage[]> ReadMediaCoverage();
+
+        /// <summary>
+        /// reads team depth charts
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<int, Dictionary<int, DepthChartPosition[]>> ReadDepthCharts();
     }
 }

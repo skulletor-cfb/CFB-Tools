@@ -276,10 +276,10 @@ namespace EA_DB_Editor
             Teams = dataEngine.ReadTeams(isPreseason);
         }
 
-        public static void TopPrograms(MaddenDatabase db, bool isPreseason)
+        public static void TopPrograms(IDataEngine dataEngine, bool isPreseason)
         {
-            Conference.Create(db);
-            Team.Create(db, isPreseason);
+            Conference.Create(dataEngine);
+            Team.Create(dataEngine, isPreseason);
             TextWriter tw = null;
 
             // top programs
@@ -369,9 +369,9 @@ namespace EA_DB_Editor
             return total == 0 ? 1 : total;
         }
 
-        public static void CreateMainPage(MaddenDatabase db, bool isPreseason = false)
+        public static void CreateMainPage(IDataEngine dataEngine, bool isPreseason = false)
         {
-            Team.Create(db, isPreseason);
+            Team.Create(dataEngine, isPreseason);
             TextWriter tw = null;
 
             ConferenceChampion.ToCCFile("tcc.csv");

@@ -77,7 +77,7 @@ namespace EA_DB_Editor
 
         public Dictionary<int, Recruit> ReadRecruits()
         {
-           var RecruitRankings = new Dictionary<int, Recruit>();
+            var RecruitRankings = new Dictionary<int, Recruit>();
             RecruitAllAmericans.GetRecruits(MaddenDatabase.lTables[96], MaddenDatabase.lTables[95]);
 
             for (int i = 0; i < MaddenDatabase.lTables[96].Table.currecords; i++)
@@ -200,7 +200,7 @@ namespace EA_DB_Editor
         public void ReadGameStats(Dictionary<string, ScheduledGame> games)
         {
             // do the scoring summary for each game now
-         var   table = MaddenDatabase.lTables[6];
+            var table = MaddenDatabase.lTables[6];
             for (int i = 0; i < table.Table.currecords; i++)
             {
                 var record = table.lRecords[i];
@@ -485,7 +485,7 @@ namespace EA_DB_Editor
 
                 records.Add(sr);
             }
-         
+
             return schoolRecords;
         }
 
@@ -1158,15 +1158,14 @@ namespace EA_DB_Editor
                 var holder = record["RCDH"].Substring(5);
 
                 TeamRecord.SetNewRecord(
-                    (TeamRecordKeys)record["RCDI"].ToInt32(), 
-                    record["RCDV"].ToInt32(), 
-                    PlayerDB.Find(teamId, holder[0], holder.Substring(2)), 
-                    null, 
-                    Int32.MaxValue, 
+                    (TeamRecordKeys)record["RCDI"].ToInt32(),
+                    record["RCDV"].ToInt32(),
+                    PlayerDB.Find(teamId, holder[0], holder.Substring(2)),
+                    null,
+                    Int32.MaxValue,
                     record["RCDT"].ToInt32());
             }
         }
-
 
         public Dictionary<int, DraftClass[]> ReadDraftHistory()
         {
@@ -1181,6 +1180,46 @@ namespace EA_DB_Editor
                     Round3 = mr["PDR3"].ToInt32(),
                     RoundLater = mr["PDRL"].ToInt32(),
                 }).ToDictionary(g => g.Key, g => g.ToArray());
+        }
+
+        public Dictionary<int, MediaCoverage[]> ReadMediaCoverage()
+        {
+            var mediaTable = MaddenTable.FindMaddenTable(MaddenDatabase.lTables, "MCOV");
+            return mediaTable.lRecords
+                .GroupBy(mr => mr["TGID"].ToInt32().GetRealTeamId())
+                .ToDictionary(
+                    group => group.Key,
+                    group => group
+                        .Where(mr => mr["SGNM"].ToInt32() == 127)  // we don't want week 1 game info
+                        .Select(mr =>
+                        new MediaCoverage
+                        {
+                            TeamId = mr["TGID"].ToInt32().GetRealTeamId(),
+                            GameNumber = mr["SGNM"].ToInt32(),
+                            Week = mr["SEWN"].ToInt32(),
+                            PlayerId = mr["PGID"].ToInt32(),
+                            Headline = MediaCoverage.Transform(mr["MHTX"]),
+                            Content = MediaCoverage.Transform(mr["MCTX"])
+                        }
+                        )
+                        .ToArray()
+                );
+        }
+
+        public Dictionary<int, Dictionary<int, DepthChartPosition[]>> ReadDepthCharts()
+        {
+            var depthChartTable = MaddenTable.FindMaddenTable(MaddenDatabase.lTables, "DCHT");
+            return depthChartTable.lRecords.Where(mr => mr["TGID"].ToInt32().GetRealTeamId().IsValidTeam()).GroupBy(mr => mr["TGID"].ToInt32().GetRealTeamId()).ToDictionary(
+                group => group.Key,
+                group => group.Select(g =>
+                    new DepthChartPosition
+                    {
+                        PlayerId = g["PGID"].ToInt32(),
+                        PlayerPosition = g["PPOS"].ToInt32(),
+                        PositionDepth = g["ddep"].ToInt32()
+                    }).ToArray()
+                .GroupBy(dpp => dpp.PlayerPosition)
+                .ToDictionary(g => g.Key, g => g.OrderBy(pos => pos.PositionDepth).ToArray()));
         }
         #region stat engine
         public void ReadStats()

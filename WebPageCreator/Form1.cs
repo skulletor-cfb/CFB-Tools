@@ -1407,8 +1407,8 @@ namespace EA_DB_Editor
             HistoricTeamRecord.Create(this.DataEngine);
             Team.Create(this.DataEngine, isPreseason);
             AllAmerican.Create(this.DataEngine, isPreseason);
-            TeamDepthChart.Create(maddenDB,isPreseason);
-            MediaCoverage.Create(maddenDB,isPreseason);
+            TeamDepthChart.Create(this.DataEngine, isPreseason);
+            MediaCoverage.Create(this.DataEngine, isPreseason);
 
             if (!isPreseason)
             {
@@ -1459,7 +1459,7 @@ namespace EA_DB_Editor
             if (chkbxTeamStatsDef.Checked == true) { PocketScout.TeamStatsDef(); }
 
             progressBar1.Value = 2;
-            if (chkbxCareerStats.Checked == true) { PocketScout.CreateTeamPlayerStats(maddenDB, true); }
+            if (chkbxCareerStats.Checked == true) { PocketScout.CreateTeamPlayerStats(this.DataEngine, true); }
 
             progressBar1.Value = 3;
             if (chkbxCoaches.Checked == true)
@@ -1468,15 +1468,15 @@ namespace EA_DB_Editor
                 Coach.CreateCoachingChangePage();
             }
 
-            if (chkbxTeams.Checked == true) { Team.CreateMainPage(maddenDB); }
+            if (chkbxTeams.Checked == true) { Team.CreateMainPage(this.DataEngine); }
             if (chkbxTopPerfTeams.Checked == true) { PocketScout.TopTeamPerformances(); }
 
             progressBar1.Value = 4;
-            if (chkbxTeams.Checked == true) { PocketScout.SOS_Rnk(maddenDB, false); }  //MUST BE RAN AFTER Teams 
+            if (chkbxTeams.Checked == true) { PocketScout.SOS_Rnk(this.DataEngine, false); }  //MUST BE RAN AFTER Teams 
             if (chkbxRoster.Checked == true) { PocketScout.Roster(false); }
 
             progressBar1.Value = 5;
-            if (chkbxPlayerStats.Checked == true) { PocketScout.CreateTeamPlayerStats(maddenDB, false); }
+            if (chkbxPlayerStats.Checked == true) { PocketScout.CreateTeamPlayerStats(this.DataEngine, false); }
 
             progressBar1.Value = 6;
             PocketScout.MainPage();
@@ -1493,11 +1493,11 @@ namespace EA_DB_Editor
             if (chkbxAwards.Checked == true) { PocketScout.Awards(); }
             if (chkbxTopPerf.Checked == true) { PocketScout.TopPreformances(); PocketScout.GameTeamPerformances(); }
             if (chkbxBowls.Checked == true) { PocketScout.Bowls(); Team.ToJsonFile(false); }
-            if (chkbxTopPrograms.Checked == true) { Team.TopPrograms(maddenDB, false); }
+            if (chkbxTopPrograms.Checked == true) { Team.TopPrograms(this.DataEngine, false); }
             if (chkbxAtt.Checked == true) { PocketScout.Attendance(); }
             if (chkbxAllAmericans.Checked == true) { RecruitAllAmericans.CreateRosterFiles(@".\archive\reports"); }
             if (chkbxAllAmericans.Checked == true) { AllAmerican.CreateReport(); }
-            if (chkbxBowlRecords.Checked == true) { BowlRecords.Create(maddenDB, false); }
+            if (chkbxBowlRecords.Checked == true) { BowlRecords.Create(this.DataEngine, false); }
             progressBar1.Value = 0;
             sw.Stop();
 
@@ -1799,10 +1799,10 @@ namespace EA_DB_Editor
             Coach.CreatePage(this.DataEngine, true);
 
             // need to create all the team stuff to get a schedule, then predict CCG/Bowls and then redo team stuff
-            Team.CreateMainPage(maddenDB, true);
+            Team.CreateMainPage(this.DataEngine, true);
 
             PredictionEngine.Create(maddenDB);
-            Team.CreateMainPage(maddenDB, true);
+            Team.CreateMainPage(this.DataEngine, true);
             Conference.Create(this.DataEngine);
             // roster and freshman won't change from the start and end of the season so just emit them now
             PocketScout.Roster(true);

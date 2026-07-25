@@ -131,5 +131,15 @@ namespace EA_DB_Editor
         {
             throw new NotImplementedException();
         }
+
+        public Dictionary<int, MediaCoverage[]> ReadMediaCoverage()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Dictionary<int, Dictionary<int, DepthChartPosition[]>> ReadDepthCharts()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
