@@ -738,9 +738,7 @@ namespace EA_DB_Editor
 
         public static string SiteIdSuffix(int siteId)
         {
-            var stadiumTable = Form1.MainForm.maddenDB.lTables.Where(tbl => tbl.Abbreviation == "STAD").SingleOrDefault();
-            var stadium = stadiumTable.lRecords.Where(record => record["SGID"].ToInt32() == siteId).SingleOrDefault();
-            return stadium.lEntries[56].Data;
+            return Form1.MainForm.DataEngine.ReadStadiumName(siteId);
         }
 
         private static bool IsPigskinClassic(ScheduledGame g)

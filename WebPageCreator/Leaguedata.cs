@@ -825,27 +825,8 @@ namespace EA_DB_Editor
             }
         }
 
-        private static Dictionary<int, string> teamNames;
 
-        public static Dictionary<int, string> TeamNames
-        {
-            get
-            {
-                if (teamNames == null || teamNames.Count == 0)
-                {
-                    try
-                    {
-                        teamNames = Form1.MainForm.maddenDB.lTables[167].lRecords.ToDictionary(mr => mr.lEntries[40].Data.ToInt32(), record => record["TDNA"]);
-                    }
-                    catch
-                    {
-                        teamNames = new Dictionary<int, string>();
-                    }
-                }
-
-                return teamNames;
-            }
-        }
+        public static Dictionary<int, string> TeamNames => Form1.MainForm.DataEngine.TeamNames;
 
         public static bool IsNewRecord(int teamId, TeamRecordKeys key , int value, int recordType)
         {

@@ -23,7 +23,7 @@ namespace EA_DB_Editor
         public static int Team_ID_GLOBAL;
 
 
-        public static void CreateStandingsPage(MaddenDatabase db)
+        public static void CreateStandingsPage()
         {
             using (var tw = new StreamWriter("./Archive/Reports/Standings.html", false))
             {
@@ -41,7 +41,7 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void Polls(MaddenDatabase db)
+        public static void Polls()
         {
 
             TextWriter tw;
@@ -135,7 +135,7 @@ namespace EA_DB_Editor
             Utility.WriteData(@".\archive\reports\cc.csv", sb.ToString());
 
             // standings
-            CreateStandingsPage(db);
+            CreateStandingsPage();
 
             // make sure the conference json file is written out
             Conference.ToJsonFile();

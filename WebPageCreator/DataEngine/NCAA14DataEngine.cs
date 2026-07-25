@@ -10,6 +10,8 @@ namespace EA_DB_Editor
 {
     public class NCAA14DataEngine : IDataEngine
     {
+        private Dictionary<int, string> teamNames;
+
         public NCAA14DataEngine(MaddenDatabase db)
         {
             this.MaddenDatabase = db;
@@ -17,6 +19,25 @@ namespace EA_DB_Editor
 
         public MaddenDatabase MaddenDatabase { get; }
 
+        public Dictionary<int, string> TeamNames
+        {
+            get
+            {
+                if (teamNames == null || teamNames.Count == 0)
+                {
+                    try
+                    {
+                        teamNames = MaddenDatabase.lTables[167].lRecords.ToDictionary(mr => mr.lEntries[40].Data.ToInt32(), record => record["TDNA"]);
+                    }
+                    catch
+                    {
+                        teamNames = new Dictionary<int, string>();
+                    }
+                }
+
+                return teamNames;
+            }
+        }
         public int CalculateRosterSpots(RecruitClassRanking ranking)
         {
             return 70 - MaddenDatabase.GetTable("PLAY").lRecords.Where(player => player["TGID"].ToInt32().GetRealTeamId() == ranking.TeamId).Count();
@@ -1220,6 +1241,22 @@ namespace EA_DB_Editor
                     }).ToArray()
                 .GroupBy(dpp => dpp.PlayerPosition)
                 .ToDictionary(g => g.Key, g => g.OrderBy(pos => pos.PositionDepth).ToArray()));
+        }
+
+        public Dictionary<int, int> FindCoachesOnHotSeat()
+        {
+            var table = MaddenTable.FindTable(MaddenDatabase.lTables, "CPRF");
+            return table.lRecords
+                .Where(mr => mr["JSCR"].ToInt32() > 100)
+                .GroupBy(mr => mr["CCID"].ToInt32(), mr => mr["JSCR"].ToInt32())
+                .ToDictionary(g => g.Key, g => g.OrderByDescending(r => r).First());
+        }
+
+        public string ReadStadiumName(int siteId)
+        {
+            var stadiumTable = MaddenDatabase.lTables.Where(tbl => tbl.Abbreviation == "STAD").SingleOrDefault();
+            var stadium = stadiumTable.lRecords.Where(record => record["SGID"].ToInt32() == siteId).SingleOrDefault();
+            return stadium.lEntries[56].Data;
         }
         #region stat engine
         public void ReadStats()

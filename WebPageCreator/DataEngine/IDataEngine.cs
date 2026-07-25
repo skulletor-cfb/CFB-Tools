@@ -8,6 +8,9 @@ namespace EA_DB_Editor
 {
     public interface IDataEngine
     {
+        // map of team ids to names
+        Dictionary<int, string> TeamNames { get; }
+
         /// <summary>
         /// returns an annual list of bowl champions
         /// </summary>
@@ -169,5 +172,18 @@ namespace EA_DB_Editor
         /// </summary>
         /// <returns></returns>
         Dictionary<int, Dictionary<int, DepthChartPosition[]>> ReadDepthCharts();
+
+        /// <summary>
+        /// read coaches on hot seat
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<int, int> FindCoachesOnHotSeat();
+
+        /// <summary>
+        /// reads the name of a stadium
+        /// </summary>
+        /// <param name="siteId"></param>
+        /// <returns></returns>
+        string ReadStadiumName(int siteId);
     }
 }

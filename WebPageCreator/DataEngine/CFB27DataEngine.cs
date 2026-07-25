@@ -8,6 +8,8 @@ namespace EA_DB_Editor
 {
     public class CFB27DataEngine : IDataEngine
     {
+        public Dictionary<int, string> TeamNames => throw new NotImplementedException();
+
         public CFB27DataEngine(string directory)
         {
         }
@@ -138,6 +140,16 @@ namespace EA_DB_Editor
         }
 
         public Dictionary<int, Dictionary<int, DepthChartPosition[]>> ReadDepthCharts()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Dictionary<int, int> FindCoachesOnHotSeat()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string ReadStadiumName(int siteId)
         {
             throw new NotImplementedException();
         }

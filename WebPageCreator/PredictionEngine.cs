@@ -128,7 +128,7 @@ namespace EA_DB_Editor
             return false;
         }
 
-        public static void Create(MaddenDatabase db)
+        public static void Create()
         {
             //we need to group teams by conference
             var conferenceGrouping = Team.Teams.Values.Where(t => t.ConferenceId!=17 && !t.Id.TeamNoLongerFBS()).GroupBy(team => team.ConferenceId).ToDictionary(g => g.Key, g => g.OrderByDescending(t => t.PredictedConferenceWin.Value).ThenByDescending(t => t.PredictedDivisionWin.Value).ToArray());

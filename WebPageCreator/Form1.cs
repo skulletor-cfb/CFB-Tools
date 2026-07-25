@@ -21,7 +21,6 @@ namespace EA_DB_Editor
         public List<Field> lMappedFields = new List<Field>();
         public List<MaddenTable> lMappedTables = new List<MaddenTable>();
         public List<View> lMappedViews = new List<View>();
-        public MaddenDatabase maddenDB = null;
         public bool bConfigRead = false;
         public View currentView = null;
         static public bool mc02Recalc = false;
@@ -29,6 +28,7 @@ namespace EA_DB_Editor
         public static readonly string CFB27Exporter = ConfigurationManager.AppSettings["CFB27Exporter"];
         public static readonly int CFB27StartingYear = ConfigurationManager.AppSettings["CFB27StartingYear"].ToInt32();
 
+        private MaddenDatabase MaddenDB { get; set; }
         public IDataEngine DataEngine { get ; private set; }
 
         public string CookCoaches()
@@ -308,7 +308,7 @@ namespace EA_DB_Editor
                         MessageBox.Show("Table " + lMappedFields[i].ControlLink + "not found in Field->Control for field " + lMappedFields[i].Abbreviation, "Error in xml config");
                         continue;
                     }
-                    mt = maddenDB[mt.Abbreviation];
+                    mt = MaddenDB[mt.Abbreviation];
                     #endregion
 
                     for (j = 0; j < mt.lRecords.Count; j++)
@@ -352,7 +352,7 @@ namespace EA_DB_Editor
                 if (view.Type != "Grid") continue;
 
                 MaddenTable mt = MaddenTable.FindTable(lMappedTables, view.SourceName);
-                mt = maddenDB[mt.Abbreviation];
+                mt = MaddenDB[mt.Abbreviation];
 
                 foreach (ColumnHeader ch in ((ListView)view.DisplayControl).Columns)
                 {
@@ -372,18 +372,6 @@ namespace EA_DB_Editor
             }
             #endregion
             #endregion
-        }
-        private void UpdateTableBoundViews()
-        {
-            foreach (View v in lMappedViews)
-            {
-                if (v.SourceType == "Table")
-                {
-                    MaddenTable mt = MaddenTable.FindTable(lMappedTables, v.SourceName);
-                    if (v.Type == "Grid")
-                        v.UpdateGridData(maddenDB[mt.Abbreviation]);
-                }
-            }
         }
         public void viewChange(View view)
         {
@@ -468,10 +456,10 @@ namespace EA_DB_Editor
             }
 
             Cursor.Current = Cursors.WaitCursor;
-            maddenDB = new MaddenDatabase(file);
+            MaddenDB = new MaddenDatabase(file);
 
             // walked each table and field and add in the mapped elements
-            foreach (MaddenTable mt in maddenDB.lTables)
+            foreach (MaddenTable mt in MaddenDB.lTables)
             {
                 MaddenTable mtmapped = MaddenTable.FindTable(lMappedTables, mt.Table.TableName);
                 mt.Abbreviation = mt.Table.TableName;
@@ -487,9 +475,9 @@ namespace EA_DB_Editor
                 }
             }
 
-            this.Text = maddenDB.realfileName.Substring(maddenDB.realfileName.LastIndexOf('\\') + 1);
+            this.Text = MaddenDB.realfileName.Substring(MaddenDB.realfileName.LastIndexOf('\\') + 1);
             Cursor.Current = Cursors.Default;
-            this.DataEngine = new NCAA14DataEngine(maddenDB);
+            this.DataEngine = new NCAA14DataEngine(MaddenDB);
         }
 
         public void SetClipboard(string s)
@@ -502,7 +490,7 @@ namespace EA_DB_Editor
             StringBuilder sb = null;
             int idx = 0;
 
-            foreach (var table in maddenDB.lTables)
+            foreach (var table in MaddenDB.lTables)
             {
                 var name = table.Abbreviation ?? table.Name;
                 sb = new StringBuilder();
@@ -568,816 +556,6 @@ namespace EA_DB_Editor
                 //UpdateTableBoundViews( );
             }
         }
-        public void saveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Cursor.Current = Cursors.WaitCursor;
-            maddenDB.Save();
-            Cursor.Current = Cursors.Default;
-            MessageBox.Show("Done");
-        }
-        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-#region open file
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-
-            saveFileDialog.Filter = "*.MC02|*.MC02|all|*.*";
-            saveFileDialog.DefaultExt = ".MC02";
-            saveFileDialog.Title = "Save as...";
-
-            if (System.Windows.Forms.DialogResult.OK != saveFileDialog.ShowDialog())
-                return;
-#endregion
-
-            Cursor.Current = Cursors.WaitCursor;
-            maddenDB.SaveAs(saveFileDialog.FileName);
-            Cursor.Current = Cursors.Default;
-
-            this.Text = maddenDB.realfileName.Substring(maddenDB.realfileName.LastIndexOf('\\') + 1);
-            MessageBox.Show("Done");
-        }
-        public void createConfigToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-
-            openFileDialog.AddExtension = true;
-            openFileDialog.DefaultExt = ".MC02";
-            openFileDialog.Filter = "*.MC02|*.MC02|*.DB|*.DB|all|*.*";
-            openFileDialog.Multiselect = false;
-            openFileDialog.Title = "Select MC02 file to open...";
-
-            if (System.Windows.Forms.DialogResult.OK == openFileDialog.ShowDialog())
-            {
-                Cursor.Current = Cursors.WaitCursor;
-                MaddenDatabase maddenDB2 = new MaddenDatabase(openFileDialog.FileName);
-                Cursor.Current = Cursors.Default;
-
-                SaveFileDialog saveFileDialog = new SaveFileDialog();
-
-                saveFileDialog.AddExtension = true;
-                saveFileDialog.DefaultExt = ".xml";
-                saveFileDialog.Filter = "*.xml|*.xml|all|*.*";
-                saveFileDialog.Title = "Save xml config as...";
-
-                if (System.Windows.Forms.DialogResult.OK == saveFileDialog.ShowDialog())
-                {
-                    Cursor.Current = Cursors.WaitCursor;
-
-                    FileStream fs = File.Open(saveFileDialog.FileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                    StreamWriter sw = new StreamWriter(fs);
-
-                    sw.WriteLine("<xml>");
-                    sw.WriteLine("");
-                    sw.WriteLine("");
-
-#region create the main tab view
-                    sw.WriteLine("");
-                    sw.WriteLine("<View>");
-                    sw.WriteLine("\t<Name>MainTab</Name>");
-                    sw.WriteLine("\t<Type>Tab</Type>");
-                    sw.WriteLine("\t<Position>");
-                    sw.WriteLine("\t\t<X>10</X>");
-                    sw.WriteLine("\t\t<Y>30</Y>");
-                    sw.WriteLine("\t\t<Z>0</Z>");
-                    sw.WriteLine("\t</Position>");
-                    sw.WriteLine("\t<Size>");
-                    sw.WriteLine("\t\t<Width>800</Width>");
-                    sw.WriteLine("\t\t<Height>340</Height>");
-                    sw.WriteLine("\t</Size>");
-#region add tables
-                    foreach (MaddenTable mt in maddenDB2.lTables)
-                        sw.WriteLine("\t<Child>" + mt.Table.TableName + "</Child>");
-#endregion
-                    sw.WriteLine("</View>");
-                    sw.WriteLine("");
-#endregion
-
-                    foreach (MaddenTable mt in maddenDB2.lTables)
-                    {
-#region create a view
-                        sw.WriteLine("");
-                        sw.WriteLine("<View>");
-                        sw.WriteLine("\t<Name>" + mt.Table.TableName + "</Name>");
-                        sw.WriteLine("\t<Type>Grid</Type>");
-                        sw.WriteLine("\t<Position>");
-                        sw.WriteLine("\t\t<X>0</X>");
-                        sw.WriteLine("\t\t<Y>0</Y>");
-                        sw.WriteLine("\t\t<Z>0</Z>");
-                        sw.WriteLine("\t</Position>");
-                        sw.WriteLine("\t<Size>");
-                        sw.WriteLine("\t\t<Width>200</Width>");
-                        sw.WriteLine("\t\t<Height>100</Height>");
-                        sw.WriteLine("\t</Size>");
-                        sw.WriteLine("\t<Source>");
-                        sw.WriteLine("\t\t<Type>Table</Type>");
-                        sw.WriteLine("\t\t<Name>" + mt.Table.TableName + "</Name>");
-                        sw.WriteLine("\t</Source>");
-#region add fields
-                        foreach (Field f in mt.lFields)
-                            sw.WriteLine("\t<Field>" + f.name + "</Field>");
-#endregion
-                        sw.WriteLine("</View>");
-                        sw.WriteLine("");
-#endregion
-#region create the table
-                        sw.WriteLine("");
-                        sw.WriteLine("<Table>");
-                        sw.WriteLine("\t<Abbreviation>" + mt.Table.TableName + "</Abbreviation>");
-                        sw.WriteLine("\t<Name></Name>");
-                        sw.WriteLine("</Table>");
-                        sw.WriteLine("");
-#endregion
-#region create the fields
-                        foreach (Field f in mt.lFields)
-                        {
-                            string type = "";
-                            switch (f.type)
-                            {
-                                case (ulong)Field.FieldType.tdbString: type = "string"; break;
-                                case (ulong)Field.FieldType.tdbSInt: type = "sint"; break;
-                                case (ulong)Field.FieldType.tdbUInt: type = "uint"; break;
-                                case (ulong)Field.FieldType.tdbBinary: type = "binary"; break;
-                                case (ulong)Field.FieldType.tdbFloat: type = "float"; break;
-                            }
-                            sw.WriteLine("<Field>");
-                            sw.WriteLine("\t<Abbreviation>" + f.name + "</Abbreviation>");
-                            sw.WriteLine("\t<Name></Name>");
-                            sw.WriteLine("\t<ControlType>TextBox</ControlType>");
-                            sw.WriteLine("\t<Type>" + type + "</Type>");
-                            sw.WriteLine("</Field>");
-                        }
-#endregion
-                    }
-
-                    sw.WriteLine("");
-                    sw.WriteLine("");
-                    sw.WriteLine("</xml>");
-                    sw.Flush();
-                    sw.Close();
-                    fs.Close();
-
-                    Cursor.Current = Cursors.Default;
-
-                }
-
-            }
-        }
-        private void loadConfigToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ChooseConfig();
-        }
-        private void filterToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            FilterForm ff = new FilterForm(lMappedFields, lMappedTables, new List<View>() { currentView }, FilterForm.CBToUse.filter, "Filters");
-            ff.ShowDialog();
-
-            MaddenTable mt = MaddenTable.FindTable(lMappedTables, ff.view.SourceName);
-            ff.view.UpdateGridData(maddenDB[mt.Abbreviation], ff.lFilters);
-        }
-        private void massToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            FilterForm ff = new FilterForm(lMappedFields, lMappedTables, new List<View>() { currentView }, FilterForm.CBToUse.mass, "Mass Operations");
-            ff.ShowDialog();
-
-            foreach (ListViewItem lvi in ((ListView)ff.view.DisplayControl).Items)
-            {
-                foreach (FieldFilter mass in ff.lFilters)
-                    mass.Process(lMappedFields, ((MaddenRecord)lvi.Tag));
-            }
-
-            MaddenTable mt = MaddenTable.FindTable(lMappedTables, ff.view.SourceName);
-            ff.view.RefreshGridData(maddenDB[mt.Abbreviation]);
-        }
-        private void headerToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            List<object> lo1 = new List<object>();
-            List<object> lo2 = new List<object>();
-
-            lo1.Add((object)"Header");
-            lo1.Add((object)"Version");
-            lo1.Add((object)"Uknown 1");
-            lo1.Add((object)"DB Size");
-            lo1.Add((object)"Zero");
-            lo1.Add((object)"Table Count");
-            lo1.Add((object)"Uknown 2");
-
-            lo2.Add((object)maddenDB.dbFileInfo.header.ToString());
-            lo2.Add((object)maddenDB.dbFileInfo.version.ToString());
-            lo2.Add((object)maddenDB.dbFileInfo.unknown_1.ToString());
-            lo2.Add((object)maddenDB.dbFileInfo.DBsize.ToString());
-            lo2.Add((object)maddenDB.dbFileInfo.zero.ToString());
-            lo2.Add((object)maddenDB.dbFileInfo.tableCount.ToString());
-            lo2.Add((object)maddenDB.dbFileInfo.unknown_2.ToString());
-
-            GenericList gl = new GenericList("", lo1, lo2);
-            gl.Show();
-        }
-        private void selectedToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (currentView == null)
-                return;
-
-            if (currentView.Type.ToLower() == "grid" || currentView.Type.ToLower() == "list item")
-            {	// make sure there is a selection
-                if (((ListView)currentView.DisplayControl).SelectedItems.Count <= 0)
-                    return;
-
-                // now let's get the table
-                MaddenTable mt = MaddenTable.FindTable(maddenDB.lTables, currentView.SourceName);
-
-                // request the field to use as a key
-                ChooseField cf = new ChooseField();
-                cf.table = mt;
-                cf.ShowDialog();
-
-                if (cf.choosen == null)
-                {
-                    MessageBox.Show("No field choosen - canceling export");
-                    return;
-                }
-
-                // now get the record selected
-                MaddenRecord mr = (MaddenRecord)((ListView)currentView.DisplayControl).SelectedItems[0].Tag;
-
-#region now open the file dialog
-                SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-
-                saveFileDialog1.Filter = "*.csv|*.csv|all|*.*";
-                saveFileDialog1.DefaultExt = ".csv";
-                saveFileDialog1.AddExtension = true;
-                saveFileDialog1.FileName = "";
-
-                if (System.Windows.Forms.DialogResult.OK != saveFileDialog1.ShowDialog())
-                    return;
-#endregion
-
-                FileStream fs = new FileStream(saveFileDialog1.FileName, FileMode.OpenOrCreate, FileAccess.Write);
-                StreamWriter sw = new StreamWriter(fs);
-
-
-                Cursor.Current = Cursors.WaitCursor;
-#region write the table name, fields, and record
-                sw.WriteLine(mt.Abbreviation + "," + cf.choosen.name);
-
-                foreach (Field f in mt.lFields)
-                    sw.Write(f.name + ",");
-                sw.WriteLine("");
-
-                foreach (Field f in mt.lFields)
-                    sw.Write(mr[f.name] + ",");
-                sw.WriteLine("");
-
-                sw.Flush();
-                sw.Close();
-                fs.Close();
-#endregion
-                Cursor.Current = Cursors.Default;
-            }
-        }
-        private void allVisibleToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (currentView == null)
-                return;
-
-            // now let's export the selection. get the table first
-            MaddenTable mt = MaddenTable.FindTable(maddenDB.lTables, currentView.SourceName);
-
-            // request the field to use as a key
-            ChooseField cf = new ChooseField();
-            cf.table = mt;
-            cf.ShowDialog();
-
-            if (cf.choosen == null)
-            {
-                MessageBox.Show("No field choosen - canceling export");
-                return;
-            }
-
-#region now open the file dialog
-            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-
-            saveFileDialog1.Filter = "*.csv|*.csv|all|*.*";
-            saveFileDialog1.DefaultExt = ".csv";
-            saveFileDialog1.AddExtension = true;
-            saveFileDialog1.FileName = "";
-
-            if (System.Windows.Forms.DialogResult.OK != saveFileDialog1.ShowDialog())
-                return;
-#endregion
-
-            FileStream fs = new FileStream(saveFileDialog1.FileName, FileMode.OpenOrCreate, FileAccess.Write);
-            StreamWriter sw = new StreamWriter(fs);
-
-            Cursor.Current = Cursors.WaitCursor;
-#region write the table name, fields, and records
-
-            sw.WriteLine(mt.Abbreviation + "," + cf.choosen.name);
-
-            foreach (Field f in mt.lFields)
-                sw.Write(f.name + ",");
-            sw.WriteLine("");
-
-            foreach (ListViewItem lvi in ((ListView)currentView.DisplayControl).Items)
-            {
-                MaddenRecord mr = (MaddenRecord)lvi.Tag;
-
-                foreach (Field f in mt.lFields)
-                    sw.Write(mr[f.name] + ",");
-                sw.WriteLine("");
-            }
-
-            sw.Flush();
-            sw.Close();
-            fs.Close();
-#endregion
-            Cursor.Current = Cursors.Default;
-        }
-        private void asNewItemsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-#region open file
-            OpenFileDialog openFileDialog1 = new OpenFileDialog();
-
-            openFileDialog1.Filter = "*.csv|*.csv|all|*.*";
-            openFileDialog1.DefaultExt = ".csv";
-            openFileDialog1.Multiselect = false;
-
-            if (System.Windows.Forms.DialogResult.OK != openFileDialog1.ShowDialog())
-                return;
-#endregion
-
-            Cursor.Current = Cursors.WaitCursor;
-
-            // should only ever have 1 file
-            for (int iFile = 0; iFile < openFileDialog1.FileNames.Length; iFile++)
-            {
-                FileStream fs = new FileStream(openFileDialog1.FileNames[iFile], FileMode.Open, FileAccess.Read);
-                StreamReader sr = new StreamReader(fs);
-
-#region read table & headers then check their validity
-                string[] header = sr.ReadLine().Split(new char[] { ',' });
-                if (header.Length < 2)
-                {
-                    MessageBox.Show("Corrupted header - should contain table name and key field");
-                    sr.Close();
-                    fs.Close();
-                    return;
-                }
-                string table = header[0];
-                string key = header[1];
-                string[] sfields = sr.ReadLine().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-                // get our table
-                MaddenTable mt = MaddenTable.FindMaddenTable(maddenDB.lTables, table);
-                if (mt == null)
-                {
-                    MessageBox.Show("The table this data is for cannot be found in this database");
-                    sr.Close();
-                    fs.Close();
-                    return;
-                }
-
-                // make sure our table matches our view
-                if (currentView.SourceName != mt.Name && currentView.SourceName != mt.Abbreviation)
-                {
-                    MessageBox.Show("The selected file contains data for a different table. This table: " + currentView.SourceName + " The file's: " + mt.Abbreviation);
-                    sr.Close();
-                    fs.Close();
-                    return;
-                }
-
-                // make sure key exists
-                Field keyf = Field.FindField(mt.lFields, key);
-                if (keyf == null)
-                {
-                    MessageBox.Show("The key provided (" + key + ") does not exists in the " + mt.ToString() + " table");
-                    sr.Close();
-                    fs.Close();
-                    return;
-                }
-
-                // check the import file only uses headers in our table
-                for (int i = 0; i < sfields.Length; i++)
-                {
-                    if (mt.lFields.Find((a) => a.name == sfields[i]) == null)
-                    {
-                        MessageBox.Show("Table " + mt + " does not have a field named " + sfields[i] + " as listed in " + openFileDialog1.FileNames[iFile]);
-                        sr.Close();
-                        fs.Close();
-                        return;
-                    }
-                }
-#endregion
-
-                while (!sr.EndOfStream)
-                {
-#region read our data
-                    string[] data = sr.ReadLine().Split(new char[] { ',' });
-
-                    if (data.Length < sfields.Length)
-                    {
-                        MessageBox.Show(openFileDialog1.FileNames[iFile] + " does not have as many data entries as field entries listed");
-                        sr.Close();
-                        fs.Close();
-                        return;
-                    }
-#endregion
-#region create a new record to hold the data
-                    MaddenRecord mr = new MaddenRecord(mt, mt.lFields);
-                    for (int i = 0; i < sfields.Length; i++)
-                    {
-                        mr[sfields[i]] = data[i];
-                    }
-#endregion
-#region now see if this record already exists
-                    MaddenRecord exists = mt.lRecords.Find((a) => a[key] == mr[key]);
-                    if (exists != null)
-                    {
-                        if (keyf.type != (ulong)Field.FieldType.tdbUInt && keyf.type != (ulong)Field.FieldType.tdbSInt)
-                        {
-                            MessageBox.Show("A record exists with the same data in field " + key + " which is not an integer type, therefore aborting the import");
-                            sr.Close();
-                            fs.Close();
-                            return;
-                        }
-
-                        // now find the first number that isn't taken
-                        List<int> ints = new List<int>();
-                        foreach (MaddenRecord r in mt.lRecords)
-                            ints.Add(Convert.ToInt32(r[key]));
-                        ints.Sort();
-
-                        int index = 0;
-                        for (index = 0; index < mt.Table.maxrecords; index++)
-                        {
-                            if (index != ints[index])
-                                break;
-                        }
-
-                        if (index >= mt.Table.maxrecords)
-                        {
-                            MessageBox.Show("The table " + mt.ToString() + " is full @ " + mt.Table.maxrecords.ToString() + " and therefore we cannot import a new entry; aborting");
-                            sr.Close();
-                            fs.Close();
-                            return;
-                        }
-
-                        // set the value to an unused value for the key field
-                        mr[key] = index.ToString();
-                    }
-#endregion
-#region fell through, so we're adding the record
-                    if (!mt.InsertRecord(mr))
-                    {
-                        MessageBox.Show("Table is full; cannot create a new record", "Error");
-                        Cursor.Current = Cursors.Default;
-                        return;
-                    }
-#endregion
-                }
-
-                PostProcessMaps();
-                currentView.RefreshGridData(mt);
-
-                sr.Close();
-                fs.Close();
-
-            }
-
-            Cursor.Current = Cursors.Default;
-        }
-        private void overwriteExistingToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-#region open file
-            OpenFileDialog openFileDialog1 = new OpenFileDialog();
-
-            openFileDialog1.Filter = "*.csv|*.csv|all|*.*";
-            openFileDialog1.DefaultExt = ".csv";
-            openFileDialog1.Multiselect = false;
-
-            if (System.Windows.Forms.DialogResult.OK != openFileDialog1.ShowDialog())
-                return;
-#endregion
-
-            Cursor.Current = Cursors.WaitCursor;
-
-            // should only ever have 1 file
-            for (int iFile = 0; iFile < openFileDialog1.FileNames.Length; iFile++)
-            {
-                FileStream fs = new FileStream(openFileDialog1.FileNames[iFile], FileMode.Open, FileAccess.Read);
-                StreamReader sr = new StreamReader(fs);
-
-#region read table & headers then check their validity
-                string[] header = sr.ReadLine().Split(new char[] { ',' });
-                if (header.Length < 2)
-                {
-                    MessageBox.Show("Corrupted header - should contain table name and key field");
-                    sr.Close();
-                    fs.Close();
-                    return;
-                }
-                string table = header[0];
-                string key = header[1];
-                string[] sfields = sr.ReadLine().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-                // get our table
-                MaddenTable mt = MaddenTable.FindMaddenTable(maddenDB.lTables, table);
-                if (mt == null)
-                {
-                    MessageBox.Show("The table this data is for cannot be found in this database");
-                    sr.Close();
-                    fs.Close();
-                    return;
-                }
-
-                // make sure our table matches our view
-                if (currentView.SourceName != mt.Name && currentView.SourceName != mt.Abbreviation)
-                {
-                    MessageBox.Show("The selected file contains data for a different table. This table: " + currentView.SourceName + " The file's: " + mt.Abbreviation);
-                    sr.Close();
-                    fs.Close();
-                    return;
-                }
-
-                // make sure key exists
-                Field keyf = Field.FindField(mt.lFields, key);
-                if (keyf == null)
-                {
-                    MessageBox.Show("The key provided (" + key + ") does not exists in the " + mt.ToString() + " table");
-                    sr.Close();
-                    fs.Close();
-                    return;
-                }
-
-                // check the import file only uses headers in our table
-                for (int i = 0; i < sfields.Length; i++)
-                {
-                    if (mt.lFields.Find((a) => a.name == sfields[i]) == null)
-                    {
-                        MessageBox.Show("Table " + mt + " does not have a field named " + sfields[i] + " as listed in " + openFileDialog1.FileNames[iFile]);
-                        sr.Close();
-                        fs.Close();
-                        return;
-                    }
-                }
-#endregion
-
-                int count = 1;
-                while (!sr.EndOfStream)
-                {
-#region read our data
-                    string[] data = sr.ReadLine().Split(new char[] { ',' });
-
-                    if (data.Length < sfields.Length)
-                    {
-                        MessageBox.Show(openFileDialog1.FileNames[iFile] + " does not have as many data entries as field entries listed");
-                        sr.Close();
-                        fs.Close();
-                        return;
-                    }
-#endregion
-#region create a new record to hold the data
-                    MaddenRecord mr = new MaddenRecord(mt, mt.lFields);
-                    for (int i = 0; i < sfields.Length; i++)
-                    {
-                        mr[sfields[i]] = data[i];
-                    }
-#endregion
-#region now copy over the existing record ( only the fields provided )
-                    MaddenRecord exists = mt.lRecords.Find((a) => a[key] == mr[key]);
-                    if (exists == null)
-                    {
-                        MessageBox.Show("Record # " + count + " was not found; skipping");
-                        continue;
-                    }
-
-                    for (int i = 0; i < sfields.Length; i++)
-                    {
-                        exists[sfields[i]] = mr[sfields[i]];
-                    }
-
-                    count++;
-#endregion
-                }
-
-                PostProcessMaps();
-                currentView.RefreshGridData(mt);
-
-                sr.Close();
-                fs.Close();
-
-            }
-
-            Cursor.Current = Cursors.Default;
-        }
-        private void overwriteSelectedminusKeyToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (currentView == null)
-                return;
-
-            if (currentView.Type.ToLower() != "grid" && currentView.Type.ToLower() != "list item")
-                return;
-
-            if (((ListView)currentView.DisplayControl).SelectedItems.Count <= 0)
-                return;
-
-#region open file
-            OpenFileDialog openFileDialog1 = new OpenFileDialog();
-
-            openFileDialog1.Filter = "*.csv|*.csv|all|*.*";
-            openFileDialog1.DefaultExt = ".csv";
-            openFileDialog1.Multiselect = false;
-
-            if (System.Windows.Forms.DialogResult.OK != openFileDialog1.ShowDialog())
-                return;
-#endregion
-
-            Cursor.Current = Cursors.WaitCursor;
-
-            // should only ever have 1 file
-            for (int iFile = 0; iFile < openFileDialog1.FileNames.Length; iFile++)
-            {
-                FileStream fs = new FileStream(openFileDialog1.FileNames[iFile], FileMode.Open, FileAccess.Read);
-                StreamReader sr = new StreamReader(fs);
-
-#region read table & headers then check their validity
-                string[] header = sr.ReadLine().Split(new char[] { ',' });
-                if (header.Length < 2)
-                {
-                    MessageBox.Show("Corrupted header - should contain table name and key field");
-                    sr.Close();
-                    fs.Close();
-                    return;
-                }
-                string table = header[0];
-                string key = header[1];
-                string[] sfields = sr.ReadLine().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-                // get our table
-                MaddenTable mt = MaddenTable.FindMaddenTable(maddenDB.lTables, table);
-                if (mt == null)
-                {
-                    MessageBox.Show("The table this data is for cannot be found in this database");
-                    sr.Close();
-                    fs.Close();
-                    return;
-                }
-
-                // make sure our table matches our view
-                if (currentView.SourceName != mt.Name && currentView.SourceName != mt.Abbreviation)
-                {
-                    MessageBox.Show("The selected file contains data for a different table. This table: " + currentView.SourceName + " The file's: " + mt.Abbreviation);
-                    sr.Close();
-                    fs.Close();
-                    return;
-                }
-
-                // make sure key exists
-                Field keyf = Field.FindField(mt.lFields, key);
-                if (keyf == null)
-                {
-                    MessageBox.Show("The key provided (" + key + ") does not exists in the " + mt.ToString() + " table");
-                    sr.Close();
-                    fs.Close();
-                    return;
-                }
-
-                // check the import file only uses headers in our table
-                for (int i = 0; i < sfields.Length; i++)
-                {
-                    if (mt.lFields.Find((a) => a.name == sfields[i]) == null)
-                    {
-                        MessageBox.Show("Table " + mt + " does not have a field named " + sfields[i] + " as listed in " + openFileDialog1.FileNames[iFile]);
-                        sr.Close();
-                        fs.Close();
-                        return;
-                    }
-                }
-#endregion
-#region read our data
-                string[] data = sr.ReadLine().Split(new char[] { ',' });
-
-                if (data.Length < sfields.Length)
-                {
-                    MessageBox.Show(openFileDialog1.FileNames[iFile] + " does not have as many data entries as field entries listed");
-                    sr.Close();
-                    fs.Close();
-                    return;
-                }
-#endregion
-#region create a new record to hold the data
-                MaddenRecord mr = new MaddenRecord(mt, mt.lFields);
-                for (int i = 0; i < sfields.Length; i++)
-                {
-                    mr[sfields[i]] = data[i];
-                }
-#endregion
-#region now copy over the existing record ( only the fields provided, minus the key )
-                MaddenRecord selected = (MaddenRecord)((ListView)currentView.DisplayControl).SelectedItems[0].Tag;
-
-                for (int i = 0; i < sfields.Length; i++)
-                {
-                    if (sfields[i] != key)
-                        selected[sfields[i]] = mr[sfields[i]];
-                }
-#endregion
-
-                PostProcessMaps();
-                currentView.RefreshGridData(mt);
-
-                sr.Close();
-                fs.Close();
-            }
-
-            Cursor.Current = Cursors.Default;
-        }
-        private void recalcMapsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Cursor.Current = Cursors.WaitCursor;
-            PostProcessMaps();
-            MaddenTable mt = MaddenTable.FindTable(lMappedTables, currentView.SourceName);
-            currentView.RefreshGridData(maddenDB[mt.Abbreviation]);
-            Cursor.Current = Cursors.Default;
-        }
-        private void skipChecksumRecalcExNCAAOnOffToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            //mc02Recalc	= ! mc02Recalc;
-            //if( mc02Recalc )
-            //skipChecksumRecalcExNCAAOnOffToolStripMenuItem.Text	= "MC02 Recalc: ON";
-            //else
-            //skipChecksumRecalcExNCAAOnOffToolStripMenuItem.Text	= "MC02 Recalc: OFF";
-        }
-        private void copyConfigToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-#region open src file
-            OpenFileDialog openFileDialog1 = new OpenFileDialog();
-
-            openFileDialog1.Filter = "*.xml|*.xml|all|*.*";
-            openFileDialog1.DefaultExt = ".xml";
-            openFileDialog1.Title = "Select source config...";
-            openFileDialog1.Multiselect = false;
-
-            if (System.Windows.Forms.DialogResult.OK != openFileDialog1.ShowDialog())
-                return;
-#endregion
-#region open dst file
-            OpenFileDialog openFileDialog2 = new OpenFileDialog();
-
-            openFileDialog2.Filter = "*.xml|*.xml|all|*.*";
-            openFileDialog2.DefaultExt = ".xml";
-            openFileDialog2.Title = "Select destination config...";
-            openFileDialog2.Multiselect = false;
-
-            if (System.Windows.Forms.DialogResult.OK != openFileDialog2.ShowDialog())
-                return;
-#endregion
-
-            List<XMLConfig> srcViews = new List<XMLConfig>();
-            List<XMLConfig> srcTables = new List<XMLConfig>();
-            List<XMLConfig> srcFields = new List<XMLConfig>();
-            List<XMLConfig> dstViews = new List<XMLConfig>();
-            List<XMLConfig> dstTables = new List<XMLConfig>();
-            List<XMLConfig> dstFields = new List<XMLConfig>();
-
-            Cursor.Current = Cursors.WaitCursor;
-
-            XMLConfig.ReadXMLConfig(openFileDialog1.FileName, srcViews, srcTables, srcFields);
-            XMLConfig.ReadXMLConfig(openFileDialog2.FileName, dstViews, dstTables, dstFields);
-
-            ConfigCopySelection ccs = new ConfigCopySelection();
-            ccs.lMappedFieldsDst = dstFields;
-            ccs.lMappedFieldsSrc = srcFields;
-            ccs.lMappedTablesDst = dstTables;
-            ccs.lMappedTablesSrc = srcTables;
-
-            ccs.ShowDialog();
-            if (ccs.bCanceled)
-                return;
-
-            //XMLConfig.CopyMappedValues( srcTables, dstTables );
-            //XMLConfig.CopyMappedValues( srcFields, dstFields );
-
-            //dstViews.Sort( (a,b) => a.Name.CompareTo( b.Name ) );
-            ccs.lMappedTablesRes.Sort((a, b) => a.Abbreviation.CompareTo(b.Abbreviation));
-            ccs.lMappedFieldsRes.Sort((a, b) => a.Abbreviation.CompareTo(b.Abbreviation));
-            XMLConfig.UseFriendlyNames(dstViews, ccs.lMappedTablesRes, ccs.lMappedFieldsRes);
-
-            FileStream fs = new FileStream(openFileDialog2.FileName, FileMode.Truncate, FileAccess.Write);
-            StreamWriter sw = new StreamWriter(fs);
-
-            sw.Write(XMLConfig.WriteXMLConfig(dstViews, ccs.lMappedTablesRes, ccs.lMappedFieldsRes));
-            sw.Flush();
-            sw.Close();
-            fs.Close();
-
-            Cursor.Current = Cursors.Default;
-        }
-        private void refreshViewToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Cursor.Current = Cursors.WaitCursor;
-            MaddenTable mt = MaddenTable.FindTable(lMappedTables, currentView.SourceName);
-            currentView.RefreshGridData(maddenDB[mt.Abbreviation]);
-            Cursor.Current = Cursors.Default;
-        }
-
         private void FillDB(bool isPreseason)
         {
             // make sure we have a filled DB            
@@ -1445,7 +623,7 @@ namespace EA_DB_Editor
             // clear our the reports directory first
             foreach (System.IO.FileInfo file in new DirectoryInfo(@".\archive\reports").GetFiles()) file.Delete();
 
-            if (chkbxPolls.Checked == true) { PocketScout.Polls(maddenDB); }
+            if (chkbxPolls.Checked == true) { PocketScout.Polls(); }
             progressBar1.Value = 1;
             if (chkbxRecruiting.Checked == true)
             {
@@ -1801,7 +979,7 @@ namespace EA_DB_Editor
             // need to create all the team stuff to get a schedule, then predict CCG/Bowls and then redo team stuff
             Team.CreateMainPage(this.DataEngine, true);
 
-            PredictionEngine.Create(maddenDB);
+            PredictionEngine.Create();
             Team.CreateMainPage(this.DataEngine, true);
             Conference.Create(this.DataEngine);
             // roster and freshman won't change from the start and end of the season so just emit them now
@@ -1812,9 +990,9 @@ namespace EA_DB_Editor
             PocketScout.PreseasonPage();
             TeamArticles.Create();
             Team.ToJsonFile(true);
-            CoachArticles.CreateCoachingChangePage(maddenDB);
-            TopUnits.Create(maddenDB);
-            PocketScout.CreateStandingsPage(maddenDB);
+            CoachArticles.CreateCoachingChangePage(this.DataEngine);
+            TopUnits.Create();
+            PocketScout.CreateStandingsPage();
             Conference.ToJsonFile();
             ScheduledGame.CreateTopGames(this.DataEngine, true);
             ScheduledGame.CreateOpeningWeek(this.DataEngine, true);
