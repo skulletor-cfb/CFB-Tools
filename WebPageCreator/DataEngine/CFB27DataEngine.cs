@@ -1,17 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EA_DB_Editor.DataEngine.Models;
+using Newtonsoft;
+using Newtonsoft.Json;
 
 namespace EA_DB_Editor
 {
+    public static class JsonHelpers
+    {
+        public static CFB27Payload<T> ReadJson<T>(this string file)
+        {
+            return JsonConvert.DeserializeObject<CFB27Payload<T>>(File.ReadAllText(file));
+        }
+
+        public static string WriteJson(this object payload)
+        {
+            return JsonConvert.SerializeObject(payload, Formatting.Indented);
+        }
+    }
     public class CFB27DataEngine : IDataEngine
     {
-        public Dictionary<int, string> TeamNames => throw new NotImplementedException();
+        private readonly string directory;
+        private const string TeamFile = "2212_Team.json";
+        private CFB27Payload<CFB27Team> teams;
+
+        public Dictionary<int, string> TeamNames => this.teams.Records.Where(t => t.TeamIndex != 255).ToDictionary(t => t.TeamIndex, t => t.DisplayName);
 
         public CFB27DataEngine(string directory)
         {
+            this.directory = Path.Combine(directory, "JSON");
+            this.teams = Path.Combine(this.directory, TeamFile).ReadJson<CFB27Team>();
         }
 
         public Dictionary<string, Bowl> CreateBowlTable()
