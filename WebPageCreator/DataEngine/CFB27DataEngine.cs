@@ -12,7 +12,7 @@ namespace EA_DB_Editor
 {
     public static class JsonHelpers
     {
-        public static CFB27Payload<T> ReadJson<T>(this string file)
+        public static CFB27Payload<T> ReadJson<T>(this string file) where T : CFB27Record
         {
             return JsonConvert.DeserializeObject<CFB27Payload<T>>(File.ReadAllText(file));
         }
@@ -22,13 +22,14 @@ namespace EA_DB_Editor
             return JsonConvert.SerializeObject(payload, Formatting.Indented);
         }
     }
+
     public class CFB27DataEngine : IDataEngine
     {
         private readonly string directory;
         private const string TeamFile = "2212_Team.json";
         private CFB27Payload<CFB27Team> teams;
 
-        public Dictionary<int, string> TeamNames => this.teams.Records.Where(t => t.TeamIndex != 255).ToDictionary(t => t.TeamIndex, t => t.DisplayName);
+        public Dictionary<int, string> TeamNames => this.teams.Records.ToDictionary(t => t.Row, t => t.DisplayName);
 
         public CFB27DataEngine(string directory)
         {
@@ -158,6 +159,7 @@ namespace EA_DB_Editor
 
         public Dictionary<int, MediaCoverage[]> ReadMediaCoverage()
         {
+            const string storiesFile = "0185_Story.json";
             throw new NotImplementedException();
         }
 

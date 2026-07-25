@@ -25,5 +25,11 @@ namespace CFB27Tester
             var reverse = engine.TeamNames.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
             Assert.IsNotNull(reverse.WriteJson());
         }
+
+        [TestMethod]
+        public void VerifyMap()
+        {
+            Assert.AreEqual(CFB27Team.TeamIdToOldIdMap.Count, 143);
+        }
     }
 }
