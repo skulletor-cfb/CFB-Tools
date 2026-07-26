@@ -10,6 +10,7 @@ namespace DataBaker
     {
         public const string SeasonsKey = "seasonsFile";
         public static readonly string appPath = @"D:\NCAA_2014\Archive";
+        public static readonly string BakedPath = Path.Combine(appPath, "baked");
         private static Seasons seasons = null;
 
         public static Seasons Seasons
@@ -66,6 +67,12 @@ namespace DataBaker
             var data = s.ReadFromFile(file);
             s.Parse(key, data);
             return true;
+        }
+
+        public static bool ReadTeamScheduleFile(this Season s)
+        {
+            const string teamScheduleFile = "tsch.csv";
+            return s.ReadFromFile(teamScheduleFile, Season.scheduleKey);            
         }
 
         public static string ReadFromFile(this Season s, string file)
