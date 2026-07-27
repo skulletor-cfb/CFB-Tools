@@ -83,7 +83,7 @@ namespace DataBaker
             // get the view of all teams played
             OverallTeamH2H().Bake("teamh2h");
             OverallTeamH2H(true).Bake("teamh2h.sorted");
-            TeamH2HDrilldown().Bake("teamh2h.filter");
+            TeamH2HDrilldown(); 
         }
 
         /// <summary>
@@ -103,22 +103,18 @@ namespace DataBaker
         }
 
         #region H2H views
-        public static Dictionary<int, Dictionary<int, TableDescriptor>> TeamH2HDrilldown()
+        public static void TeamH2HDrilldown()
         {
-            var result = new Dictionary<int, Dictionary<int, TableDescriptor>>();
             foreach (var teamId in Team.TeamIds)
             {
-                var inner = new Dictionary<int, TableDescriptor>();
-                foreach (var opp in Team.TeamIds)
+                Parallel.ForEach(Team.TeamIds, opp =>
                 {
-                    if (teamId == opp) continue;
+                    var inner = new Dictionary<int, TableDescriptor>();
+                    if (teamId == opp) return;
                     inner[opp] = GetTeamH2H(teamId, filter: opp);
-                }
-
-                result[teamId] = inner;
+                    inner.Bake($"teamh2h.{teamId}");
+                });
             }
-
-            return result;
         }
 
         public static Dictionary<int, TableDescriptor> OverallTeamH2H(bool sort=false)
