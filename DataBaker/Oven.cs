@@ -108,14 +108,14 @@ namespace DataBaker
             var result = new Dictionary<int, Dictionary<int, TableDescriptor>>();
             foreach (var teamId in Team.TeamIds)
             {
-                var inner = new Dictionary<int, TableDescriptor>();
-                foreach (var opp in Team.TeamIds)
+                var inner = new ConcurrentDictionary<int, TableDescriptor>();
+                Parallel.ForEach(Team.TeamIds, opp =>
                 {
-                    if (teamId == opp) continue;
+                    if (teamId == opp) return;
                     inner[opp] = GetTeamH2H(teamId, filter: opp);
-                }
+                });
 
-                result[teamId] = inner;
+                result[teamId] = inner.ToDictionary();
             }
 
             return result;
