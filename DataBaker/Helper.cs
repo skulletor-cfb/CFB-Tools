@@ -69,11 +69,42 @@ namespace DataBaker
             return true;
         }
 
+        public static bool ReadAwardsFile(this Season s)
+        {
+            const string file = "awards.csv";
+            return s.ReadFromFile(file, Season.AwardsKey);
+        }
+
+        public static bool ReadAllAmericanFile(this Season s)
+        {
+            const string file = "aaac.csv";
+            return s.ReadFromFile(file, Season.AllAmericanKey);
+        }
+
+        public static bool ReadTeamFile(this Season s)
+        {
+            const string teamFile = "team";
+            return s.ReadFromFile(teamFile, Season.TeamKey);
+        }
+
         public static bool ReadTeamScheduleFile(this Season s)
         {
             const string teamScheduleFile = "tsch.csv";
             return s.ReadFromFile(teamScheduleFile, Season.scheduleKey);            
         }
+
+        public static bool ReadBowlChampFile(this Season s)
+        {
+            const string file = "bowlchamps.csv";
+            return s.ReadFromFile(file, Season.BowlChampKey);
+        }
+
+        public static bool ReadConferenceChampFile(this Season s)
+        {
+            const string file = "cc.csv";
+            return s.ReadFromFile(file, Season.ConfChampKey);
+        }
+
 
         public static string ReadFromFile(this Season s, string file)
         {

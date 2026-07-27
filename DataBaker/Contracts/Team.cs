@@ -504,5 +504,21 @@ namespace DataBaker.Contracts
         };
 
         public static readonly int[] TeamIds = TeamIdToOldIdMap.Select(kvp => kvp.Value).Where(v => v < 160 || v > 164).ToArray();
+
+        public static readonly Dictionary<int, string> PendingTeamNames = new Dictionary<int, string>
+        {
+            [906] = "Delaware",
+            [907] = "Jacksonville State",
+            [908] = "Kennesaw State",
+            [909] = "Liberty",
+            [910] = "Missouri State",
+            [911] = "North Dakota State",
+            [912] = "Sacramento State",
+            [913] = "Sam Houston State",
+            [181] = "UMass",
+            [230] = "FIU",
+            [61] = "New Mexico State",
+            [100] = "Connecticut",
+        };
     }
 }

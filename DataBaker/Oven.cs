@@ -1,6 +1,7 @@
 ﻿using DataBaker.Contracts;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
@@ -32,9 +33,11 @@ namespace DataBaker
     {
         private const string HtmlDir = "HTML/";
         private static Season[] seasons;
+        private static ILogger logger;
 
-        public static void Bake(ILogger logger)
+        public static void Bake(ILogger loggerInstance)
         {
+            logger = loggerInstance;
             if (!Directory.Exists(Helper.BakedPath))
             {
                 Directory.CreateDirectory(Helper.BakedPath);
@@ -50,9 +53,9 @@ namespace DataBaker
                 s =>
                 {
                     s.Loaded = s.ReadTeamScheduleFile() &&
-                    s.ReadFromFile("aaac.csv", Season.AllAmericanKey) &&
-                    s.ReadFromFile("awards.csv", Season.AwardsKey) &&
-                    s.ReadFromFile("team", Season.TeamKey);
+                    s.ReadAllAmericanFile() &&
+                    s.ReadAwardsFile() &&
+                    s.ReadTeamFile();
                     logger.WriteLine(s.Year);
                 });
 
@@ -73,6 +76,14 @@ namespace DataBaker
 
             // bake team history
             TeamHistory().Bake("teamhistory");
+
+            // bake team greats history
+            TeamGreats().Bake("teamgreats");
+
+            // get the view of all teams played
+            OverallTeamH2H().Bake("teamh2h");
+            OverallTeamH2H(true).Bake("teamh2h.sorted");
+            TeamH2HDrilldown().Bake("teamh2h.filter");
         }
 
         /// <summary>
@@ -91,6 +102,305 @@ namespace DataBaker
             }
         }
 
+        #region H2H views
+        public static Dictionary<int, Dictionary<int, TableDescriptor>> TeamH2HDrilldown()
+        {
+            var result = new Dictionary<int, Dictionary<int, TableDescriptor>>();
+            foreach (var teamId in Team.TeamIds)
+            {
+                var inner = new Dictionary<int, TableDescriptor>();
+                foreach (var opp in Team.TeamIds)
+                {
+                    if (teamId == opp) continue;
+                    inner[opp] = GetTeamH2H(teamId, filter: opp);
+                }
+
+                result[teamId] = inner;
+            }
+
+            return result;
+        }
+
+        public static Dictionary<int, TableDescriptor> OverallTeamH2H(bool sort=false)
+        {
+            var result = new Dictionary<int, TableDescriptor>();
+            foreach (var teamId in Team.TeamIds)
+            {
+                result[teamId] = GetTeamH2H(teamId, sortByRecent:sort);
+            }
+
+            return result;
+        }
+
+        private static TableDescriptor GetTeamH2H(int teamId, int filter=0, bool sortByRecent=false)
+        {
+            var td = new TableDescriptor();
+            var oppDict = new Dictionary<int, List<IPlayedGame>>();
+            Season latest = null;
+            HashSet<int> opponentsPlayed = new HashSet<int>();
+
+            foreach (var s in seasons)
+            {
+                s.ReadTeamScheduleFile();
+                s.ReadTeamFile();
+
+                if (!s.Schedule.ContainsKey(teamId))
+                    continue;
+
+                // add all opponents in that season
+                foreach (var opp in s.Schedule[teamId])
+                {
+                    // exclude fcs teams
+                    if (IsFcsTeam(opp.OppId))
+                    {
+                        continue;
+                    }
+
+                    // we specified a team, so only care about that one team
+                    if (filter != 0 && opp.OppId != filter)
+                        continue;
+
+                    List<IPlayedGame> games = null;
+
+                    if (!oppDict.TryGetValue(opp.OppId, out games))
+                    {
+                        games = new List<IPlayedGame>();
+                        oppDict.Add(opp.OppId, games);
+                    }
+
+                    games.Add(opp);
+                }
+
+                latest = s;
+            }
+
+            foreach (var bs in PastPlayoffHistory.GetBowlsForTeam(teamId))
+            {
+                var opponent = bs.GetOpponentId(teamId);
+
+                // we specified a team, so only care about that one team
+                if (filter != 0 && opponent != filter)
+                    continue;
+
+                List<IPlayedGame> games = null;
+
+                if (!oppDict.TryGetValue(opponent, out games))
+                {
+                    games = new List<IPlayedGame>();
+                    oppDict.Add(opponent, games);
+                }
+
+                games.Add(bs);
+            }
+
+
+            if (filter == 0)
+            {
+                var teamDict = seasons.First().Teams;
+
+                // add teams we haven't played
+                foreach (var team in teamDict.Values.Where(t => t.Id != teamId && oppDict.ContainsKey(t.Id) == false))
+                {
+                    oppDict[team.Id] = new List<IPlayedGame>();
+                }
+
+                // we have all games played, now we need to generate a table for them
+                var list = oppDict.Select(o =>
+                   new
+                   {
+                       Id = o.Key,
+                       Win = o.Value.Where(g => g.IsWinningTeam(teamId)).Count(),
+                       Loss = o.Value.Where(g => !g.IsWinningTeam(teamId)).Count(),
+                       LastMeeting = o.Value.Count == 0 ? -1 : o.Value.OrderBy(g => g.Year).Last().Year,
+                       Name = GetTeamName(o.Key)
+                   });
+
+                if (sortByRecent)
+                {
+                    list = list.OrderByDescending(e => e.LastMeeting)
+                    .ThenBy(e => e.Name);
+                }
+                else
+                {
+                    list = list.OrderByDescending(e => e.Win + e.Loss)
+                    .ThenBy(e => e.Name);
+                }
+
+                foreach (var r in list)
+                {
+                    string lastMeeting = string.Empty;
+                    Season season;
+
+                    if (RuntimeCache.SeasonsDict.TryGetValue(r.LastMeeting, out season))
+                    {
+                        lastMeeting = CreateYearHref(season);
+                    }
+                    else if (r.LastMeeting != -1)
+                    {
+                        lastMeeting = r.LastMeeting.ToString();
+                    }
+
+
+                    td.Rows.Add(new TableRow(
+                        CreateTeamHrefForRecentMeetings(latest, teamId, 35),
+                        r.Win + "-" + r.Loss,
+                        CreateTeamHrefForRecentMeetings(latest, r.Id, 35),
+                        CreateH2HLink(latest, r.Id, r.Name),
+                        lastMeeting,
+                        CreateRecentMeetingsLink(latest, teamId, r.Id)
+                        ));
+                }
+            }
+            else
+            {
+                var teamBigWin = 0;
+                var oppBigWin = 0;
+                IPlayedGame teamWin = null;
+                IPlayedGame oppWin = null;
+
+                if (!oppDict.TryGetValue(filter, out var gameResults))
+                {
+                    gameResults= new List<IPlayedGame>();
+                }
+
+                foreach (var game in gameResults)
+                {
+                    var diff = ScoreDiff(game.Score);
+                    if (game.IsWinningTeam(teamId) && diff > teamBigWin)
+                    {
+                        teamWin = game;
+                        teamBigWin = diff;
+                    }
+                    else if (diff < oppBigWin)
+                    {
+                        oppWin = game;
+                        oppBigWin = diff;
+                    }
+                }
+
+                var games = gameResults.OrderByDescending(g => g.Year).ThenByDescending(g => g.Week)
+                    .Select(g => CreateTableRow(teamId, RuntimeCache.SeasonsDict.GetDictionaryValue(g.Year), g, alwaysMakeBold: false));
+
+                var filterName = seasons.Last().Teams.TryGetValue(filter, out var opponentTeam) ? opponentTeam.Name : Team.PendingTeamNames[filter];
+                var teamName = seasons.Last().Teams.TryGetValue(teamId, out var teamInstance) ? teamInstance.Name : Team.PendingTeamNames[teamId];
+                td.Description = CreateSeriesHeader(gameResults.Count(g => g.IsWinningTeam(teamId)), gameResults.Count(g => g.IsWinningTeam(teamId) == false), teamName, filterName);
+
+                if (teamWin != null)
+                    td.Rows.Add(CreateTableRow(teamId, RuntimeCache.SeasonsDict.GetDictionaryValue(teamWin.Year), teamWin, alwaysMakeBold: true));
+                else
+                    td.Rows.Add(null);
+
+                if (oppWin != null)
+                    td.Rows.Add(CreateTableRow(filter, RuntimeCache.SeasonsDict.GetDictionaryValue(oppWin.Year), oppWin, alwaysMakeBold: false));
+                else
+                    td.Rows.Add(null);
+
+                td.Rows.AddRange(games);
+            }
+
+            return td;
+        }
+
+        private static string CreateSeriesHeader(int win, int loss, string by, string against)
+        {
+            if (win == loss)
+            {
+                return string.Format("Series is tied {0}-{1}", win, loss);
+            }
+            else if (win > loss)
+            {
+                return string.Format("{0} leads the series {1}-{2}", by, win, loss);
+            }
+            else
+            {
+                return string.Format("{0} leads the series {1}-{2}", against, loss, win);
+            }
+        }
+
+
+        private static string GetTeamName(int id)
+        {
+            return GetNameForTeamFromSeason(seasons, id);
+        }
+
+        private static bool IsFcsTeam(int id)
+        {
+            return id >= 160 && id <= 164;
+        }
+
+        private static string GetNameForTeamFromSeason(Season[] seasons, int teamId)
+        {
+            if (seasons.First().Teams.ContainsKey(teamId))
+                return seasons.First().Teams[teamId].Name;
+
+            if (seasons.Last().Teams.ContainsKey(teamId))
+                return seasons.Last().Teams[teamId].Name;
+
+            // return FCSTEAMS[teamId];
+            return "FCS";
+        }
+
+        private static int ScoreDiff(string score)
+        {
+            var split = score.Split('-');
+            var a = Convert.ToInt32(split[0]);
+            var b = Convert.ToInt32(split[1]);
+            return a - b;
+        }
+
+        private static TableRow CreateTableRow(int teamId, Season s, IPlayedGame game, int year = 0, bool alwaysMakeBold = true)
+        {
+            var playedGame = game as PlayedGame;
+
+            if (playedGame == null)
+            {
+                var bs = game as BowlSummary;
+                var myTeam = bs[teamId].Name;
+                var otherTeam = bs.GetOpponent(teamId).Name;
+                int otherTeamId = bs.GetOpponentId(teamId);
+                if (bs.IsWinningTeam(teamId))
+                {
+                    myTeam = myTeam.MakeWinningTeamBold();
+                }
+                else
+                {
+                    otherTeam = otherTeam.MakeWinningTeamBold();
+                }
+
+
+                return new TableRow(
+                    myTeam,
+                   CreateTeamHrefForRecentMeetings(null, teamId, 35),
+                   bs.GetTeamScore(teamId),
+                    CreateTeamHrefForRecentMeetings(null, otherTeamId, 35),
+                    otherTeam,
+                    bs.Name,
+                    bs.Year.ToString());
+            }
+            else
+            {
+                return CreateTableRow(s, playedGame, year, alwaysMakeBold);
+            }
+        }
+
+        private static TableRow CreateTableRow(Season s, PlayedGame game, int year = 0, bool alwaysMakeBold = true)
+        {
+            var b1 = alwaysMakeBold || game.WonGame;
+            var b2 = !b1;
+
+            return new TableRow(
+                    year,
+                    CreateTeamHrefForRecentMeetings(s, game.TeamId, game.Team, b1),
+                    CreateTeamHrefForRecentMeetings(s, game.TeamId, 35),
+                    CreateBoxScoreHref(s, game),
+                    CreateTeamHrefForRecentMeetings(s, game.OppId, 35),
+                    CreateTeamHrefForRecentMeetings(s, game.OppId, game.Opponent, b2),
+                    game.BowlId.HasValue ? CreateBowlHistoryHref(s, game) : game.Location,
+                    CreateYearHref(s));
+        }
+
+        #endregion
+        #region Team views
         private static Dictionary<int, TableSet> TeamHistory()
         {
             var result = new Dictionary<int, TableSet>();
@@ -103,7 +413,7 @@ namespace DataBaker
 
                 foreach (var s in seasons)
                 {
-                    s.ReadFromFile("team", Season.TeamKey);
+                    s.ReadTeamFile();
 
                     Team team = null;
 
@@ -189,6 +499,51 @@ namespace DataBaker
             return result;
         }
 
+        private static Dictionary<int, TableSet> TeamGreats()
+        {
+            var result = new ConcurrentDictionary<int, TableSet>();
+
+            void CalculateGreats(int teamId)
+            {
+                const int top = 15;
+                var set = new TableSet();
+                TeamStats stats = null;
+                var sw = Stopwatch.StartNew();
+
+                try
+                {
+                    foreach (var s in seasons)
+                    {
+                        stats = s.ProcessTeamStat(teamId);
+                    }
+
+                    if (stats != null)
+                    {
+                        set.AllTimeGreats = new[]
+                        {
+                            new TableDescriptor(stats.GetAllTimePassers(top)),
+                            new TableDescriptor(stats.GetAllTimeQBRushers(top)),
+                            new TableDescriptor(stats.GetAllTimeRushers(top)),
+                            new TableDescriptor(stats.GetAllTimeRec(top)),
+                            new TableDescriptor(stats.GetAllTimeTackles(top)),
+                            new TableDescriptor(stats.GetAllTimeSacks(top)),
+                            new TableDescriptor(stats.GetAllTimeInt(top)),
+                        };
+                    }
+                }
+                catch (Exception ex)
+                {
+                    set.Debug = ex.ToString();
+                }
+                sw.Stop();
+                logger.WriteLine(sw.Elapsed);
+                result.TryAdd(teamId, set);
+            }
+
+            Parallel.ForEach(Team.TeamIds, CalculateGreats);
+            return result.ToDictionary();
+        }
+        #endregion
         #region Html
         static TableRow CreateTeamHistoryRow(Season s, Team team)
         {
@@ -247,7 +602,7 @@ namespace DataBaker
 
         private static void CreateConfChampTable(Season s, int teamId, TableDescriptor td)
         {
-            s.ReadFromFile("cc.csv", Season.ConfChampKey);
+            s.ReadConferenceChampFile();
 
             if (s.ConferenceChampions.ContainsKey(teamId))
             {
@@ -260,7 +615,7 @@ namespace DataBaker
 
         private static void CreateBowlTable(Season s, int teamId, TableDescriptor td)
         {
-            s.ReadFromFile("bowlchamps.csv", Season.BowlChampKey);
+            s.ReadBowlChampFile();
 
             if (s.BowlChampions.ContainsKey(teamId))
             {
@@ -273,7 +628,7 @@ namespace DataBaker
 
         private static void CreateAATable(Season s, int teamId, TableDescriptor td)
         {
-            s.ReadFromFile("aaac.csv", Season.AllAmericanKey);
+            s.ReadAllAmericanFile();
             if (s.AllAmericans.ContainsKey(teamId))
             {
                 foreach (var a in s.AllAmericans[teamId])
@@ -285,7 +640,7 @@ namespace DataBaker
 
         private static void CreateAwardTable(Season s, int teamId, TableDescriptor td)
         {
-            s.ReadFromFile("awards.csv", Season.AwardsKey);
+            s.ReadAwardsFile();
 
             if (s.Awards.ContainsKey(teamId))
             {
@@ -417,12 +772,14 @@ namespace DataBaker
         }
         static string CreateH2HLink(Season s, int oppId, string opp)
         {
-            return "<a href='HeadToHead.html?id=" + oppId + "&yr=" + s.Year + "'>" + opp + "</a>";
+            var yearPlayed = s?.Year.ToString() ?? "n/a";
+            return "<a href='HeadToHead.html?id=" + oppId + "&yr=" + yearPlayed + "'>" + opp + "</a>";
         }
 
         static string CreateRecentMeetingsLink(Season s, int teamId, int oppId)
         {
-            return "<a href='recentmeetings.html?id=" + teamId + "&opp=" + oppId + "&yr=" + s.Year + "'>Recent Meetings</a>";
+            var yearPlayed = s?.Year.ToString() ?? "n/a";
+            return "<a href='recentmeetings.html?id=" + teamId + "&opp=" + oppId + "&yr=" + yearPlayed + "'>Recent Meetings</a>";
         }
         #endregion
     }
