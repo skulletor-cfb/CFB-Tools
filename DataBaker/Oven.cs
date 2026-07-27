@@ -83,7 +83,7 @@ namespace DataBaker
             // get the view of all teams played
             OverallTeamH2H().Bake("teamh2h");
             OverallTeamH2H(true).Bake("teamh2h.sorted");
-            TeamH2HDrilldown().Bake("teamh2h.filter");
+            TeamH2HDrilldown().Bake("teamh2h.filter", true);
         }
 
         /// <summary>
@@ -92,13 +92,21 @@ namespace DataBaker
         /// <typeparam name="T"></typeparam>
         /// <param name="dict"></param>
         /// <param name="prefix"></param>
-        private static void Bake<T>(this Dictionary<int, T> dict, string prefix)
+        private static void Bake<T>(this Dictionary<int, T> dict, string prefix, bool compress = false)
         {
             foreach (var kvp in dict)
             {
                 var fileName = $"{prefix}.{kvp.Key}.txt";
                 var file = Path.Combine(Helper.BakedPath, fileName);
-                File.WriteAllText(file, JsonConvert.SerializeObject(kvp.Value));
+
+                if (compress)
+                {
+                    File.WriteAllText(file, Convert.ToBase64String(JsonConvert.SerializeObject(kvp.Value).ZipItGood()));
+                }
+                else
+                {
+                    File.WriteAllText(file, JsonConvert.SerializeObject(kvp.Value));
+                }
             }
         }
 
