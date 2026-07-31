@@ -34,6 +34,31 @@ namespace DataBaker
         private const string HtmlDir = "HTML/";
         private static Season[] seasons;
         private static ILogger logger;
+        private static int[] allBowlGames;
+
+        public static int[] AllBowlGames
+        {
+            get
+            {
+                if (allBowlGames == null)
+                {
+                    allBowlGames = seasons.SelectMany(s => s.BowlResults.Keys).Distinct().ToArray();
+                }
+
+                return allBowlGames;
+            }
+        }
+
+        private static Dictionary<int, Tuple<int, int>[]> RivalryGames = new Dictionary<int, Tuple<int, int>[]>() 
+        {
+            { 279, new[]{Tuple.Create(6,93) ,Tuple.Create(11,94), Tuple.Create(83, 89) } },
+            { 275, new[]{Tuple.Create(47,112) } },
+            { 182, new[]{Tuple.Create(92,71) } },
+            { 181, new[]{Tuple.Create(57,8) } },
+            { 183, new[]{Tuple.Create(30,27) } },
+            { 272, new[]{Tuple.Create(33,79) } },
+        };
+
 
         public static void Bake(ILogger loggerInstance)
         {
@@ -87,6 +112,8 @@ namespace DataBaker
 
             // bowl team records
             BowlTeamRecords().Bake("bowlteamrecords");
+            BowlHistory().Bake("bowlhistory", false);
+            // TODO RIVALRY GAME HISTORY
         }
 
         /// <summary>
@@ -113,13 +140,95 @@ namespace DataBaker
             }
         }
 
+        private static Dictionary<int, TableDescriptor> BowlHistory()
+        {
+            var dict = new Dictionary<int, TableDescriptor>();
+            foreach (var bowlId in AllBowlGames)
+            {
+                dict[bowlId] = BowlHistory(bowlId);
+            }
+
+            return dict;
+        }
+
+        private static TableDescriptor BowlHistory(int bowlId, int teamId=0)
+        {
+            Tuple<int, int>[] matchup = null;
+            if (RivalryGames.TryGetValue(bowlId, out matchup))
+            {
+                if ((bowlId == 272 && teamId != 0) || bowlId != 272)
+                {
+                    return RivalryGameHistory(
+                        bowlId,
+                        matchup.Length == 1 ?
+                        matchup[0] :
+                        matchup.First(t => t.Item1 == teamId || t.Item2 == teamId));
+                }
+            }
+
+            var td = new TableDescriptor();
+            string name = null;
+            foreach (var s in seasons)
+            {
+                s.ReadFromFile("tsch.csv", Season.scheduleKey);
+
+                if (s.BowlResults.ContainsKey(bowlId))
+                {
+                    foreach (var bowl in s.BowlResults[bowlId])
+                    {
+                        td.Rows.Insert(0, CreateTableRow(s, bowl));
+                        name = bowl.Location;
+                    }
+                }
+            }
+
+            foreach (var past in PastPlayoffHistory.Years)
+            {
+                BowlSummary bs;
+                if (PastPlayoffHistory.years[past].TryGetValue(bowlId, out bs))
+                {
+                    var row = new TableRow(
+                        bs.WinningTeam.Name.MakeWinningTeamBold(),
+                       CreateTeamHrefForRecentMeetings(null, bs.Winner, 35),
+                       bs.Score,
+                        CreateTeamHrefForRecentMeetings(null, bs.Loser, 35),
+                        bs.LosingTeam.Name,
+                        bs.Name,
+                        past.ToString());
+
+                    td.Rows.Add(row);
+                }
+            }
+
+            td.Description = name;
+            return td;
+        }
+
+        private static TableDescriptor RivalryGameHistory(int gameLocation, Tuple<int, int> matchup)
+        {
+            var td = new TableDescriptor();
+
+            foreach (var s in seasons)
+            {
+                s.ReadFromFile("tsch.csv", Season.scheduleKey);
+                var game = s.Schedule.SelectMany(kvp => kvp.Value).Where(pg => pg.BowlId.HasValue && pg.BowlId == gameLocation && pg.WonGame && (pg.TeamId == matchup.Item1 || pg.TeamId == matchup.Item2)).FirstOrDefault();
+
+                if (game != null)
+                {
+                    td.Rows.Insert(0, CreateTableRow(s, game));
+                }
+            }
+
+            return td;
+        }
+
+
         private static Dictionary<int, Dictionary<int, TableDescriptor>> BowlTeamRecords()
         {
             var result = new Dictionary<int, Dictionary<int, TableDescriptor>>();
 
             // find all the possible bowls
-            var ids = seasons.SelectMany(s => s.BowlResults.Keys).Distinct();
-            foreach (var id in ids)
+            foreach (var id in AllBowlGames)
             {
                 var sorts = new Dictionary<int, TableDescriptor>();
                 for (int i = 0; i <= 3; i++)
