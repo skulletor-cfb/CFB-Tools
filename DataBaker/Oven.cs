@@ -84,6 +84,9 @@ namespace DataBaker
             OverallTeamH2H().Bake("teamh2h");
             OverallTeamH2H(true).Bake("teamh2h.sorted");
             TeamH2HDrilldown().Bake("teamh2h.filter", true);
+
+            // bowl team records
+            BowlTeamRecords().Bake("bowlteamrecords");
         }
 
         /// <summary>
@@ -107,6 +110,122 @@ namespace DataBaker
                 {
                     File.WriteAllText(file, JsonConvert.SerializeObject(kvp.Value));
                 }
+            }
+        }
+
+        private static Dictionary<int, Dictionary<int, TableDescriptor>> BowlTeamRecords()
+        {
+            var result = new Dictionary<int, Dictionary<int, TableDescriptor>>();
+
+            // find all the possible bowls
+            var ids = seasons.SelectMany(s => s.BowlResults.Keys).Distinct();
+            foreach (var id in ids)
+            {
+                var sorts = new Dictionary<int, TableDescriptor>();
+                for (int i = 0; i <= 3; i++)
+                {
+                    sorts[i] = BowlTeamRecords(id, i);
+                }
+
+                result[id] = sorts;
+            }
+
+            return result;
+        }
+
+        private static  TableDescriptor BowlTeamRecords( int bowlId, int sort)
+        {
+            var td = new TableDescriptor();
+            Dictionary<int, TeamBowlAppearances> dict = new Dictionary<int, TeamBowlAppearances>();
+            int season = seasons[0].Year;
+
+            foreach (var s in seasons)
+            {
+                s.ReadFromFile("tsch.csv", Season.scheduleKey);
+
+                if (s.BowlResults.ContainsKey(bowlId))
+                {
+                    foreach (var bowl in s.BowlResults[bowlId])
+                    {
+                        HandleTeam(dict, bowl.TeamId, bowl.WonGame, bowl.Team);
+                        HandleTeam(dict, bowl.OppId, !bowl.WonGame, bowl.Opponent);
+                    }
+                }
+            }
+
+            foreach (var past in PastPlayoffHistory.Years)
+            {
+                BowlSummary bs;
+                if (PastPlayoffHistory.years[past].TryGetValue(bowlId, out bs))
+                {
+                    HandleTeam(dict, bs.Winner, true, bs.WinningTeam.Name);
+                    HandleTeam(dict, bs.Loser, false, bs.LosingTeam.Name);
+                }
+            }
+
+            IEnumerable<TeamBowlAppearances> appearances = null;
+
+            switch (sort)
+            {
+                case 2:
+                    appearances = dict.Values.OrderByDescending(t => t.Pct).ThenByDescending(t => t.Appearances).ThenBy(t => t.Name);
+                    break;
+                case 3:
+                    appearances = dict.Values.OrderByDescending(t => t.Appearances).ThenByDescending(t => t.Wins).ThenBy(t => t.Name);
+                    break;
+                case 1:
+                    appearances = dict.Values.OrderByDescending(t => t.Loss).ThenByDescending(t => t.Appearances).ThenBy(t => t.Name);
+                    break;
+                case 0:
+                default:
+                    appearances = dict.Values.OrderByDescending(t => t.Wins).ThenByDescending(t => t.Appearances).ThenBy(t => t.Name);
+                    break;
+            }
+
+            foreach (var team in appearances)
+            {
+                var row = new TableRow(
+                            string.Format("<a href=PostSeasonGames.html?id={0}&year={1}><b>{2}</b></a>", team.TeamId, season, team.Name),
+                  CreateTeamHrefForRecentMeetings(null, team.TeamId, 35),
+                   team.Wins.ToString(),
+                   team.Loss.ToString(),
+                   team.Tie.ToString(),
+                   team.Pct,
+                            string.Format("<a href=PostSeasonGames.html?id={0}&year={1}&bowlId={2}><b>{3}</b></a>", team.TeamId, season, bowlId, team.Appearances));
+
+                td.Rows.Add(row);
+            }
+
+            return td;
+        }
+
+        private static void HandleTeam(Dictionary<int, TeamBowlAppearances> dict, int teamId, bool wonGame, string name)
+        {
+            if (!dict.TryGetValue(teamId, out var appearance))
+            {
+                dict[teamId] = appearance = new TeamBowlAppearances { TeamId = teamId };
+            }
+
+            appearance.Wins += wonGame ? 1 : 0;
+            appearance.Loss += wonGame ? 0 : 1;
+            var lastSpace = name.LastIndexOf(" (");
+
+            if (lastSpace > 0)
+                appearance.Name = name.Substring(0, lastSpace);
+            else
+                appearance.Name = name;
+
+            if (appearance.Name.StartsWith("#"))
+            {
+                int idx = 0;
+                while (true)
+                {
+                    if (Char.IsLetter(appearance.Name[idx]))
+                        break;
+                    idx++;
+                }
+
+                appearance.Name = appearance.Name.Substring(idx);
             }
         }
 
