@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Xml.Linq;
 
 namespace DataBaker
 {
@@ -49,7 +50,7 @@ namespace DataBaker
             }
         }
 
-        private static Dictionary<int, Tuple<int, int>[]> RivalryGames = new Dictionary<int, Tuple<int, int>[]>() 
+        private static Dictionary<int, Tuple<int, int>[]> RivalryGames = new Dictionary<int, Tuple<int, int>[]>()
         {
             { 279, new[]{Tuple.Create(6,93) ,Tuple.Create(11,94), Tuple.Create(83, 89) } },
             { 275, new[]{Tuple.Create(47,112) } },
@@ -114,6 +115,110 @@ namespace DataBaker
             BowlTeamRecords().Bake("bowlteamrecords");
             BowlHistory().Bake("bowlhistory", false);
             // TODO RIVALRY GAME HISTORY
+
+            sw.Restart();
+            CoachCareer().Bake("coachcareer");
+            sw.Stop();
+            logger.WriteLine("CoachCareer baked in " + sw.Elapsed);
+        }
+
+        private static Dictionary<HashedCoachKey, TableSet> CoachCareer()
+        {
+            var result = new ConcurrentDictionary<HashedCoachKey, TableSet>();
+
+
+            for (int i = seasons.Length - 1; i >= 0; i--)
+            {
+                var season = seasons[i];
+
+                Parallel.ForEach(season.Coaches,
+                    coach =>
+                    {
+                        var key = new HashedCoachKey(coach.Key.Id, coach.Key.Name);
+
+                        if (result.TryGetValue(key, out var set))
+                        {
+                            set.CoachCareer.Rows.Add(CreateTableRow(season, coach.Value));
+                        }
+                        else
+                        {
+                            set = new TableSet();
+                            var td = new TableDescriptor();
+                            td.Rows.Add(CreateTableRow(season, coach.Value));
+                            set.CoachBio = coach.Value;
+                            set.CoachCareer = td;
+                            result[key] = set;
+                        }
+                    });
+            }
+
+            return result.ToDictionary();
+        }
+
+        private static TableRow CreateTableRow(Season s, Coach coach)
+        {
+            var team = s.Teams[coach.TeamId];
+
+            var mediaRank = "-";
+
+            if (team.MediaPollRank <= 25)
+                mediaRank = "#" + team.MediaPollRank;
+
+            List<string> summary = CreateSummary(team);
+
+            switch (coach.Position)
+            {
+                case 0:
+                    summary.Add("#" + team.RecruitClassRank + " Recruiting Class");
+                    break;
+                case 1:
+                    summary.Add("#" + team.OffensiveRankings.Overall + " Offense");
+                    summary.Add("#" + team.OffensiveRankings.Passing + " Passing Offense");
+                    summary.Add("#" + team.OffensiveRankings.Rushing + " Rushing Offense");
+                    break;
+                case 2:
+                    summary.Add("#" + team.DefensiveRankings.Overall + " Defense");
+                    break;
+                default:
+                    break;
+            }
+
+            var teamName = team.Name;
+
+            if (team.CoachesPollRank <= 25)
+            {
+                teamName = "#" + team.CoachesPollRank + " " + teamName;
+            }
+
+            string coach1 = null;
+            string coach2 = null;
+
+            if (coach.Position == 0)
+            {
+                coach1 = createCoachLink(team.CoachingStaff[1], s);
+                coach2 = createCoachLink(team.CoachingStaff[2], s);
+            }
+            else if (coach.Position == 1)
+            {
+                coach1 = createCoachLink(team.CoachingStaff[0], s);
+                coach2 = createCoachLink(team.CoachingStaff[2], s);
+            }
+            if (coach.Position == 2)
+            {
+                coach1 = createCoachLink(team.CoachingStaff[0], s);
+                coach2 = createCoachLink(team.CoachingStaff[1], s);
+            }
+
+            return new TableRow(s.Year,
+                CreateYearHref(s),
+                coach.Age.ToString(),
+                coach.Job,
+                CreateTeamHrefForRecentMeetings(s, team.Id, teamName, false, team.Win, team.Loss, true),
+                CreateTeamHistoryLink(s, team.Id),
+                mediaRank,
+                string.Join(", ", summary),
+                coach1,
+                coach2);
         }
 
         /// <summary>
@@ -122,7 +227,7 @@ namespace DataBaker
         /// <typeparam name="T"></typeparam>
         /// <param name="dict"></param>
         /// <param name="prefix"></param>
-        private static void Bake<T>(this Dictionary<int, T> dict, string prefix, bool compress = false)
+        private static void Bake<K,T>(this Dictionary<K, T> dict, string prefix, bool compress = false)
         {
             foreach (var kvp in dict)
             {
@@ -151,7 +256,7 @@ namespace DataBaker
             return dict;
         }
 
-        private static TableDescriptor BowlHistory(int bowlId, int teamId=0)
+        private static TableDescriptor BowlHistory(int bowlId, int teamId = 0)
         {
             Tuple<int, int>[] matchup = null;
             if (RivalryGames.TryGetValue(bowlId, out matchup))
@@ -242,7 +347,7 @@ namespace DataBaker
             return result;
         }
 
-        private static  TableDescriptor BowlTeamRecords( int bowlId, int sort)
+        private static TableDescriptor BowlTeamRecords(int bowlId, int sort)
         {
             var td = new TableDescriptor();
             Dictionary<int, TeamBowlAppearances> dict = new Dictionary<int, TeamBowlAppearances>();
@@ -357,18 +462,18 @@ namespace DataBaker
             return result;
         }
 
-        public static Dictionary<int, TableDescriptor> OverallTeamH2H(bool sort=false)
+        public static Dictionary<int, TableDescriptor> OverallTeamH2H(bool sort = false)
         {
             var result = new Dictionary<int, TableDescriptor>();
             foreach (var teamId in Team.TeamIds)
             {
-                result[teamId] = GetTeamH2H(teamId, sortByRecent:sort);
+                result[teamId] = GetTeamH2H(teamId, sortByRecent: sort);
             }
 
             return result;
         }
 
-        private static TableDescriptor GetTeamH2H(int teamId, int filter=0, bool sortByRecent=false)
+        private static TableDescriptor GetTeamH2H(int teamId, int filter = 0, bool sortByRecent = false)
         {
             var td = new TableDescriptor();
             var oppDict = new Dictionary<int, List<IPlayedGame>>();
@@ -496,7 +601,7 @@ namespace DataBaker
 
                 if (!oppDict.TryGetValue(filter, out var gameResults))
                 {
-                    gameResults= new List<IPlayedGame>();
+                    gameResults = new List<IPlayedGame>();
                 }
 
                 foreach (var game in gameResults)
@@ -984,7 +1089,7 @@ namespace DataBaker
                 return string.Empty;
 
             var title = appendJob ? c.Job + ": " + c.Name : c.Name;
-            return "<a href='" + location + "/CoachCareer.html?yr=" + s.Year + "&name=" + Uri.EscapeUriString(c.Name) + "&id=" + c.Id + "'>" + title + "</a>"; ;
+            return "<a href='" + location + "/CoachCareer.html?yr=" + s.Year + "&name=" + Uri.EscapeDataString(c.Name) + "&id=" + c.Id + "'>" + title + "</a>"; ;
         }
 
         static string createTrophyCaseBowlTrophyLink(int awardId)

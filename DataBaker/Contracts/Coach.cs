@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
@@ -153,6 +154,32 @@ namespace DataBaker.Contracts
 
                 return string.Empty;
             }
+        }
+    }
+
+    public class HashedCoachKey
+    {
+        public string Key { get; }
+
+        public HashedCoachKey(int id, string name)
+        {
+            this.Key = $"{id}.{Base64Url.EncodeToString(Encoding.UTF8.GetBytes(name.ToUpperInvariant()))}";
+        }
+
+        override public int GetHashCode()
+        {
+            return this.Key.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is HashedCoachKey hck &&
+                string.Equals(this.Key, hck.Key, StringComparison.Ordinal);
+        }
+
+        public override string ToString()
+        {
+            return this.Key;
         }
     }
 
