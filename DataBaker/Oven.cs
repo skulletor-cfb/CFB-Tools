@@ -120,7 +120,50 @@ namespace DataBaker
             CoachCareer().Bake("coachcareer");
             sw.Stop();
             logger.WriteLine("CoachCareer baked in " + sw.Elapsed);
+
+            // coaching greats
+            CoachingGreats().Bake("coachingGreats", true);
         }
+
+        public static Dictionary<string, List<Coach>> CoachingGreats()
+        {
+            var result = new Dictionary<string, List<Coach>>();
+            Dictionary<CoachKey, Coach> coaches = new Dictionary<CoachKey, Coach>();
+
+            for (int i = seasons.Length - 1; i >= 0; i--)
+            {
+                var s = seasons[i];
+                s.ReadTeamFile();
+
+                foreach (var sk in s.Coaches)
+                {
+                    if (coaches.ContainsKey(sk.Key) == false && (sk.Value.CareerWin > 0 || sk.Value.CareerLoss > 0))
+                    {
+                        coaches.Add(sk.Key, sk.Value);
+                    }
+                }
+            }
+
+            var sorts = new string[] {"win", "bowlwin", "cc", "pct", "nc" };
+
+            foreach (var sort in sorts)
+            {
+
+                Func<Coach, int> selector = null;
+
+                if (sort == "win") selector = c => c.CareerWin;
+                else if (sort == "bowlwin") selector = c => c.CoachBowlWin;
+                else if (sort == "cc") selector = c => c.CareerConferenceChampionships;
+                else if (sort == "pct") selector = c => c.WinPct;
+                else selector = c => c.CareerNationalChampionships;
+
+                var sorted = coaches.Values.OrderByDescending(selector).ThenByDescending(c => c.CareerWin).ToList();
+                result[sort] = sorted;
+            }
+
+            return result;
+        }
+
 
         private static Dictionary<HashedCoachKey, TableSet> CoachCareer()
         {
