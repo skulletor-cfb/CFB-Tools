@@ -1,12 +1,7 @@
 ﻿using DataBaker.Contracts;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Xml.Linq;
 
 namespace DataBaker
 {
@@ -94,6 +89,9 @@ namespace DataBaker
             logger.WriteLine(status);
             seasons = Helper.Seasons.Season.Where(s => s.Loaded).ToArray();
 
+            CoachCareer().CoachH2H().Bake("coachcareer", true);
+            return;
+
             // bake playoff apperances
             PlayoffAppearances().Bake("playoffs");
 
@@ -117,7 +115,7 @@ namespace DataBaker
             // TODO RIVALRY GAME HISTORY
 
             sw.Restart();
-            CoachCareer().Bake("coachcareer");
+            CoachCareer().CoachH2H().Bake("coachcareer", true);
             sw.Stop();
             logger.WriteLine("CoachCareer baked in " + sw.Elapsed);
 
@@ -164,6 +162,111 @@ namespace DataBaker
             return result;
         }
 
+        private static void EvaluateCoachH2H(KeyValuePair<HashedCoachKey, TableSet> kvp)
+        {
+            // Perform H2H calculations for the coach
+            var key = new CoachKey(kvp.Key.Id, kvp.Key.Name);
+            var h2hSummary = new TableDescriptor()
+            {
+                Description = kvp.Key.Name,
+            };
+
+            var oppDict = new Dictionary<int, List<PlayedGame>>();
+            Season latest = null;
+
+            foreach (var s in seasons)
+            {
+                s.ReadTeamScheduleFile();
+                s.ReadTeamFile();
+
+                if (s.Coaches.TryGetValue(key, out var coach) &&
+                    coach.Position == 0)
+                {
+                    latest = s;
+
+                    // add all opponents in that season
+                    foreach (var opp in s.Schedule[coach.TeamId])
+                    {
+                        if (IsFcsTeam(opp.OppId))
+                        {
+                            continue;
+                        }
+
+                        if (!oppDict.TryGetValue(opp.OppId, out var games))
+                        {
+                            games = new List<PlayedGame>();
+                            oppDict.Add(opp.OppId, games);
+                        }
+
+                        games.Add(opp);
+                    }
+                }
+
+                if (coach != null)
+                {
+                    latest = s;
+                }
+            }
+
+            // we have all games played, now we need to generate a table for them
+            var list = oppDict.Select(o =>
+               new
+               {
+                   Id = o.Key,
+                   Win = o.Value.Where(g => g.WonGame).Count(),
+                   Loss = o.Value.Where(g => !g.WonGame).Count(),
+                   LastMeeting = o.Value.OrderBy(g => g.Year).Last().Year,
+                   Name = GetNameForTeamFromSeason(seasons, o.Key),
+               })
+                .OrderByDescending(e => e.Win + e.Loss)
+                .ThenBy(e => e.Name);
+
+            foreach (var r in list)
+            {
+                h2hSummary.Rows.Add(new TableRow(
+                    r.Win + "-" + r.Loss,
+                    CreateTeamHistoryLink(latest, r.Id),
+                    CreateTeamHrefForRecentMeetings(latest, r.Id, r.Name),
+                    CreateYearHref(RuntimeCache.SeasonsDict[r.LastMeeting]),
+                    "<a href='coachrecentmeetings.html?id=" + kvp.Key.Id + "&opp=" + r.Id + "&name=" + Uri.EscapeDataString(kvp.Key.Name) + "'>Recent Meetings</a>"
+                    ));
+            }
+
+            var drilldown = new Dictionary<string, TableDescriptor>();
+
+            foreach(var filter in Team.TeamIds)
+            {
+                if (!oppDict.ContainsKey(filter))
+                {
+                    continue;
+                }
+
+                var td = new TableDescriptor()
+                {
+                    Description = CreateSeriesHeader(oppDict[filter].Count(g => g.WonGame), oppDict[filter].Count(g => g.WonGame == false), kvp.Key.Name, TeamNameFromId(filter)),
+                };
+
+                var games = oppDict[filter].OrderByDescending(g => g.Year).ThenByDescending(g => g.Week)
+                    .Select(g => CreateTableRow(RuntimeCache.SeasonsDict[g.Year], g, alwaysMakeBold: false));
+
+                td.Rows.AddRange(games);
+                drilldown[filter.ToString()] = td;
+            }
+
+            kvp.Value.CoachH2HSummary = h2hSummary;
+            kvp.Value.CoachH2HDrilldown = drilldown;
+        }
+
+        private static string TeamNameFromId(int id)
+        {
+            return seasons.Last().Teams.TryGetValue(id, out var team) ? team.Name : Team.PendingTeamNames[id];
+        }
+
+        private static Dictionary<HashedCoachKey, TableSet>  CoachH2H(this Dictionary<HashedCoachKey, TableSet> coaches)
+        {
+            Parallel.ForEach(coaches.Where(kvp => kvp.Value.CoachBio.HasBeenHeadCoach), EvaluateCoachH2H);
+            return coaches;
+        }
 
         private static Dictionary<HashedCoachKey, TableSet> CoachCareer()
         {

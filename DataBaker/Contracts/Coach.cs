@@ -2,6 +2,7 @@
 using System;
 using System.Buffers.Text;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Runtime.Serialization;
 using System.Text;
 
@@ -10,6 +11,8 @@ namespace DataBaker.Contracts
     [JsonObject]
     public class Coach
     {
+        [JsonIgnore]
+        public bool HasBeenHeadCoach => (CareerLoss + CareerWin) > 0;
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore, Required = Required.Default, PropertyName = "Age")]
         public int Age { get; set; }
@@ -161,8 +164,15 @@ namespace DataBaker.Contracts
     {
         public string Key { get; }
 
+        public int Id { get; }
+
+        public string Name { get; }
+
+
         public HashedCoachKey(int id, string name)
         {
+            this.Id = id;
+            this.Name = name;
             this.Key = $"{id}.{Base64Url.EncodeToString(Encoding.UTF8.GetBytes(name.ToUpperInvariant()))}";
         }
 
