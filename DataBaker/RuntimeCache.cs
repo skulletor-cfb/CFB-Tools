@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
@@ -8,8 +9,8 @@ namespace DataBaker
     public static class RuntimeCache
     {
         public static Dictionary<int, Season> SeasonsDict { get; set; }
-        public static HashSet<string> processedStats { get; set; }
-        public static Dictionary<int, TeamStats> CachedTeamStats { get; set; }
+        public static ConcurrentDictionary<string, bool> processedStats { get; set; }
+        public static ConcurrentDictionary<int, TeamStats> CachedTeamStats { get; set; }
         public static void Clear()
         {
             SeasonsDict = null;
@@ -42,14 +43,14 @@ namespace DataBaker
 
         public static TeamStats ProcessTeamStat(this Season s, int teamId)
         {
-            if (processedStats == null) processedStats = new HashSet<string>();
-            if (CachedTeamStats == null) CachedTeamStats = new Dictionary<int, TeamStats>();
+            if (processedStats == null) processedStats = new ConcurrentDictionary<string, bool>();
+            if (CachedTeamStats == null) CachedTeamStats = new ConcurrentDictionary<int, TeamStats>();
 
             var key = string.Format("{0}-{1}", s.Year, teamId);
             var file = string.Format("team{0}pstat.csv", teamId);
 
             // already processed
-            if (processedStats.Contains(key))
+            if (processedStats.ContainsKey(key))
                 return CachedTeamStats[teamId];
 
             var fileText = s.ReadFromFile(file);
@@ -62,7 +63,7 @@ namespace DataBaker
             if (CachedTeamStats.TryGetValue(teamId, out ts) == false)
             {
                 ts = new TeamStats(teamId);
-                CachedTeamStats.Add(teamId, ts);
+                CachedTeamStats.TryAdd(teamId, ts);
             }
 
             foreach (var line in csv)

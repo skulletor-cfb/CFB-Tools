@@ -88,7 +88,8 @@ namespace DataBaker
             var status = "Started in " + sw.Elapsed;
             logger.WriteLine(status);
             seasons = Helper.Seasons.Season.Where(s => s.Loaded).ToArray();
-
+            
+            
             // bake playoff apperances
             PlayoffAppearances().Bake("playoffs");
 

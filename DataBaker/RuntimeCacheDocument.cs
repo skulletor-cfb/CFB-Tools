@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DataBaker.Contracts;
+﻿using DataBaker.Contracts;
+using System.Collections.Concurrent;
 namespace DataBaker
 {
     public class RuntimeCacheDocument
@@ -24,7 +22,7 @@ namespace DataBaker
         }
 
         public Dictionary<int, Season> SeasonsDict { get; set; }
-        public HashSet<string> processedStats { get; set; }
-        public Dictionary<int, TeamStats> CachedTeamStats { get; set; }
+        public ConcurrentDictionary<string, bool> processedStats { get; set; }
+        public ConcurrentDictionary<int, TeamStats> CachedTeamStats { get; set; }
     }
 }
