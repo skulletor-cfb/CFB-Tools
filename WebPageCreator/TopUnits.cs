@@ -40,7 +40,7 @@ namespace EA_DB_Editor
         [DataMember]
         public TopUnit[] TopDB { get; set; }
 
-        public static void Create(MaddenDatabase db)
+        public static void Create()
         {
             if (Instance != null)
                 return;

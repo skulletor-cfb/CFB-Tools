@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace EA_DB_Editor
 {
@@ -33,14 +31,14 @@ namespace EA_DB_Editor
         public List<BowlChampion> BowlChamps { get; set; }
         public List<ConferenceChampion> ConferenceChamps { get; set; }
         public Dictionary<int, Dictionary<int, TeamSeasonRecord>> TeamHistoricRecords { get; set; }
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine engine)
         {
             if (UsingContinuationData == false || Instance != null)
                 return;
 
             try
             {
-                if (Directory.Exists(ConfigurationManager.AppSettings["ContinuationDirectory"]) &&                    
+                if (Directory.Exists(ConfigurationManager.AppSettings["ContinuationDirectory"]) &&
                     File.Exists(ContinuationFile))
                 {
 

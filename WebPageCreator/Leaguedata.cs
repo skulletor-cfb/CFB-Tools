@@ -36,34 +36,12 @@ namespace EA_DB_Editor
 
         private static Dictionary<int, Conference> conferences;
         public static Dictionary<int, Conference> Conferences { get { return conferences; } }
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
             if (conferences != null)
                 return;
 
-            conferences = new Dictionary<int, Conference>();
-
-            for (int i = 0; i < db.lTables[134].Table.currecords; i++)
-            {
-                var conf = new Conference
-                {
-                    Id = db.lTables[134].lRecords[i].lEntries[0].Data.ToInt32(),
-                    LeagueId = db.lTables[134].lRecords[i].lEntries[1].Data.ToInt32(),
-                    Name = db.lTables[134].lRecords[i].lEntries[2].Data
-                };
-
-                conferences.Add(conf.Id, conf);
-            }
-
-            // now go thru the divisions
-            var table = db.lTables[136];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var confId = table.lRecords[i].lEntries[0].Data.ToInt32();
-                var division = new Division(table.lRecords[i]);
-                conferences[confId].Divisions.Add(division);
-            }
-
+            conferences = dataEngine.ReadConferenceMetadata();
             ToJsonFile();
         }
 
@@ -351,28 +329,12 @@ namespace EA_DB_Editor
     public class Stadium
     {
         public static Dictionary<int, Stadium> Stadiums { get; set; }
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
             if (Stadiums != null)
                 return;
 
-            Stadiums = new Dictionary<int, Stadium>();
-            var table = db.lTables[163];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var record = table.lRecords[i];
-                var stadium = new Stadium
-                {
-                    Id = record.GetInt(40),
-                    Capacity = record.GetInt(63),
-                    Name = record.GetData(56)
-                };
-
-                Stadiums.Add(stadium.Id, stadium);
-            }
-
-            Stadiums[1023] = new Stadium();
-
+            Stadiums = dataEngine.ReadStadiums();
         }
 
         [DataMember]
@@ -386,25 +348,14 @@ namespace EA_DB_Editor
     public class ConferenceChampion
     {
         public static List<ConferenceChampion> ConferenceChampions;
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
-            Conference.Create(db);
+            Conference.Create(dataEngine);
 
             if (ConferenceChampions != null)
                 return;
 
-            ConferenceChampions = new List<ConferenceChampion>();
-            var table = db.lTables[20];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var record = table.lRecords[i];
-                ConferenceChampions.Add(new ConferenceChampion
-                {
-                    ConferenceId = record.GetInt(0),
-                    TeamId = record.GetInt(1).GetRealTeamId(),
-                    Year = record.GetInt(2) + ContinuationData.ContinuationYear
-                });
-            }
+            ConferenceChampions = dataEngine.ReadConferenceChamps();
 
             if (ContinuationData.UsingContinuationData && ContinuationData.Instance != null)
             {
@@ -502,12 +453,12 @@ namespace EA_DB_Editor
 
         public static string BowlChampionsTable => Path.Combine(@".\archive\..\BowlChampionsTable");
 
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
             if (BowlChampions != null)
                 return;
 
-            ContinuationData.Create(db);
+            ContinuationData.Create(dataEngine);
 
 
             if (File.Exists(BowlChampionsTable))
@@ -532,29 +483,7 @@ namespace EA_DB_Editor
             }
 
             bool didNotEnterBowlChampLoop = true;
-            var table = db.lTables[0];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                didNotEnterBowlChampLoop = false;
-                var record = table.lRecords[i];
-                var bc = new BowlChampion
-                {
-                    TeamId = record.GetInt(0).GetRealTeamId(),
-                    Year = record.GetInt(1) + ContinuationData.ContinuationYear,
-                    BowlId = record.GetInt(2)
-                };
-
-                if (Bowl.BowlIdOverrides.ContainsKey(bc.BowlId) && Bowl.BowlIdOverrides[bc.BowlId].Item2 <= bc.Year)
-                    bc.BowlId = Bowl.BowlIdOverrides[bc.BowlId].Item1;
-
-
-                if (!BowlChampions.ContainsKey(bc.GetKey()))
-                {
-                    BowlChampions.Add(bc.GetKey(), bc);
-                }
-
-                CurrentYear = Math.Max(CurrentYear, bc.Year);
-            }
+            CurrentYear = dataEngine.ReadBowlChampions(didNotEnterBowlChampLoop, CurrentYear, BowlChampions);
 
             // we get current year from the largest value in the file
             if (didNotEnterBowlChampLoop)
@@ -563,7 +492,7 @@ namespace EA_DB_Editor
             }
 
             // if we haven't played the bowls, we need to increment the current year by 1, aka the assumption that CurrentYear is correct is only true at the end of the season
-            if (ScheduledGame.IsSeasonOver(db) == false)
+            if (!dataEngine.IsSeasonOver())
             {
                 CurrentYear = CurrentYear + 1;
             }
@@ -680,34 +609,12 @@ namespace EA_DB_Editor
     public class Award
     {
         public static Dictionary<int, List<Award>> Awards { get; set; }
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
             if (Awards != null)
                 return;
 
-            Awards = new Dictionary<int, List<Award>>();
-
-            var table = db.lTables[71];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var record = table.lRecords[i];
-                var awardID = record.GetInt(3);
-
-                List<Award> list;
-                if (!Awards.TryGetValue(awardID, out list))
-                {
-                    list = new List<Award>();
-                    Awards[awardID] = list;
-                }
-
-                list.Add(new Award
-                {
-                    Id = awardID,
-                    PlayerId = record.GetInt(0),
-                    Rank = record.GetInt(1),
-                    Year = record.GetInt(2) + ContinuationData.ContinuationYear
-                });
-            }
+            Awards = dataEngine.ReadAwards();
         }
 
        
@@ -781,7 +688,7 @@ namespace EA_DB_Editor
             return true; 
         }
         
-        public static void Create(MaddenDatabase db, bool recreateUsingRecordsFile = false)
+        public static void Create(IDataEngine dataEngine, bool recreateUsingRecordsFile = false)
         {
             if (recreateUsingRecordsFile && LoadFromBaseSchoolRecords())
                 return;
@@ -789,41 +696,7 @@ namespace EA_DB_Editor
             if (SchoolRecords != null || LoadFromBaseSchoolRecords())
                 return;
 
-            SchoolRecords = new Dictionary<int, List<Record>>();
-
-            var table = db.lTables[159];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var record = table.lRecords[i];
-                var teamId = record.GetInt(7);
-
-                List<Record> records;
-                if (SchoolRecords.TryGetValue(teamId, out records) == false)
-                {
-                    records = new List<Record>();
-                    SchoolRecords.Add(teamId, records);
-                }
-
-                var sr = new Record
-                                {
-                                    Type = record.GetInt(12),
-                                    Description = record.GetInt(4),
-                                    Holder = record.GetData(3),
-                                    Value = record.GetInt(14),
-                                    Opponent = record.GetData(10),
-                                    Year = record.GetInt(15)
-                                };
-
-                // fix the year of the holder
-                if (ContinuationData.UsingContinuationData && !string.IsNullOrWhiteSpace(record["RCDE"]))
-                {
-                    var holderYear = sr.Holder.Substring(0,4).ToInt32();
-                    var newYear = holderYear + ContinuationData.ContinuationYear;
-                    sr.Holder = sr.Holder.Replace(holderYear.ToString(), newYear.ToString());
-                }
-
-                records.Add(sr);
-            }
+            SchoolRecords = dataEngine.ReadSchoolRecords(recreateUsingRecordsFile);
         }
     }
 
@@ -835,29 +708,12 @@ namespace EA_DB_Editor
 
         public static List<Record> AllTimeRecords { get; set; }
 
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
             if (AllTimeRecords != null)
                 return;
 
-            AllTimeRecords = new List<Record>();
-            var table = db.lTables[91];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var row = table.lRecords[i];
-
-                var record = new Record
-                {
-                    Description = row.GetInt(4),
-                    Holder = row.GetData(3),
-                    Value = row.GetInt(13),
-                    Opponent = row.GetData(9),
-                    Year = row.GetInt(14)
-                };
-
-                Reconcile(record);
-                AllTimeRecords.Add(record);
-            }
+            AllTimeRecords = dataEngine.ReadNcaaRecords();
         }
 
         public static void ToJson()
@@ -918,19 +774,9 @@ namespace EA_DB_Editor
         public static TeamRecord[] TeamRecords;
         public static Dictionary<int, List<TeamRecord>> TeamRecordDict;
 
-        public static void Commit(MaddenDatabase db)
+        public static void Commit(IDataEngine dataEngine)
         {
-            // pull in the latest records from the table for career/season
-            var table = db.lTables[159].lRecords.Where(mr => mr["RCDY"].ToInt32() == BowlChampion.DynastyFileYear && mr["RCDT"].ToInt32() != 0).ToArray();
-            for (int i = 0; i < table.Length; i++)
-            {
-                var record = table[i];
-                var teamId = record.GetInt(7).GetRealTeamId();
-                var holder = record["RCDH"].Substring(5);
-
-                SetNewRecord((TeamRecordKeys)record["RCDI"].ToInt32(), record["RCDV"].ToInt32(), PlayerDB.Find(teamId, holder[0], holder.Substring(2)), null, Int32.MaxValue, record["RCDT"].ToInt32());
-            }
-
+            dataEngine.CommitTeamRecords();
             TeamRecords.ToJsonFile(BaseSchoolRecordsFile, true, false);
         }
 
@@ -979,27 +825,8 @@ namespace EA_DB_Editor
             }
         }
 
-        private static Dictionary<int, string> teamNames;
 
-        public static Dictionary<int, string> TeamNames
-        {
-            get
-            {
-                if (teamNames == null || teamNames.Count == 0)
-                {
-                    try
-                    {
-                        teamNames = Form1.MainForm.maddenDB.lTables[167].lRecords.ToDictionary(mr => mr.lEntries[40].Data.ToInt32(), record => record["TDNA"]);
-                    }
-                    catch
-                    {
-                        teamNames = new Dictionary<int, string>();
-                    }
-                }
-
-                return teamNames;
-            }
-        }
+        public static Dictionary<int, string> TeamNames => Form1.MainForm.DataEngine.TeamNames;
 
         public static bool IsNewRecord(int teamId, TeamRecordKeys key , int value, int recordType)
         {

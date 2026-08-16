@@ -22,7 +22,7 @@ namespace EA_DB_Editor
         private const string SimpsonSelect = "simpsonselect";
         private const string MrTexas = "mrtexas";
         private const int TexasId = 42;
-        public static void CreateFeatureRecruitPage(MaddenDatabase db, string scenario, bool isPreseason)
+        public static void CreateFeatureRecruitPage(IDataEngine dataEngine, string scenario, bool isPreseason)
         {
             using (var tw = new StreamWriter($"./Archive/Reports/{scenario}.html", false))
             {
@@ -78,11 +78,11 @@ namespace EA_DB_Editor
             }
         }
         
-        public static void CreateRecruitsPage(MaddenDatabase db, bool isPreseason)
+        public static void CreateRecruitsPage(IDataEngine dataEngine, bool isPreseason)
         {
-            CreateFeatureRecruitPage(db, Elite11, isPreseason);
-            CreateFeatureRecruitPage(db, SimpsonSelect, isPreseason);
-            CreateFeatureRecruitPage(db, MrTexas, isPreseason);
+            CreateFeatureRecruitPage(dataEngine, Elite11, isPreseason);
+            CreateFeatureRecruitPage(dataEngine, SimpsonSelect, isPreseason);
+            CreateFeatureRecruitPage(dataEngine, MrTexas, isPreseason);
             using (var tw = new StreamWriter("./Archive/Reports/hsaaroster.html", false))
             {
                     Utility.WriteNavBarAndHeader(tw, "All American Game Rosters", "loadHSAAData");
@@ -227,12 +227,12 @@ namespace EA_DB_Editor
         }
 
 
-        public static void CreateRecruitingPages(MaddenDatabase db, bool isPreseason)
+        public static void CreateRecruitingPages(IDataEngine dataEngine, bool isPreseason)
         {
-            Recruit.CreateRecruits(db);
-            Conference.Create(db);
-            RecruitClassRanking.Create(db);
-            CreateRecruitsPage(db, isPreseason);
+            Recruit.CreateRecruits(dataEngine);
+            Conference.Create(dataEngine);
+            RecruitClassRanking.Create(dataEngine);
+            CreateRecruitsPage(dataEngine, isPreseason);
 
             #region RECRUITING_RANKINGS_HTML
             using (var tw = new StreamWriter("./Archive/Reports/RecruitingRankings.html", false))
@@ -303,7 +303,7 @@ namespace EA_DB_Editor
 
                     foreach (var ranking in rankings)
                     {
-                        var rosterOpenings = 70 - db.GetTable("PLAY").lRecords.Where(player => player["TGID"].ToInt32().GetRealTeamId() == ranking.TeamId).Count();
+                        var rosterOpenings = dataEngine.CalculateRosterSpots(ranking);
 
                         tw.Write("<tr>");
                         tw.Write(@"<td class=c3>" + i + "</td>");
@@ -368,53 +368,13 @@ namespace EA_DB_Editor
     public class Recruit
     {
         public static Dictionary<int, Recruit> RecruitRankings { get; set; }
-        public static void CreateRecruits(MaddenDatabase NCAADB)
+        public static void CreateRecruits(IDataEngine dataEngine)
         {
             if (RecruitRankings != null)
                 return;
 
-            RecruitRankings = new Dictionary<int, Recruit>();
-            RecruitAllAmericans.GetRecruits(NCAADB.lTables[96], NCAADB.lTables[95]);
+            RecruitRankings = dataEngine.ReadRecruits();
 
-            for (int i = 0; i < NCAADB.lTables[96].Table.currecords; i++)
-            {
-                var record = NCAADB.lTables[96].lRecords[i]; 
-                Recruit recruit = new Recruit
-                {
-                    RecruitId = NCAADB.lTables[96].lRecords[i].lEntries[53].Data.ToInt32(),
-                    FirstName = NCAADB.lTables[96].lRecords[i].lEntries[14].Data,
-                    LastName = NCAADB.lTables[96].lRecords[i].lEntries[15].Data,
-                    PositionValue = NCAADB.lTables[96].lRecords[i].lEntries[106].Data.ToInt32(),
-                    Rank = NCAADB.lTables[96].lRecords[i].lEntries[62].Data.ToInt32(),
-                    PositionRank = NCAADB.lTables[96].lRecords[i].lEntries[89].Data.ToInt32(),
-                    StarRating = NCAADB.lTables[96].lRecords[i].lEntries[23].Data.ToInt32(),
-                    PreScoutOVR = NCAADB.lTables[96].lRecords[i].lEntries[131].Data.ToInt32(),
-                    RealOVR = NCAADB.lTables[96].lRecords[i].lEntries[95].Data.ToInt32(),
-                    IsAthlete = NCAADB.lTables[96].lRecords[i].lEntries[47].Data.ToInt32() != 0,
-                    HometownValue = NCAADB.lTables[96].lRecords[i].lEntries[33].Data.ToInt32(),
-                    PositionGroup = NCAADB.lTables[96].lRecords[i]["RPGP"].ToInt32(),
-                    PlayerYear = NCAADB.lTables[96].lRecords[i]["PYEA"].ToInt32(),
-                    Tendency = NCAADB.lTables[96].lRecords[i]["PTEN"].ToInt32(),
-                    State = NCAADB.lTables[96].lRecords[i]["STAT"].ToInt32(),
-                };
-
-                RecruitRankings.Add(recruit.RecruitId, recruit);
-            }
-
-            try
-            {
-                for (int i = 0; i < NCAADB.lTables[95].Table.currecords; i++)
-                {
-                    var id = NCAADB.lTables[95].lRecords[i].lEntries[34].Data.ToInt32();
-                    var recruit = RecruitRankings[id];
-                    recruit.CommittedTeam = NCAADB.lTables[95].lRecords[i].lEntries[35].Data.ToInt32().GetRealTeamId();
-                    recruit.Team1 = NCAADB.lTables[95].lRecords[i].lEntries[6].Data.ToInt32().GetRealTeamId();
-                    recruit.Team2 = NCAADB.lTables[95].lRecords[i].lEntries[10].Data.ToInt32().GetRealTeamId();
-                    recruit.Team3 = NCAADB.lTables[95].lRecords[i].lEntries[13].Data.ToInt32().GetRealTeamId();
-                    RecruitRankings[10000 + recruit.Rank] = recruit;
-                }
-            }
-            catch { }
         }
 
         public static void ToCsvFile(IEnumerable<Recruit> recruits, string filename, bool showLogo = false)
@@ -477,41 +437,11 @@ namespace EA_DB_Editor
     [DataContract]
     public class RecruitClassRanking
     {
-        private static Dictionary<int, RecruitClassRanking> teamRankings = new Dictionary<int, RecruitClassRanking>();
-        public static Dictionary<int, RecruitClassRanking> TeamRankings { get { return teamRankings; } }
+        public static Dictionary<int, RecruitClassRanking> TeamRankings { get; private set; }
 
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
-            TeamRankings.Clear();
-            
-            for (int i = 0; i < db.lTables[97].Table.currecords; i++)
-            {
-                var ranking = new RecruitClassRanking
-                {
-                    TeamId = db.lTables[97].lRecords[i].lEntries[4].Data.ToInt32().GetRealTeamId(),
-                    Points = db.lTables[97].lRecords[i].lEntries[5].Data.ToInt32(),
-                    Star1 = db.lTables[97].lRecords[i].lEntries[6].Data.ToInt32(),
-                    Star2 = db.lTables[97].lRecords[i].lEntries[7].Data.ToInt32(),
-                    Star3 = db.lTables[97].lRecords[i].lEntries[8].Data.ToInt32(),
-                    Star4 = db.lTables[97].lRecords[i].lEntries[9].Data.ToInt32(),
-                    Star5 = db.lTables[97].lRecords[i].lEntries[10].Data.ToInt32(),
-                };
-
-                teamRankings.Add(ranking.TeamId, ranking);
-            }
-
-            for (int i = 0; i < db.lTables[167].Table.currecords; i++)
-            {
-                int teamId = db.lTables[167].lRecords[i].lEntries[40].Data.ToInt32().GetRealTeamId();
-                RecruitClassRanking ranking = null;
-                if (TeamRankings.TryGetValue(teamId, out ranking))
-                {
-                    ranking.ConferenceId = db.lTables[167].lRecords[i].lEntries[36].Data.ToInt32();
-                    ranking.DivisionId = db.lTables[167].lRecords[i].lEntries[37].Data.ToInt32();
-                    ranking.Wins = db.lTables[167].lRecords[i].lEntries[61].Data.ToInt32();
-                    ranking.Losses = db.lTables[167].lRecords[i].lEntries[88].Data.ToInt32();
-                }
-            }
+            TeamRankings = dataEngine.ReadRecruitClasses();
         }
 
         [DataMember]

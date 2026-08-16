@@ -279,7 +279,7 @@ namespace EA_DB_Editor
         [DataMember]
         public List<TeamMap> Teams { get; set; }
 
-        public static void Create(MaddenDatabase db, bool isPreseason)
+        public static void Create(IDataEngine dataEngine, bool isPreseason)
         {
             if (isPreseason)
                 return;

@@ -9,20 +9,9 @@ namespace EA_DB_Editor
     public class TeamDraftHistory
     {
         public static Dictionary<int, DraftClass[]> DraftHistory;
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
-            // Team Draft History
-            var draftHistoryTable = MaddenTable.FindTable(db.lTables, "TPHS");
-            DraftHistory = draftHistoryTable.lRecords.GroupBy(
-                mr => mr["TGID"].ToInt32().GetRealTeamId(),
-                mr => new DraftClass
-                {
-                    DynastyYear = mr["dryr"].ToInt32(),
-                    Round1 = mr["PDR1"].ToInt32(),
-                    Round2 = mr["PDR2"].ToInt32(),
-                    Round3 = mr["PDR3"].ToInt32(),
-                    RoundLater = mr["PDRL"].ToInt32(),
-                }).ToDictionary(g => g.Key, g => g.ToArray());
+            DraftHistory = dataEngine.ReadDraftHistory();
         }
 
         public static DraftClass Rollup(int teamId)

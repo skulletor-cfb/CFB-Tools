@@ -23,7 +23,7 @@ namespace EA_DB_Editor
         public static int Team_ID_GLOBAL;
 
 
-        public static void CreateStandingsPage(MaddenDatabase db)
+        public static void CreateStandingsPage()
         {
             using (var tw = new StreamWriter("./Archive/Reports/Standings.html", false))
             {
@@ -41,7 +41,7 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void Polls(MaddenDatabase db)
+        public static void Polls()
         {
 
             TextWriter tw;
@@ -135,7 +135,7 @@ namespace EA_DB_Editor
             Utility.WriteData(@".\archive\reports\cc.csv", sb.ToString());
 
             // standings
-            CreateStandingsPage(db);
+            CreateStandingsPage();
 
             // make sure the conference json file is written out
             Conference.ToJsonFile();
@@ -235,11 +235,11 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void SOS_Rnk(MaddenDatabase db, bool isPreseason)
+        public static void SOS_Rnk(IDataEngine dataEngine, bool isPreseason)
         {
             // SOS Rank only done after the season starts
-            TeamSchedule.CalculateOpponentMetrics(db,false);
-            TeamSchedule.ToSOSCsv(db,isPreseason);
+            TeamSchedule.CalculateOpponentMetrics(dataEngine, false);
+            TeamSchedule.ToSOSCsv(dataEngine, isPreseason);
             TextWriter tw;
             using (tw = new StreamWriter("./Archive/Reports/SOS_Rankings.html", false))
             {
@@ -506,10 +506,10 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void CreateTeamPlayerStats(MaddenDatabase db, bool careerStats)
+        public static void CreateTeamPlayerStats(IDataEngine dataEngine, bool careerStats)
         {
             TextWriter tw = null;
-            PlayerDB.Create(db);
+            PlayerDB.Create(dataEngine);
 
             foreach (var key in PlayerDB.Rosters.Keys.Where(k => k != 1023))
             {

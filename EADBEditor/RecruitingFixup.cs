@@ -63,7 +63,7 @@ namespace EA_DB_Editor
     public static class RecruitingFixup
     {
         // should be -1 if we haven't added any CAPs
-        public static int DontChange = 5;
+        public static int DontChange = 6;
         const int P5Cutoff = 300;
 
         public static Random RAND = new Random(BitConverter.ToInt32(Guid.NewGuid().ToByteArray().Take(4).ToArray(), 0));
@@ -818,7 +818,7 @@ namespace EA_DB_Editor
 
         static string[] academies = { "1", "8", "57" };
         public static int[] OnTheirOwn = TeamsOnTheirOwn();
-#if false
+#if true
         public static int[] DontFoolWith = new int[0];// American.ToArray();
 #else
         public static int[] DontFoolWith = American.ToArray();
@@ -916,6 +916,16 @@ namespace EA_DB_Editor
 
             if (conf == IndId) return true;
 
+            if (conf == Big12Id)
+            {
+                return current == 8;
+            }
+
+            if(conf == CUSAId && count == 4)
+            {
+                return current == 3;
+            }
+
             if (conf == Big12Id && count == 16)
                 expected = 9;
 
@@ -923,7 +933,10 @@ namespace EA_DB_Editor
                 return true;
 
             if (count == 12 && conf == Pac16Id)
-                return current == 8;
+                return current == 9;
+
+            if (count == 12 && conf == Big10Id)
+                return current == 9;
 
             if (count == 16 && conf == ACCId)
                 expected = 8;
@@ -950,6 +963,21 @@ namespace EA_DB_Editor
         public static bool ConferenceHomeGameCount(this TeamSchedule schedule, int teamId)
         {
             var conf = TeamAndConferences[teamId];
+            var confGames = schedule.Count(g => g != null && g.HomeTeam == teamId && teamAndConferences[g.AwayTeam] == conf);
+
+            if (conf == CUSAId)
+            {
+                return confGames == 1 || confGames ==2;
+            }
+
+            if (conf == Big10Id || conf == Pac16Id)
+            {
+                return confGames == 4 || confGames == 5;
+            }
+            if (conf == Big12Id)
+            {
+                return confGames == 4 ;
+            }
 
             if (conf == Pac16Id) return true;
             if (conf == Big12Id && (Big12.Length == 16 || Big12.Length == 10)) return true;
@@ -962,7 +990,6 @@ namespace EA_DB_Editor
             //if (conf == ACCId && AccTeams > 14)
             //    return true;
 
-            var confGames = schedule.Count(g => g != null && g.HomeTeam == teamId && teamAndConferences[g.AwayTeam] == conf);
 
             if (conf == CUSAId && CUSA.Length == 5 && confGames == 2) return true;
 
@@ -982,7 +1009,7 @@ namespace EA_DB_Editor
 
         public static bool IsP5OrND(this int teamId)
         {
-            return teamId.IsP5() || teamId == 68;
+            return teamId.IsP5() || teamId == 68 || (TeamAndConferences[BYUId] == IndId && teamId == BYUId);
         }
 
         static void SetWeightedArrays()

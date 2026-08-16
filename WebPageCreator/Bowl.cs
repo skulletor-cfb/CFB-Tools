@@ -7,18 +7,18 @@ namespace EA_DB_Editor
 {
     public class Bowl
     {
-        private const int CFP12TeamPlayoffStartingYear = 2542;
-        private const int CureBowl = 987043;
-        private const int MyrtleBeachBowl = 987044;
-        private const int ArizonaBowl = 987045;
-        private const int MobileAlabamaBowl = 0;
-        private const int CFB8v9 = 987047;
-        private const int CFB7v10 = 987048;
-        private const int CFB6v11 = 987049;
-        private const int CFB5v12 = 987050;
-        private const int SaluteVetsBowl = 987051;
-        private const int XboxBowl = 987052;
-        private const int FGSChampionship = 987053;
+        public const int CFP12TeamPlayoffStartingYear = 2542;
+        public const int CureBowl = 987043;
+        public const int MyrtleBeachBowl = 987044;
+        public const int ArizonaBowl = 987045;
+        public const int MobileAlabamaBowl = 0;
+        public const int CFB8v9 = 987047;
+        public const int CFB7v10 = 987048;
+        public const int CFB6v11 = 987049;
+        public const int CFB5v12 = 987050;
+        public const int SaluteVetsBowl = 987051;
+        public const int XboxBowl = 987052;
+        public const int FGSChampionship = 987053;
 
         private static HashSet<int> AugmentedBowls = new HashSet<int>()
         {
@@ -33,7 +33,7 @@ namespace EA_DB_Editor
 
         public bool IsAugmentedBowl => AugmentedBowls.Contains(this.Id);
 
-        public static Dictionary<int, Tuple<int, int>> BowlIdOverrides = new Dictionary<int, Tuple<int,int>>();
+        public static Dictionary<int, Tuple<int, int>> BowlIdOverrides = new Dictionary<int, Tuple<int, int>>();
         public static Dictionary<string, Bowl> Bowls { get; private set; }
         public static Bowl FindById(int id)
         {
@@ -57,179 +57,12 @@ namespace EA_DB_Editor
             return week + "-" + game;
         }
 
-        public static void Create(MaddenDatabase db, bool isPreseason)
+        public static void Create(IDataEngine dataEngine, bool isPreseason)
         {
             if (Bowls != null)
                 return;
 
-            Bowls = new Dictionary<string, Bowl>();
-            var table = db.lTables[129];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var bowl = new Bowl
-                {
-                    Id = table.lRecords[i].lEntries[15].Data.ToInt32(),
-                    Name = table.lRecords[i].lEntries[8].Data,
-                    Week = table.lRecords[i].lEntries[12].Data.ToInt32(),
-                    Game = table.lRecords[i].lEntries[10].Data.ToInt32(),
-                    ConferenceTieInId1 = table.lRecords[i]["BCI1"].ToInt32(),
-                    ConferenceTieInId2 = table.lRecords[i]["BCI2"].ToInt32(),
-                    ConferenceTieInSelection1 = table.lRecords[i]["BCR1"].ToInt32(),
-                    ConferenceTieInSelection2 = table.lRecords[i]["BCR2"].ToInt32(),
-                };
-
-                if (BowlIdOverrides.ContainsKey(bowl.Id) && BowlIdOverrides[bowl.Id].Item2 <= BowlChampion.CurrentYear)
-                    bowl.Id = BowlIdOverrides[bowl.Id].Item1;
-
-                if (bowl.Game != 255)
-                    Bowls.Add(bowl.Key, bowl);
-            }
-
-            var cureBowl = new Bowl
-            {
-                Id = CureBowl,
-                Name = "Cure Bowl",
-                Week = 18,
-                Game = 43,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            var mbBowl = new Bowl
-            {
-                Id = MyrtleBeachBowl,
-                Name = "Myrtle Beach Bowl",
-                Week = 18,
-                Game = 44,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            var arizonaBowl = new Bowl
-            {
-                Id = ArizonaBowl,
-                Name = "Arizona Bowl",
-                Week = 18,
-                Game = 45,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            var saluteVetsBowl = new Bowl
-            {
-                Id = SaluteVetsBowl,
-                Name = "Salute to Veterans Bowl",
-                Week = 18,
-                Game = 51,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            var xboxBowl = new Bowl
-            {
-                Id = XboxBowl,
-                Name = "Xbox Bowl",
-                Week = 18,
-                Game = 52,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            var venturesBowl = new Bowl
-            {
-                Id = MobileAlabamaBowl,
-                Name = "68 Ventures Bowl",
-                Week = 18,
-                Game = 46,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            var fgsChampionship = new Bowl
-            {
-                Id = FGSChampionship,
-                Name = "FGS Championship Game",
-                Week = 20,
-                Game = 53,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-
-
-            var cfp8v9 = new Bowl
-            {
-                Id = CFB8v9,
-                Name = "CFP 1st Round 8v9",
-                Week = 18,
-                Game = 47,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            var cfp7v10 = new Bowl
-            {
-                Id = CFB7v10,
-                Name = "CFP 1st Round 7v10",
-                Week = 18,
-                Game = 48,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            var cfp6v11 = new Bowl
-            {
-                Id = CFB6v11,
-                Name = "CFP 1st Round 6v11",
-                Week = 18,
-                Game = 49,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            var cfp5v12 = new Bowl
-            {
-                Id = CFB5v12,
-                Name = "CFP 1st Round 5v12",
-                Week = 18,
-                Game = 50,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            Bowls.Add(cureBowl.Key, cureBowl);
-            Bowls.Add(mbBowl.Key, mbBowl);
-            Bowls.Add(arizonaBowl.Key, arizonaBowl);
-            Bowls.Add(venturesBowl.Key, venturesBowl);
-            Bowls.Add(saluteVetsBowl.Key, saluteVetsBowl);
-            Bowls.Add(xboxBowl.Key, xboxBowl);
-//            Bowls.Add(fgsChampionship.Key, fgsChampionship);
-            Bowls.Add(cfp8v9.Key, cfp8v9);
-            Bowls.Add(cfp7v10.Key, cfp7v10);
-            Bowls.Add(cfp6v11.Key, cfp6v11);
-            Bowls.Add(cfp5v12.Key, cfp5v12);
+            Bowls = dataEngine.CreateBowlTable();
 
             if (!isPreseason)
             {

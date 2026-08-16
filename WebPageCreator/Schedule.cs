@@ -147,16 +147,6 @@ namespace EA_DB_Editor
         public static HashSet<NeutralSiteGame> KickOffGames = new HashSet<NeutralSiteGame>(ConfigurationManager.AppSettings["NeutralSiteGamesForRecords"].Split(',').Select(i => NeutralSiteGame.Create(i, GameIdFwder)));
         public static Dictionary<string, ScheduledGame> Schedule;
 
-        public static bool IsSeasonOver(MaddenDatabase db)
-        {
-            // check to see if the season is still going on
-            // BUGBUG if the NCG has been played, but the week hasn't advanced this info is incorrect, but that's probably ok
-            var record = db.lTables[161].lRecords.OrderByDescending(mr => mr.lEntries[12].Data.ToInt32()).Take(1).First();
-
-            // if the score is 0-0 the season is not over
-            return !(record.lEntries[1].Data.ToInt32() == 0 && record.lEntries[2].Data.ToInt32() == 0);
-        }
-
         #region opening week helper
         public static bool IsRivalryGame(int homeTeam, int awayTeam)
         {
@@ -616,12 +606,12 @@ namespace EA_DB_Editor
             return homeTeam == 68 || awayTeam == 68;
         }
         #endregion
-        public static void CreateOpeningWeek(MaddenDatabase db, bool isPreseason)
+        public static void CreateOpeningWeek(IDataEngine dataEngine, bool isPreseason)
         {
             var power5 = new HashSet<int>(new[] { 0, 1, 2, 10, 11 });
             List<TopGame> games = new List<TopGame>();
 
-            Create(db, isPreseason);
+            Create(dataEngine, isPreseason);
             foreach (var game in Schedule.Values.Where(g => g.HomeTeamId != 1023 && g.Week <= 2).OrderBy(g => g.Week).ThenBy(g => g.GameDay).ThenBy(g => g.TimeOfDay))
             {
                 // non neutral site games 
@@ -675,11 +665,11 @@ namespace EA_DB_Editor
             PocketScout.OpeningWeek();
         }
 
-        public static void CreateTopGames(MaddenDatabase db, bool isPreseason)
+        public static void CreateTopGames(IDataEngine dataEngine, bool isPreseason)
         {
             List<TopGame> games = new List<TopGame>();
 
-            Create(db, isPreseason);
+            Create(dataEngine, isPreseason);
             foreach (var game in Schedule.Values)
             {
                 if (game.HomeTeamId == 1023)
@@ -748,9 +738,7 @@ namespace EA_DB_Editor
 
         public static string SiteIdSuffix(int siteId)
         {
-            var stadiumTable = Form1.MainForm.maddenDB.lTables.Where(tbl => tbl.Abbreviation == "STAD").SingleOrDefault();
-            var stadium = stadiumTable.lRecords.Where(record => record["SGID"].ToInt32() == siteId).SingleOrDefault();
-            return stadium.lEntries[56].Data;
+            return Form1.MainForm.DataEngine.ReadStadiumName(siteId);
         }
 
         private static bool IsPigskinClassic(ScheduledGame g)
@@ -945,378 +933,14 @@ namespace EA_DB_Editor
 
         public int StadiumId { get; set; }
 
-        public static void Create(MaddenDatabase db, bool isPreseason)
+        public static void Create(IDataEngine dataEngine, bool isPreseason)
         {
             if (Schedule != null)
                 return;
 
-            SchoolRecord.Create(db);
-            Schedule = new Dictionary<string, ScheduledGame>();
-            var table = db.lTables[161];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var game = new ScheduledGame
-                {
-                    PostSeason = table.lRecords[i].lEntries[0].Data.ToInt32(),
-                    AwayScore = table.lRecords[i].lEntries[1].Data.ToInt32(),
-                    HomeScore = table.lRecords[i].lEntries[2].Data.ToInt32(),
-                    AwayTeamId = table.lRecords[i].lEntries[6].Data.ToInt32().GetRealTeamId(),
-                    HomeTeamId = table.lRecords[i].lEntries[7].Data.ToInt32().GetRealTeamId(),
-                    DynastySeason = table.lRecords[i].lEntries[8].Data.ToInt32(),
-                    GameNumber = table.lRecords[i].lEntries[11].Data.ToInt32(),
-                    Week = table.lRecords[i].lEntries[12].Data.ToInt32(),
-                    Year = table.lRecords[i].lEntries[13].Data.ToInt32(),
-                    WentToOvertime = table.lRecords[i].lEntries[15].Data.ToInt32(),
-                    GameDay = table.lRecords[i]["GDAT"].ToInt32(),
-                    TimeOfDay = table.lRecords[i]["GTOD"].ToInt32(),
-                    StadiumId = table.lRecords[i]["SGID"].ToInt32(),
-                };
-
-                // check to see if this is an augmented bowl game
-                if (!isPreseason && Bowl.TryFindByKey(game.Week, game.GameNumber, out var bowlGame))
-                {
-                    if (bowlGame.IsAugmentedBowl)
-                    {
-                        var winner = game.AwayScore > game.HomeScore ?
-                            game.AwayTeamId : game.HomeTeamId;
-
-                        BowlChampion.AddBowlChampion(winner, bowlGame.Id);
-                    }
-                }
-
-
-                // stadium id
-                var stadiumId =table.lRecords[i].lEntries[3].Data.ToInt32();
-
-                // 1023 stadium id means it's probably a game that hasn't been filled in like a bowl or a Conf Champ Game
-                if (stadiumId == 1023)
-                    continue;
-
-                // find the STAD table and the stadium
-                var stadiumTable = db.lTables.Where(tbl => tbl.Abbreviation == "STAD").SingleOrDefault();
-                var stadium = stadiumTable.lRecords.Where(record => record["SGID"].ToInt32() == stadiumId).SingleOrDefault();
-                game.GameSite = stadium.lEntries[56].Data;
-
-                TeamSchedule homeTeamSchedule;
-                TeamSchedule awayTeamSchedule;
-
-                // check to see if we have a neutral site game only for regular season games
-                // don't get to set an overrides for a week with more than 1 game
-                if (TeamSchedule.TeamSchedules.TryGetValue(game.HomeTeamId, out homeTeamSchedule) &&
-                    TeamSchedule.TeamSchedules.TryGetValue(game.AwayTeamId, out awayTeamSchedule) &&
-                    game.Week < 16 &&
-                    homeTeamSchedule[game.Week].Count == 1 &&
-                    awayTeamSchedule[game.Week].Count == 1)
-                {
-                    // both teams are marked as home means its a neutral site game
-                    if (ClassicGameEvaluators.Any(e => e(game)))
-                    {
-                        game.IsClassicGame = true;
-                    }
-                    else if (homeTeamSchedule[game.Week][0].IsHomeGame && awayTeamSchedule[game.Week][0].IsHomeGame)
-                    {
-                        game.IsNeutralSite = true;
-                        // check to see if we have an override
-                        var overrides = StadiumNickNameOverrides;
-                        //we have an override, a set of comma delimited settings seperated by semi colon
-                        if (overrides != null)
-                        {
-                            var sections = overrides.Split(';').Where(section => string.IsNullOrWhiteSpace(section) == false).ToArray();
-                            var overridenNickNames = sections.Select(s => s.Split(',').ToDictionary(str => str.Split('=')[0], right => right.Split('=')[1])).ToList();
-                            var currentNicknames = overridenNickNames.Where(s => s["Stadium"] == stadiumId.ToString() && game.Week < s["BeforeWeek"].ToInt32()).ToList();
-
-                            Dictionary<string, string> stadiumOverride = currentNicknames.Count == 1 ? currentNicknames[0] : null;
-
-                            if (stadiumOverride == null && currentNicknames.Count > 1)
-                            {
-                                stadiumOverride = currentNicknames.Where(s => s.TryGetValue("RivalryGame", out var value) && value.Contains(Math.Min(game.HomeTeamId, game.AwayTeamId).ToString() + "-" + Math.Max(game.HomeTeamId, game.AwayTeamId).ToString())).FirstOrDefault();
-                            }
-
-                            if (stadiumOverride != null)
-                            {
-                                NeutralSiteGame koGame = null;
-                                game.GameSite = stadiumOverride["NickName"];
-                                koGame = KickOffGames.Where(nsg => nsg.Contains(stadiumId)).FirstOrDefault();
-
-                                if (koGame != null)
-                                {
-                                    game.SiteId = koGame.Id;
-                                    const int PigskinClassicKickoff = 71041024;
-
-                                    if (koGame.Id == PigskinClassicKickoff)
-                                    {
-                                        game.GameSite += $" ({ScheduledGame.SiteIdSuffix(stadiumId)})";
-                                    }
-                                }
-                                else
-                                {
-                                    game.SiteId = stadiumId;
-                                }
-                            }
-                            else if (string.IsNullOrWhiteSpace(stadium["STNN"]) == false)
-                            {
-                                game.GameSite = stadium["STNN"];
-                                game.SiteId = stadiumId;
-                            }
-                        }
-                        else if (string.IsNullOrWhiteSpace(stadium["STNN"]) == false)
-                        {
-                            game.GameSite = stadium["STNN"];
-                            game.SiteId = stadiumId;
-                        }
-                    }
-                }
-
-                Schedule.Add(game.Key, game);
-            }
-
-            // do the scoring summary for each game now
-            table = db.lTables[6];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var record = table.lRecords[i];
-                var gameNumber = record.GetInt(5);
-                var weekNumber = record.GetInt(6);
-                var game = Schedule[CreateKey(weekNumber, gameNumber)];
-
-                // add the item to the list
-                game.Scores.Add(new GameScore
-                {
-                    TeamId = record.GetInt(0),
-                    Time = record.GetUShort(4),
-                    Quarter = record.GetUShort(8),
-                    Points = record.GetUShort(9),
-                    ScoreType = record.GetUShort(13)
-                });
-
-                game.Scores.Last().Parse();
-            }
-
-            // box score data for each game
-            table = db.lTables[7];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var record = table.lRecords[i];
-                var gameNumber = record.GetInt(1);
-                var weekNumber = record.GetInt(2);
-                var teamId = record.GetInt(0).GetRealTeamId();
-                var game = Schedule[CreateKey(weekNumber, gameNumber)];
-
-                //create the box score
-                var boxScore = new TeamStat
-                {
-                    TeamId = teamId,
-                    TwoPointConversionAttempts = record.GetInt(3),
-                    Turnovers = record.GetInt(4),
-                    PassAttempts = record.GetInt(5),
-                    RushAttempts = record.GetInt(6),
-                    TwoPointConversions = record.GetInt(7),
-                    ThirdDownConversions = record.GetInt(8),
-                    FourthDownConversions = record.GetInt(9),
-                    PuntYards = record.GetInt(14),
-                    Penalties = record.GetInt(15),
-                    RedZoneFG = record.GetInt(16),
-                    IntThrown = record.GetInt(17),
-                    PassCompletions = record.GetInt(10),
-                    FirstDowns = record.GetInt(11),
-                    ThirdDownAttempts = record.GetInt(12),
-                    FourthDownAttempts = record.GetInt(13),
-                    FumblesLost = record.GetInt(18),
-                    PassYards = record.GetInt(19),
-                    KRYards = record.GetInt(20),
-                    RushTD = record.GetInt(26),
-                    OffensiveYards = record.GetInt(30),
-                    PRYards = record.GetInt(22),
-                    PassTD = record.GetInt(23),
-                    RedZoneTD = record.GetInt(24),
-                    TimeOfPossesion = record.GetInt(25),
-                    Punts = record.GetInt(27),
-                    PenaltyYards = record.GetInt(28),
-                    TotalYards = record.GetInt(29),
-                    RedZoneVisits = record.GetInt(31)
-                };
-
-                boxScore.RushYards = (int)((short)record.GetInt(21));
-
-                if (teamId == game.HomeTeamId)
-                {
-                    game.HomeTeamBoxScore = boxScore;
-                }
-                else
-                {
-                    game.AwayTeamBoxScore = boxScore;
-                }
-            }
-
-            // offensive stats
-            table = db.lTables[4];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var record = table.lRecords[i];
-                var gameNumber = record.GetInt(2);
-                var weekNumber = record.GetInt(3);
-                var playerId = record.GetInt(0);
-                var game = Schedule[CreateKey(weekNumber, gameNumber)];
-
-                // create the offensive stats for the player
-                var player = new PlayerStats { PlayerId = playerId };
-
-                var passingYards = record.GetSignedInt(8, 4096);
-                var rushingYards = record.GetSignedInt(10, 2048);
-                var rececptions = record.GetInt(6);
-                var passTD = record.GetInt(13);
-                var rushTD = record.GetInt(15);
-                var recTD = record.GetInt(14);
-                var receivingYrds = record.GetSignedInt(9, 2048);
-
-                // gaya
-                player[PlayerStats.PassingYards] = passingYards;
-
-                // gaat
-                player[PlayerStats.PassAttempts] = record.GetInt(22);
-
-                // gacm
-                player[PlayerStats.Completions] = record.GetInt(17);
-
-                // gatd
-                player[PlayerStats.PassingTD] = passTD;
-
-                // gain
-                player[PlayerStats.IntThrown] = record.GetInt(18);
-
-                // guat
-                player[PlayerStats.RushAttempts] = record.GetInt(23);
-
-                // guya
-                player[PlayerStats.RushingYards] = rushingYards;
-
-                // gutd
-                player[PlayerStats.RushingTD] = rushTD;
-
-                // gctd
-                player[PlayerStats.ReceivingTD] = recTD;
-
-                // gcca
-                player[PlayerStats.Receptions] = rececptions;
-
-                // gcya
-                player[PlayerStats.ReceivingYards] = receivingYrds;
-
-                player[PlayerStats.LongestPass] = record["galN"].ToInt32();
-                player[PlayerStats.LongestReception] = record["gcrL"].ToInt32();
-                player[PlayerStats.LongestRush] = record["gulN"].ToInt32();
-
-                player.GameKey = game.Key;
-                game.GamePlayerStats.Add(playerId, player);
-                PlayerStats.OffensiveGamePerformances.Add(player);
-
-                if (player.Player != null)
-                {
-                    TeamRecord.SetNewRecord(TeamRecordKeys.PassTD, passTD, player.Player,game);
-                    TeamRecord.SetNewRecord(TeamRecordKeys.RushingTD, rushTD, player.Player,game);
-                    TeamRecord.SetNewRecord(TeamRecordKeys.RecTD, recTD, player.Player,game);
-                    TeamRecord.SetNewRecord(TeamRecordKeys.PassYds, passingYards, player.Player,game);
-                    TeamRecord.SetNewRecord(TeamRecordKeys.RushingYds, rushingYards, player.Player,game);
-                    TeamRecord.SetNewRecord(TeamRecordKeys.RecYds, receivingYrds, player.Player,game);
-                    TeamRecord.SetNewRecord(TeamRecordKeys.Receptions, rececptions, player.Player, game);
-                }
-            }
-
-            // defensive stats
-            table = db.lTables[1];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var record = table.lRecords[i];
-                var gameNumber = record.GetInt(1);
-                var weekNumber = record.GetInt(2);
-                var playerId = record.GetInt(0);
-                var game = Schedule[CreateKey(weekNumber, gameNumber)];
-
-                // make sure the player is in the dictionary
-                PlayerStats player;
-                if (!game.GamePlayerStats.TryGetValue(playerId, out player))
-                {
-                    player = new PlayerStats { PlayerId = playerId };
-                    player.GameKey = game.Key;
-                    game.GamePlayerStats.Add(playerId, player);
-                }
-
-                var sacks = record.GetInt(8);
-                var halfSacks = record.GetInt(13);
-                var ints = record.GetInt(11);
-
-                // add the defensive stats
-                // gdta
-                player[PlayerStats.Tackles] = record.GetInt(5);
-
-                // gdpd
-                player[PlayerStats.PassDeflections] = record.GetInt(6);
-
-                //glff
-                player[PlayerStats.ForcedFumble] = record.GetInt(7);
-
-                // glsk
-                player[PlayerStats.Sacks] = sacks;
-
-                // gdtl
-                player[PlayerStats.TackleForLoss] = record.GetInt(10);
-
-                // gsin
-                player[PlayerStats.Interceptions] = ints;
-
-                //glfr
-                player[PlayerStats.FumbleRec] = record.GetInt(12);
-
-                // glhs
-                player[PlayerStats.HalfSacks] = halfSacks;
-
-                // gdht
-                player[PlayerStats.AssistedTackles] = record.GetInt(15);
-
-                player[PlayerStats.LongIntRet] = record["gslR"].ToInt32();
-                player[PlayerStats.IntRetYds] = record["gsiy"].ToInt32().GetSignedInt(512);
-                player[PlayerStats.FumRecYds] = record["glfy"].ToInt32().GetSignedInt(512);
-                player[PlayerStats.IntReturnedForTD] = record["gsit"].ToInt32();
-                player[PlayerStats.FumblesReturnedForTD] = record["glft"].ToInt32();
-
-                if (player.Player != null)
-                {
-                    var totalsacks = sacks + (halfSacks > 0 ? (1 + halfSacks / 2) : 0);
-
-                    TeamRecord.SetNewRecord(TeamRecordKeys.Sacks, totalsacks, player.Player, game);
-                    TeamRecord.SetNewRecord(TeamRecordKeys.INT, ints, player.Player, game);
-                }
-            }
-
-            // return starts
-            table = db.lTables[3];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var record = table.lRecords[i];
-                var gameNumber = record["SGNM"].ToInt32();
-                var weekNumber = record["SEWN"].ToInt32();
-                var playerId = record["PGID"].ToInt32();
-                var game = Schedule[CreateKey(weekNumber, gameNumber)];
-
-                // return game stats
-                PlayerStats player;
-                if (!game.GamePlayerStats.TryGetValue(playerId, out player))
-                {
-                    player = new PlayerStats { PlayerId = playerId };
-                    player.GameKey = game.Key;
-                    game.GamePlayerStats.Add(playerId, player);
-                }
-
-                player[PlayerStats.KickReturns] = record["grka"].ToInt32();
-                player[PlayerStats.KRTD] = record["grkt"].ToInt32();
-                player[PlayerStats.KRYds] = record.GetSignedInt(9, 2048);
-                player[PlayerStats.LongestKR] = record["grkL"].ToInt32();
-
-                player[PlayerStats.PuntReturns] = record["grpa"].ToInt32();
-                player[PlayerStats.PRTD] = record["grpt"].ToInt32();
-                player[PlayerStats.PRYds] = record.GetSignedInt(10, 2048);
-                player[PlayerStats.LongestPR] = record["grpL"].ToInt32();
-            }
+            SchoolRecord.Create(dataEngine);
+            Schedule = dataEngine.ReadSchedule(isPreseason);
+            dataEngine.ReadGameStats(Schedule);
         }
 
         public int PostSeason { get; set; }
@@ -1394,7 +1018,7 @@ namespace EA_DB_Editor
             this.GamePlayerStats = new Dictionary<int, PlayerStats>();
         }
 
-        private static string CreateKey(int week, int num)
+        public static string CreateKey(int week, int num)
         {
             return string.Format("{0}-{1}", week, num);
         }

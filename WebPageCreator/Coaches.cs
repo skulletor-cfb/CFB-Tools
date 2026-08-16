@@ -13,79 +13,17 @@ namespace EA_DB_Editor
         public static bool IsPostSeason { get; set; }
         public static Dictionary<string, Coach> Coaches { get; set; }
 
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
             if (Coaches != null)
                 return;
 
-            Coaches = new Dictionary<string, Coach>();
-
-            var coachTable = db.lTables[133];
-            for (int i = 0; i < db.lTables[133].Table.currecords; i++)
-            {
-                // only coaches on valid teams should be analyzed
-                if (coachTable.lRecords[i].lEntries[23].Data.ToInt32().IsValidTeam() == false)
-                    continue;
-
-                int level, exp;
-                GetLevelAndXP(db.lTables[132].lRecords, i, out level, out exp);
-                var coach = new Coach
-                {
-                    Id = db.lTables[133].lRecords[i].lEntries[20].Data.ToInt32(),
-                    TeamId = db.lTables[133].lRecords[i].lEntries[23].Data.ToInt32().GetRealTeamId(),
-                    Position = db.lTables[133].lRecords[i].lEntries[100].Data.ToInt32(),
-                    FirstName = db.lTables[133].lRecords[i].lEntries[65].Data,
-                    LastName = db.lTables[133].lRecords[i].lEntries[66].Data,
-                    Age = db.lTables[133].lRecords[i].lEntries[29].Data.ToInt32(),
-                    ContractLength = coachTable.lRecords[i].lEntries[69].Data.ToInt32(),
-                    YearsIntoContract = coachTable.lRecords[i].lEntries[88].Data.ToInt32(),
-                    YearsWithTeam = 1 + coachTable.lRecords[i].lEntries[89].Data.ToInt32(),
-                    Rating = coachTable.lRecords[i].lEntries[109].Data.ToInt32(),
-                    OriginalJob = coachTable.lRecords[i].lEntries[5].Data,
-                    CareerWin = coachTable.lRecords[i]["CCWI"].ToInt32(),
-                    CareerLoss = coachTable.lRecords[i]["CCLO"].ToInt32(),
-                    TeamWin = coachTable.lRecords[i]["CTWN"].ToInt32(),
-                    TeamLoss = coachTable.lRecords[i]["COTL"].ToInt32(),
-                    Level = level,
-                    Exp = exp,
-                    OffPlaybookId = coachTable.lRecords[i]["CPID"].ToInt32(),
-                    DefPlaybookId = (DefensivePlaybook)coachTable.lRecords[i]["CDID"].ToInt32(),
-                    AlmaMaterId = coachTable.lRecords[i]["CHFT"].ToInt32().GetRealTeamId(),
-                    CoachBowlWin = coachTable.lRecords[i]["CBLW"].ToInt32(),
-                    CoachBowlLoss = coachTable.lRecords[i]["CBLL"].ToInt32(),
-                    AllAmericans = coachTable.lRecords[i]["CNAA"].ToInt32(),
-                    Top25Classes = coachTable.lRecords[i]["CNTC"].ToInt32(),
-                    CoachOfYearAwards = coachTable.lRecords[i]["CYRA"].ToInt32(),
-                    Top25Win = coachTable.lRecords[i]["CTTW"].ToInt32(),
-                    Top25Loss = coachTable.lRecords[i]["CTTL"].ToInt32(),
-                    RivalWin = coachTable.lRecords[i]["CRVW"].ToInt32(),
-                    RivalLoss = coachTable.lRecords[i]["CRVL"].ToInt32(),
-                    LongestWinStreak = coachTable.lRecords[i]["CCLS"].ToInt32(),
-                    HeismanWinners = coachTable.lRecords[i]["CHTW"].ToInt32(),
-                    CareerConferenceChampionships = coachTable.lRecords[i]["CCTW"].ToInt32(),
-                    CareerNationalChampionships = coachTable.lRecords[i]["CNTW"].ToInt32(),
-                };
-
-                Coaches.Add(coach.Key, coach);
-            }
+            Coaches = dataEngine.ReadCoaches();
         }
 
         [DataMember(EmitDefaultValue = false)]
         public int HeismanWinners { get; set; }
 
-        public static void GetLevelAndXP(List<MaddenRecord> table, int idx, out int level, out int exp)
-        {
-            if (idx >= table.Count)
-            {
-                level = 1;
-                exp = 0;
-            }
-            else
-            {
-                level = table[idx].lEntries[8].Data.ToInt32();
-                exp = table[idx].lEntries[14].Data.ToInt32();
-            }
-        }
 
         public static Coach FindHeadCoach(int teamId)
         {
@@ -412,10 +350,10 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void CreatePage(MaddenDatabase db, bool isPreseason)
+        public static void CreatePage(IDataEngine dataEngine, bool isPreseason)
         {
-            Create(db);
-            Team.Create(db, isPreseason);
+            Create(dataEngine);
+            Team.Create(dataEngine, isPreseason);
             ToCoachCsv();
 
             using (var tw = new StreamWriter("./Archive/Reports/coaches.html", false))

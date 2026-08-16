@@ -78,6 +78,9 @@
     <Reference Include="MC02Handler">
       <HintPath>.\MC02Handler.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -117,6 +120,11 @@
       <DependentUpon>ConfigCopySelection.cs</DependentUpon>
     </Compile>
     <Compile Include="ContinuationData.cs" />
+    <Compile Include="DataEngine\CFB27DataEngine.cs" />
+    <Compile Include="DataEngine\IDataEngine.cs" />
+    <Compile Include="DataEngine\Models\CFB27Payload.cs" />
+    <Compile Include="DataEngine\Models\CFB27Team.cs" />
+    <Compile Include="DataEngine\NCAA14DataEngine.cs" />
     <Compile Include="DirectoryCopy.cs" />
     <Compile Include="FilterForm.cs">
       <SubType>Form</SubType>
