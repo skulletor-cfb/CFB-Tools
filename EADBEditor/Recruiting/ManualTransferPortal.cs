@@ -531,7 +531,7 @@ namespace EA_DB_Editor
             StringBuilder sb,
             TeamFilter recruiters)
         {
-#if true
+#if false
             sb.AppendLine(player.ToCsvLine());
 #else
             var teamsRecruiting = new (string Team, int PlayerId)[5];

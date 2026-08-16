@@ -89,8 +89,6 @@ namespace DataBaker
             logger.WriteLine(status);
             seasons = Helper.Seasons.Season.Where(s => s.Loaded).ToArray();
 
-
-
             // bake playoff apperances
             PlayoffAppearances().Bake("playoffs");
 
@@ -123,6 +121,145 @@ namespace DataBaker
 
             // game group history
             GameGroup().Bake("groupHistory");
+
+            // team post season
+            TeamPostSeasonReport().Bake("bowls", true);
+        }
+
+        private static Dictionary<int, Dictionary<string, TableDescriptor>> TeamPostSeasonReport()
+        {
+            var result = new Dictionary<int, Dictionary<string, TableDescriptor>>();
+            foreach (var team in Team.TeamIds)
+            {
+                result[team] = new Dictionary<string, TableDescriptor>
+                {
+                    { "bowl", PostSeasonReport(team) },
+                    { "playoffs", PostSeasonReport(team, playoffs: true) },
+                    { "ccg", PostSeasonReport(team, ccg: true) },
+                    { "ko", PostSeasonReport(team, kickoffGames: true) }
+                };
+
+                foreach (var bowlId in AllBowlGames)
+                {
+                    result[team][bowlId.ToString()] = PostSeasonReport(team, bowlId: bowlId);
+                }
+            }
+
+            return result;
+        }
+
+        private static TableDescriptor PostSeasonReport(int teamId, bool playoffs=false, bool ccg=false, int bowlId=0, bool kickoffGames=false)
+        {
+            Func<PlayedGame, bool> filter = null;
+            int win = 0;
+            int loss = 0;
+            List<TableRow> rows = new List<TableRow>();
+            string desc = "Bowl Record ";
+
+            if (playoffs)
+            {
+                filter = s => s.IsPlayoffBowl();
+                desc = "Playoff Record ";
+            }
+            else if (ccg)
+            {
+                filter = s => s.Week == 16;
+                desc = "Conference Championship Game Record ";
+            }
+            else if (bowlId != 0)
+            {
+                filter = s => s.BowlId == bowlId;
+            }
+            else if (kickoffGames)
+            {
+                filter = s => s.IsKickoff && s.Year >= 2050;
+                desc = "Kickoff Game Record ";
+            }
+            else
+            {
+                // all bowl games
+                filter = s => s.Week > 16;
+            }
+
+            foreach (var s in seasons)
+            {
+                if (!s.Schedule.ContainsKey(teamId))
+                    continue;
+
+                s.ReadTeamScheduleFile();
+
+                var games = s.Schedule[teamId].Where(filter).ToArray();
+
+                var wins = games.Count(g => g.WonGame);
+                win += wins;
+                loss += (games.Length - wins);
+
+                foreach (var g in games)
+                {
+                    rows.Insert(0,
+                        new TableRow
+                        {
+                            Cells = new List<string>(
+                                new[]
+                                {
+                                CreateTeamHrefForRecentMeetings(s,teamId,g.Team,g.WonGame),
+                                CreateTeamHrefForRecentMeetings(s,teamId,35),
+                                CreateBoxScoreHref(s,g),
+                                CreateTeamHrefForRecentMeetings(s,g.OppId,35),
+                                CreateTeamHrefForRecentMeetings(s,g.OppId,g.Opponent,!g.WonGame),
+                                CreateBowlHistoryHref(s,g),
+                                CreateTeamBowlHistoryHref(s,g,teamId),
+                                CreateYearHref(s)
+                                })
+                        });
+                }
+            }
+
+            if (!ccg && !kickoffGames)
+            {
+                foreach (var bs in PastPlayoffHistory.GetBowlsForTeam(teamId).Where(bowl => !playoffs || bowl.Id.IsPlayoffBowl(bowl.Year)))
+                {
+                    if (bowlId != 0 && bs.Id != bowlId)
+                        continue;
+
+                    //if (bs.Year >= 2014)
+                    //{
+                    if (bs.WinningTeam.Id == teamId)
+                        win++;
+                    else
+                        loss++;
+                    //}
+
+                    var myTeam = bs[teamId].Name;
+                    var otherTeam = bs.GetOpponent(teamId).Name;
+                    int otherTeamId = bs.GetOpponentId(teamId);
+                    if (bs.IsWinningTeam(teamId))
+                    {
+                        myTeam = myTeam.MakeWinningTeamBold();
+                    }
+                    else
+                    {
+                        otherTeam = otherTeam.MakeWinningTeamBold();
+                    }
+
+
+                    var row = new TableRow(
+                        myTeam,
+                       CreateTeamHrefForRecentMeetings(null, teamId, 35),
+                       bs.GetTeamScore(teamId),
+                        CreateTeamHrefForRecentMeetings(null, otherTeamId, 35),
+                        otherTeam,
+                        bs.Name,
+                        string.Empty,
+                        bs.Year.ToString());
+
+                    rows.Add(row);
+                }
+            }
+
+            desc += win + "-" + loss;
+
+            return new TableDescriptor { Rows = rows, Description = desc };
         }
 
         public static Dictionary<string,TableDescriptor> GameGroup()
