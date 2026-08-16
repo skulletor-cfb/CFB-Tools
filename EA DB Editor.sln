@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.1.11312.151 d18.0
+VisualStudioVersion = 18.1.11312.151
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EA DB Editor", "EADBEditor\EA DB Editor.csproj", "{19BE3BC4-EC8A-4378-A6A9-211D9F93E1BC}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FutureScheduleReader", "FutureScheduleReader\FutureScheduleReader.csproj", "{15FA0695-A40E-459D-8D20-C57F498CF2CF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CAP", "CAP\CAP.csproj", "{5EB1D0CC-D748-46DC-9917-1C4880F07B7A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CFB27.Reader", "CFB27.Reader\CFB27.Reader.csproj", "{0E3F6E77-B205-4961-A067-74D84AF36D48}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +63,14 @@ Global
 		{5EB1D0CC-D748-46DC-9917-1C4880F07B7A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5EB1D0CC-D748-46DC-9917-1C4880F07B7A}.Release|x86.ActiveCfg = Release|Any CPU
 		{5EB1D0CC-D748-46DC-9917-1C4880F07B7A}.Release|x86.Build.0 = Release|Any CPU
+		{0E3F6E77-B205-4961-A067-74D84AF36D48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E3F6E77-B205-4961-A067-74D84AF36D48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E3F6E77-B205-4961-A067-74D84AF36D48}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0E3F6E77-B205-4961-A067-74D84AF36D48}.Debug|x86.Build.0 = Debug|Any CPU
+		{0E3F6E77-B205-4961-A067-74D84AF36D48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E3F6E77-B205-4961-A067-74D84AF36D48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E3F6E77-B205-4961-A067-74D84AF36D48}.Release|x86.ActiveCfg = Release|Any CPU
+		{0E3F6E77-B205-4961-A067-74D84AF36D48}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

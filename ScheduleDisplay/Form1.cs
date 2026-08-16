@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
 using System.IO;
@@ -99,6 +100,18 @@ namespace ScheduleDisplay
 
 
         private void dataGridView1_CellLeave(object sender, DataGridViewCellEventArgs e)
+        {
+        }
+
+        private void openDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+            }
+        }
+
+        private static Dictionary<int, Team> LoadTeams()
         {
         }
     }
