@@ -1,4 +1,5 @@
-﻿using EA_DB_Editor;
+﻿using CFB27.Data.Model;
+using EA_DB_Editor;
 
 namespace CFB27Tester
 {
@@ -9,7 +10,7 @@ namespace CFB27Tester
         [TestInitialize]
         public void Init()
         {
-            engine = new CFB27DataEngine(@"d:\\cfb27");
+            engine = new CFB27DataEngine(@"D:\CFB27\export\DYNASTY-Y26-REALCOACHES");
         }
 
 
@@ -29,7 +30,7 @@ namespace CFB27Tester
         [TestMethod]
         public void VerifyMap()
         {
-            Assert.AreEqual(CFB27Team.TeamIdToOldIdMap.Count, 143);
+            Assert.HasCount(143, CFB27Team.TeamIdToOldIdMap);
         }
     }
 }

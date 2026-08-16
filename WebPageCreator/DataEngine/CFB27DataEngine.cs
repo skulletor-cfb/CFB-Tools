@@ -1,20 +1,17 @@
-﻿using System;
+﻿using CFB27.Data.Model;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EA_DB_Editor.DataEngine.Models;
-using Newtonsoft;
-using Newtonsoft.Json;
 
 namespace EA_DB_Editor
 {
     public static class JsonHelpers
     {
-        public static CFB27Payload<T> ReadJson<T>(this string file) where T : CFB27Record
+        public static CFB27Table<T> ReadJson<T>(this string file) where T : BaseRecord
         {
-            return JsonConvert.DeserializeObject<CFB27Payload<T>>(File.ReadAllText(file));
+            return JsonConvert.DeserializeObject<CFB27Table<T>>(File.ReadAllText(file));
         }
 
         public static string WriteJson(this object payload)
@@ -26,8 +23,8 @@ namespace EA_DB_Editor
     public class CFB27DataEngine : IDataEngine
     {
         private readonly string directory;
-        private const string TeamFile = "2212_Team.json";
-        private CFB27Payload<CFB27Team> teams;
+        private const string TeamFile = "2252_Team.json";
+        private CFB27Table<CFB27Team> teams;
 
         public Dictionary<int, string> TeamNames => this.teams.Records.ToDictionary(t => t.Row, t => t.DisplayName);
 
@@ -79,7 +76,7 @@ namespace EA_DB_Editor
 
         public Dictionary<int, Team> ReadTeams(bool isPreseason)
         {
-            throw new NotImplementedException();
+            return this.teams.Records.ToDictionary(t => t.TeamId, t => new Team(t, isPreseason));
         }
 
         public Dictionary<string, Coach> ReadCoaches()

@@ -1,21 +1,67 @@
-﻿using EA_DB_Editor.DataEngine.Models;
-using Newtonsoft.Json;
-using System;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace EA_DB_Editor
+namespace CFB27.Data.Model
 {
     [JsonObject]
-    public class CFB27Team : CFB27Record
+    public class CFB27Team : BaseRecord
     {
         [JsonProperty]
         public string DisplayName { get; set; }
 
         [JsonProperty]
         public int TeamIndex { get; set; }
+        
+        [JsonProperty]
+        public string NickName { get; set; }
+
+        [JsonProperty]
+        public string ShortName { get; set; }
+
+        [JsonProperty]
+        public int ToughestPlacesScore { get; set; }
+
+        [JsonProperty]
+        public int AverageAttendance { get; set; }
+
+        [JsonProperty]
+        public int ConfWin { get; set; }
+
+        [JsonProperty]
+        public int ConfLoss { get; set; }
+
+        [JsonProperty]
+        public int MediaPoll_CurrentRank { get; set; }
+
+        [JsonProperty]
+        public int MediaPoll_LastWeeksRank { get; set; }
+
+        [JsonProperty]
+        public int CFPPoll_CurrentRank { get; set; }
+
+        [JsonProperty]
+        public int CFPPoll_LastWeeksRank { get; set; }
+
+        [JsonProperty]
+        public int CoachesPoll_CurrentRank { get; set; }
+
+        [JsonProperty]
+        public int CoachesPoll_LastWeeksRank { get; set; }
+
+        [JsonProperty]
+        public int ToughestPlacesRank { get; set; }
+
+        [JsonProperty]
+        public int TeamPrestige { get; set; }
+
+        [JsonProperty]
+        public int TEAM_PREVSEASLOSSES { get; set; }
+
+        [JsonProperty]
+        public int TEAM_PREVSEASWINS { get; set; }
+
+        [JsonIgnore]
+        public int TeamId => TeamIdToOldIdMap[this.TeamIndex];
 
         /// <summary>
         /// ids in CFB27 mapped to the classic ids

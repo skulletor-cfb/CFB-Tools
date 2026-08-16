@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Configuration;
+using CFB27.Data.Model;
 
 namespace EA_DB_Editor
 {
@@ -1013,6 +1014,13 @@ namespace EA_DB_Editor
             this.Id = id;
             this.Name = name;
             BCSRank = CoachesPollRank = MediaPollRank = 200;
+        }
+
+        public Team(CFB27Team team, bool isPreseason)
+        {
+            Id = team.TeamId;
+            Name = team.DisplayName;
+            Mascot = team.NickName;
         }
 
         public Team(MaddenRecord record, MaddenDatabase db, bool isPreseason)
