@@ -89,7 +89,7 @@ namespace DataBaker
             logger.WriteLine(status);
             seasons = Helper.Seasons.Season.Where(s => s.Loaded).ToArray();
 
-            return;
+
 
             // bake playoff apperances
             PlayoffAppearances().Bake("playoffs");
@@ -114,7 +114,7 @@ namespace DataBaker
             // TODO RIVALRY GAME HISTORY
 
             sw.Restart();
-            CoachCareer().CoachH2H().Bake("coachcareer", true);
+            CoachCareer().CoachPlayoffAndH2H().Bake("coachcareer", true);
             sw.Stop();
             logger.WriteLine("CoachCareer baked in " + sw.Elapsed);
 
@@ -203,6 +203,89 @@ namespace DataBaker
             }
 
             return result;
+        }
+
+        private static void EvaluateCoachPlayoff(KeyValuePair<HashedCoachKey, TableSet> kvp)
+        {
+            // Perform H2H calculations for the coach
+            var key = new CoachKey(kvp.Key.Id, kvp.Key.Name);
+            Func<PlayedGame, bool> filterFunc = null;
+            var filters = new string[] { "PLAYOFF", "KOG", "BOWL", "CCG" };
+
+            foreach (var filter in filters)
+            {
+                int win = 0;
+                int loss = 0;
+                List<TableRow> rows = new List<TableRow>();
+                switch (filter.ToUpper())
+                {
+                    case "PLAYOFF":
+                        filterFunc = s => s.IsPlayoffBowl();
+                        break;
+                    case "KOG":
+                        filterFunc = s => s.IsKickoff;
+                        break;
+                    case "BOWL":
+                        filterFunc = s => s.Week > 16;
+                        break;
+                    case "CCG":
+                        filterFunc = s => s.Week == 16;
+                        break;
+                }
+
+                foreach (var s in seasons)
+                {
+                    s.ReadTeamScheduleFile();
+                    s.ReadTeamFile();
+
+                    if (!s.Coaches.TryGetValue(key, out var coach) || coach.Position != 0)
+                    {
+                        continue;
+                    }
+
+                    var games = s.Schedule[coach.TeamId].Where(filterFunc).ToArray();
+                    var wins = games.Count(g => g.WonGame);
+                    win += wins;
+                    loss += (games.Length - wins);
+
+                    foreach (var g in games)
+                    {
+                        rows.Insert(0,
+                            new TableRow
+                            {
+                                Cells = new List<string>(
+                                    new[]
+                                    {
+                                CreateTeamHrefForRecentMeetings(s,coach.TeamId,g.Team,g.WonGame),
+                                CreateTeamHrefForRecentMeetings(s,coach.TeamId,35),
+                                CreateBoxScoreHref(s,g),
+                                CreateTeamHrefForRecentMeetings(s,g.OppId,35),
+                                CreateTeamHrefForRecentMeetings(s,g.OppId,g.Opponent,!g.WonGame),
+                                CreateBowlHistoryHref(s,g),
+                                CreateYearHref(s)
+                                    })
+                            });
+                    }
+                }
+
+                var desc = kvp.Key.Name + ": " + win + "-" + loss;
+                var td = new TableDescriptor { Rows = rows, Description = desc };
+                switch (filter.ToUpper())
+                {
+                    case "PLAYOFF":
+                        kvp.Value.CoachPLAYOFF = td;
+                        break;
+                    case "KOG":
+                        kvp.Value.CoachKOG = td;
+                        break;
+                    case "BOWL":
+                        kvp.Value.CoachBOWL = td;
+                        break;
+                    case "CCG":
+                        kvp.Value.CoachCCG = td;
+                        break;
+                }
+            }
         }
 
         private static void EvaluateCoachH2H(KeyValuePair<HashedCoachKey, TableSet> kvp)
@@ -305,9 +388,11 @@ namespace DataBaker
             return seasons.Last().Teams.TryGetValue(id, out var team) ? team.Name : Team.PendingTeamNames[id];
         }
 
-        private static Dictionary<HashedCoachKey, TableSet>  CoachH2H(this Dictionary<HashedCoachKey, TableSet> coaches)
+        private static Dictionary<HashedCoachKey, TableSet> CoachPlayoffAndH2H(this Dictionary<HashedCoachKey, TableSet> coaches)
         {
-            Parallel.ForEach(coaches.Where(kvp => kvp.Value.CoachBio.HasBeenHeadCoach), EvaluateCoachH2H);
+            var headCoaches = coaches.Where(kvp => kvp.Value.CoachBio.HasBeenHeadCoach).ToList();
+            Parallel.ForEach(headCoaches, EvaluateCoachH2H);
+            Parallel.ForEach(headCoaches, EvaluateCoachPlayoff);
             return coaches;
         }
 

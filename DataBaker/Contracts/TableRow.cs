@@ -44,6 +44,18 @@ namespace DataBaker.Contracts
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public Dictionary<string, TableDescriptor> CoachH2HDrilldown { get; set; }
+
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public TableDescriptor CoachPLAYOFF { get; set; }
+
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public TableDescriptor CoachKOG { get; set; }
+
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public TableDescriptor CoachBOWL { get; set; }
+
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public TableDescriptor CoachCCG { get; set; }
     }
 
     [JsonObject]
