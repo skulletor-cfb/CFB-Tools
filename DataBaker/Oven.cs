@@ -89,7 +89,6 @@ namespace DataBaker
             logger.WriteLine(status);
             seasons = Helper.Seasons.Season.Where(s => s.Loaded).ToArray();
 
-            CoachCareer().CoachH2H().Bake("coachcareer", true);
             return;
 
             // bake playoff apperances
@@ -121,6 +120,50 @@ namespace DataBaker
 
             // coaching greats
             CoachingGreats().Bake("coachingGreats", true);
+
+            // game group history
+            GameGroup().Bake("groupHistory");
+        }
+
+        public static Dictionary<string,TableDescriptor> GameGroup()
+        {
+            var result = new Dictionary<string,TableDescriptor>();
+            const string kickoff = "kickoff";
+            const string ny6 = "ny6";
+            const string playoff = "playoff";
+
+            result[kickoff] = new TableDescriptor();
+            result[ny6] = new TableDescriptor();
+            result[playoff] = new TableDescriptor();
+
+            foreach (var s in seasons)
+            {
+                s.ReadTeamScheduleFile();
+                result[kickoff].Rows.InsertRange(0, s.KickOffGames.Select(g => CreateTableRow(s, g, s.Year)));
+                result[ny6].Rows.InsertRange(0, s.NY6Games.Select(g => CreateTableRow(s, g, s.Year)));
+                result[playoff].Rows.InsertRange(0, s.PlayoffGames.Select(g => CreateTableRow(s, g, s.Year)));
+            }
+
+            foreach (var past in PastPlayoffHistory.Years)
+            {
+                foreach (var kvp in PastPlayoffHistory.years[past].Where(kvp => kvp.Key.IsPlayoffBowl(past)))
+                {
+                    var bs = kvp.Value;
+                    var row = new TableRow(
+                        past,
+                        bs.WinningTeam.Name.MakeWinningTeamBold(),
+                       CreateTeamHrefForRecentMeetings(null, bs.Winner, 35),
+                       bs.Score,
+                        CreateTeamHrefForRecentMeetings(null, bs.Loser, 35),
+                        bs.LosingTeam.Name,
+                        bs.Name,
+                        past.ToString());
+
+                    result[playoff].Rows.Add(row);
+                }
+            }
+
+            return result;
         }
 
         public static Dictionary<string, List<Coach>> CoachingGreats()
