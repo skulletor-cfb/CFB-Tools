@@ -1096,6 +1096,12 @@
   <ItemGroup>
     <Folder Include="Archive\Reports\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CFB27.Data.Model\CFB27.Data.Model.csproj">
+      <Project>{6ac2e7ec-9d94-42c0-b7e9-3f2cb12d79dd}</Project>
+      <Name>CFB27.Data.Model</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /y /e  "$(ProjectDir)"archive\* $(OutDir)archive\*</PostBuildEvent>

@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CFB27.Data.Model\CFB27.Data.Model.csproj" />
     <ProjectReference Include="..\WebPageCreator\EA DB Editor.csproj" />
   </ItemGroup>
 

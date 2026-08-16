@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataBaker", "DataBaker\Data
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CFB27Tester", "CFB27Tester\CFB27Tester.csproj", "{E0594EF3-6368-47A1-9F11-854EAF6DE700}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CFB27.Data.Model", "CFB27.Data.Model\CFB27.Data.Model.csproj", "{6AC2E7EC-9D94-42C0-B7E9-3F2CB12D79DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,14 @@ Global
 		{E0594EF3-6368-47A1-9F11-854EAF6DE700}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E0594EF3-6368-47A1-9F11-854EAF6DE700}.Release|x86.ActiveCfg = Release|Any CPU
 		{E0594EF3-6368-47A1-9F11-854EAF6DE700}.Release|x86.Build.0 = Release|Any CPU
+		{6AC2E7EC-9D94-42C0-B7E9-3F2CB12D79DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AC2E7EC-9D94-42C0-B7E9-3F2CB12D79DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AC2E7EC-9D94-42C0-B7E9-3F2CB12D79DD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6AC2E7EC-9D94-42C0-B7E9-3F2CB12D79DD}.Debug|x86.Build.0 = Debug|Any CPU
+		{6AC2E7EC-9D94-42C0-B7E9-3F2CB12D79DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AC2E7EC-9D94-42C0-B7E9-3F2CB12D79DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6AC2E7EC-9D94-42C0-B7E9-3F2CB12D79DD}.Release|x86.ActiveCfg = Release|Any CPU
+		{6AC2E7EC-9D94-42C0-B7E9-3F2CB12D79DD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
