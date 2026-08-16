@@ -52,7 +52,7 @@ namespace EA_DB_Editor
             {
                 Utility.WriteNavBarAndHeader(tw, "All Americans", "loadaaacData", string.Format("{0},'{1}'", 14, allAmericanFile));
                 tw.Write(@"<table><tr><td class=c8 colspan=9 width=40 height=40></td></tr></table>");
-                tw.Write("<table><tr><td width=800 height=40></td></tr></table><table id='mainTable' cellpadding=20 cellspacing=0>	<tr>		<td width=100% align=center colspan=4>			<table cellpadding=0 cellspacing=0 width=100%>				<tr>					<td class=c8 width=100%><center><img border=0 src='../HTML/Logos/FCS.jpg'></center></td><td class=c8></td>				</tr>			</table>		</td>	</tr>");
+                tw.Write("<table><tr><td width=800 height=40></td></tr></table><table id='mainTable' cellpadding=20 cellspacing=0>	<tr>		<td width=100% align=center colspan=4>			<table cellpadding=0 cellspacing=0 width=100%>				<tr>					<td class=c8 width=100%><center><img border=0 src='../HTML/Logos/FCS.png'></center></td><td class=c8></td>				</tr>			</table>		</td>	</tr>");
 
                 var sb = new StringBuilder();
                 var aaTeams = Conference.Conferences.Values.Where(c => c.Id != 17 && Team.Teams.Values.Any(t => t.ConferenceId == c.Id)).Select(c => new { Name = c.Name, Id = c.Id }).ToList();

@@ -71,6 +71,9 @@ namespace EA_DB_Editor
 
     public class Game
     {
+        public const string QuarterFinalsDescription = "Quarterfinals";
+        public const string SemiFinalsDescription = "Semifinals";
+
         public int TeamId { get; set; }
         public bool IsHomeGame { get; set; }
         public int OpponentId { get; set; }
@@ -78,6 +81,30 @@ namespace EA_DB_Editor
         public Team TeamName { get { return Team.Teams[TeamId]; } }
         public int GameNumber { get; set; }
         public int Week { get; set; }
+
+        public string PlayoffDescriptor
+        {
+            get
+            {
+                if (Bowl.IsPlayoffRound1(this))
+                {
+                    return "CFP 1st Round";
+                }
+
+                if (Bowl.IsQuarterfinal(this))
+                {
+                    return QuarterFinalsDescription;
+                }
+
+                if (Bowl.IsSemiFinal(this))
+                {
+                    return SemiFinalsDescription;
+                }
+
+                return string.Empty;
+            }
+        }
+
         public int? BowlId
         {
             get
@@ -1250,11 +1277,11 @@ namespace EA_DB_Editor
                 };
 
                 // check to see if the team went 16-0
-                if (seasonRecord.Win == 0)
+                if (seasonRecord.Win < 4)
                 {
-                    seasonRecord.Win = BowlChampion.IsNationalChampionshipYear(teamId, seasonRecord.Year) ? 16 : 0;
+                    seasonRecord.Win += BowlChampion.IsNationalChampionshipYear(teamId, seasonRecord.Year) ? 16 : 0;
                 }
-
+ 
                 teamSeasonRecords.Add(seasonRecord.Year, seasonRecord);
             }
         }

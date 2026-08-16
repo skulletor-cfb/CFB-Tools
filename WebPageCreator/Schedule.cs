@@ -734,6 +734,11 @@ namespace EA_DB_Editor
             IsErikSimpsonCFBClassic,
             IsMayhemAtMBS,
             IsEddieRobinsonClassic,
+            IsAtlantaGridironClassic,
+            IsKansasCityClassic,
+            IsUnionJackClassic,
+            IsCFBBrasil,
+            IsMusicCityKickoff,
         };
 
         public static string SiteIdSuffix(ScheduledGame g)
@@ -759,6 +764,77 @@ namespace EA_DB_Editor
 
             return false;
         }
+
+        private static bool IsMusicCityKickoff(ScheduledGame g)
+        {
+            const int id = 165165165;
+            KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
+            if (g.StadiumId == 165 && Form1.CalendarYear >= 2565)
+            {
+                g.GameSite = "Music City Kickoff";
+                g.SiteId = id;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsCFBBrasil(ScheduledGame g)
+        {
+            const int id = 270270270;
+            KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
+            if (g.StadiumId == 270 && Form1.CalendarYear >= 2561)
+            {
+                g.GameSite = "College Football Brasil";
+                g.SiteId = id;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsUnionJackClassic(ScheduledGame g)
+        {
+            const int id = 267762;
+            KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
+            if (g.StadiumId == 267 && Form1.CalendarYear >= 2552)
+            {
+                g.GameSite = "Union Jack Classic";
+                g.SiteId = id;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsAtlantaGridironClassic(ScheduledGame g)
+        {
+            const int id = 263263;
+            KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
+            if (g.StadiumId == 263 && Form1.CalendarYear >= 2537)
+            {
+                g.GameSite = "Atlanta Gridiron Classic";
+                g.SiteId = id;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsKansasCityClassic(ScheduledGame g)
+        {
+            const int id = 262262;
+            KickOffGames.Add(new NeutralSiteGame { Games = new[] { id } });
+            if (g.StadiumId == 262)
+            {
+                g.GameSite = "Kansas City Classic";
+                g.SiteId = id;
+                return true;
+            }
+
+            return false;
+        }
+
 
         private static bool IsMayhemAtMBS(ScheduledGame g)
         {
@@ -1338,16 +1414,16 @@ namespace EA_DB_Editor
 
         public void WriteToTable(StringBuilder sb, PlayerStats p, string[] keys, int tableIndex)
         {
-            sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14}",
+            sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15}",
                 p.Player.Number, p.Player.Name, p.Player.CalculateYear(0), p.Player.PositionName, p.Player.Height.CalculateHgt(), p.Player.Weight,
                 p.GetIntStringValue(keys[0]), p.GetIntStringValue(keys[1]), p.GetIntStringValue(keys[2]), p.GetIntStringValue(keys[3]),
-                p.GetIntStringValue(keys[4]), p.GetIntStringValue(keys[5]), p.GetIntStringValue(keys[6]), p.Player.TeamId, tableIndex));
+                p.GetIntStringValue(keys[4]), p.GetIntStringValue(keys[5]), p.GetIntStringValue(keys[6]), p.Player.TeamId, tableIndex,p.Player.Face));
         }
 
         public string CreateStatsTable(string file)
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("No,Name,PlayerClass,Position,Height,Weight,Stat1,Stat2,Stat3,Stat4,Stat5,Stat6,Stat7,TeamId,TableId");
+            sb.AppendLine("No,Name,PlayerClass,Position,Height,Weight,Stat1,Stat2,Stat3,Stat4,Stat5,Stat6,Stat7,TeamId,TableId,Face");
 
             var passStats = GamePlayerStats.Values.Where(p => p.GetIntValue(PlayerStats.PassAttempts) > 0 && PlayerDB.Players.ContainsKey(p.PlayerId)).OrderByDescending(p => p.Player.TeamId) //sort by team
                 .ThenByDescending(p => p.GetIntValue(PlayerStats.PassingYards))
@@ -1407,6 +1483,7 @@ namespace EA_DB_Editor
 
         public bool IsPlayoffGame(int highestRank)
         {
+            return false;
             return this.HomeTeam.BCSPrevious <= highestRank && this.AwayTeam.BCSPrevious <= highestRank && this.HomeTeam.BCSPrevious >= 1 && this.AwayTeam.BCSPrevious >= 1;
         }
     }

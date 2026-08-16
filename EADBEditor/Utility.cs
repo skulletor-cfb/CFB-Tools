@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization.Json;
 using System.Text;
-
 namespace EA_DB_Editor
 {
 
@@ -19,7 +19,7 @@ namespace EA_DB_Editor
             var diff = exclusive - inclusive;
             return inclusive + rand % diff;
         }
-        public static void ToJsonFile<T>(this T obj, string file)
+        public static string ToJson<T>(this T obj)
         {
             string json = null;
 
@@ -35,12 +35,17 @@ namespace EA_DB_Editor
                 }
             }
 
+            return json;
+        }
+
+        public static void ToJsonFile<T>(this T obj, string file)
+        {
+            var json = obj.ToJson();
             File.WriteAllText(file, json);
         }
 
-        public static T FromJsonFile<T>(this string file)
+        public static T FromJsonString<T>(this string json)
         {
-            var json = File.ReadAllText(file);
             var ms = new MemoryStream(Encoding.UTF8.GetBytes(json));
 
             try
@@ -52,6 +57,12 @@ namespace EA_DB_Editor
             {
                 ms.Dispose();
             }
+        }
+
+        public static T FromJsonFile<T>(this string file)
+        {
+            var json = File.ReadAllText(file);
+            return json.FromJsonString<T>();
         }
 
 

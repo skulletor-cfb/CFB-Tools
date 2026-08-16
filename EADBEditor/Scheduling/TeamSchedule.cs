@@ -47,6 +47,13 @@ namespace EA_DB_Editor
             games[game.WeekIndex] = game;
         }
 
+        public void SetUnscheduleGame(PreseasonScheduledGame game, int week, int gameNumber)
+        {
+            game.SetWeek(week);
+            game.GameNumber = gameNumber;
+            games[game.WeekIndex] = game;
+        }
+
         public List<int> FindOpenWeeks(int? butNot = null)
         {
             var list = new List<int>();
@@ -62,6 +69,22 @@ namespace EA_DB_Editor
 
             return list;
         }
+
+        public List<int> FindOpenWeeksWithBuffer()
+        {
+            var list = new List<int>();
+
+            for (int i = 0; i < games.Length; i++)
+            {
+                if (games[i] == null)
+                {
+                    list.Add(i);
+                }
+            }
+
+            return list;
+        }
+
 
         public int FindLastOpenWeekForFcs()
         {

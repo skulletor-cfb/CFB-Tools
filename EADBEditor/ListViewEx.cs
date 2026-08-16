@@ -65,6 +65,11 @@ namespace ListViewEx
 			base.AllowColumnReorder = true;
 			base.HideSelection		= false;
 			base.GridLines			= true;
+
+			if (EA_DB_Editor.Form1.EditingSchedule)
+			{
+				base.Font = new Font(this.Font.FontFamily, 10);
+			}
 		}
 
 		///	<summary>

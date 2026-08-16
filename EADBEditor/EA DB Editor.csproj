@@ -20,7 +20,7 @@
     <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -31,7 +31,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\Release\</OutputPath>
@@ -61,8 +61,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdditionalGameProvider.cs" />
+    <Compile Include="NationalSchedule.cs" />
+    <Compile Include="RecruitFace.cs" />
+    <Compile Include="Recruiting\ManualTransferPortal.cs" />
+    <Compile Include="Recruiting\TeamRecruiter.cs" />
+    <Compile Include="Recruiting\TransferCandidate.cs" />
+    <Compile Include="Recruiting\TransferPortal.cs" />
     <Compile Include="Scheduling\AmericanPodSchedule.cs" />
     <Compile Include="RecruitAllAmericans.cs" />
+    <Compile Include="Recruiting\TransferPortalClass.cs" />
     <Compile Include="Scheduling\ACCPodSchedule.cs" />
     <Compile Include="Scheduling\AmericanSchedule.cs" />
     <Compile Include="BetterListView.cs">
@@ -83,6 +90,7 @@
     <Compile Include="ConfigCopySelection.Designer.cs">
       <DependentUpon>ConfigCopySelection.cs</DependentUpon>
     </Compile>
+    <Compile Include="Scheduling\SECSchedule.cs" />
     <Compile Include="Scheduling\TeamSchedule.cs" />
     <Compile Include="Scheduling\CUSASchedule.cs" />
     <Compile Include="EntryList.cs" />

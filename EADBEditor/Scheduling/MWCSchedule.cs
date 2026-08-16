@@ -7,7 +7,6 @@ namespace EA_DB_Editor
 {
     public class MWCSchedule
     {
-        private const int UTEPId = 105;
         private const int UNM = 60;
         private const int SDSU = 81;
         private const int Hawaii = 32;
@@ -49,12 +48,7 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            if (Form1.DynastyYear == 2524)
-            {
-                throw new Exception("Does BSU go to Big 12????");
-            }
-
-            var idx = (Form1.DynastyYear - 2478) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2545) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(12, RecruitingFixup.MWCId, "MWC");
             MWCConferenceSchedule = result.BuildHashSet();
