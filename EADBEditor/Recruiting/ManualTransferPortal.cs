@@ -531,6 +531,9 @@ namespace EA_DB_Editor
             StringBuilder sb,
             TeamFilter recruiters)
         {
+#if false
+            sb.AppendLine(player.ToCsvLine());
+#else
             var teamsRecruiting = new (string Team, int PlayerId)[5];
             var teamSelected = new HashSet<int>();
             var idx = 0;
@@ -558,6 +561,7 @@ namespace EA_DB_Editor
 
             var teamList = teamsRecruiting.Select(t => $"{t.Team},{t.PlayerId}");
             sb.AppendLine($"{player.ToCsvLine()},,,{string.Join(",", teamList)}");
+#endif
         }
 
         private static void ShouldCoachPoach(this TransferCandidate player, StringBuilder sb, List<TransferCandidate> roster, List<RecruitInfo> incoming, Stack<int> rosterSpots)
