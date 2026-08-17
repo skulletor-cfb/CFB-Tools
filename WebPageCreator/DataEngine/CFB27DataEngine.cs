@@ -9,9 +9,9 @@ namespace EA_DB_Editor
 {
     public static class JsonHelpers
     {
-        public static CFB27Table<T> ReadJson<T>(this string file) where T : BaseRecord
+        public static CFBTable<T> ReadJson<T>(this string file) where T : BaseRecord
         {
-            return JsonConvert.DeserializeObject<CFB27Table<T>>(File.ReadAllText(file));
+            return JsonConvert.DeserializeObject<CFBTable<T>>(File.ReadAllText(file));
         }
 
         public static string WriteJson(this object payload)
@@ -23,15 +23,19 @@ namespace EA_DB_Editor
     public class CFB27DataEngine : IDataEngine
     {
         private readonly string directory;
-        private const string TeamFile = "2252_Team.json";
-        private CFB27Table<CFB27Team> teams;
+        private readonly DirectoryInfo directoryInfo;
+        private const string TeamFile = "*_Team.json";
+        public CFBTable<CFBTeam> Teams { get; private set; }
+        public Dictionary<int,CFBTable<CFBTeamHistoricalData>> TeamHistoricalData { get; private set; }
 
-        public Dictionary<int, string> TeamNames => this.teams.Records.ToDictionary(t => t.Row, t => t.DisplayName);
+        public Dictionary<int, string> TeamNames => this.Teams.Records.ToDictionary(t => t.Row, t => t.DisplayName);
 
-        public CFB27DataEngine(string directory)
+        public CFB27DataEngine(string rootDirectory)
         {
-            this.directory = Path.Combine(directory, "JSON");
-            this.teams = Path.Combine(this.directory, TeamFile).ReadJson<CFB27Team>();
+            this.directory = Path.Combine(rootDirectory, "JSON");
+            this.directoryInfo = new DirectoryInfo(this.directory);
+            this.Teams = this.GetFile(TeamFile).ReadJson<CFBTeam>();
+            this.TeamHistoricalData = this.GetTeamHistoricalData();
         }
 
         public Dictionary<string, Bowl> CreateBowlTable()
@@ -76,7 +80,7 @@ namespace EA_DB_Editor
 
         public Dictionary<int, Team> ReadTeams(bool isPreseason)
         {
-            return this.teams.Records.ToDictionary(t => t.TeamId, t => new Team(t, isPreseason));
+            return this.Teams.Records.ToDictionary(t => t.TeamId, t => new Team(t, isPreseason));
         }
 
         public Dictionary<string, Coach> ReadCoaches()
@@ -173,6 +177,39 @@ namespace EA_DB_Editor
         public string ReadStadiumName(int siteId)
         {
             throw new NotImplementedException();
+        }
+
+        private string GetFile(string pattern)
+        {
+            var file = directoryInfo.GetFiles(pattern).OrderByDescending(f => f.Length).First();
+            return file.FullName;
+        }
+
+        private string[] GetFiles(string pattern)
+        {
+            var files = directoryInfo.GetFiles(pattern).Select(f => f.FullName).ToArray();
+            return files;
+        }
+
+        private Dictionary<int,CFBTable<CFBTeamHistoricalData>> GetTeamHistoricalData()
+        {
+            var files = this.GetFiles("*_TeamHistoricalData.json");
+            var data = files.Select(f => f.ReadJson<CFBTeamHistoricalData>()).ToArray();
+            var result = data.ToDictionary(t => t.Header.tableId);
+
+            //match historical data to teams
+            foreach (var team in Teams.Records)
+            {
+                var tableId = this.ConvertToTableId(team.TeamHistoricalData);
+                team.HistoricalData = result[tableId].Records[0];
+            }
+
+            return result;
+        }
+
+        private int ConvertToTableId(string tableId, int prefixLength = 15)
+        {
+            return Convert.ToInt32(tableId.Substring(0, prefixLength), 2);
         }
     }
 }

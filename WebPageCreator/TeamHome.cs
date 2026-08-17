@@ -1016,11 +1016,73 @@ namespace EA_DB_Editor
             BCSRank = CoachesPollRank = MediaPollRank = 200;
         }
 
-        public Team(CFB27Team team, bool isPreseason)
+        public Team(CFBTeam team, bool isPreseason)
         {
             Id = team.TeamId;
             Name = team.DisplayName;
             Mascot = team.NickName;
+            var atw = team.HistoricalData.Wins;
+            var atl = team.HistoricalData.Losses;
+            var att = team.HistoricalData.Ties;
+            var bw = team.HistoricalData.BowlsWon;
+            var bl = team.HistoricalData.BowlsMade - team.HistoricalData.BowlsWon;
+            var bt = 0;
+            Win = team.Win;
+            Loss = team.Loss;
+            Streak = team.SeasonWinLossStreak;
+            BCSRank = team.CFPPoll_CurrentRank;
+            BCSPrevious = team.CFPPoll_LastWeeksRank;
+            MediaPollRank = team.MediaPoll_CurrentRank;
+            MediaPollFirstPlaceVotes = team.MediaPoll_FirstPlaceVotes;
+            MediaPollPoints = team.MediaPoll_FirstPlaceVotes;
+            MediaPollPrevious = team.MediaPoll_LastWeeksRank;
+            CoachesPollRank = team.CoachesPoll_CurrentRank;
+            CoachesPollFirstPlaceVotes = team.CoachesPoll_FirstPlaceVotes;
+            CoachesPollPoints = team.CoachesPoll_CurrentPoints;
+            CoachesPollPrevious = team.CoachesPoll_LastWeeksRank;
+            var nts = team.HistoricalData.NationalChampionshipsWon;
+            var cts = team.HistoricalData.ConferenceChampionshipsWon;
+            ConferenceWin = team.ConfWin;
+            ConferenceLoss = team.ConfLoss;
+            DivisionWin = team.DivisionWin;
+            DivisionLoss = team.DivisionLoss;
+            AverageAttendance = team.AverageAttendance;
+            RecordAttendance = team.HighestGameAttendance;
+            HomeWin = team.HistoricalData.HomeWins;
+            HomeLoss = team.HistoricalData.HomeLosses;
+            HomeTie = team.HistoricalData.HomeTies;
+            HomeStreakRaw = team.HistoricalData.CurrentHomeWinStreak;
+
+            if(HomeStreakRaw < 0 )
+            {
+                HomeStreak = $"L{-HomeStreakRaw}";
+            }
+            else
+            {
+                HomeStreak = $"W{HomeStreakRaw}";
+            }
+
+            TeamRatingOVR = team.TEAM_RATINGOVR;
+            TeamRatingOFF = team.TEAM_RATINGOFF;
+            TeamRatingDEF = team.TEAM_RATINGDEF;
+            TeamRatingST = team.TEAM_RATINGST;
+            TeamRatingQB = team.TEAM_RATINGQB;
+            TeamRatingRB = team.TEAM_RATINGRB;
+            TeamRatingWR = team.TEAM_RATINGWR;
+            TeamRatingOL = team.TEAM_RATINGOL;
+            TeamRatingDL = team.TEAM_RATINGDL;
+            TeamRatingLB = team.TEAM_RATINGLB;
+            TeamRatingDB = team.TEAM_RATINGDB;
+
+
+            // CFB-TODO Need to parse this out
+            //StadiumId = record.GetInt(39);
+            //MainRival = record["TRIV"].ToInt32();
+            //LastConferenceChampionshipYear = //need to figure this out
+            //    LastNationalChampionshipYear = // need to figure this out
+            // bt = // need to figure this out, this is static data
+            this.Process(isPreseason, atw, atl, att, bw , bl, bt , nts, cts);
+            this.ToughestPlaceToPlayRank = team.ToughestPlacesRank;
         }
 
         public Team(MaddenRecord record, MaddenDatabase db, bool isPreseason)
@@ -1113,6 +1175,42 @@ namespace EA_DB_Editor
             TeamRatingLB = record.GetInt(20);
             TeamRatingDB = record.GetInt(18);
 
+            // last conference chanmp years
+            var startYear = ConfigurationManager.AppSettings["StartingYear"].ToInt32();
+            var yr = record["FCYR"].ToInt32();
+            if (yr > 0)
+                this.LastConferenceChampionshipYear = yr - 263 + startYear;
+
+            // last championship is this determined if have a year greater than 262
+            if (yr > 262)
+                this.LastConferenceChampionshipYear = this.LastConferenceChampionshipYear.Value + ContinuationData.ContinuationYear;
+
+            yr = record["NCYR"].ToInt32();
+            if (yr > 0)
+                this.LastNationalChampionshipYear = yr - 263 + startYear;
+
+            if (yr > 262)
+                this.LastNationalChampionshipYear = this.LastNationalChampionshipYear.Value + ContinuationData.ContinuationYear;
+
+            this.Process(isPreseason, atw, atl, att, bw, bl, 0, nts, cts);
+
+            // finally get the toughest place to play rank
+            var stadium = db.GetTable("STAD").lRecords.Where(mr => mr["SGID"].ToInt32() == record["SGID"].ToInt32()).SingleOrDefault();
+
+            if (stadium != null)
+            {
+                this.ToughestPlaceToPlayRank = stadium["STDR"].ToInt32();
+            }
+
+            if (this.Id.TeamNoLongerFBS())
+            {
+                this.ToughestPlaceToPlayRank = 1000;
+            }
+        }
+
+        private void Process(bool isPreseason, int atw, int atl, int att, int bw, int bl , int bt, int nts, int cts)
+        {
+
             if (ContinuationData.UsingContinuationData)
             {
                 if (ContinuationData.Instance.TeamData.ContainsKey(Id))
@@ -1179,24 +1277,6 @@ namespace EA_DB_Editor
                 }
             }
 
-
-            // last conference chanmp years
-            var startYear = ConfigurationManager.AppSettings["StartingYear"].ToInt32();
-            var yr = record["FCYR"].ToInt32();
-            if (yr > 0)
-                this.LastConferenceChampionshipYear = yr - 263 + startYear;
-
-            // last championship is this determined if have a year greater than 262
-            if (yr > 262)
-                this.LastConferenceChampionshipYear = this.LastConferenceChampionshipYear.Value + ContinuationData.ContinuationYear;
-
-            yr = record["NCYR"].ToInt32();
-            if (yr > 0)
-                this.LastNationalChampionshipYear = yr - 263 + startYear;
-
-            if (yr > 262)
-                this.LastNationalChampionshipYear = this.LastNationalChampionshipYear.Value + ContinuationData.ContinuationYear;
-
             if (ContinuationData.UsingContinuationData)
             {
                 var a = this.LastConferenceChampionshipYear.HasValue ? this.LastConferenceChampionshipYear.Value : 0;
@@ -1209,19 +1289,6 @@ namespace EA_DB_Editor
             }
 
             this.DraftHistory = TeamDraftHistory.Rollup(this.Id);
-
-            // finally get the toughest place to play rank
-            var stadium = db.GetTable("STAD").lRecords.Where(mr => mr["SGID"].ToInt32() == record["SGID"].ToInt32()).SingleOrDefault();
-
-            if (stadium != null)
-            {
-                this.ToughestPlaceToPlayRank = stadium["STDR"].ToInt32();
-            }
-
-            if (this.Id.TeamNoLongerFBS())
-            {
-                this.ToughestPlaceToPlayRank = 1000;
-            }
         }
     }
 

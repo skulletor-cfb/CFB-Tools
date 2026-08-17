@@ -1,16 +1,18 @@
 ﻿using CFB27.Data.Model;
 using EA_DB_Editor;
+using System.Linq;
 
 namespace CFB27Tester
 {
     [TestClass]
     public sealed class CFB27DataEngineTest
     {
-        private CFB27DataEngine engine;
-        [TestInitialize]
-        public void Init()
+        private static CFB27DataEngine engine;
+
+        [ClassInitialize]
+        public static void Init(TestContext testContext)
         {
-            engine = new CFB27DataEngine(@"D:\CFB27\export\DYNASTY-Y26-REALCOACHES");
+            engine = new CFB27DataEngine(@"D:\CFB27\export\DYNASTY-SDBAK");
         }
 
 
@@ -30,7 +32,13 @@ namespace CFB27Tester
         [TestMethod]
         public void VerifyMap()
         {
-            Assert.HasCount(143, CFB27Team.TeamIdToOldIdMap);
+            Assert.HasCount(143, CFBTeam.TeamIdToOldIdMap);
         }
+
+        [TestMethod]
+        public void EveryTeamHasHistoricalData()
+        {
+            Assert.IsTrue(engine.Teams.Records.All(t => t.HistoricalData != null));
+         }
     }
 }
