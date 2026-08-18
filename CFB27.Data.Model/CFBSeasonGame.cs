@@ -83,5 +83,17 @@ namespace CFB27.Data.Model
 
         [JsonIgnore]
         public int BowlId => this.BowlGame.ToRowId();
+
+        [JsonIgnore]
+        public int HomeTeamId => this.HomeTeam.ToRowId();
+
+        [JsonIgnore]
+        public int AwayTeamId => this.AwayTeam.ToRowId();
+
+        [JsonIgnore]
+        public int RealHomeTeamId => CFBTeam.TeamIdToOldIdMap[this.HomeTeamId];
+
+        [JsonIgnore]
+        public int RealAwayTeamId => CFBTeam.TeamIdToOldIdMap[this.AwayTeamId];
     }
 }

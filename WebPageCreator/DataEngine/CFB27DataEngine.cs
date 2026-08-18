@@ -67,7 +67,65 @@ namespace EA_DB_Editor
 
         public Dictionary<int, TeamSchedule> CreateTeamSchedule(bool isPreseason)
         {
-            throw new NotImplementedException();
+            var schedules = new Dictionary<int, TeamSchedule>();
+
+            foreach (var sg in this.SeasonGames.Records.Where(n => !n.IsEmpty).OrderBy(n => n.SeasonWeek))
+            {
+                // create the team schedule as needed
+                if (!schedules.TryGetValue(sg.HomeTeamId, out var homeSchedule))
+                {
+                    homeSchedule = schedules[sg.RealHomeTeamId] = new TeamSchedule
+                    {
+                        TeamId = sg.RealHomeTeamId,
+                    };
+                }
+
+                if (!schedules.TryGetValue(sg.AwayTeamId, out var awaySchedule))
+                {
+                    awaySchedule = schedules[sg.RealAwayTeamId] = new TeamSchedule
+                    {
+                        TeamId = sg.RealAwayTeamId,
+                    };
+                }
+
+                // now add to a team schedules
+                var awayGame = new Game
+                {
+                    IsHomeGame  = false,
+                    OpponentId = sg.RealHomeTeamId,
+                    GameNumber = sg.SeasonGameNum,
+                    Week = sg.SeasonWeek,
+                    TeamId = sg.RealAwayTeamId,
+                };
+
+                var homeGame = new Game
+                {
+                    IsHomeGame = true,
+                    OpponentId = sg.RealAwayTeamId,
+                    GameNumber = sg.SeasonGameNum,
+                    Week = sg.SeasonWeek,
+                    TeamId = sg.RealHomeTeamId,
+                };
+
+                if (sg.SeasonWeek > 14 && isPreseason)
+                    continue;
+
+                if (!homeSchedule.TryGetValue(sg.SeasonWeek, out var gamesForWeek))
+                {
+                    gamesForWeek = new List<Game>();
+                    homeSchedule.Add(homeGame.Week, gamesForWeek);
+                    gamesForWeek.Add(homeGame);
+                }
+
+                if (!awaySchedule.TryGetValue(sg.SeasonWeek, out  gamesForWeek))
+                {
+                    gamesForWeek = new List<Game>();
+                    awaySchedule.Add(awayGame.Week, gamesForWeek);
+                    gamesForWeek.Add(awayGame);
+                }
+            }
+
+            return schedules;
         }
 
         public bool IsSeasonOver()

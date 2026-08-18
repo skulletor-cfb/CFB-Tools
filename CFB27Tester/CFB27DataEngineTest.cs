@@ -60,5 +60,12 @@ namespace CFB27Tester
             var result = engine.ReadMediaCoverage();
             Assert.IsNotNull(result);
         }
+
+        [TestMethod]
+        public void CreateTeamSchedule()
+        {
+            var result = engine.CreateTeamSchedule(false);
+            Assert.IsNotNull(result);
+        }
     }
 }
