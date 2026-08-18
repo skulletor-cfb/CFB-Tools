@@ -7,26 +7,17 @@ using System.Linq;
 
 namespace EA_DB_Editor
 {
-    public static class JsonHelpers
-    {
-        public static CFBTable<T> ReadJson<T>(this string file) where T : BaseRecord
-        {
-            return JsonConvert.DeserializeObject<CFBTable<T>>(File.ReadAllText(file));
-        }
-
-        public static string WriteJson(this object payload)
-        {
-            return JsonConvert.SerializeObject(payload, Formatting.Indented);
-        }
-    }
 
     public class CFB27DataEngine : IDataEngine
     {
         private readonly string directory;
         private readonly DirectoryInfo directoryInfo;
-        private const string TeamFile = "*_Team.json";
+        private const string TeamFile = "Team";
         public CFBTable<CFBTeam> Teams { get; private set; }
-        public Dictionary<int,CFBTable<CFBTeamHistoricalData>> TeamHistoricalData { get; private set; }
+        public Dictionary<int, CFBTable<CFBTeamHistoricalData>> TeamHistoricalData { get; private set; }
+        public CFBTable<CFBBowl> Bowls { get; private set; }
+        public CFBTable<CFBSeasonGame> SeasonGames { get; private set; }
+        public Dictionary<int, CFBSeasonGame> BowlSeasonGames { get; }
 
         public Dictionary<int, string> TeamNames => this.Teams.Records.ToDictionary(t => t.Row, t => t.DisplayName);
 
@@ -36,11 +27,35 @@ namespace EA_DB_Editor
             this.directoryInfo = new DirectoryInfo(this.directory);
             this.Teams = this.GetFile(TeamFile).ReadJson<CFBTeam>();
             this.TeamHistoricalData = this.GetTeamHistoricalData();
+            this.SeasonGames = this.GetFile("SeasonGame").ReadJson<CFBSeasonGame>();
+            this.BowlSeasonGames = this.SeasonGames.Records.Where(g => !g.IsEmpty && g.IsBowlGame).ToDictionary(g => g.BowlId);
+            this.Bowls = this.GetFile("BowlGame").ReadJson<CFBBowl>();
         }
 
         public Dictionary<string, Bowl> CreateBowlTable()
         {
-            throw new NotImplementedException();
+            var bowls = new Dictionary<string, Bowl>();
+
+            foreach (var b in this.Bowls.Records)
+            {
+                b.StadiumId = BowlSeasonGames[b.Row].Stadium.ToInt32();
+
+                var bowl = new Bowl
+                {
+                    Name = b.Name,
+                    Week = BowlSeasonGames[b.Row].SeasonWeek,
+                    Game = BowlSeasonGames[b.Row].SeasonGameNum,
+                    ConferenceTieInId1 = b.Conference1.ToRowId(),
+                    ConferenceTieInId2 = b.Conference2.ToRowId(),
+                    ConferenceTieInSelection1 = b.Conference1Rank,
+                    ConferenceTieInSelection2 = b.Conference2Rank,
+                    Id = b.BowlId,
+                };
+
+                bowls.Add(bowl.Key, bowl);
+            }
+
+            return bowls;
         }
 
         public Dictionary<int, TeamSchedule> CreateTeamSchedule(bool isPreseason)
@@ -179,37 +194,32 @@ namespace EA_DB_Editor
             throw new NotImplementedException();
         }
 
-        private string GetFile(string pattern)
+        private string GetFile(string fileName)
         {
-            var file = directoryInfo.GetFiles(pattern).OrderByDescending(f => f.Length).First();
+            var file = directoryInfo.GetFiles($"*_{fileName}.json").OrderByDescending(f => f.Length).First();
             return file.FullName;
         }
 
-        private string[] GetFiles(string pattern)
+        private string[] GetFiles(string fileName)
         {
-            var files = directoryInfo.GetFiles(pattern).Select(f => f.FullName).ToArray();
+            var files = directoryInfo.GetFiles($"*_{fileName}.json").Select(f => f.FullName).ToArray();
             return files;
         }
 
-        private Dictionary<int,CFBTable<CFBTeamHistoricalData>> GetTeamHistoricalData()
+        private Dictionary<int, CFBTable<CFBTeamHistoricalData>> GetTeamHistoricalData()
         {
-            var files = this.GetFiles("*_TeamHistoricalData.json");
+            var files = this.GetFiles("TeamHistoricalData");
             var data = files.Select(f => f.ReadJson<CFBTeamHistoricalData>()).ToArray();
             var result = data.ToDictionary(t => t.Header.tableId);
 
             //match historical data to teams
             foreach (var team in Teams.Records)
             {
-                var tableId = this.ConvertToTableId(team.TeamHistoricalData);
+                var tableId = team.TeamHistoricalData.ToTableId();
                 team.HistoricalData = result[tableId].Records[0];
             }
 
             return result;
-        }
-
-        private int ConvertToTableId(string tableId, int prefixLength = 15)
-        {
-            return Convert.ToInt32(tableId.Substring(0, prefixLength), 2);
         }
     }
 }

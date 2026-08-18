@@ -20,6 +20,7 @@ namespace CFB27.Data.Model
     [JsonObject]
     public abstract class BaseRecord
     {
+        public const string NoRefString = "00000000000000000000000000000000";
         private const string RowKey = "_row";
         private const string IsEmptyKey = "_isEmpty";
 
