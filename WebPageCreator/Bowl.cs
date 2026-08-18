@@ -82,7 +82,7 @@ namespace EA_DB_Editor
         public string Key { get { return string.Format("{0}-{1}", Week, Game); } }
 
         // Order the bowl games will show up in on the bowls.html page
-        public static int[] PlayoffBowlOrder = ConfigurationManager.AppSettings["BowlOrder"].Split(',').Select(s => Convert.ToInt32(s.Trim())).ToArray();
+        public static int[] PlayoffBowlOrder = ConfigurationManager.AppSettings["BowlOrder"]?.Split(',').Select(s => Convert.ToInt32(s.Trim())).ToArray();
 
         public static bool IsPlayoffRound1( Game g)
         {

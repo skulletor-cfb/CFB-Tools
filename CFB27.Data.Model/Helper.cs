@@ -28,6 +28,8 @@ namespace CFB27.Data.Model
             return Convert.ToInt32(id.Substring(id.Length - suffixLength), 2);
         }
 
-        public static int ToInt32(this string id) => Convert.ToInt32(id, 2);
+        public static int CFBToInt32(this string id) => Convert.ToInt32(id, 2);
+
+        public static long CFBToInt64(this string id) => Convert.ToInt64(id, 2);
     }
 }

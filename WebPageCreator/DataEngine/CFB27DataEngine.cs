@@ -18,6 +18,7 @@ namespace EA_DB_Editor
         public CFBTable<CFBBowl> Bowls { get; private set; }
         public CFBTable<CFBSeasonGame> SeasonGames { get; private set; }
         public Dictionary<int, CFBSeasonGame> BowlSeasonGames { get; }
+        public CFBTable<CFBStory> Stories { get; }
 
         public Dictionary<int, string> TeamNames => this.Teams.Records.ToDictionary(t => t.Row, t => t.DisplayName);
 
@@ -30,6 +31,7 @@ namespace EA_DB_Editor
             this.SeasonGames = this.GetFile("SeasonGame").ReadJson<CFBSeasonGame>();
             this.BowlSeasonGames = this.SeasonGames.Records.Where(g => !g.IsEmpty && g.IsBowlGame).ToDictionary(g => g.BowlId);
             this.Bowls = this.GetFile("BowlGame").ReadJson<CFBBowl>();
+            this.Stories = this.GetFile("Story").ReadJson<CFBStory>();
         }
 
         public Dictionary<string, Bowl> CreateBowlTable()
@@ -38,7 +40,12 @@ namespace EA_DB_Editor
 
             foreach (var b in this.Bowls.Records)
             {
-                b.StadiumId = BowlSeasonGames[b.Row].Stadium.ToInt32();
+                if (string.Equals(string.Empty, b.AssetName))
+                {
+                    continue;
+                }
+
+                b.StadiumId = BowlSeasonGames[b.Row].Stadium.CFBToInt64();
 
                 var bowl = new Bowl
                 {
@@ -65,7 +72,14 @@ namespace EA_DB_Editor
 
         public bool IsSeasonOver()
         {
-            throw new NotImplementedException();
+            const int nationalChampionshipId = 11;
+
+            if(BowlSeasonGames.TryGetValue(nationalChampionshipId, out var championshipGame))
+            {
+                return (championshipGame.HomeScore + championshipGame.AwayScore) > 0;
+            }
+
+            return false;
         }
 
         public int ReadBowlChampions(bool didNotEnterBowlChampLoop, int currentYear, Dictionary<string, BowlChampion> bowlChampions)
@@ -175,8 +189,22 @@ namespace EA_DB_Editor
 
         public Dictionary<int, MediaCoverage[]> ReadMediaCoverage()
         {
-            const string storiesFile = "0185_Story.json";
-            throw new NotImplementedException();
+            return this.Stories.Records
+                .Where(s => !s.IsEmpty)
+                .GroupBy(s => s.TeamId)
+                .ToDictionary(
+                g => g.Key,
+                    group => group
+                        .Where(mr => mr.Category != "NEXT_GAME")  // we don't want week 1 game info
+                        .Select(mr =>
+                        new MediaCoverage
+                        {
+                            TeamId = mr.TeamId,
+                            Headline = mr.Header,
+                            Content = mr.Tag,
+                        })
+                        .ToArray()
+                );
         }
 
         public Dictionary<int, Dictionary<int, DepthChartPosition[]>> ReadDepthCharts()

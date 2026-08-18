@@ -36,7 +36,7 @@ namespace CFB27.Data.Model
         public int PresentationId { get; set; }
 
         [JsonIgnore]
-        public int StadiumId { get; set; }
+        public long StadiumId { get; set; }
 
         [JsonIgnore]
         public int BowlId
@@ -52,7 +52,7 @@ namespace CFB27.Data.Model
             }
         }
 
-        public static int LookupBowlId(int id)
+        public static int LookupBowlId(long id)
         {
             if(NewBowlIdToOldBowlIdMap.TryGetValue(id, out var classicId)   )
             {

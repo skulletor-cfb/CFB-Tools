@@ -40,5 +40,25 @@ namespace CFB27Tester
         {
             Assert.IsTrue(engine.Teams.Records.All(t => t.HistoricalData != null));
          }
+
+        [TestMethod]
+        public void CreateBowls()
+        {
+            var dict = engine.CreateBowlTable();
+            Assert.IsNotNull(dict);
+        }
+
+        [TestMethod]
+        public void TestSeasonOver()
+        {
+            Assert.IsTrue(engine.IsSeasonOver());
+        }
+
+        [TestMethod]
+        public void ReadMediaCoverage()
+        {
+            var result = engine.ReadMediaCoverage();
+            Assert.IsNotNull(result);
+        }
     }
 }
