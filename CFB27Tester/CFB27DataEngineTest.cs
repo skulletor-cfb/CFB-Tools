@@ -12,7 +12,7 @@ namespace CFB27Tester
         [ClassInitialize]
         public static void Init(TestContext testContext)
         {
-            engine = new CFB27DataEngine(@"D:\CFB27\export\DYNASTY-SDBAK");
+            engine = new CFB27DataEngine(@"D:\CFB27\export\DYNASTY-Q5");
         }
 
 

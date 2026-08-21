@@ -63,6 +63,11 @@ namespace CFB27.Data.Model
             return -1;
         }
 
+        public override string ToString()
+        {
+            return this.Name;
+        }
+
         /// <summary>
         /// bowls 12-17 are dynamic based on playoff rotation.  
         /// </summary>

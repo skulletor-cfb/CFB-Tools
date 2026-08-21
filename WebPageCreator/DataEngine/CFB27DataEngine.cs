@@ -37,21 +37,16 @@ namespace EA_DB_Editor
         public Dictionary<string, Bowl> CreateBowlTable()
         {
             var bowls = new Dictionary<string, Bowl>();
-
-            foreach (var b in this.Bowls.Records)
+            foreach (var bsg in BowlSeasonGames.Values)
             {
-                if (string.Equals(string.Empty, b.AssetName))
-                {
-                    continue;
-                }
-
-                b.StadiumId = BowlSeasonGames[b.Row].Stadium.CFBToInt64();
+                var b = this.Bowls.Records[bsg.BowlId];
 
                 var bowl = new Bowl
                 {
                     Name = b.Name,
-                    Week = BowlSeasonGames[b.Row].SeasonWeek,
-                    Game = BowlSeasonGames[b.Row].SeasonGameNum,
+                    Week = bsg.SeasonWeek,
+                    Game = bsg.SeasonGameNum,
+                    Day = bsg.GameDateDay,
                     ConferenceTieInId1 = b.Conference1.ToRowId(),
                     ConferenceTieInId2 = b.Conference2.ToRowId(),
                     ConferenceTieInSelection1 = b.Conference1Rank,
