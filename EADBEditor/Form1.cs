@@ -3533,8 +3533,8 @@ namespace EA_DB_Editor
                     var recruit = recruitTable.lRecords.Where(r => r["PRSI"].ToInt32() == entry.TeamId).Single();
                     recruit["RCRK"] = (Rand100() + 500).ToString();
 
-                    // add a modifier to unscouted OVR of 0 to 5 because JUCOs have some game tape
-                    dict["RCOV"] = (dict["POVR"].ToInt32() + (Rand100() % 6)).ToString();
+                    // add a modifier to unscouted OVR of 1 to 5 because JUCOs have some game tape
+                    dict["RCOV"] = (dict["POVR"].ToInt32() + (Rand100() % 5) + 1).ToString();
 
                     foreach (var kvp in dict)
                     {
@@ -3545,8 +3545,8 @@ namespace EA_DB_Editor
                         }
                         else if (set.Contains(kvp.Key))
                         {
-                            // add 0-2 points for offseason progression
-                            var mod = Rand100() % 3;
+                            // add 1-3 points for offseason progression
+                            var mod = 1 + Rand100() % 3;
                             var newValue = Math.Min(99, kvp.Value.ToInt32() + mod);
                             recruit[kvp.Key] = newValue.ToString();
                         }
