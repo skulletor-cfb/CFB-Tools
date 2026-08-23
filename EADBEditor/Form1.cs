@@ -1902,7 +1902,7 @@ namespace EA_DB_Editor
                     }
                     else
                     {
-                        ChangeName(face, recruit, wfnDict, wlnDict, names, names.WFN, names.WLN, 50, 50);
+                        ChangeName(face, recruit, wfnDict, wlnDict, names, names.WFN, names.WLN, 30, 30);
                     }
                 }
 
