@@ -1896,11 +1896,13 @@ namespace EA_DB_Editor
                             lastDict,
                             names,
                             firstList,
-                            lastList);
+                            lastList,
+                            70,
+                            70);
                     }
                     else
                     {
-                        ChangeName(face, recruit, wfnDict, wlnDict, names, names.WFN, names.WLN);
+                        ChangeName(face, recruit, wfnDict, wlnDict, names, names.WFN, names.WLN, 50, 50);
                     }
                 }
 
@@ -2120,10 +2122,10 @@ namespace EA_DB_Editor
 
 
 
-        static void ChangeName(int face, MaddenRecord recruit, Dictionary<string, int> firstDict, Dictionary<string, int> lastDict, NamesFile names, List<string> firstList, List<string> lastList)
+        static void ChangeName(int face, MaddenRecord recruit, Dictionary<string, int> firstDict, Dictionary<string, int> lastDict, NamesFile names, List<string> firstList, List<string> lastList, int ftune = 60, int ltune = 60)
         {
             // 20% of guys get a name change until we max out
-            if (IsMatch(75) ||
+            if (IsMatch(ftune) ||
             string.Equals(recruit["PFNA"], recruit["PLNA"]))
             {
                 string first = null;
@@ -2150,7 +2152,7 @@ namespace EA_DB_Editor
 
                 recruit["PFNA"] = first;
 
-                if (IsMatch(75))
+                if (IsMatch(ltune))
                 {
                     string lastName = null;
 
