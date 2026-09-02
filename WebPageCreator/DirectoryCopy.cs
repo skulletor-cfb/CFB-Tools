@@ -10,20 +10,20 @@ namespace EA_DB_Editor
 
     class DirectoryCopyEx
     {
-        public static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubs, string year, bool overwrite=false)
+        public static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubs, string year, bool overwrite = false)
         {
             int seasonYear = year.ToInt32();
             bool existingSeason = false;
-            if (string.IsNullOrEmpty(year) == false && (destDirName.EndsWith("EOY")||destDirName.EndsWith("Season")))
+            if (string.IsNullOrEmpty(year) == false && (destDirName.EndsWith("EOY") || destDirName.EndsWith("Season")))
             {
-                var seasonsFile = Seasons.SeasonsFile ;
+                var seasonsFile = Seasons.SeasonsFile;
                 Seasons seasons = Seasons.FromFile(seasonsFile);
 
                 var seasonAlreadyExisting = seasons.SeasonList.Where(season => season.Year == seasonYear).SingleOrDefault();
                 if (seasonAlreadyExisting != null)
                 {
-                    destDirName = seasonAlreadyExisting.Directory.Replace('/','\\');
-                    existingSeason = true; 
+                    destDirName = seasonAlreadyExisting.Directory.Replace('/', '\\');
+                    existingSeason = true;
                 }
                 else
                 {
@@ -73,7 +73,7 @@ namespace EA_DB_Editor
 
             // if the folder is already there don't do anything
             if (existingSeason)
-                return; 
+                return;
 
             //CODE TO MAKE INDEX.HTML Webpage of the Archived websites
             TextWriter tw = null;
@@ -82,7 +82,7 @@ namespace EA_DB_Editor
             tw = new StreamWriter("./Archive/Seasons.html", false);
             Nav_Bar = new StreamReader("./Archive/HTML/Nav_Bar_Arch");
 
-                tw.Write("<html><head><title>Archived Seasons</title><link rel=stylesheet type=text/css href=./HTML/styles.css></head>");
+            tw.Write("<html><head><title>Archived Seasons</title><link rel=stylesheet type=text/css href=./HTML/styles.css></head>");
             tw.Write(Nav_Bar.ReadToEnd()); Nav_Bar.Close();
             tw.Write("<table>");
             tw.Write("<tr><td width=900 height=40></td></tr></table><table cellpadding=20 cellspacing=0>	<tr>		<td width=100% align=center colspan=4>			<table cellpadding=0 cellspacing=0 width=100%>				<tr>					<td class=c8 width=100%><center><img border=0 src=./HTML/Logos/NCAA2014.jpg></center></td><td class=c8></td>				</tr>			</table>		</td>	</tr>");
@@ -92,7 +92,7 @@ namespace EA_DB_Editor
 
             DirectoryInfo dir2 = new DirectoryInfo("./Archive");
             DirectoryInfo[] dirs2 = dir2.GetDirectories()
-                .Where(d=>!d.Name.ToUpperInvariant().Contains("app_code".ToUpperInvariant()))
+                .Where(d => !d.Name.ToUpperInvariant().Contains("app_code".ToUpperInvariant()))
                 .Where(d => !d.Name.ToUpperInvariant().Contains("BIN".ToUpperInvariant()))
                 .Where(d => !d.Name.ToUpperInvariant().Contains("baked".ToUpperInvariant()))
                 .Where(d => !d.Name.ToUpperInvariant().Contains("REPORTS".ToUpperInvariant()))
@@ -101,7 +101,7 @@ namespace EA_DB_Editor
 
             foreach (DirectoryInfo subdir in dirs2)
             {
-                if ((subdir.ToString() != "HTML") && (subdir.ToString() != "Reports"))
+                if ((subdir.ToString() != "HTML") && (subdir.ToString() != "Reports") && !string.Equals(subdir.ToString(), "baked", StringComparison.OrdinalIgnoreCase))
                 {
                     tw.Write("<tr>");
                     tw.Write("<td class=C3 width=15%><a href=./" + subdir + "/Index.html>" + subdir + "</a></td>");

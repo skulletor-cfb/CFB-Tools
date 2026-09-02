@@ -284,8 +284,8 @@ namespace EA_DB_Editor
             // QBs
             var players = GetPlayers(pos => pos == 0);
             var candidates = players.Values.SelectMany(GetBackupQB).Where(p => p.OVR >= 85 && (p.Year == 3 || (p.Year == 2 && p.Redshirted))).OrderByDescending(p => p.OVR).ToList();
-            var inNeed = players.Where(kvp => kvp.Key.IsP5OrND() && kvp.Value.First().OVR < 90).Select(kvp => kvp.Value.First().Team).ToList();
-            var g5InNeed = players.Where(kvp => !kvp.Key.IsFcsTeam() && !kvp.Key.IsP5OrND() && kvp.Value.First().OVR < 85).Select(kvp => kvp.Value.First().Team).ToList();
+            var inNeed = players.Where(kvp => kvp.Key.IsP5OrND() && kvp.Value.Count > 0 && kvp.Value[0].OVR < 90).Select(kvp => kvp.Value[0].Team).ToList();
+            var g5InNeed = players.Where(kvp => !kvp.Key.IsFcsTeam() && !kvp.Key.IsP5OrND() && kvp.Value.Count > 0 && kvp.Value.First().OVR < 85).Select(kvp => kvp.Value.First().Team).ToList();
             inNeed.AddRange(g5InNeed);
 
             StringBuilder sb = new StringBuilder();
@@ -295,7 +295,7 @@ namespace EA_DB_Editor
             sb.AppendLine();
 
             // each teams QB depth chart
-            foreach (var dc in players.Values.Where(tc => inNeed.Contains(tc.First().Team)).OrderBy(tc => tc.First().P5).ThenBy(tc => tc.First().OVR).ThenBy(tc => tc.First().Team))
+            foreach (var dc in players.Values.Where(tc => tc.Count > 0 && inNeed.Contains(tc.First().Team)).OrderBy(tc => tc.First().P5).ThenBy(tc => tc.First().OVR).ThenBy(tc => tc.First().Team))
             {
                 sb.AppendLine(string.Empty);
                 sb.AppendLine(string.Empty);

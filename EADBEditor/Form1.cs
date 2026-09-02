@@ -28,7 +28,7 @@ namespace EA_DB_Editor
         static public bool mc02Recalc = false;
         public static Form1 MainForm;
         public static bool PreseasonScheduleEdit = false;
-        public static bool EditingSchedule = false; 
+        public static bool EditingSchedule = false;
 
         public static Form1 CreateForm(AppDomain appDomain)
         {
@@ -1794,12 +1794,15 @@ namespace EA_DB_Editor
 
         private Dictionary<string, int> firstDict = null;
         private Dictionary<string, int> lastDict = null;
+        private Dictionary<string, int> wfnDict;
+        private Dictionary<string, int> wlnDict;
+        private Dictionary<string, int> clnDict;
 
-        private Dictionary<string, int> CreateDictionary(string[] names)
+        private Dictionary<string, int> CreateDictionary(IEnumerable<string> names)
         {
             var dict = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-            foreach(var name in names)
+            foreach (var name in names)
             {
                 dict[name] = 0;
             }
@@ -1837,6 +1840,9 @@ namespace EA_DB_Editor
                 {
                     firstDict = CreateDictionary(names.First);
                     lastDict = CreateDictionary(names.Last);
+                    wfnDict = CreateDictionary(names.WFN);
+                    wlnDict = CreateDictionary(names.WLN);
+                    clnDict = CreateDictionary(names.CLN);
                 }
 
                 var numRecruits = recruitTable.lRecords.Count;
@@ -1867,8 +1873,8 @@ namespace EA_DB_Editor
                         recruit["PGHE"] = face.ToString();
                     }
 
-                    string[] firstList = names.First;
-                    string[] lastList = names.Last;
+                    var firstList = names.First;
+                    var lastList = names.Last;
 
 #if false
                     if (face < 100)
@@ -1890,7 +1896,13 @@ namespace EA_DB_Editor
                             lastDict,
                             names,
                             firstList,
-                            lastList);
+                            lastList,
+                            70,
+                            70);
+                    }
+                    else
+                    {
+                        ChangeName(face, recruit, wfnDict, wlnDict, names, names.WFN, names.WLN, 30, 30);
                     }
                 }
 
@@ -1911,11 +1923,11 @@ namespace EA_DB_Editor
                 if (recruit["PWGT"].ToInt32() < 90 && RecruitFace.IsFatFace(currentFace))
                 {
                     // find new face
-                    recruit["PGHE"] = RecruitFace.FindNewFace(currentFace).ToString() ;
+                    recruit["PGHE"] = RecruitFace.FindNewFace(currentFace).ToString();
                 }
             }
         }
-        
+
         static void ChangeHelmet(MaddenRecord recruit, int position)
         {
             switch (position)
@@ -2110,10 +2122,10 @@ namespace EA_DB_Editor
 
 
 
-        static void ChangeName(int face, MaddenRecord recruit, Dictionary<string, int> firstDict, Dictionary<string, int> lastDict, NamesFile names, string[] firstList, string[] lastList)
+        static void ChangeName(int face, MaddenRecord recruit, Dictionary<string, int> firstDict, Dictionary<string, int> lastDict, NamesFile names, List<string> firstList, List<string> lastList, int ftune = 60, int ltune = 60)
         {
             // 20% of guys get a name change until we max out
-            if (IsMatch(40) ||
+            if (IsMatch(ftune) ||
             string.Equals(recruit["PFNA"], recruit["PLNA"]))
             {
                 string first = null;
@@ -2140,7 +2152,7 @@ namespace EA_DB_Editor
 
                 recruit["PFNA"] = first;
 
-                if (IsMatch(50))
+                if (IsMatch(ltune))
                 {
                     string lastName = null;
 
@@ -2166,14 +2178,11 @@ namespace EA_DB_Editor
 
                     var suffix = Suffix();
 
-                    if (IsMatch(5) &&
+                    if (IsMatch(2) &&
                         ((lastName.Length < 8 && suffix.Length == 2) ||
                         (lastName.Length < 7 && suffix.Length == 3)))
                     {
-                        if (IsMatch(10))
-                        {
-                            lastName += " " + suffix;
-                        }
+                        lastName += " " + suffix;
                     }
                     recruit["PLNA"] = lastName;
                 }
@@ -2263,23 +2272,23 @@ namespace EA_DB_Editor
 
         public class NamesFile
         {
-            private string[] first;
-            private string[] last;
+            private List<string> first;
+            private List<string> last;
             private List<string> hifn;
             private List<string> hiln;
 
             static RNGCryptoServiceProvider rand = new RNGCryptoServiceProvider();
 
-            public string[] First
+            public List<string> First
             {
                 get => first;
-                set => first = new HashSet<string>(value.Where(s => s.Length <= 9)).ToArray();
+                set => first = new HashSet<string>(value.Where(s => s.Length <= 9)).ToList();
             }
 
-            public string[] Last
+            public List<string> Last
             {
                 get => last;
-                set => last = new HashSet<string>(value.Where(s => s.Length <= 12)).ToArray();
+                set => last = new HashSet<string>(value.Where(s => s.Length <= 12)).ToList();
             }
 
 
@@ -2294,6 +2303,13 @@ namespace EA_DB_Editor
                 get => hiln;
                 set => hiln = new HashSet<string>(value.Where(s => s.Length <= 12)).ToList();
             }
+
+            public List<string> CLN { get; set; }
+
+            public List<string> WFN { get; set; }
+
+            public List<string> WLN { get; set; }
+
 
             public string[] LDFN { get; set; }
             public string[] LDLN { get; set; }
@@ -2631,7 +2647,7 @@ namespace EA_DB_Editor
             }
 
             var sb = new StringBuilder();
-            foreach (var kvp in dict.OrderBy(kvp=> teamConfRecords[kvp.Key].Conf).ThenByDescending(kvp=> kvp.Value.Sum(i => teamConfRecords[i].W)))
+            foreach (var kvp in dict.OrderBy(kvp => teamConfRecords[kvp.Key].Conf).ThenByDescending(kvp => kvp.Value.Sum(i => teamConfRecords[i].W)))
             {
                 var oppWin = kvp.Value.Sum(i => teamConfRecords[i].W);
                 var oppLoss = kvp.Value.Sum(i => teamConfRecords[i].L);
@@ -3043,7 +3059,7 @@ namespace EA_DB_Editor
                 sb.AppendLine($"{RecruitingFixup.TeamNames[team.Key]},{team.Value.WinPct},{team.Value.Win},{team.Value.Loss}");
             }
 
-//            File.WriteAllText(Path.Combine(dir, "Conference-Opp-Records.csv"), sb.ToString());
+            //            File.WriteAllText(Path.Combine(dir, "Conference-Opp-Records.csv"), sb.ToString());
             File.WriteAllText(Path.Combine(dir, "Conference-Opp-Records.csv"), ReadTeamConferenceSchedule());
         }
 
@@ -3236,7 +3252,7 @@ namespace EA_DB_Editor
 
             int g5Rank = 1;
             var g5Rankings = new List<string>();
-            var confChampsFound = 0; 
+            var confChampsFound = 0;
             foreach (var kvp in g5Teams.OrderBy(t => t.Value.Rank))
             {
                 var confChamp = string.Empty;
@@ -3248,13 +3264,13 @@ namespace EA_DB_Editor
 
                 g5Rankings.Add($"{g5Rank++},{RecruitingFixup.TeamNames[kvp.Value.Id]},{confChamp}");
 
-                if(confChampsFound == 5)
+                if (confChampsFound == 5)
                 {
                     break;
                 }
             }
 
-                int i = 0;
+            int i = 0;
             foreach (var kvp in teams.OrderBy(t => t.Value.Rank).Where(t => t.Value.Rank <= 25))
             {
                 matchups[i] = string.Join(",", matchups[i], string.Empty, string.Empty, string.Empty, kvp.Value.Rank, RecruitingFixup.TeamNames[kvp.Value.Id]);
@@ -3534,8 +3550,8 @@ namespace EA_DB_Editor
                     var recruit = recruitTable.lRecords.Where(r => r["PRSI"].ToInt32() == entry.TeamId).Single();
                     recruit["RCRK"] = (Rand100() + 500).ToString();
 
-                    // add a modifier to unscouted OVR of 0 to 5 because JUCOs have some game tape
-                    dict["RCOV"] = (dict["POVR"].ToInt32() + (Rand100() % 6)).ToString();
+                    // add a modifier to unscouted OVR of 1 to 5 because JUCOs have some game tape
+                    dict["RCOV"] = (dict["POVR"].ToInt32() + (Rand100() % 5) + 1).ToString();
 
                     foreach (var kvp in dict)
                     {
@@ -3546,8 +3562,8 @@ namespace EA_DB_Editor
                         }
                         else if (set.Contains(kvp.Key))
                         {
-                            // add 0-2 points for offseason progression
-                            var mod = Rand100() % 3;
+                            // add 1-3 points for offseason progression
+                            var mod = 1 + Rand100() % 3;
                             var newValue = Math.Min(99, kvp.Value.ToInt32() + mod);
                             recruit[kvp.Key] = newValue.ToString();
                         }
@@ -3961,7 +3977,7 @@ namespace EA_DB_Editor
 
         private void saluteToVeteransBowlToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if(veteransBowlAdded)
+            if (veteransBowlAdded)
             {
                 MessageBox.Show("Salute to Veterans Bowl already added!");
                 return;
@@ -4286,7 +4302,7 @@ namespace EA_DB_Editor
         [DataMember]
         public string Opponent { get; set; }
 
-        [DataMember(EmitDefaultValue=false)]
+        [DataMember(EmitDefaultValue = false)]
         public int DynastyYear { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
@@ -4344,283 +4360,311 @@ namespace EA_DB_Editor
     }
 
 
-	public class BitStream
-	{	public	byte[]		buffer;
-		public	BitArray	bitarray;
-		public	long		bitsused;
+    public class BitStream
+    {
+        public byte[] buffer;
+        public BitArray bitarray;
+        public long bitsused;
 
 
-		public void AllocBits( long bitcount )
-		{	buffer		= new byte [ (bitcount /8) ];
-			bitsused	= bitcount;
-			bitarray	= new BitArray( buffer );
-		}
-		public BitStream( )
-		{	buffer		= null;
-			bitsused	= 0;
-			bitarray	= null;
-		}
-		public BitStream( long bitcount )
-		{	AllocBits( bitcount );
-		}
-		public void Copy( BitStream bits )
-		{	buffer		= new byte[ bits.buffer.Length ];
-			bits.buffer.CopyTo( buffer, 0 );
-			bitarray	= new BitArray( buffer );
-		}
+        public void AllocBits(long bitcount)
+        {
+            buffer = new byte[(bitcount / 8)];
+            bitsused = bitcount;
+            bitarray = new BitArray(buffer);
+        }
+        public BitStream()
+        {
+            buffer = null;
+            bitsused = 0;
+            bitarray = null;
+        }
+        public BitStream(long bitcount)
+        {
+            AllocBits(bitcount);
+        }
+        public void Copy(BitStream bits)
+        {
+            buffer = new byte[bits.buffer.Length];
+            bits.buffer.CopyTo(buffer, 0);
+            bitarray = new BitArray(buffer);
+        }
 
-		public ulong ReadBits( long offset, long bitstoread )
-		{	ulong	ret		= 0;
-			ulong	mask	= 1;
+        public ulong ReadBits(long offset, long bitstoread)
+        {
+            ulong ret = 0;
+            ulong mask = 1;
 
-			for( int i=(int)bitstoread; i>0; i-- )
-			{	if( bitarray.Get( i +(int)offset -1 ) == true )
-				{	ret	= ret | mask;
-				}
-				mask	= mask << 1;
-			}
-			return ret;
-		}
-		public void WriteBits( ulong value, long offset, long bitstowrite )
-		{	ulong	mask	= 1;
+            for (int i = (int)bitstoread; i > 0; i--)
+            {
+                if (bitarray.Get(i + (int)offset - 1) == true)
+                {
+                    ret = ret | mask;
+                }
+                mask = mask << 1;
+            }
+            return ret;
+        }
+        public void WriteBits(ulong value, long offset, long bitstowrite)
+        {
+            ulong mask = 1;
 
-			for( int i=(int)bitstowrite; i>0; i-- )
-			{
-				if( (mask & value) == mask )
-					bitarray.Set( i +(int)offset -1, true );
-				else
-					bitarray.Set( i +(int)offset -1, false );
-				mask	= mask << 1;
-			}
-		}
-		private byte ReverseByte( byte b )
-		{	byte	r		= 0;
-			for( int i=0; i<8; i++ )
-			{	r	= (byte)(r << 1);
-				if( (b & 0x01) == 1 )
-				{	r	|= 0x01;
-				}
-				b	= (byte)(b >> 1);
-			}
-			return r;
-		}
-		private byte[] StringToBuffer( string s, int maxchars )
-		{	byte[]	buffer	= new byte[ maxchars ];
-			char[]	str		= s.ToCharArray( );
+            for (int i = (int)bitstowrite; i > 0; i--)
+            {
+                if ((mask & value) == mask)
+                    bitarray.Set(i + (int)offset - 1, true);
+                else
+                    bitarray.Set(i + (int)offset - 1, false);
+                mask = mask << 1;
+            }
+        }
+        private byte ReverseByte(byte b)
+        {
+            byte r = 0;
+            for (int i = 0; i < 8; i++)
+            {
+                r = (byte)(r << 1);
+                if ((b & 0x01) == 1)
+                {
+                    r |= 0x01;
+                }
+                b = (byte)(b >> 1);
+            }
+            return r;
+        }
+        private byte[] StringToBuffer(string s, int maxchars)
+        {
+            byte[] buffer = new byte[maxchars];
+            char[] str = s.ToCharArray();
 
-			for( int i=0; i<maxchars && i<s.Length; i++ )
-			{	buffer[i]	= (byte) str[i];
-			}
-			return buffer;
-		}
-		public void StoreBytes( string bytes, long offset, int bytestowrite )
-		{	byte[]	buffer	= StringToBuffer( bytes, bytestowrite );
-			for( int i=0; i<bytestowrite; i++ )
-				WriteBits( ( (ulong)(buffer[i]) & 0x000000FF ), offset +(i *8), 8 );
-		}
-		public void ActivateBits( )
-		{	// reverse each byte for this
-			byte[]	nbuf	= new byte[ buffer.Length ];
-			for( int i=0; i<buffer.Length; i++ )
-			{	nbuf[i]	= ReverseByte( buffer[i] );
-			}
-			bitarray	= new BitArray( nbuf );
-		}
-		public void DeactivateBits( )
-		{	byte[]	nbuf	= new byte[ buffer.Length ];
-			for( int i=0; i<buffer.Length; i++ )
-			{	nbuf[i]	= ( (byte)ReadBits( i *8, 8 ) );
-			}
-			buffer	= nbuf;
-		}
+            for (int i = 0; i < maxchars && i < s.Length; i++)
+            {
+                buffer[i] = (byte)str[i];
+            }
+            return buffer;
+        }
+        public void StoreBytes(string bytes, long offset, int bytestowrite)
+        {
+            byte[] buffer = StringToBuffer(bytes, bytestowrite);
+            for (int i = 0; i < bytestowrite; i++)
+                WriteBits(((ulong)(buffer[i]) & 0x000000FF), offset + (i * 8), 8);
+        }
+        public void ActivateBits()
+        {   // reverse each byte for this
+            byte[] nbuf = new byte[buffer.Length];
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                nbuf[i] = ReverseByte(buffer[i]);
+            }
+            bitarray = new BitArray(nbuf);
+        }
+        public void DeactivateBits()
+        {
+            byte[] nbuf = new byte[buffer.Length];
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                nbuf[i] = ((byte)ReadBits(i * 8, 8));
+            }
+            buffer = nbuf;
+        }
 
-		public string PrintBits( )
-		{	string	ret		="";
-			int		count1	= 0;
+        public string PrintBits()
+        {
+            string ret = "";
+            int count1 = 0;
 
-			foreach( Object obj in bitarray )
-			{
-				if( (count1 % 80) == 0 )
-					ret	+= "\n" + (count1 / 80) + "\t";
-				if( (count1 % 8) == 0 )
-					ret += " ";
-				if( obj.ToString( ) == "True" )
-					ret += "1";
-				else
-					ret	+= "0";
-				count1++;
-			}
+            foreach (Object obj in bitarray)
+            {
+                if ((count1 % 80) == 0)
+                    ret += "\n" + (count1 / 80) + "\t";
+                if ((count1 % 8) == 0)
+                    ret += " ";
+                if (obj.ToString() == "True")
+                    ret += "1";
+                else
+                    ret += "0";
+                count1++;
+            }
 
-			ret	+= "\n\n\n";
-			count1	= 0;
+            ret += "\n\n\n";
+            count1 = 0;
 
-			foreach( Object obj in bitarray )
-			{
-				if( (count1 % 80) == 0 )
-					ret	+= "\n" + (count1 / 80) + "\t";
-				if( obj.ToString( ) == "True" )
-					ret += "1";
-				else
-					ret	+= "0";
-				count1++;
-			}
+            foreach (Object obj in bitarray)
+            {
+                if ((count1 % 80) == 0)
+                    ret += "\n" + (count1 / 80) + "\t";
+                if (obj.ToString() == "True")
+                    ret += "1";
+                else
+                    ret += "0";
+                count1++;
+            }
 
-			return ret;
-		}
-	}
-	public class Field
-	{
-#region members
-		public string	name;
-		public ulong	type;
-		public ulong	offset;
-		public ulong	bits;
+            return ret;
+        }
+    }
+    public class Field
+    {
+        #region members
+        public string name;
+        public ulong type;
+        public ulong offset;
+        public ulong bits;
 
-		// for experimental XML config mapping
-		public string	Abbreviation	= "";
-		public string	Name			= "";
-		public string	Description		= "";
-		public string	ControlType		= "";
-		public Control	EditControl		= new TextBox( );
-		public int		ControlItems	= 0;
-		public string	ControlLink		= "";
-		public string	ControlIF		= "";
-		public string	ControlRF		= "";
-		public string	ControlRF2		= "";
-		public bool		ControlLocked	= false;
-		public int		Offset			= 0;
-#region new for calculated type, 10/23/13
-		public class Variable
-		{	public string	vField		= "";
-			public double	Multiplier	= 0.0;
+        // for experimental XML config mapping
+        public string Abbreviation = "";
+        public string Name = "";
+        public string Description = "";
+        public string ControlType = "";
+        public Control EditControl = new TextBox();
+        public int ControlItems = 0;
+        public string ControlLink = "";
+        public string ControlIF = "";
+        public string ControlRF = "";
+        public string ControlRF2 = "";
+        public bool ControlLocked = false;
+        public int Offset = 0;
+        #region new for calculated type, 10/23/13
+        public class Variable
+        {
+            public string vField = "";
+            public double Multiplier = 0.0;
 
-			public double Calc( List<Field> lMappedFields, MaddenRecord record )
-			{	double	r	= 0.0;
-				Field	f	= FindField( lMappedFields, vField );
+            public double Calc(List<Field> lMappedFields, MaddenRecord record)
+            {
+                double r = 0.0;
+                Field f = FindField(lMappedFields, vField);
 
-				if( f != null )
-				{	double	v	= Convert.ToDouble( record[ f.Abbreviation ] );
-					r			= v * Multiplier;
-				}
+                if (f != null)
+                {
+                    double v = Convert.ToDouble(record[f.Abbreviation]);
+                    r = v * Multiplier;
+                }
 
-				return r;
-			}
-			public static List<Variable> ReadVariables( XmlTextReader reader, string Path )
-			{
-				List<Variable>	vars	= new List<Variable>( );
-				Variable		var		= null;
+                return r;
+            }
+            public static List<Variable> ReadVariables(XmlTextReader reader, string Path)
+            {
+                List<Variable> vars = new List<Variable>();
+                Variable var = null;
 
-				while( reader.Read( ) )
-				{
-					switch( reader.NodeType )
-					{
-						case XmlNodeType.Element:
-							if( reader.Name == "Variable" )
-								var	= new Variable( );
+                while (reader.Read())
+                {
+                    switch (reader.NodeType)
+                    {
+                        case XmlNodeType.Element:
+                            if (reader.Name == "Variable")
+                                var = new Variable();
 
-							Path	+= reader.Name + "\\";
-							break;
+                            Path += reader.Name + "\\";
+                            break;
 
-						case XmlNodeType.Text:
-							if( Path.EndsWith( "Variable\\Field\\" ) )
-								var.vField		= reader.Value;
+                        case XmlNodeType.Text:
+                            if (Path.EndsWith("Variable\\Field\\"))
+                                var.vField = reader.Value;
 
-							if( Path.EndsWith( "Variable\\Multiplier\\" ) )
-								var.Multiplier	= Convert.ToDouble( reader.Value );
-							break;
+                            if (Path.EndsWith("Variable\\Multiplier\\"))
+                                var.Multiplier = Convert.ToDouble(reader.Value);
+                            break;
 
-						case XmlNodeType.EndElement:
-							if( reader.Name == "Variable" )
-								vars.Add( var );
+                        case XmlNodeType.EndElement:
+                            if (reader.Name == "Variable")
+                                vars.Add(var);
 
-							try
-							{	Path	= Path.Remove( Path.LastIndexOf( reader.Name + "\\" ) );
-							}	catch( Exception e )
-							{
-								MessageBox.Show( "XML closing element not found: " + reader.Name + ", " + reader.LineNumber, "Error in XML config" );
-								throw( e );
-							}
-							if( reader.Name == "Variables" )	// should only ever return from here
-								return vars;
-						
-							break;
-					}
+                            try
+                            {
+                                Path = Path.Remove(Path.LastIndexOf(reader.Name + "\\"));
+                            }
+                            catch (Exception e)
+                            {
+                                MessageBox.Show("XML closing element not found: " + reader.Name + ", " + reader.LineNumber, "Error in XML config");
+                                throw (e);
+                            }
+                            if (reader.Name == "Variables") // should only ever return from here
+                                return vars;
 
-				}
-				// bad XML!
-				throw( new Exception( "Closing Variables Tag Missing! Exiting!" ) );
-			}
-		}
-		public class Formula
-		{
-			public string			IndexValue	= "";
-			public List<Variable>	Variables	= new List<Variable>( );
-			public double			Adjustment	= 0.0;
+                            break;
+                    }
 
-			public double Calc( List<Field> lMappedFields, MaddenRecord record )
-			{	double	r	= 0.0;
+                }
+                // bad XML!
+                throw (new Exception("Closing Variables Tag Missing! Exiting!"));
+            }
+        }
+        public class Formula
+        {
+            public string IndexValue = "";
+            public List<Variable> Variables = new List<Variable>();
+            public double Adjustment = 0.0;
 
-				foreach( Variable v in Variables )
-					r	+= v.Calc( lMappedFields, record );
+            public double Calc(List<Field> lMappedFields, MaddenRecord record)
+            {
+                double r = 0.0;
 
-				return r + Adjustment;
-			}
-			public static List<Formula> ReadFormulas( XmlTextReader reader, string Path )
-			{
-				List<Formula>	forms	= new List<Formula>( );
-				Formula			form	= null;
+                foreach (Variable v in Variables)
+                    r += v.Calc(lMappedFields, record);
 
-				while( reader.Read( ) )
-				{
-					switch( reader.NodeType )
-					{
-						case XmlNodeType.Element:
-							if( reader.Name == "Formula" )
-								form	= new Formula( );
+                return r + Adjustment;
+            }
+            public static List<Formula> ReadFormulas(XmlTextReader reader, string Path)
+            {
+                List<Formula> forms = new List<Formula>();
+                Formula form = null;
 
-							if( reader.Name == "Variables" )
-							{	form.Variables	= Variable.ReadVariables( reader, Path + "Variables\\" );
-								break;
-							}
+                while (reader.Read())
+                {
+                    switch (reader.NodeType)
+                    {
+                        case XmlNodeType.Element:
+                            if (reader.Name == "Formula")
+                                form = new Formula();
 
-							Path	+= reader.Name + "\\";
-							break;
+                            if (reader.Name == "Variables")
+                            {
+                                form.Variables = Variable.ReadVariables(reader, Path + "Variables\\");
+                                break;
+                            }
 
-						case XmlNodeType.Text:
-							if( Path.EndsWith( "Formula\\IndexValue\\" ) )
-								form.IndexValue	= reader.Value;
+                            Path += reader.Name + "\\";
+                            break;
 
-							if( Path.EndsWith( "Formula\\Adjustment\\" ) )
-								form.Adjustment	= Convert.ToDouble( reader.Value );
-							break;
+                        case XmlNodeType.Text:
+                            if (Path.EndsWith("Formula\\IndexValue\\"))
+                                form.IndexValue = reader.Value;
 
-						case XmlNodeType.EndElement:
-							if( reader.Name == "Formula" )
-								forms.Add( form );
+                            if (Path.EndsWith("Formula\\Adjustment\\"))
+                                form.Adjustment = Convert.ToDouble(reader.Value);
+                            break;
 
-							try
-							{	Path	= Path.Remove( Path.LastIndexOf( reader.Name + "\\" ) );
-							}	catch( Exception e )
-							{
-								MessageBox.Show( "XML closing element not found: " + reader.Name + ", " + reader.LineNumber, "Error in XML config" );
-								throw( e );
-							}
-							if( reader.Name == "Formulas" )	// should only ever return from here
-								return forms;
-						
-							break;
-					}
+                        case XmlNodeType.EndElement:
+                            if (reader.Name == "Formula")
+                                forms.Add(form);
 
-				}
-				// bad XML!
-				throw( new Exception( "Closing Formulas Tag Missing! Exiting!" ) );
-			}
-		}
-		public double			Min			= 0.0;
-		public double			Max			= 0.0;
-		public	List<Formula>	Formulas	= new List<Formula>( );
+                            try
+                            {
+                                Path = Path.Remove(Path.LastIndexOf(reader.Name + "\\"));
+                            }
+                            catch (Exception e)
+                            {
+                                MessageBox.Show("XML closing element not found: " + reader.Name + ", " + reader.LineNumber, "Error in XML config");
+                                throw (e);
+                            }
+                            if (reader.Name == "Formulas")  // should only ever return from here
+                                return forms;
 
-		// only if this is a Calculated type should this function be called
+                            break;
+                    }
+
+                }
+                // bad XML!
+                throw (new Exception("Closing Formulas Tag Missing! Exiting!"));
+            }
+        }
+        public double Min = 0.0;
+        public double Max = 0.0;
+        public List<Formula> Formulas = new List<Formula>();
+
+        // only if this is a Calculated type should this function be called
         public double RunFormula(List<Field> lMappedFields, MaddenRecord record)
         {
             double r = 0.0;
@@ -4645,7 +4689,7 @@ namespace EA_DB_Editor
                     var variance = RecruitingFixup.RAND.Next(-5, 6);
                     var preScout = (int)r - variance;
 
-                    if (preScout > 99) preScout = 99; 
+                    if (preScout > 99) preScout = 99;
 
                     record["RCOV"] = preScout.ToString();
                     record["POVR"] = r.ToString();
@@ -4654,495 +4698,524 @@ namespace EA_DB_Editor
 
             return r;
         }
-#endregion
-		// new attempt to speed up searches with ref objs
-		public Dictionary<string,int>		KeyToIndexMappings	= new Dictionary<string,int>( );
-#endregion
+        #endregion
+        // new attempt to speed up searches with ref objs
+        public Dictionary<string, int> KeyToIndexMappings = new Dictionary<string, int>();
+        #endregion
 
-		public static int	fieldsize	= 16;
+        public static int fieldsize = 16;
 
-		public enum FieldType
-		{
-			tdbString = 0,
-			tdbBinary = 1,
-			tdbSInt = 2,
-			tdbUInt = 3,
-			tdbFloat = 4,
-		}
+        public enum FieldType
+        {
+            tdbString = 0,
+            tdbBinary = 1,
+            tdbSInt = 2,
+            tdbUInt = 3,
+            tdbFloat = 4,
+        }
 
-		public Field( )
-		{	name		= "";
-			type		= 0;
-			offset		= 0;
-			bits		= 0;
-		}
-		public Field( string Name, FieldType Type, ulong Offset, ulong Bits )
-		{	name		= Name;
-			type		= (ulong) Type;
-			offset		= Offset;
-			bits		= Bits;
-		}
-		public override string ToString()
-		{
-			if( Name != null && Name != "" )					return Name;
-			if( Abbreviation != null && Abbreviation != "" )	return Abbreviation;
-			if( name != null )
-				return name;
+        public Field()
+        {
+            name = "";
+            type = 0;
+            offset = 0;
+            bits = 0;
+        }
+        public Field(string Name, FieldType Type, ulong Offset, ulong Bits)
+        {
+            name = Name;
+            type = (ulong)Type;
+            offset = Offset;
+            bits = Bits;
+        }
+        public override string ToString()
+        {
+            if (Name != null && Name != "") return Name;
+            if (Abbreviation != null && Abbreviation != "") return Abbreviation;
+            if (name != null)
+                return name;
 
-			return base.ToString();
-		}
-		public int CompareDataAsType( string data1, string data2 )
-		{	int	returnVal	= 0;
+            return base.ToString();
+        }
+        public int CompareDataAsType(string data1, string data2)
+        {
+            int returnVal = 0;
 
-			//if( this.ControlType == "ComboBox" && data1.IndexOf( '(' ) >-1 && data1.IndexOf( ')' ) >-1 )
-			//{	data1	= data1.Substring( data1.IndexOf( '(' ) +1 );
-			//    data1	= data1.Substring( 0, data1.IndexOf( ')' ) );
-			//    data2	= data2.Substring( data2.IndexOf( '(' ) +1 );
-			//    data2	= data2.Substring( 0, data2.IndexOf( ')' ) );
-			//}
+            //if( this.ControlType == "ComboBox" && data1.IndexOf( '(' ) >-1 && data1.IndexOf( ')' ) >-1 )
+            //{	data1	= data1.Substring( data1.IndexOf( '(' ) +1 );
+            //    data1	= data1.Substring( 0, data1.IndexOf( ')' ) );
+            //    data2	= data2.Substring( data2.IndexOf( '(' ) +1 );
+            //    data2	= data2.Substring( 0, data2.IndexOf( ')' ) );
+            //}
 
-			switch( type )
-			{
-				case (ulong) Field.FieldType.tdbString:
-				case (ulong) Field.FieldType.tdbBinary:
-					returnVal	= String.Compare( data1, data2 );
-					break;
+            switch (type)
+            {
+                case (ulong)Field.FieldType.tdbString:
+                case (ulong)Field.FieldType.tdbBinary:
+                    returnVal = String.Compare(data1, data2);
+                    break;
 
-				case (ulong) Field.FieldType.tdbSInt:
-				case (ulong) Field.FieldType.tdbUInt:
-					returnVal	= Convert.ToInt32( data1 ).CompareTo( Convert.ToInt32( data2 ) );
-					break;
+                case (ulong)Field.FieldType.tdbSInt:
+                case (ulong)Field.FieldType.tdbUInt:
+                    returnVal = Convert.ToInt32(data1).CompareTo(Convert.ToInt32(data2));
+                    break;
 
-				case (ulong) Field.FieldType.tdbFloat:
-					returnVal	= Convert.ToDouble( data1 ).CompareTo( Convert.ToDouble( data2 ) );
-					break;
-			}
-			return returnVal;
-		}
+                case (ulong)Field.FieldType.tdbFloat:
+                    returnVal = Convert.ToDouble(data1).CompareTo(Convert.ToDouble(data2));
+                    break;
+            }
+            return returnVal;
+        }
 
-		public void WriteField( byte[] buf, int _offset )
-		{	char[]	arr	= name.ToCharArray( );
+        public void WriteField(byte[] buf, int _offset)
+        {
+            char[] arr = name.ToCharArray();
 
-			DBFileInfo.WriteDW2Buf( buf, _offset +0, (uint) type );
-			DBFileInfo.WriteDW2Buf( buf, _offset +4, (uint) offset );
+            DBFileInfo.WriteDW2Buf(buf, _offset + 0, (uint)type);
+            DBFileInfo.WriteDW2Buf(buf, _offset + 4, (uint)offset);
 
-			buf[ _offset + 8 ]	= (byte) arr[3];
-			buf[ _offset + 9 ]	= (byte) arr[2];
-			buf[ _offset +10 ]	= (byte) arr[1];
-			buf[ _offset +11 ]	= (byte) arr[0];
+            buf[_offset + 8] = (byte)arr[3];
+            buf[_offset + 9] = (byte)arr[2];
+            buf[_offset + 10] = (byte)arr[1];
+            buf[_offset + 11] = (byte)arr[0];
 
-			DBFileInfo.WriteDW2Buf( buf, _offset +12, (uint) bits );
-		}
+            DBFileInfo.WriteDW2Buf(buf, _offset + 12, (uint)bits);
+        }
 
         public static Field ReadEntry(FileStream fs, int offset)
         {
             byte[] array = new byte[fieldsize];
-			Field	field	= new Field( );
+            Field field = new Field();
 
-			fs.Position		= offset;
-			fs.Read( array, 0, fieldsize );
-			field.type		= (((ulong)array[3]) ) | (((ulong)array[2]) << 8 ) | (((ulong)array[1]) << 16 ) | (((ulong)array[0]) << 24 );
-			field.offset	= (((ulong)array[7]) ) | (((ulong)array[6]) << 8 ) | (((ulong)array[5]) << 16 ) | (((ulong)array[4]) << 24 );
-			field.bits		= (((ulong)array[15]) ) | (((ulong)array[14]) << 8 ) | (((ulong)array[13]) << 16 ) | (((ulong)array[12]) << 24 );
-			field.name		= Convert.ToChar( array[11] ).ToString( ) + Convert.ToChar( array[10] ).ToString( ) + Convert.ToChar( array[9] ).ToString( ) + Convert.ToChar( array[8] ).ToString( );
-			return field;
-		}
+            fs.Position = offset;
+            fs.Read(array, 0, fieldsize);
+            field.type = (((ulong)array[3])) | (((ulong)array[2]) << 8) | (((ulong)array[1]) << 16) | (((ulong)array[0]) << 24);
+            field.offset = (((ulong)array[7])) | (((ulong)array[6]) << 8) | (((ulong)array[5]) << 16) | (((ulong)array[4]) << 24);
+            field.bits = (((ulong)array[15])) | (((ulong)array[14]) << 8) | (((ulong)array[13]) << 16) | (((ulong)array[12]) << 24);
+            field.name = Convert.ToChar(array[11]).ToString() + Convert.ToChar(array[10]).ToString() + Convert.ToChar(array[9]).ToString() + Convert.ToChar(array[8]).ToString();
+            return field;
+        }
         public static List<Field> ReadFields(DBTable table, FileStream fs)
         {
             List<Field> lFields = new List<Field>();
 
-			for( int i=0; i< table.numfields; i++ )
-			{	Field	f	= ReadEntry( fs, (int) table.fieldStart + ( i * fieldsize ) );
-				lFields.Add( f );
-			}
+            for (int i = 0; i < table.numfields; i++)
+            {
+                Field f = ReadEntry(fs, (int)table.fieldStart + (i * fieldsize));
+                lFields.Add(f);
+            }
 
-			return lFields;
-		}
-		public static Field GetField( List<Field> lFields, string name )
-		{	foreach( Field f in lFields )
-			{	if( f.name == name )
-					return f;
-			}
-			return null;
-		}
-		public static byte[] ReadBytes( Field f, BitStream bits )
-		{	byte[]	buf	= new byte[ f.bits/8 ];
+            return lFields;
+        }
+        public static Field GetField(List<Field> lFields, string name)
+        {
+            foreach (Field f in lFields)
+            {
+                if (f.name == name)
+                    return f;
+            }
+            return null;
+        }
+        public static byte[] ReadBytes(Field f, BitStream bits)
+        {
+            byte[] buf = new byte[f.bits / 8];
 
-			for( int i=0; i < (int)(f.bits/8); i++ )
-			{	buf[i]	= bits.buffer[ (int)(f.offset / 8) +i ];
-			}
-			return buf;
-		}
-		public static string ReadString( Field f, BitStream bits )
-		{	string	buf	= "";
+            for (int i = 0; i < (int)(f.bits / 8); i++)
+            {
+                buf[i] = bits.buffer[(int)(f.offset / 8) + i];
+            }
+            return buf;
+        }
+        public static string ReadString(Field f, BitStream bits)
+        {
+            string buf = "";
 
-			for( int i=0; i < (int)(f.bits/8); i++ )
-			{	byte	b	= bits.buffer[ (int)(f.offset / 8) +i ];
-				if( b != 0 )
-					buf	+= Convert.ToChar( b ).ToString( );
-			}
-			return buf;
-		}
-		public static byte[] ReadBytes( List<Field> lFields, string name, BitStream bits )
-		{	Field	f	= Field.GetField( lFields, name );
-			return ReadBytes( f, bits );
-		}
-		public static string ReadString( List<Field> lFields, string name, BitStream bits )
-		{	Field	f	= Field.GetField( lFields, name );
-			return ReadString( f, bits );
-		}
+            for (int i = 0; i < (int)(f.bits / 8); i++)
+            {
+                byte b = bits.buffer[(int)(f.offset / 8) + i];
+                if (b != 0)
+                    buf += Convert.ToChar(b).ToString();
+            }
+            return buf;
+        }
+        public static byte[] ReadBytes(List<Field> lFields, string name, BitStream bits)
+        {
+            Field f = Field.GetField(lFields, name);
+            return ReadBytes(f, bits);
+        }
+        public static string ReadString(List<Field> lFields, string name, BitStream bits)
+        {
+            Field f = Field.GetField(lFields, name);
+            return ReadString(f, bits);
+        }
 
-		public static Field GetFieldByName( List<Field> lFields, string name )
-		{	foreach( Field f in lFields )
-			{	if( f.Name == name )
-					return f;
-			}
-			return null;
-		}
-		public static Field GetFieldByAbbreviation( List<Field> lFields, string name )
-		{	foreach( Field f in lFields )
-			{	if( f.Abbreviation == name || f.name == name )
-					return f;
-			}
-			return null;
-		}
-		public static Field FindField( List<Field> lFields, string Name )
-		{
-			Field	f	= GetFieldByName( lFields, Name );
-			if( f != null )
-				return f;
-			return GetFieldByAbbreviation( lFields, Name );
-		}
+        public static Field GetFieldByName(List<Field> lFields, string name)
+        {
+            foreach (Field f in lFields)
+            {
+                if (f.Name == name)
+                    return f;
+            }
+            return null;
+        }
+        public static Field GetFieldByAbbreviation(List<Field> lFields, string name)
+        {
+            foreach (Field f in lFields)
+            {
+                if (f.Abbreviation == name || f.name == name)
+                    return f;
+            }
+            return null;
+        }
+        public static Field FindField(List<Field> lFields, string Name)
+        {
+            Field f = GetFieldByName(lFields, Name);
+            if (f != null)
+                return f;
+            return GetFieldByAbbreviation(lFields, Name);
+        }
 
-	}
-	public class DBData
-	{	public	Field		field		= null;
-		private	string		_str		= "";
-		private ulong		_ulong		= 0;
-		private byte[]		array		= null;
+    }
+    public class DBData
+    {
+        public Field field = null;
+        private string _str = "";
+        private ulong _ulong = 0;
+        private byte[] array = null;
 
-		
-		public DBData( ){}
-		public DBData( Field f )
-		{	SetField( f );
-		}
-		public DBData( Field f, BitStream bits )
-		{	SetField( f );
-			ReadData( bits );
-		}
-		public DBData( string fieldname, int type, string data )
-		{	field		= new Field( );
-			field.name	= fieldname;
-			field.type	= (ulong) type;
-			if( type == (int) Field.FieldType.tdbString )
-				_str	= data;
-			else
-				_ulong	= Convert.ToUInt32( data );
-		}
-		public void SetField( Field f ){	field	= f; }
-		public string GetFieldName( ){		return field.name; }
-		public void ReadData( BitStream bits )
-		{
-			switch( field.type )
-			{
-				case (ulong) Field.FieldType.tdbString:
-					_str	= Field.ReadString( field, bits );
-					break;
-				case (ulong) Field.FieldType.tdbBinary:
-					array	= Field.ReadBytes( field, bits );
-					break;
-				case (ulong) Field.FieldType.tdbSInt:
-				case (ulong) Field.FieldType.tdbUInt:
-				case (ulong) Field.FieldType.tdbFloat:
-					_ulong	= bits.ReadBits( (long)field.offset, (long)field.bits );
-					break;
+
+        public DBData() { }
+        public DBData(Field f)
+        {
+            SetField(f);
+        }
+        public DBData(Field f, BitStream bits)
+        {
+            SetField(f);
+            ReadData(bits);
+        }
+        public DBData(string fieldname, int type, string data)
+        {
+            field = new Field();
+            field.name = fieldname;
+            field.type = (ulong)type;
+            if (type == (int)Field.FieldType.tdbString)
+                _str = data;
+            else
+                _ulong = Convert.ToUInt32(data);
+        }
+        public void SetField(Field f) { field = f; }
+        public string GetFieldName() { return field.name; }
+        public void ReadData(BitStream bits)
+        {
+            switch (field.type)
+            {
+                case (ulong)Field.FieldType.tdbString:
+                    _str = Field.ReadString(field, bits);
+                    break;
+                case (ulong)Field.FieldType.tdbBinary:
+                    array = Field.ReadBytes(field, bits);
+                    break;
+                case (ulong)Field.FieldType.tdbSInt:
+                case (ulong)Field.FieldType.tdbUInt:
+                case (ulong)Field.FieldType.tdbFloat:
+                    _ulong = bits.ReadBits((long)field.offset, (long)field.bits);
+                    break;
             }
         }
-		public void WriteData( BitStream bits )
-		{
-			switch( field.type )
-			{
-				case (ulong) Field.FieldType.tdbString:
-					bits.StoreBytes( _str, (long) field.offset, (int) field.bits /8 );
-					break;
-
-				case (ulong) Field.FieldType.tdbBinary:	// need to do this one day I suppose
-					break;
-				case (ulong) Field.FieldType.tdbSInt:
-				case (ulong) Field.FieldType.tdbUInt:
-				case (ulong) Field.FieldType.tdbFloat:
-					bits.WriteBits( _ulong, (long) field.offset, (int) field.bits );
-					break;
-			}
-		}
-		public string Data
-		{	get
-			{
-				switch( field.type )
-				{
-//                    case (ulong)Field.FieldType.tdbVarChar:
-                    case (ulong) Field.FieldType.tdbString:
-						return _str;
-
-					case (ulong) Field.FieldType.tdbBinary:	// major assumption made that all binary fields are %8 =0
-						string	s	= "";
-						foreach( byte b in array )
-							s	+= b.ToString( "X2" );
-						return s;
-
-					case (ulong) Field.FieldType.tdbSInt:
-						return ((int) _ulong).ToString( );
-
-					case (ulong) Field.FieldType.tdbUInt:
-						return ((uint) _ulong).ToString( );
-
-					case (ulong) Field.FieldType.tdbFloat:
-						return ((float) _ulong).ToString( "F" );
-				}
-				return "";
-			}
-			set
-			{
-				switch( field.type )
-				{
-  //                  case (ulong)Field.FieldType.tdbVarChar:
-                    case (ulong) Field.FieldType.tdbString:
-						_str	= value;
-						break;
-
-					case (ulong) Field.FieldType.tdbBinary:
-						char[]	temp	= ((string)value).ToCharArray( );
-						if( array == null )
-							array		= new byte[ temp.Length /2 ];
-						for( int i=0; i < (temp.Length /2); i++ )
-						{	array[ i ]	= Convert.ToByte( temp[ (i *2) +0 ].ToString( ) + temp[ (i *2) +1 ].ToString( ), 16 );
-						}
-						break;
-
-					case (ulong) Field.FieldType.tdbSInt:
-						_ulong	= Convert.ToUInt32( value );
-						break;
-
-					case (ulong) Field.FieldType.tdbUInt:
-						_ulong	= Convert.ToUInt32( value );
-						break;
-
-					case (ulong) Field.FieldType.tdbFloat:
-						_ulong	= Convert.ToUInt32( value );
-						break;
-				}
-
-			}
-		}
-		public override string ToString()
-		{
-			return field.name + ":" + Data;
-		}
-	}
-	public class DBTable
-	{
-		public string	TableName;							// 1st 4 bytes
-		public UInt32	offsetFromIndex;					// from end of table index
-
-		public int		headersize		= 8;
-
-		public UInt32	priorcrc;							// checksum?
-		public UInt32	unknown_2		= 0x00000006;		// type?
-		public UInt32	len_bytes;							// size of each record in bytes
-		public UInt32	len_bits;							// size of each record in bits
-		public UInt32	zero			= 0;
-		public UInt16	maxrecords;
-		public UInt16	currecords;
-		public UInt32	unknown_3		= 0x0000ffff;
-		public byte		numfields;
-		public byte		indexcount		= 0;
-		public UInt16	zero2			= 0;
-		public UInt32	zero3			= 0;
-		public UInt32	headercrc;							// or crc poly?
-
-		public int		infosize		= 40;
-
-		public long		fieldStart		= 0;
-		public long		dataStart		= 0;
-
-		public UInt32	calcPcrc		= 0;
-		public UInt32	calcHcrc		= 0;
-
-
-		public DBTable( )
-		{	TableName		= "";
-			offsetFromIndex	= 0;
-			priorcrc		= 0;
-			unknown_2		= 6;
-			len_bytes		= 0;
-			len_bits		= 0;
-			zero			= 0;
-			maxrecords		= 0;
-			currecords		= 0;
-			unknown_3		= 0x0000ffff;
-			numfields		= 0;
-			indexcount		= 0;
-			zero2			= 0;
-			zero3			= 0;
-			headercrc		= 0;
-		}
-        public DBTable(FileStream fs)
-		{	TableName		= "";
-			offsetFromIndex	= 0;
-			priorcrc		= 0;
-			unknown_2		= 0;
-			len_bytes		= 0;
-			len_bits		= 0;
-			zero			= 0;
-			maxrecords		= 0;
-			currecords		= 0;
-			unknown_3		= 0;
-			numfields		= 0;
-			indexcount		= 0;
-			zero2			= 0;
-			zero3			= 0;
-			headercrc		= 0;
-
-			ReadTableDefinition( fs );
-		}
-		public DBTable( DBTable org )
-		{	TableName		= org.TableName;
-			offsetFromIndex	= org.offsetFromIndex;
-			priorcrc		= org.priorcrc;
-			unknown_2		= org.unknown_2;
-			len_bytes		= org.len_bytes;
-			len_bits		= org.len_bits;
-			zero			= org.zero;
-			maxrecords		= org.maxrecords;
-			currecords		= org.currecords;
-			unknown_3		= org.unknown_3;
-			numfields		= org.numfields;
-			indexcount		= org.indexcount;
-			zero2			= org.zero2;
-			zero3			= org.zero3;
-			headercrc		= org.headercrc;
-		}
-        public void ReadTableDefinition(FileStream fs)
-		{	byte[]	array	= new byte[ headersize ];
-
-			fs.Read( array, 0, headersize );
-			TableName		= Convert.ToChar( array[3] ).ToString( ) + Convert.ToChar( array[2] ).ToString( ) + Convert.ToChar( array[1] ).ToString( ) + Convert.ToChar( array[0] ).ToString( );
-			offsetFromIndex	= (((UInt32)array[7]) ) | (((UInt32)array[6]) << 8 ) | (((UInt32)array[5]) << 16 ) | (((UInt32)array[4]) << 24 );
-		}
-        public void ReadTableHeader(FileStream fs, long datastart)
-		{	byte[]	array	= new byte[ infosize ];
-
-        if (dataStart > fs.Length)
+        public void WriteData(BitStream bits)
         {
-            MessageBox.Show("fugz");
+            switch (field.type)
+            {
+                case (ulong)Field.FieldType.tdbString:
+                    bits.StoreBytes(_str, (long)field.offset, (int)field.bits / 8);
+                    break;
+
+                case (ulong)Field.FieldType.tdbBinary:  // need to do this one day I suppose
+                    break;
+                case (ulong)Field.FieldType.tdbSInt:
+                case (ulong)Field.FieldType.tdbUInt:
+                case (ulong)Field.FieldType.tdbFloat:
+                    bits.WriteBits(_ulong, (long)field.offset, (int)field.bits);
+                    break;
+            }
         }
-			fs.Position	= datastart + offsetFromIndex;
-			fs.Read( array, 0, infosize );
+        public string Data
+        {
+            get
+            {
+                switch (field.type)
+                {
+                    //                    case (ulong)Field.FieldType.tdbVarChar:
+                    case (ulong)Field.FieldType.tdbString:
+                        return _str;
 
-			priorcrc	= ( ((UInt32)array[ 3]) ) | ( ((UInt32)array[ 2]) << 8 ) | ( ((UInt32)array[ 1]) << 16 ) | ( ((UInt32)array[ 0]) << 24 );
-			unknown_2	= ( ((UInt32)array[ 7]) ) | ( ((UInt32)array[ 6]) << 8 ) | ( ((UInt32)array[ 5]) << 16 ) | ( ((UInt32)array[ 4]) << 24 );
-			len_bytes	= ( ((UInt32)array[11]) ) | ( ((UInt32)array[10]) << 8 ) | ( ((UInt32)array[ 9]) << 16 ) | ( ((UInt32)array[ 8]) << 24 );
-			len_bits	= ( ((UInt32)array[15]) ) | ( ((UInt32)array[14]) << 8 ) | ( ((UInt32)array[13]) << 16 ) | ( ((UInt32)array[12]) << 24 );
-			zero		= ( ((UInt32)array[19]) ) | ( ((UInt32)array[18]) << 8 ) | ( ((UInt32)array[17]) << 16 ) | ( ((UInt32)array[16]) << 24 );
-			maxrecords	= (UInt16) (( ((UInt16)array[21]) ) | ( ((UInt16)array[20]) << 8 ));
-			currecords	= (UInt16) (( ((UInt16)array[23]) ) | ( ((UInt16)array[22]) << 8 ));
-			unknown_3	= ( ((UInt32)array[27]) ) | ( ((UInt32)array[26]) << 8 ) | ( ((UInt32)array[25]) << 16 ) | ( ((UInt32)array[24]) << 24 );
-			numfields	= array[28];
-			indexcount	= array[29];
-			zero2		= (UInt16) (( ((UInt16)array[31]) ) | ( ((UInt16)array[30]) << 8 ));
-			zero3		= ( ((UInt32)array[35]) ) | ( ((UInt32)array[34]) << 8 ) | ( ((UInt32)array[33]) << 16 ) | ( ((UInt32)array[32]) << 24 );
-			headercrc	= ( ((UInt32)array[39]) ) | ( ((UInt32)array[38]) << 8 ) | ( ((UInt32)array[37]) << 16 ) | ( ((UInt32)array[36]) << 24 );
+                    case (ulong)Field.FieldType.tdbBinary:  // major assumption made that all binary fields are %8 =0
+                        string s = "";
+                        foreach (byte b in array)
+                            s += b.ToString("X2");
+                        return s;
 
-			fieldStart	= datastart + offsetFromIndex + infosize;
-			dataStart	= fieldStart + ( numfields * 16 );
+                    case (ulong)Field.FieldType.tdbSInt:
+                        return ((int)_ulong).ToString();
 
-			DB_CRC	db	= new DB_CRC( );
-			calcHcrc	= ~db.crc32_be( 0, array, (uint) infosize -8, 4 );
-		}
-		public void WriteHeader( byte[] buf )
-		{
-			DBFileInfo.WriteDW2Buf( buf, (int)( fieldStart - infosize +0x00 ), priorcrc );
-			DBFileInfo.WriteDW2Buf( buf, (int)( fieldStart - infosize +0x04 ), unknown_2 );
-			DBFileInfo.WriteDW2Buf( buf, (int)( fieldStart - infosize +0x08 ), len_bytes );
-			DBFileInfo.WriteDW2Buf( buf, (int)( fieldStart - infosize +0x0C ), len_bits );
-			DBFileInfo.WriteDW2Buf( buf, (int)( fieldStart - infosize +0x10 ), zero );
-			DBFileInfo.WriteW2Buf(  buf, (int)( fieldStart - infosize +0x14 ), maxrecords );
-			DBFileInfo.WriteW2Buf(  buf, (int)( fieldStart - infosize +0x16 ), currecords );
-			DBFileInfo.WriteDW2Buf( buf, (int)( fieldStart - infosize +0x18 ), unknown_3 );
-			buf[fieldStart - infosize +0x1C]	= numfields;
-			buf[fieldStart - infosize +0x1D]	= indexcount;
-			DBFileInfo.WriteW2Buf(  buf, (int)( fieldStart - infosize +0x1E ), zero2 );
-			DBFileInfo.WriteDW2Buf( buf, (int)( fieldStart - infosize +0x20 ), zero3 );
-			DBFileInfo.WriteDW2Buf( buf, (int)( fieldStart - infosize +0x24 ), headercrc );
-		}
-	}
-	public class DBFileInfo
-	{
-#region internals & statics
-		public UInt32		tableIndexOffset	= 0x24;		// from DB start ( really 20, but we're treating it differently )
-		public byte[]		theFile				= null;
-		public long			absPosition			= 0;
-		public long			startData			= 0;
+                    case (ulong)Field.FieldType.tdbUInt:
+                        return ((uint)_ulong).ToString();
 
-		public UInt16		header;
-		public UInt16		version;
-		public UInt32		unknown_1;
-		public UInt32		DBsize;
-		public UInt32		zero;
-		public UInt32		tableCount;
-		public UInt32		unknown_2;						// checksum on the header
+                    case (ulong)Field.FieldType.tdbFloat:
+                        return ((float)_ulong).ToString("F");
+                }
+                return "";
+            }
+            set
+            {
+                switch (field.type)
+                {
+                    //                  case (ulong)Field.FieldType.tdbVarChar:
+                    case (ulong)Field.FieldType.tdbString:
+                        _str = value;
+                        break;
 
-		public int			headersize		= 24;			// really 20...
+                    case (ulong)Field.FieldType.tdbBinary:
+                        char[] temp = ((string)value).ToCharArray();
+                        if (array == null)
+                            array = new byte[temp.Length / 2];
+                        for (int i = 0; i < (temp.Length / 2); i++)
+                        {
+                            array[i] = Convert.ToByte(temp[(i * 2) + 0].ToString() + temp[(i * 2) + 1].ToString(), 16);
+                        }
+                        break;
 
-		public UInt32		calcdHeaderCRC		= 0;
-		public UInt32		calcdEOFCRC			= 0;
+                    case (ulong)Field.FieldType.tdbSInt:
+                        _ulong = Convert.ToUInt32(value);
+                        break;
 
-		public List<DBTable>	lTables;
+                    case (ulong)Field.FieldType.tdbUInt:
+                        _ulong = Convert.ToUInt32(value);
+                        break;
 
-#endregion
-		public DBFileInfo( )
-		{
-			header		= 0;
-			version		= 0;
-			unknown_1	= 0;
-			DBsize		= 0;
-			zero		= 0;
-			tableCount	= 0;
-			unknown_2	= 0;
-			lTables		= new List<DBTable>( );
-		}
+                    case (ulong)Field.FieldType.tdbFloat:
+                        _ulong = Convert.ToUInt32(value);
+                        break;
+                }
+
+            }
+        }
+        public override string ToString()
+        {
+            return field.name + ":" + Data;
+        }
+    }
+    public class DBTable
+    {
+        public string TableName;                            // 1st 4 bytes
+        public UInt32 offsetFromIndex;                  // from end of table index
+
+        public int headersize = 8;
+
+        public UInt32 priorcrc;                         // checksum?
+        public UInt32 unknown_2 = 0x00000006;       // type?
+        public UInt32 len_bytes;                            // size of each record in bytes
+        public UInt32 len_bits;                         // size of each record in bits
+        public UInt32 zero = 0;
+        public UInt16 maxrecords;
+        public UInt16 currecords;
+        public UInt32 unknown_3 = 0x0000ffff;
+        public byte numfields;
+        public byte indexcount = 0;
+        public UInt16 zero2 = 0;
+        public UInt32 zero3 = 0;
+        public UInt32 headercrc;                            // or crc poly?
+
+        public int infosize = 40;
+
+        public long fieldStart = 0;
+        public long dataStart = 0;
+
+        public UInt32 calcPcrc = 0;
+        public UInt32 calcHcrc = 0;
+
+
+        public DBTable()
+        {
+            TableName = "";
+            offsetFromIndex = 0;
+            priorcrc = 0;
+            unknown_2 = 6;
+            len_bytes = 0;
+            len_bits = 0;
+            zero = 0;
+            maxrecords = 0;
+            currecords = 0;
+            unknown_3 = 0x0000ffff;
+            numfields = 0;
+            indexcount = 0;
+            zero2 = 0;
+            zero3 = 0;
+            headercrc = 0;
+        }
+        public DBTable(FileStream fs)
+        {
+            TableName = "";
+            offsetFromIndex = 0;
+            priorcrc = 0;
+            unknown_2 = 0;
+            len_bytes = 0;
+            len_bits = 0;
+            zero = 0;
+            maxrecords = 0;
+            currecords = 0;
+            unknown_3 = 0;
+            numfields = 0;
+            indexcount = 0;
+            zero2 = 0;
+            zero3 = 0;
+            headercrc = 0;
+
+            ReadTableDefinition(fs);
+        }
+        public DBTable(DBTable org)
+        {
+            TableName = org.TableName;
+            offsetFromIndex = org.offsetFromIndex;
+            priorcrc = org.priorcrc;
+            unknown_2 = org.unknown_2;
+            len_bytes = org.len_bytes;
+            len_bits = org.len_bits;
+            zero = org.zero;
+            maxrecords = org.maxrecords;
+            currecords = org.currecords;
+            unknown_3 = org.unknown_3;
+            numfields = org.numfields;
+            indexcount = org.indexcount;
+            zero2 = org.zero2;
+            zero3 = org.zero3;
+            headercrc = org.headercrc;
+        }
+        public void ReadTableDefinition(FileStream fs)
+        {
+            byte[] array = new byte[headersize];
+
+            fs.Read(array, 0, headersize);
+            TableName = Convert.ToChar(array[3]).ToString() + Convert.ToChar(array[2]).ToString() + Convert.ToChar(array[1]).ToString() + Convert.ToChar(array[0]).ToString();
+            offsetFromIndex = (((UInt32)array[7])) | (((UInt32)array[6]) << 8) | (((UInt32)array[5]) << 16) | (((UInt32)array[4]) << 24);
+        }
+        public void ReadTableHeader(FileStream fs, long datastart)
+        {
+            byte[] array = new byte[infosize];
+
+            if (dataStart > fs.Length)
+            {
+                MessageBox.Show("fugz");
+            }
+            fs.Position = datastart + offsetFromIndex;
+            fs.Read(array, 0, infosize);
+
+            priorcrc = (((UInt32)array[3])) | (((UInt32)array[2]) << 8) | (((UInt32)array[1]) << 16) | (((UInt32)array[0]) << 24);
+            unknown_2 = (((UInt32)array[7])) | (((UInt32)array[6]) << 8) | (((UInt32)array[5]) << 16) | (((UInt32)array[4]) << 24);
+            len_bytes = (((UInt32)array[11])) | (((UInt32)array[10]) << 8) | (((UInt32)array[9]) << 16) | (((UInt32)array[8]) << 24);
+            len_bits = (((UInt32)array[15])) | (((UInt32)array[14]) << 8) | (((UInt32)array[13]) << 16) | (((UInt32)array[12]) << 24);
+            zero = (((UInt32)array[19])) | (((UInt32)array[18]) << 8) | (((UInt32)array[17]) << 16) | (((UInt32)array[16]) << 24);
+            maxrecords = (UInt16)((((UInt16)array[21])) | (((UInt16)array[20]) << 8));
+            currecords = (UInt16)((((UInt16)array[23])) | (((UInt16)array[22]) << 8));
+            unknown_3 = (((UInt32)array[27])) | (((UInt32)array[26]) << 8) | (((UInt32)array[25]) << 16) | (((UInt32)array[24]) << 24);
+            numfields = array[28];
+            indexcount = array[29];
+            zero2 = (UInt16)((((UInt16)array[31])) | (((UInt16)array[30]) << 8));
+            zero3 = (((UInt32)array[35])) | (((UInt32)array[34]) << 8) | (((UInt32)array[33]) << 16) | (((UInt32)array[32]) << 24);
+            headercrc = (((UInt32)array[39])) | (((UInt32)array[38]) << 8) | (((UInt32)array[37]) << 16) | (((UInt32)array[36]) << 24);
+
+            fieldStart = datastart + offsetFromIndex + infosize;
+            dataStart = fieldStart + (numfields * 16);
+
+            DB_CRC db = new DB_CRC();
+            calcHcrc = ~db.crc32_be(0, array, (uint)infosize - 8, 4);
+        }
+        public void WriteHeader(byte[] buf)
+        {
+            DBFileInfo.WriteDW2Buf(buf, (int)(fieldStart - infosize + 0x00), priorcrc);
+            DBFileInfo.WriteDW2Buf(buf, (int)(fieldStart - infosize + 0x04), unknown_2);
+            DBFileInfo.WriteDW2Buf(buf, (int)(fieldStart - infosize + 0x08), len_bytes);
+            DBFileInfo.WriteDW2Buf(buf, (int)(fieldStart - infosize + 0x0C), len_bits);
+            DBFileInfo.WriteDW2Buf(buf, (int)(fieldStart - infosize + 0x10), zero);
+            DBFileInfo.WriteW2Buf(buf, (int)(fieldStart - infosize + 0x14), maxrecords);
+            DBFileInfo.WriteW2Buf(buf, (int)(fieldStart - infosize + 0x16), currecords);
+            DBFileInfo.WriteDW2Buf(buf, (int)(fieldStart - infosize + 0x18), unknown_3);
+            buf[fieldStart - infosize + 0x1C] = numfields;
+            buf[fieldStart - infosize + 0x1D] = indexcount;
+            DBFileInfo.WriteW2Buf(buf, (int)(fieldStart - infosize + 0x1E), zero2);
+            DBFileInfo.WriteDW2Buf(buf, (int)(fieldStart - infosize + 0x20), zero3);
+            DBFileInfo.WriteDW2Buf(buf, (int)(fieldStart - infosize + 0x24), headercrc);
+        }
+    }
+    public class DBFileInfo
+    {
+        #region internals & statics
+        public UInt32 tableIndexOffset = 0x24;      // from DB start ( really 20, but we're treating it differently )
+        public byte[] theFile = null;
+        public long absPosition = 0;
+        public long startData = 0;
+
+        public UInt16 header;
+        public UInt16 version;
+        public UInt32 unknown_1;
+        public UInt32 DBsize;
+        public UInt32 zero;
+        public UInt32 tableCount;
+        public UInt32 unknown_2;                        // checksum on the header
+
+        public int headersize = 24;         // really 20...
+
+        public UInt32 calcdHeaderCRC = 0;
+        public UInt32 calcdEOFCRC = 0;
+
+        public List<DBTable> lTables;
+
+        #endregion
+        public DBFileInfo()
+        {
+            header = 0;
+            version = 0;
+            unknown_1 = 0;
+            DBsize = 0;
+            zero = 0;
+            tableCount = 0;
+            unknown_2 = 0;
+            lTables = new List<DBTable>();
+        }
         public DBFileInfo(FileStream fs)
-		{
-			header		= 0;
-			version		= 0;
-			unknown_1	= 0;
-			DBsize		= 0;
-			zero		= 0;
-			tableCount	= 0;
-			unknown_2	= 0;
-			lTables		= new List<DBTable>( );
+        {
+            header = 0;
+            version = 0;
+            unknown_1 = 0;
+            DBsize = 0;
+            zero = 0;
+            tableCount = 0;
+            unknown_2 = 0;
+            lTables = new List<DBTable>();
 
-			ReadDBHeader( fs );
-		}
+            ReadDBHeader(fs);
+        }
 
-        public  int? headerOffset = null; 
-        public  int HeaderOffset { get { return headerOffset.Value; } }
+        public int? headerOffset = null;
+        public int HeaderOffset { get { return headerOffset.Value; } }
 
         public void ReadDBHeader(FileStream fs)
-		{	byte[]	array	= new byte[ headersize ];
+        {
+            byte[] array = new byte[headersize];
 
-			// first, load the whole file into memory
-			fs.Position	= 0;
-			theFile		= new byte[ fs.Length ];
-			fs.Read( theFile, 0, (int) fs.Length );
+            // first, load the whole file into memory
+            fs.Position = 0;
+            theFile = new byte[fs.Length];
+            fs.Read(theFile, 0, (int)fs.Length);
 
-			// now reset the file. already wrote the code to read all data in via the file, so keeping that, but will change writes to in-memory
-			absPosition	= 0;
-			fs.Position	= 0;
-			fs.Read( array, 0, 4 );
+            // now reset the file. already wrote the code to read all data in via the file, so keeping that, but will change writes to in-memory
+            absPosition = 0;
+            fs.Position = 0;
+            fs.Read(array, 0, 4);
 
-			fs.Position	= absPosition;
-			fs.Read( array, 0, headersize );
+            fs.Position = absPosition;
+            fs.Read(array, 0, headersize);
 
             for (int i = 0; i < theFile.Length; i++)
             {
@@ -5156,131 +5229,135 @@ namespace EA_DB_Editor
                 }
             }
 
-			header	= (UInt16) (( ((UInt16)array[1]) ) | ( ((UInt16)array[0]) << 8 ));
-			version	= (UInt16) (( ((UInt16)array[3]) ) | ( ((UInt16)array[2]) << 8 ));
+            header = (UInt16)((((UInt16)array[1])) | (((UInt16)array[0]) << 8));
+            version = (UInt16)((((UInt16)array[3])) | (((UInt16)array[2]) << 8));
 
-			unknown_1	= ( ((UInt32)array[ 7]) ) | ( ((UInt32)array[ 6]) << 8 ) | ( ((UInt32)array[ 5]) << 16 ) | ( ((UInt32)array[ 4]) << 24 );
-			DBsize		= ( ((UInt32)array[11]) ) | ( ((UInt32)array[10]) << 8 ) | ( ((UInt32)array[ 9]) << 16 ) | ( ((UInt32)array[ 8]) << 24 );
-			zero		= ( ((UInt32)array[15]) ) | ( ((UInt32)array[14]) << 8 ) | ( ((UInt32)array[13]) << 16 ) | ( ((UInt32)array[12]) << 24 );
-			tableCount	= ( ((UInt32)array[19]) ) | ( ((UInt32)array[18]) << 8 ) | ( ((UInt32)array[17]) << 16 ) | ( ((UInt32)array[16]) << 24 );
-			unknown_2	= ( ((UInt32)array[23]) ) | ( ((UInt32)array[22]) << 8 ) | ( ((UInt32)array[21]) << 16 ) | ( ((UInt32)array[20]) << 24 );
+            unknown_1 = (((UInt32)array[7])) | (((UInt32)array[6]) << 8) | (((UInt32)array[5]) << 16) | (((UInt32)array[4]) << 24);
+            DBsize = (((UInt32)array[11])) | (((UInt32)array[10]) << 8) | (((UInt32)array[9]) << 16) | (((UInt32)array[8]) << 24);
+            zero = (((UInt32)array[15])) | (((UInt32)array[14]) << 8) | (((UInt32)array[13]) << 16) | (((UInt32)array[12]) << 24);
+            tableCount = (((UInt32)array[19])) | (((UInt32)array[18]) << 8) | (((UInt32)array[17]) << 16) | (((UInt32)array[16]) << 24);
+            unknown_2 = (((UInt32)array[23])) | (((UInt32)array[22]) << 8) | (((UInt32)array[21]) << 16) | (((UInt32)array[20]) << 24);
             TableNumber = tableCount;
 
-			if( header == 0x4442 )	// 'DB'
-			{
-				for( int i=0; i< tableCount; i++ )		// read table index
-					lTables.Add( new DBTable( fs ) );
+            if (header == 0x4442)   // 'DB'
+            {
+                for (int i = 0; i < tableCount; i++)        // read table index
+                    lTables.Add(new DBTable(fs));
 
-				startData	= fs.Position;				// record start of actual data
+                startData = fs.Position;				// record start of actual data
 
                 //read table info
                 for (int i = 0; i < lTables.Count; i++)
                 {
                     lTables[i].ReadTableHeader(fs, startData);
                 }
-			}
+            }
 
-		}
+        }
 
-        public static uint TableNumber = 0; 
+        public static uint TableNumber = 0;
 
-		public void CalcChecksums( FileStream fs )
-		{	DB_CRC	 db			= new DB_CRC( );
-			UInt32	priorcrc	= 0;
+        public void CalcChecksums(FileStream fs)
+        {
+            DB_CRC db = new DB_CRC();
+            UInt32 priorcrc = 0;
 
-			// first, load the whole file into memory
-			fs.Position	= 0;
-			theFile		= new byte[ fs.Length ];
-			fs.Read( theFile, 0, (int) fs.Length );
-			fs.Position	= 0;
+            // first, load the whole file into memory
+            fs.Position = 0;
+            theFile = new byte[fs.Length];
+            fs.Read(theFile, 0, (int)fs.Length);
+            fs.Position = 0;
 
-			// DB header
-			calcdHeaderCRC		= ~db.crc32_be( 0, theFile, 20, 0 );
+            // DB header
+            calcdHeaderCRC = ~db.crc32_be(0, theFile, 20, 0);
 
-			// Table index
-			priorcrc	= ~db.crc32_be( 0, theFile, tableCount *8, 24 );
+            // Table index
+            priorcrc = ~db.crc32_be(0, theFile, tableCount * 8, 24);
 
-			// each table, minus 1
-			for( long i=0; i < tableCount -1; i++ )
-			{	long	start	= startData + lTables[ (int) i ].offsetFromIndex + lTables[ (int) i ].infosize;
-				long	end		= startData + lTables[ (int) i +1 ].offsetFromIndex;
+            // each table, minus 1
+            for (long i = 0; i < tableCount - 1; i++)
+            {
+                long start = startData + lTables[(int)i].offsetFromIndex + lTables[(int)i].infosize;
+                long end = startData + lTables[(int)i + 1].offsetFromIndex;
 
-				lTables[ (int) i ].calcPcrc	= priorcrc;
-				priorcrc		= ~db.crc32_be( 0, theFile, (uint)( end - start ), (uint) start );
-			}
-			// the last table
-			long laststart	= startData + lTables[ (int)( tableCount -1 ) ].offsetFromIndex + lTables[ (int)( tableCount -1 ) ].infosize;
-			long lastend	= DBsize -4;
+                lTables[(int)i].calcPcrc = priorcrc;
+                priorcrc = ~db.crc32_be(0, theFile, (uint)(end - start), (uint)start);
+            }
+            // the last table
+            long laststart = startData + lTables[(int)(tableCount - 1)].offsetFromIndex + lTables[(int)(tableCount - 1)].infosize;
+            long lastend = DBsize - 4;
 
-			lTables[ (int)( tableCount -1 ) ].calcPcrc	= priorcrc;
-			calcdEOFCRC		= ~db.crc32_be( 0, theFile, (uint)( lastend - laststart ), (uint) laststart );
+            lTables[(int)(tableCount - 1)].calcPcrc = priorcrc;
+            calcdEOFCRC = ~db.crc32_be(0, theFile, (uint)(lastend - laststart), (uint)laststart);
 
 
-			// put the data back into the buffer
-			WriteDW2Buf( theFile, 20, calcdHeaderCRC );
-			foreach( DBTable dt in lTables )
-			{
-				WriteDW2Buf( theFile, (int)(startData + dt.offsetFromIndex), dt.calcPcrc );
-				WriteDW2Buf( theFile, (int)(startData + dt.offsetFromIndex + dt.infosize -4), dt.calcHcrc );
-			}
-			WriteDW2Buf( theFile, (int)(DBsize -4), calcdEOFCRC );
+            // put the data back into the buffer
+            WriteDW2Buf(theFile, 20, calcdHeaderCRC);
+            foreach (DBTable dt in lTables)
+            {
+                WriteDW2Buf(theFile, (int)(startData + dt.offsetFromIndex), dt.calcPcrc);
+                WriteDW2Buf(theFile, (int)(startData + dt.offsetFromIndex + dt.infosize - 4), dt.calcHcrc);
+            }
+            WriteDW2Buf(theFile, (int)(DBsize - 4), calcdEOFCRC);
 
-		}
-		public void CalcChecksums( )
-		{	DB_CRC	 db			= new DB_CRC( );
-			UInt32	priorcrc	= 0;
-			long	start		= 0;
-			long	end			= 0;
+        }
+        public void CalcChecksums()
+        {
+            DB_CRC db = new DB_CRC();
+            UInt32 priorcrc = 0;
+            long start = 0;
+            long end = 0;
             uint headerOffset = (uint)this.HeaderOffset;
 
 
-			// DB header
-			calcdHeaderCRC		= ~db.crc32_be( 0, theFile, 20, 0+headerOffset );
+            // DB header
+            calcdHeaderCRC = ~db.crc32_be(0, theFile, 20, 0 + headerOffset);
 
-			// Table index
-			priorcrc	= ~db.crc32_be( 0, theFile, tableCount *8, 24 + headerOffset);
+            // Table index
+            priorcrc = ~db.crc32_be(0, theFile, tableCount * 8, 24 + headerOffset);
 
-			// each table, minus 1
-			for( long i=0; i < tableCount -1; i++ )
-			{
-				// table header crc
-				start							= startData + lTables[ (int) i ].offsetFromIndex +4;
-				lTables[ (int) i ].calcHcrc		= ~db.crc32_be( 0, theFile, (uint)( lTables[ (int) i ].infosize -8 ), (uint) start );
+            // each table, minus 1
+            for (long i = 0; i < tableCount - 1; i++)
+            {
+                // table header crc
+                start = startData + lTables[(int)i].offsetFromIndex + 4;
+                lTables[(int)i].calcHcrc = ~db.crc32_be(0, theFile, (uint)(lTables[(int)i].infosize - 8), (uint)start);
 
-				// table data crc
-				start							= startData + lTables[ (int) i ].offsetFromIndex + lTables[ (int) i ].infosize;
-				end								= startData + lTables[ (int) i +1 ].offsetFromIndex;
+                // table data crc
+                start = startData + lTables[(int)i].offsetFromIndex + lTables[(int)i].infosize;
+                end = startData + lTables[(int)i + 1].offsetFromIndex;
 
-				lTables[ (int) i ].calcPcrc		= priorcrc;
-				priorcrc						= ~db.crc32_be( 0, theFile, (uint)( end - start ), (uint) start );
-			}
+                lTables[(int)i].calcPcrc = priorcrc;
+                priorcrc = ~db.crc32_be(0, theFile, (uint)(end - start), (uint)start);
+            }
 
-			// the last table
-			// table header crc
-			start											= startData + lTables[ (int)( tableCount -1 ) ].offsetFromIndex +4;
-			lTables[ (int)( tableCount -1 ) ].calcHcrc		= ~db.crc32_be( 0, theFile, (uint)( lTables[ (int)( tableCount -1 ) ].infosize -8 ), (uint) start );
+            // the last table
+            // table header crc
+            start = startData + lTables[(int)(tableCount - 1)].offsetFromIndex + 4;
+            lTables[(int)(tableCount - 1)].calcHcrc = ~db.crc32_be(0, theFile, (uint)(lTables[(int)(tableCount - 1)].infosize - 8), (uint)start);
 
-			// table data crc
-			start	= startData + lTables[ (int)( tableCount -1 ) ].offsetFromIndex + lTables[ (int)( tableCount -1 ) ].infosize;
-			end		=headerOffset+ DBsize -4;
+            // table data crc
+            start = startData + lTables[(int)(tableCount - 1)].offsetFromIndex + lTables[(int)(tableCount - 1)].infosize;
+            end = headerOffset + DBsize - 4;
 
-			lTables[ (int)( tableCount -1 ) ].calcPcrc	= priorcrc;
-			calcdEOFCRC		= ~db.crc32_be( 0, theFile, (uint)( end - start ), (uint) start );
+            lTables[(int)(tableCount - 1)].calcPcrc = priorcrc;
+            calcdEOFCRC = ~db.crc32_be(0, theFile, (uint)(end - start), (uint)start);
 
 
-			// put the data back into the buffer
-			WriteDW2Buf( theFile, (int)headerOffset + 20, calcdHeaderCRC );
-			foreach( DBTable dt in lTables )
-			{
-				WriteDW2Buf( theFile, (int)(startData + dt.offsetFromIndex), dt.calcPcrc );
-				WriteDW2Buf( theFile, (int)(startData + dt.offsetFromIndex + dt.infosize -4), dt.calcHcrc );
-			}
-			WriteDW2Buf( theFile, (int)(headerOffset + DBsize -4), calcdEOFCRC );
+            // put the data back into the buffer
+            WriteDW2Buf(theFile, (int)headerOffset + 20, calcdHeaderCRC);
+            foreach (DBTable dt in lTables)
+            {
+                WriteDW2Buf(theFile, (int)(startData + dt.offsetFromIndex), dt.calcPcrc);
+                WriteDW2Buf(theFile, (int)(startData + dt.offsetFromIndex + dt.infosize - 4), dt.calcHcrc);
+            }
+            WriteDW2Buf(theFile, (int)(headerOffset + DBsize - 4), calcdEOFCRC);
 
-		}
-		public void Save( FileStream fs , bool saveWholeFile)
-		{	fs.Position	= 0;
-			CalcChecksums( );
+        }
+        public void Save(FileStream fs, bool saveWholeFile)
+        {
+            fs.Position = 0;
+            CalcChecksums();
 
             if (saveWholeFile)
             {
@@ -5290,301 +5367,334 @@ namespace EA_DB_Editor
             {
                 fs.Write(theFile, 0, (int)DBsize);
             }
-		}
+        }
 
-		/// <summary>
-		/// used in the franchise -> roster conversion
-		/// assumes theFile is already allocated
-		/// </summary>
-		public void DBHeaderToBuffer( )
-		{
-			WriteW2Buf(  theFile,  0, header );
-			WriteW2Buf(  theFile,  2, version );
-			WriteDW2Buf( theFile,  4, unknown_1 );
-			WriteDW2Buf( theFile,  8, DBsize );
-			WriteDW2Buf( theFile, 12, zero );
-			WriteDW2Buf( theFile, 16, tableCount );
-			WriteDW2Buf( theFile, 20, unknown_2 );
-		}
+        /// <summary>
+        /// used in the franchise -> roster conversion
+        /// assumes theFile is already allocated
+        /// </summary>
+        public void DBHeaderToBuffer()
+        {
+            WriteW2Buf(theFile, 0, header);
+            WriteW2Buf(theFile, 2, version);
+            WriteDW2Buf(theFile, 4, unknown_1);
+            WriteDW2Buf(theFile, 8, DBsize);
+            WriteDW2Buf(theFile, 12, zero);
+            WriteDW2Buf(theFile, 16, tableCount);
+            WriteDW2Buf(theFile, 20, unknown_2);
+        }
 
-		public static void WriteDW2Buf( byte[] buf, int offset, UInt32 dword )
-		{
-			buf[offset +0]	= (byte)( (dword >> 24) & 0x000000FF );
-			buf[offset +1]	= (byte)( (dword >> 16) & 0x000000FF );
-			buf[offset +2]	= (byte)( (dword >>  8) & 0x000000FF );
-			buf[offset +3]	= (byte)( (dword      ) & 0x000000FF );
-		}
-		public static void WriteW2Buf( byte[] buf, int offset, UInt16 word )
-		{
-			buf[offset +0]	= (byte)( (word >>  8) & 0x00FF );
-			buf[offset +1]	= (byte)( (word      ) & 0x00FF );
-		}
-		public static void WriteBytesFromBuf( byte[] des, byte[] src, long offset, int bytes )
-		{
-			for( int i=0; i < bytes; i++ )
-				des[ i ]	= src[ i +offset ];
-		}
-		public static void WriteBytesToBuf( byte[] des, byte[] src, long offset, int bytes )
-		{
-			for( int i=0; i < bytes; i++ )
-				des[ i +offset ]	= src[ i ];
-		}
-	}
-	public class DB_CRC
-	{
-		private	UInt32		CRCPOLY_BE		= 0x04c11db7;
-		private	UInt32[]	crc32table_be	= new UInt32 [256];
+        public static void WriteDW2Buf(byte[] buf, int offset, UInt32 dword)
+        {
+            buf[offset + 0] = (byte)((dword >> 24) & 0x000000FF);
+            buf[offset + 1] = (byte)((dword >> 16) & 0x000000FF);
+            buf[offset + 2] = (byte)((dword >> 8) & 0x000000FF);
+            buf[offset + 3] = (byte)((dword) & 0x000000FF);
+        }
+        public static void WriteW2Buf(byte[] buf, int offset, UInt16 word)
+        {
+            buf[offset + 0] = (byte)((word >> 8) & 0x00FF);
+            buf[offset + 1] = (byte)((word) & 0x00FF);
+        }
+        public static void WriteBytesFromBuf(byte[] des, byte[] src, long offset, int bytes)
+        {
+            for (int i = 0; i < bytes; i++)
+                des[i] = src[i + offset];
+        }
+        public static void WriteBytesToBuf(byte[] des, byte[] src, long offset, int bytes)
+        {
+            for (int i = 0; i < bytes; i++)
+                des[i + offset] = src[i];
+        }
+    }
+    public class DB_CRC
+    {
+        private UInt32 CRCPOLY_BE = 0x04c11db7;
+        private UInt32[] crc32table_be = new UInt32[256];
 
-		public DB_CRC( )
-		{	crc32init_be( );
-		}
-		public DB_CRC( UInt32 poly )
-		{	CRCPOLY_BE	= poly;
-			crc32init_be( );
-		}
-		private void crc32init_be( )
-		{
-			UInt32	i, j;
-			UInt32	crc		= 0x80000000;
+        public DB_CRC()
+        {
+            crc32init_be();
+        }
+        public DB_CRC(UInt32 poly)
+        {
+            CRCPOLY_BE = poly;
+            crc32init_be();
+        }
+        private void crc32init_be()
+        {
+            UInt32 i, j;
+            UInt32 crc = 0x80000000;
 
-			crc32table_be[0] = 0;
+            crc32table_be[0] = 0;
 
-			for( i = 1 ; i < 1<< 4; i <<= 1)
-			{
-				crc	= (crc << 1) ^ ( ((crc & 0x80000000) != 0) ? CRCPOLY_BE : 0);
-				for( j = 0; j < i; j++ )
-					crc32table_be[ i+j ]	= crc ^ crc32table_be[ j ];
-			}
-		}
-		public UInt32 crc32_be( UInt32 crc, byte[] p, UInt32 len, UInt32 start=0 )
-		{	UInt32	x	= start;
+            for (i = 1; i < 1 << 4; i <<= 1)
+            {
+                crc = (crc << 1) ^ (((crc & 0x80000000) != 0) ? CRCPOLY_BE : 0);
+                for (j = 0; j < i; j++)
+                    crc32table_be[i + j] = crc ^ crc32table_be[j];
+            }
+        }
+        public UInt32 crc32_be(UInt32 crc, byte[] p, UInt32 len, UInt32 start = 0)
+        {
+            UInt32 x = start;
 
-			crc ^= 0xFFFFFFFF;
-			while( len-- >0 )
-			{
-				crc	^= (uint) p[ x++ ] << 24;
-				crc	= (crc << 4) ^ crc32table_be[crc >> 28];
-				crc	= (crc << 4) ^ crc32table_be[crc >> 28];
-			}
-			return crc ^ 0xFFFFFFFF;
-		}
-	}
-	public class MC02Descriptor
-	{
-		public byte[]	data;	
+            crc ^= 0xFFFFFFFF;
+            while (len-- > 0)
+            {
+                crc ^= (uint)p[x++] << 24;
+                crc = (crc << 4) ^ crc32table_be[crc >> 28];
+                crc = (crc << 4) ^ crc32table_be[crc >> 28];
+            }
+            return crc ^ 0xFFFFFFFF;
+        }
+    }
+    public class MC02Descriptor
+    {
+        public byte[] data;
 
-		public MC02Descriptor( )
-		{	data	= new byte[ 40 ];
+        public MC02Descriptor()
+        {
+            data = new byte[40];
 
-			SetDword( 16, 0x524c5f50 );
-			SetDword( 20, 0x61746368 );
-			SetDword( 24, 0x322d3731 );
-			SetDword( 28, 0x35303032 );
-			SetDword( 32, 0x00000000 );
-			SetDword( 36, 0x00000000 );
-		
-			Offset	= 0x000b15dc;
-			Year	= 2012;
-			Month	= 1;
-			Day		= 1;
-			Hour	= 12;
-			Minute	= 0;
-			Second	= 0;
-		}
+            SetDword(16, 0x524c5f50);
+            SetDword(20, 0x61746368);
+            SetDword(24, 0x322d3731);
+            SetDword(28, 0x35303032);
+            SetDword(32, 0x00000000);
+            SetDword(36, 0x00000000);
 
-		private UInt16 GetWord( int index )
-		{
-			return	(UInt16) ( (( Convert.ToUInt16( data[index] ) & 0x00ff ) << 8 ) | ( Convert.ToUInt16( data[index+1] ) & 0x00ff ));
-		}
-		private UInt32 GetDword( int index )
-		{
-			return ( Convert.ToUInt32( GetWord(index) & 0x0000ffff ) << 16 ) | ( Convert.ToUInt32( GetWord(index+2) ) & 0x0000ffff );
-		}
-		private void SetWord( int index, UInt16 word )
-		{
-			data[index +0]	= (byte)( (word >>  8) & 0x00FF );
-			data[index +1]	= (byte)( (word      ) & 0x00FF );
-		}
-		private void SetDword( int index, UInt32 dword )
-		{
-			SetWord( index +0, (UInt16)( (dword >> 16) & 0x0000FFFF ) );
-			SetWord( index +2, (UInt16)( (dword      ) & 0x0000FFFF ) );
-		}
+            Offset = 0x000b15dc;
+            Year = 2012;
+            Month = 1;
+            Day = 1;
+            Hour = 12;
+            Minute = 0;
+            Second = 0;
+        }
 
-		public UInt32 Offset
-		{
-			get
-			{	return GetDword( 0 );
-			}
-			set
-			{	SetDword( 0, value );
-			}
-		}
-		public UInt16 Year
-		{
-			get
-			{	return GetWord( 4 );
-			}
-			set
-			{	SetWord( 4, value );
-			}
-		}
-		public UInt16 Month
-		{
-			get
-			{	return GetWord( 6 );
-			}
-			set
-			{	SetWord( 6, value );
-			}
-		}
-		public UInt16 Day
-		{
-			get
-			{	return GetWord( 8 );
-			}
-			set
-			{	SetWord( 8, value );
-			}
-		}
-		public UInt16 Hour
-		{
-			get
-			{	return GetWord( 10 );
-			}
-			set
-			{	SetWord( 10, value );
-			}
-		}
-		public UInt16 Minute
-		{
-			get
-			{	return GetWord( 12 );
-			}
-			set
-			{	SetWord( 12, value );
-			}
-		}
-		public UInt16 Second
-		{
-			get
-			{	return GetWord( 14 );
-			}
-			set
-			{	SetWord( 14, value );
-			}
-		}
-	}
-	public class MaddenRecord
-	{
-		public MaddenTable		Table			= null;
-		public List<DBData>		lEntries		= null;
+        private UInt16 GetWord(int index)
+        {
+            return (UInt16)(((Convert.ToUInt16(data[index]) & 0x00ff) << 8) | (Convert.ToUInt16(data[index + 1]) & 0x00ff));
+        }
+        private UInt32 GetDword(int index)
+        {
+            return (Convert.ToUInt32(GetWord(index) & 0x0000ffff) << 16) | (Convert.ToUInt32(GetWord(index + 2)) & 0x0000ffff);
+        }
+        private void SetWord(int index, UInt16 word)
+        {
+            data[index + 0] = (byte)((word >> 8) & 0x00FF);
+            data[index + 1] = (byte)((word) & 0x00FF);
+        }
+        private void SetDword(int index, UInt32 dword)
+        {
+            SetWord(index + 0, (UInt16)((dword >> 16) & 0x0000FFFF));
+            SetWord(index + 2, (UInt16)((dword) & 0x0000FFFF));
+        }
 
-		public MaddenRecord( )
-		{	lEntries	= new List<DBData>( );
-		}
-		public MaddenRecord( MaddenTable table, List<Field> lFields )
-		{	BitStream	bits	= new BitStream( );
+        public UInt32 Offset
+        {
+            get
+            {
+                return GetDword(0);
+            }
+            set
+            {
+                SetDword(0, value);
+            }
+        }
+        public UInt16 Year
+        {
+            get
+            {
+                return GetWord(4);
+            }
+            set
+            {
+                SetWord(4, value);
+            }
+        }
+        public UInt16 Month
+        {
+            get
+            {
+                return GetWord(6);
+            }
+            set
+            {
+                SetWord(6, value);
+            }
+        }
+        public UInt16 Day
+        {
+            get
+            {
+                return GetWord(8);
+            }
+            set
+            {
+                SetWord(8, value);
+            }
+        }
+        public UInt16 Hour
+        {
+            get
+            {
+                return GetWord(10);
+            }
+            set
+            {
+                SetWord(10, value);
+            }
+        }
+        public UInt16 Minute
+        {
+            get
+            {
+                return GetWord(12);
+            }
+            set
+            {
+                SetWord(12, value);
+            }
+        }
+        public UInt16 Second
+        {
+            get
+            {
+                return GetWord(14);
+            }
+            set
+            {
+                SetWord(14, value);
+            }
+        }
+    }
+    public class MaddenRecord
+    {
+        public MaddenTable Table = null;
+        public List<DBData> lEntries = null;
 
-			Table	= table;
-			bits.AllocBits( Table.Table.len_bytes *8 );
-			bits.ActivateBits( );
-			
-			lEntries	= new List<DBData>( );
+        public MaddenRecord()
+        {
+            lEntries = new List<DBData>();
+        }
+        public MaddenRecord(MaddenTable table, List<Field> lFields)
+        {
+            BitStream bits = new BitStream();
 
-			foreach( Field f in lFields )
-			{	DBData	db	= new DBData( f );
-				lEntries.Add( db );
-			}
-		}
+            Table = table;
+            bits.AllocBits(Table.Table.len_bytes * 8);
+            bits.ActivateBits();
+
+            lEntries = new List<DBData>();
+
+            foreach (Field f in lFields)
+            {
+                DBData db = new DBData(f);
+                lEntries.Add(db);
+            }
+        }
         public MaddenRecord(int entryNum, MaddenTable table, List<Field> lFields, FileStream fs)
-		{	BitStream	bits	= new BitStream( );
+        {
+            BitStream bits = new BitStream();
 
-			Table	= table;
-			bits.AllocBits( Table.Table.len_bytes *8 );
-			fs.Position	= Table.Table.dataStart + ( entryNum * Table.Table.len_bytes );
-			fs.Read( bits.buffer, 0, (int) Table.Table.len_bytes );
-			bits.ActivateBits( );
-			
-			lEntries	= new List<DBData>( );
+            Table = table;
+            bits.AllocBits(Table.Table.len_bytes * 8);
+            fs.Position = Table.Table.dataStart + (entryNum * Table.Table.len_bytes);
+            fs.Read(bits.buffer, 0, (int)Table.Table.len_bytes);
+            bits.ActivateBits();
 
-			foreach( Field f in lFields )
-			{	DBData	db	= new DBData( f, bits );
-				lEntries.Add( db );
-			}
-		}
-		public MaddenRecord( MaddenRecord org )
-		{	Table		= org.Table;
-			lEntries	= new List<DBData>( );
-			foreach( DBData db in org.lEntries )
-			{	DBData	n	= new DBData( db.field );
-				//n.Data		= db.Data;
-				lEntries.Add( n );
-			}
-		}
-		public MaddenRecord( MaddenRecord org, List<Field> lNewFields )
-		{	Table		= org.Table;
-			lEntries	= new List<DBData>( );
-			foreach( Field f in lNewFields )
-			{	DBData	n	= new DBData( f );
-				DBData	r	= org.GetEntry( f.name );
-				if( r != null )
-					n.Data	= r.Data;
-				lEntries.Add( n );
-			}
-		}
-		public void CopyData( MaddenRecord org )
-		{	if( org.lEntries.Count != lEntries.Count )
-				return;
+            lEntries = new List<DBData>();
 
-			for( int i=0; i < lEntries.Count; i++ )
-				lEntries[i].Data	= org.lEntries[i].Data;
-		}
-		public void WriteRecord( int entryNum, byte[] buffer, bool isScheduleTable )
-		{	BitStream	bits	= new BitStream( );
+            foreach (Field f in lFields)
+            {
+                DBData db = new DBData(f, bits);
+                lEntries.Add(db);
+            }
+        }
+        public MaddenRecord(MaddenRecord org)
+        {
+            Table = org.Table;
+            lEntries = new List<DBData>();
+            foreach (DBData db in org.lEntries)
+            {
+                DBData n = new DBData(db.field);
+                //n.Data		= db.Data;
+                lEntries.Add(n);
+            }
+        }
+        public MaddenRecord(MaddenRecord org, List<Field> lNewFields)
+        {
+            Table = org.Table;
+            lEntries = new List<DBData>();
+            foreach (Field f in lNewFields)
+            {
+                DBData n = new DBData(f);
+                DBData r = org.GetEntry(f.name);
+                if (r != null)
+                    n.Data = r.Data;
+                lEntries.Add(n);
+            }
+        }
+        public void CopyData(MaddenRecord org)
+        {
+            if (org.lEntries.Count != lEntries.Count)
+                return;
 
-			bits.AllocBits( Table.Table.len_bytes *8 );
+            for (int i = 0; i < lEntries.Count; i++)
+                lEntries[i].Data = org.lEntries[i].Data;
+        }
+        public void WriteRecord(int entryNum, byte[] buffer, bool isScheduleTable)
+        {
+            BitStream bits = new BitStream();
 
-			long	position	= Table.Table.dataStart + ( entryNum * Table.Table.len_bytes );
-			DBFileInfo.WriteBytesFromBuf( bits.buffer, buffer, position, (int) Table.Table.len_bytes );
+            bits.AllocBits(Table.Table.len_bytes * 8);
 
-			bits.ActivateBits( );
-			
-			foreach( DBData db in lEntries )
-				db.WriteData( bits );
+            long position = Table.Table.dataStart + (entryNum * Table.Table.len_bytes);
+            DBFileInfo.WriteBytesFromBuf(bits.buffer, buffer, position, (int)Table.Table.len_bytes);
 
-			bits.DeactivateBits( );
+            bits.ActivateBits();
 
-            if(isScheduleTable)
+            foreach (DBData db in lEntries)
+                db.WriteData(bits);
+
+            bits.DeactivateBits();
+
+            if (isScheduleTable)
             {
                 bits.buffer[19] = 0;
             }
 
-			position	= Table.Table.dataStart + ( entryNum * Table.Table.len_bytes );
-			DBFileInfo.WriteBytesToBuf( buffer, bits.buffer, position, (int) Table.Table.len_bytes );
-		}
-		public DBData GetEntry( string fieldName )
-		{	foreach( DBData data in lEntries )
-			{	if( data.GetFieldName( ) == fieldName )
-					return data;
-			}
-			return null;
-		}
-		public string this[ string fieldName ]
-		{
-			get
-			{	DBData	data	= GetEntry( fieldName );
-				if( data == null )
-					return "0";
-				return data.Data;
-			}
-			set
-			{	DBData	data	= GetEntry( fieldName );
-				if( data != null )
-					data.Data	= value;
-			}
-		}
-	}
+            position = Table.Table.dataStart + (entryNum * Table.Table.len_bytes);
+            DBFileInfo.WriteBytesToBuf(buffer, bits.buffer, position, (int)Table.Table.len_bytes);
+        }
+        public DBData GetEntry(string fieldName)
+        {
+            foreach (DBData data in lEntries)
+            {
+                if (data.GetFieldName() == fieldName)
+                    return data;
+            }
+            return null;
+        }
+        public string this[string fieldName]
+        {
+            get
+            {
+                DBData data = GetEntry(fieldName);
+                if (data == null)
+                    return "0";
+                return data.Data;
+            }
+            set
+            {
+                DBData data = GetEntry(fieldName);
+                if (data != null)
+                    data.Data = value;
+            }
+        }
+    }
     public class MaddenTable
     {
         public DBTable Table = null;
@@ -5693,7 +5803,7 @@ namespace EA_DB_Editor
 
         public bool RemoveRecord(MaddenRecord mr)
         {
-            if(lRecords.Remove(mr))
+            if (lRecords.Remove(mr))
             {
                 Table.currecords--;
                 return true;
@@ -5719,7 +5829,7 @@ namespace EA_DB_Editor
 
             x = 0;
             foreach (MaddenRecord mr in lRecords)
-                mr.WriteRecord(x++, buffer,Table.TableName=="SCHD");
+                mr.WriteRecord(x++, buffer, Table.TableName == "SCHD");
         }
 
         /// <summary>
@@ -5761,7 +5871,7 @@ namespace EA_DB_Editor
             return GetTableByAbbreviation(lMaddenTables, Name);
         }
 
-        public static List<MaddenRecord> Query(List<MaddenTable> lMaddenTables,string table, Dictionary<string, string> kvp)
+        public static List<MaddenRecord> Query(List<MaddenTable> lMaddenTables, string table, Dictionary<string, string> kvp)
         {
             return Query(FindTable(lMaddenTables, table), kvp);
         }
@@ -5787,17 +5897,19 @@ namespace EA_DB_Editor
         }
     }
 
-	public class MaddenDatabase
-	{	public	DBFileInfo			dbFileInfo		= null;
-		public	List<MaddenTable>	lTables			= new List<MaddenTable>( );
-		public	string				fileName		= "";
-		public	string				realfileName	= "";
-		public	MaddenFileType		type			= MaddenFileType.FileType_None;
-		
+    public class MaddenDatabase
+    {
+        public DBFileInfo dbFileInfo = null;
+        public List<MaddenTable> lTables = new List<MaddenTable>();
+        public string fileName = "";
+        public string realfileName = "";
+        public MaddenFileType type = MaddenFileType.FileType_None;
 
-		private MaddenDatabase( )
-		{	dbFileInfo	= new DBFileInfo( );
-		}
+
+        private MaddenDatabase()
+        {
+            dbFileInfo = new DBFileInfo();
+        }
         public MaddenDatabase(string file)
         {
             FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read);
@@ -5806,24 +5918,24 @@ namespace EA_DB_Editor
             // check file type
             type = MaddenDatabase.CheckFileType(fs);
 
-#region unknown file type
+            #region unknown file type
             if (type == MaddenFileType.FileType_None)
             {
                 MessageBox.Show("Error - this is not a DB or MC02 file!");
                 fs.Close();
                 return;
             }
-#endregion
-#region CON file type
+            #endregion
+            #region CON file type
             if (type == MaddenFileType.FileType_CON)
             {
                 MessageBox.Show("You must first extract the MC02 / DB file from the roster!");
                 fs.Close();
                 return;
             }
-#endregion
-#region MC02 file type
-            if (type == MaddenFileType.FileType_MC02 )
+            #endregion
+            #region MC02 file type
+            if (type == MaddenFileType.FileType_MC02)
             {
                 MC02Handler.Package package = null;
                 byte[] mc02 = new byte[fs.Length];
@@ -5851,10 +5963,10 @@ namespace EA_DB_Editor
 
             }
             else    // must be a DB file
-#endregion
-#region DB file type
+            #endregion
+                #region DB file type
                 fileName = file;
-#endregion
+                #endregion
 
             dbFileInfo = new DBFileInfo(fs);
             for (int i = 0; i < dbFileInfo.lTables.Count; i++)
@@ -5865,97 +5977,104 @@ namespace EA_DB_Editor
             fs.Close();
         }
 
-        public MaddenTable GetTable( string tableName )
-		{	foreach( MaddenTable table in lTables )
-			{	if( table.Table.TableName == tableName )
-					return table;
-			}
-			return null;
-		}
-		public MaddenTable this[ string tableName ]
-		{
-			get
-			{	return GetTable( tableName );
-			}
-		}
-		public void Save( )
-		{
-			FileStream	fs	= new FileStream( fileName, FileMode.Truncate, FileAccess.ReadWrite );
+        public MaddenTable GetTable(string tableName)
+        {
+            foreach (MaddenTable table in lTables)
+            {
+                if (table.Table.TableName == tableName)
+                    return table;
+            }
+            return null;
+        }
+        public MaddenTable this[string tableName]
+        {
+            get
+            {
+                return GetTable(tableName);
+            }
+        }
+        public void Save()
+        {
+            FileStream fs = new FileStream(fileName, FileMode.Truncate, FileAccess.ReadWrite);
 
-			foreach( MaddenTable mt in lTables )
-				mt.WriteTable( dbFileInfo.theFile );
+            foreach (MaddenTable mt in lTables)
+                mt.WriteTable(dbFileInfo.theFile);
 
-			dbFileInfo.Save( fs, type == MaddenFileType.FileType_DB );
-			fs.Close( );
+            dbFileInfo.Save(fs, type == MaddenFileType.FileType_DB);
+            fs.Close();
 
-#region if this was an MC02 file, repackage
-			if( type == MaddenDatabase.MaddenFileType.FileType_MC02 )
-			{	fs	= new FileStream( realfileName, FileMode.Open, FileAccess.ReadWrite );
+            #region if this was an MC02 file, repackage
+            if (type == MaddenDatabase.MaddenFileType.FileType_MC02)
+            {
+                fs = new FileStream(realfileName, FileMode.Open, FileAccess.ReadWrite);
 
-				// read the data descriptor @ 0x14 and save it
-				byte[]	descriptor	= new byte[ 12 ];
-				fs.Position			= 0x10;
-				fs.Read( descriptor, 0, 12 );
-				fs.Position			= 0;
+                // read the data descriptor @ 0x14 and save it
+                byte[] descriptor = new byte[12];
+                fs.Position = 0x10;
+                fs.Read(descriptor, 0, 12);
+                fs.Position = 0;
 
-				MC02Handler.Package	package	= null;
-				byte[]	mc02				= new byte[ fs.Length ];
+                MC02Handler.Package package = null;
+                byte[] mc02 = new byte[fs.Length];
 
-				try
-				{	fs.Read( mc02, 0, (int) fs.Length );
-					package	= new MC02Handler.Package( mc02 );
+                try
+                {
+                    fs.Read(mc02, 0, (int)fs.Length);
+                    package = new MC02Handler.Package(mc02);
 
-				} catch( Exception exception )
-				{
-					MessageBox.Show( "Error opening MC02 package to insert DB: " +exception.ToString( ) );
-					Cursor.Current	= Cursors.Default;
-					return;
-				}
+                }
+                catch (Exception exception)
+                {
+                    MessageBox.Show("Error opening MC02 package to insert DB: " + exception.ToString());
+                    Cursor.Current = Cursors.Default;
+                    return;
+                }
 
-				package.Overwrite( Package.DataType.SaveData, dbFileInfo.theFile );
-				mc02	= package.Save( true );
+                package.Overwrite(Package.DataType.SaveData, dbFileInfo.theFile);
+                mc02 = package.Save(true);
 
-				// keep descriptor, ex. NCAA 14
-				if( ! Form1.mc02Recalc )
-				{
-					mc02[ 0x10 ]	= descriptor[ 0 ];
-					mc02[ 0x11 ]	= descriptor[ 1 ];
-					mc02[ 0x12 ]	= descriptor[ 2 ];
-					mc02[ 0x13 ]	= descriptor[ 3 ];
-					mc02[ 0x14 ]	= descriptor[ 4 ];
-					mc02[ 0x15 ]	= descriptor[ 5 ];
-					mc02[ 0x16 ]	= descriptor[ 6 ];
-					mc02[ 0x17 ]	= descriptor[ 7 ];
-					mc02[ 0x18 ]	= descriptor[ 8 ];
-					mc02[ 0x19 ]	= descriptor[ 9 ];
-					mc02[ 0x1A ]	= descriptor[ 10 ];
-					mc02[ 0x1B ]	= descriptor[ 11 ];
-				}
+                // keep descriptor, ex. NCAA 14
+                if (!Form1.mc02Recalc)
+                {
+                    mc02[0x10] = descriptor[0];
+                    mc02[0x11] = descriptor[1];
+                    mc02[0x12] = descriptor[2];
+                    mc02[0x13] = descriptor[3];
+                    mc02[0x14] = descriptor[4];
+                    mc02[0x15] = descriptor[5];
+                    mc02[0x16] = descriptor[6];
+                    mc02[0x17] = descriptor[7];
+                    mc02[0x18] = descriptor[8];
+                    mc02[0x19] = descriptor[9];
+                    mc02[0x1A] = descriptor[10];
+                    mc02[0x1B] = descriptor[11];
+                }
 
-				fs.Position	= 0;
-				fs.Write( mc02, 0, mc02.Length );
-				fs.Close( );
+                fs.Position = 0;
+                fs.Write(mc02, 0, mc02.Length);
+                fs.Close();
 
-				package.Dispose( );
-			}
-#endregion
-		}
-		public void SaveAs( string newfile )
-		{
-			File.Copy( fileName, newfile + ".DB" );
-			File.Copy( realfileName, newfile );
+                package.Dispose();
+            }
+            #endregion
+        }
+        public void SaveAs(string newfile)
+        {
+            File.Copy(fileName, newfile + ".DB");
+            File.Copy(realfileName, newfile);
 
-			fileName		= newfile + ".DB";
-			realfileName	= newfile;
+            fileName = newfile + ".DB";
+            realfileName = newfile;
 
-			Save( );
-		}
+            Save();
+        }
 
-		public enum MaddenFileType
-		{	FileType_None,
-			FileType_DB,
-			FileType_MC02,
-			FileType_CON,
+        public enum MaddenFileType
+        {
+            FileType_None,
+            FileType_DB,
+            FileType_MC02,
+            FileType_CON,
         }
         public static MaddenFileType CheckFileType(FileStream fs)
         {
@@ -5967,224 +6086,227 @@ namespace EA_DB_Editor
 
 
             // on ps3 a team builder save starts with 'DD'
-            if (b[0] == 'D' && b[1] == 'B' )
+            if (b[0] == 'D' && b[1] == 'B')
                 return MaddenFileType.FileType_DB;
-            if ((b[0] == 'M' && b[1] == 'C' && b[2] == '0' && b[3] == '2') )
+            if ((b[0] == 'M' && b[1] == 'C' && b[2] == '0' && b[3] == '2'))
                 return MaddenFileType.FileType_MC02;
             if (b[0] == 'C' && b[1] == 'O' && b[2] == 'N')
                 return MaddenFileType.FileType_CON;
             return MaddenFileType.FileType_None;
         }
-		/// <summary>
-		/// create a new, blank, Madden 12 roster
-		/// all of this is subject to change for future versions of Madden!
-		/// </summary>
-		public static MaddenDatabase CreateMaddeDB_Roster( )
-		{	MaddenDatabase	md	= new MaddenDatabase( );
-
-			// reserve our file space
-			md.dbFileInfo.theFile		= new byte[ 0x000b15b4 ];
-
-			// file in the typical DB header values for a roster ( as of Madden 12 )
-			md.dbFileInfo.header		= 0x4442;
-			md.dbFileInfo.version		= 0x0008;
-			md.dbFileInfo.unknown_1		= 0x01000000;
-			md.dbFileInfo.DBsize		= 0x000b15b4;
-			md.dbFileInfo.zero			= 0x00000000;
-			md.dbFileInfo.tableCount	= 0x00000004;
-			md.dbFileInfo.unknown_2		= 0xe0dc10f5;
-			md.dbFileInfo.DBHeaderToBuffer( );
-
-			md.dbFileInfo.startData		= 56;
-
-			// build our default table header
-			DBFileInfo.WriteDW2Buf( md.dbFileInfo.theFile, 24, 0x54484344 );
-			DBFileInfo.WriteDW2Buf( md.dbFileInfo.theFile, 28, 0x00000000 );
-			DBFileInfo.WriteDW2Buf( md.dbFileInfo.theFile, 32, 0x594a4e49 );
-			DBFileInfo.WriteDW2Buf( md.dbFileInfo.theFile, 36, 0x00005b68 );
-			DBFileInfo.WriteDW2Buf( md.dbFileInfo.theFile, 40, 0x59414c50 );
-			DBFileInfo.WriteDW2Buf( md.dbFileInfo.theFile, 44, 0x00006610 );
-			DBFileInfo.WriteDW2Buf( md.dbFileInfo.theFile, 48, 0x4d414554 );
-			DBFileInfo.WriteDW2Buf( md.dbFileInfo.theFile, 52, 0x000af730 );
-			DBFileInfo.WriteDW2Buf( md.dbFileInfo.theFile, 56, 0x9dcf334f );
-
-			return md;
-		}
-	}
-
-	public class View
-	{
-		public delegate void ViewChanged( View v );
-		public delegate Field GetMappedField( string name );
-#region members
-		public string					Name			= "";
-		public string					Type			= "";
-		public Control					DisplayControl	= null;
-		public int						Position_x		= 0;
-		public int						Position_y		= 0;
-		public int						Position_z		= 0;
-		public int						Size_width		= 0;
-		public int						Size_height		= 0;
-		public int						ChildCount		= 0;
-		public List<string>				ChildViews		= new List<string>( );
-		public List<View>				lChildren		= new List<View>( );
-		public string					SourceType		= "";
-		public string					SourceName		= "";
-		public int						ChildFieldCount	= 0;
-		public List<string>				ChildFields		= new List<string>( );
-		public List<Field>				lChildFields	= new List<Field>( );
-		public List<FieldFilter>		lastFilters		= null;
-		public ToolTip					toolTip			= new ToolTip( );
-		static public ViewChanged		viewChanged		= null;
-		static public GetMappedField	getMappedField	= null;
-        bool isRecruitPitchTable = false;
-#endregion
-
-		public View( )
-		{
-		}
-		public override string ToString()
-		{
-			return Name;
-		}
-		public bool ProcessSettings( List<Field> lMappedFields )
-		{
-			switch( Type )
-			{
-#region grid list view
-				case "Grid":
-					// setup list view
-					ListViewEx.ListViewEx	lv	= new ListViewEx.ListViewEx( );
-					lv.FullRowSelect			= true;
-					lv.DoubleClickActivation	= true;
-					lv.Height					= Size_height;
-					lv.Width					= Size_width;
-					lv.Location					= new Point( Position_x, Position_y );
-					lv.Anchor					= AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
-					lv.ListClicked				+= new SubItemEventHandler( GridClick );
-					lv.SubItemClicked			+= new SubItemEventHandler( GridItemClick );
-					lv.SubItemEndEditing		+= new SubItemEndEditingEventHandler( GridItemEdited );
-					lv.ColumnClick				+= new ColumnClickEventHandler( GridColumnClicked );
-//					lv.SelectedIndexChanged		+= new EventHandler(lv_SelectedIndexChanged);
-
-					// add the columns
-					lv.Columns.Add( "" );
-					for( int i=0; i < ChildFields.Count; i++ )
-					{
-						Field	f	= Field.FindField( lMappedFields, ChildFields[i] );
-						if( f == null )
-						{	MessageBox.Show( "Field " + ChildFields[i] + " in view " + Name + " not in main field list; aborting" );
-							return false;
-						}
-						lChildFields.Add( f );
-
-						string	field	= ( f.Name != "" ) ? f.Name : f.Abbreviation;
-
-						ColumnHeader	ch	= new ColumnHeader( );
-						ch.Text				= field;
-						ch.Tag				= f;
-
-						lv.Columns.Add( ch );
-					}
-					lv.AutoResizeColumns( ColumnHeaderAutoResizeStyle.HeaderSize );
-
-					// save the control
-					DisplayControl				= lv;
-					DisplayControl.Tag			= this;
-					break;
-#endregion
-
-#region list item list view
-				case "List Item":
-					// setup list view ( this is a name / value type view )
-					ListViewEx.ListViewEx	lv2	= new ListViewEx.ListViewEx( );
-					lv2.FullRowSelect			= true;
-					lv2.DoubleClickActivation	= true;
-					lv2.Height					= Size_height;
-					lv2.Width					= Size_width;
-					lv2.Location				= new Point( Position_x, Position_y );
-
-					// add two columns
-					lv2.Columns.Add( "Field" );
-					lv2.Columns.Add( "Value" );
-					lv2.AutoResizeColumns( ColumnHeaderAutoResizeStyle.HeaderSize );
-
-					// save the control
-					DisplayControl				= lv2;
-					DisplayControl.Tag			= this;
-					break;
-#endregion
-
-#region tab view
-				case "Tab":	// to do
-					TabControl	tab				= new TabControl( );
-					tab.Height					= Size_height;
-					tab.Width					= Size_width;
-					tab.Location				= new Point( Position_x, Position_y );
-					tab.Anchor					= AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
-					tab.Selecting				+= new TabControlCancelEventHandler( TabSelecting );
-
-					DisplayControl				= tab;
-					DisplayControl.Tag			= this;
-					break;
-#endregion
-			}
-			return true;
-		}
-
-		public void UpdateGridData( MaddenTable maddenTable, List<FieldFilter> lFilters=null )
-		{	int	i, j;
-        MaddenTable table;
-        Dictionary<int, int> recruits = new Dictionary<int, int>();
-
-        if (maddenTable.Abbreviation == "RCPR")
+        /// <summary>
+        /// create a new, blank, Madden 12 roster
+        /// all of this is subject to change for future versions of Madden!
+        /// </summary>
+        public static MaddenDatabase CreateMaddeDB_Roster()
         {
-            isRecruitPitchTable = true;
-            table= MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPT");
-           foreach (var record in table.lRecords)
-           {
-               int recruitId = 0;
-               int recruitRank = 0;
-               foreach (var entry in record.lEntries)
-               {
-                   if (entry.field.Abbreviation == "PRSI")
-                   {
-                       recruitId = Int32.Parse(entry.Data);
-                   }
-                   else if (entry.field.Abbreviation == "RCRK")
-                   {
-                       recruitRank = Int32.Parse(entry.Data);
-                   }
-               }
-               recruits.Add(recruitId, recruitRank);
-           }
+            MaddenDatabase md = new MaddenDatabase();
+
+            // reserve our file space
+            md.dbFileInfo.theFile = new byte[0x000b15b4];
+
+            // file in the typical DB header values for a roster ( as of Madden 12 )
+            md.dbFileInfo.header = 0x4442;
+            md.dbFileInfo.version = 0x0008;
+            md.dbFileInfo.unknown_1 = 0x01000000;
+            md.dbFileInfo.DBsize = 0x000b15b4;
+            md.dbFileInfo.zero = 0x00000000;
+            md.dbFileInfo.tableCount = 0x00000004;
+            md.dbFileInfo.unknown_2 = 0xe0dc10f5;
+            md.dbFileInfo.DBHeaderToBuffer();
+
+            md.dbFileInfo.startData = 56;
+
+            // build our default table header
+            DBFileInfo.WriteDW2Buf(md.dbFileInfo.theFile, 24, 0x54484344);
+            DBFileInfo.WriteDW2Buf(md.dbFileInfo.theFile, 28, 0x00000000);
+            DBFileInfo.WriteDW2Buf(md.dbFileInfo.theFile, 32, 0x594a4e49);
+            DBFileInfo.WriteDW2Buf(md.dbFileInfo.theFile, 36, 0x00005b68);
+            DBFileInfo.WriteDW2Buf(md.dbFileInfo.theFile, 40, 0x59414c50);
+            DBFileInfo.WriteDW2Buf(md.dbFileInfo.theFile, 44, 0x00006610);
+            DBFileInfo.WriteDW2Buf(md.dbFileInfo.theFile, 48, 0x4d414554);
+            DBFileInfo.WriteDW2Buf(md.dbFileInfo.theFile, 52, 0x000af730);
+            DBFileInfo.WriteDW2Buf(md.dbFileInfo.theFile, 56, 0x9dcf334f);
+
+            return md;
+        }
+    }
+
+    public class View
+    {
+        public delegate void ViewChanged(View v);
+        public delegate Field GetMappedField(string name);
+        #region members
+        public string Name = "";
+        public string Type = "";
+        public Control DisplayControl = null;
+        public int Position_x = 0;
+        public int Position_y = 0;
+        public int Position_z = 0;
+        public int Size_width = 0;
+        public int Size_height = 0;
+        public int ChildCount = 0;
+        public List<string> ChildViews = new List<string>();
+        public List<View> lChildren = new List<View>();
+        public string SourceType = "";
+        public string SourceName = "";
+        public int ChildFieldCount = 0;
+        public List<string> ChildFields = new List<string>();
+        public List<Field> lChildFields = new List<Field>();
+        public List<FieldFilter> lastFilters = null;
+        public ToolTip toolTip = new ToolTip();
+        static public ViewChanged viewChanged = null;
+        static public GetMappedField getMappedField = null;
+        bool isRecruitPitchTable = false;
+        #endregion
+
+        public View()
+        {
+        }
+        public override string ToString()
+        {
+            return Name;
+        }
+        public bool ProcessSettings(List<Field> lMappedFields)
+        {
+            switch (Type)
+            {
+                #region grid list view
+                case "Grid":
+                    // setup list view
+                    ListViewEx.ListViewEx lv = new ListViewEx.ListViewEx();
+                    lv.FullRowSelect = true;
+                    lv.DoubleClickActivation = true;
+                    lv.Height = Size_height;
+                    lv.Width = Size_width;
+                    lv.Location = new Point(Position_x, Position_y);
+                    lv.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
+                    lv.ListClicked += new SubItemEventHandler(GridClick);
+                    lv.SubItemClicked += new SubItemEventHandler(GridItemClick);
+                    lv.SubItemEndEditing += new SubItemEndEditingEventHandler(GridItemEdited);
+                    lv.ColumnClick += new ColumnClickEventHandler(GridColumnClicked);
+                    //					lv.SelectedIndexChanged		+= new EventHandler(lv_SelectedIndexChanged);
+
+                    // add the columns
+                    lv.Columns.Add("");
+                    for (int i = 0; i < ChildFields.Count; i++)
+                    {
+                        Field f = Field.FindField(lMappedFields, ChildFields[i]);
+                        if (f == null)
+                        {
+                            MessageBox.Show("Field " + ChildFields[i] + " in view " + Name + " not in main field list; aborting");
+                            return false;
+                        }
+                        lChildFields.Add(f);
+
+                        string field = (f.Name != "") ? f.Name : f.Abbreviation;
+
+                        ColumnHeader ch = new ColumnHeader();
+                        ch.Text = field;
+                        ch.Tag = f;
+
+                        lv.Columns.Add(ch);
+                    }
+                    lv.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+
+                    // save the control
+                    DisplayControl = lv;
+                    DisplayControl.Tag = this;
+                    break;
+                #endregion
+
+                #region list item list view
+                case "List Item":
+                    // setup list view ( this is a name / value type view )
+                    ListViewEx.ListViewEx lv2 = new ListViewEx.ListViewEx();
+                    lv2.FullRowSelect = true;
+                    lv2.DoubleClickActivation = true;
+                    lv2.Height = Size_height;
+                    lv2.Width = Size_width;
+                    lv2.Location = new Point(Position_x, Position_y);
+
+                    // add two columns
+                    lv2.Columns.Add("Field");
+                    lv2.Columns.Add("Value");
+                    lv2.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+
+                    // save the control
+                    DisplayControl = lv2;
+                    DisplayControl.Tag = this;
+                    break;
+                #endregion
+
+                #region tab view
+                case "Tab": // to do
+                    TabControl tab = new TabControl();
+                    tab.Height = Size_height;
+                    tab.Width = Size_width;
+                    tab.Location = new Point(Position_x, Position_y);
+                    tab.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
+                    tab.Selecting += new TabControlCancelEventHandler(TabSelecting);
+
+                    DisplayControl = tab;
+                    DisplayControl.Tag = this;
+                    break;
+                #endregion
+            }
+            return true;
         }
 
-			Cursor.Current	= Cursors.WaitCursor;
-			((ListView) DisplayControl).BeginUpdate( );
+        public void UpdateGridData(MaddenTable maddenTable, List<FieldFilter> lFilters = null)
+        {
+            int i, j;
+            MaddenTable table;
+            Dictionary<int, int> recruits = new Dictionary<int, int>();
 
-			lastFilters	= lFilters;
-#region columns specified
-			if( ChildFields.Count > 0 )
-			{
-				((ListView) DisplayControl).Items.Clear( );
+            if (maddenTable.Abbreviation == "RCPR")
+            {
+                isRecruitPitchTable = true;
+                table = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPT");
+                foreach (var record in table.lRecords)
+                {
+                    int recruitId = 0;
+                    int recruitRank = 0;
+                    foreach (var entry in record.lEntries)
+                    {
+                        if (entry.field.Abbreviation == "PRSI")
+                        {
+                            recruitId = Int32.Parse(entry.Data);
+                        }
+                        else if (entry.field.Abbreviation == "RCRK")
+                        {
+                            recruitRank = Int32.Parse(entry.Data);
+                        }
+                    }
+                    recruits.Add(recruitId, recruitRank);
+                }
+            }
 
-				for( i=0; i < maddenTable.lRecords.Count; i++ )
-				{
-					if( ! FieldFilter.ProcessFilters( lFilters, lChildFields, maddenTable.lRecords[ i ] ) )
-						continue;
+            Cursor.Current = Cursors.WaitCursor;
+            ((ListView)DisplayControl).BeginUpdate();
 
-					ListViewItem lvitems = new ListViewItem( ( i+1 ).ToString( ) );
+            lastFilters = lFilters;
+            #region columns specified
+            if (ChildFields.Count > 0)
+            {
+                ((ListView)DisplayControl).Items.Clear();
 
-					for( j=0; j < ChildFields.Count; j++ )
-					{
-						Field							f	= Field.FindField( lChildFields, ChildFields[ j ] );
-						ListViewItem.ListViewSubItem	sub	= null;
+                for (i = 0; i < maddenTable.lRecords.Count; i++)
+                {
+                    if (!FieldFilter.ProcessFilters(lFilters, lChildFields, maddenTable.lRecords[i]))
+                        continue;
 
-						switch( f.ControlType )
-						{
-							case "TextBox":
-                                if (isRecruitPitchTable && j==0)
+                    ListViewItem lvitems = new ListViewItem((i + 1).ToString());
+
+                    for (j = 0; j < ChildFields.Count; j++)
+                    {
+                        Field f = Field.FindField(lChildFields, ChildFields[j]);
+                        ListViewItem.ListViewSubItem sub = null;
+
+                        switch (f.ControlType)
+                        {
+                            case "TextBox":
+                                if (isRecruitPitchTable && j == 0)
                                 {
                                     var recruitRankField = maddenTable.lRecords[i].lEntries.Where(entry => entry.field.Abbreviation == "PRSI").SingleOrDefault();
                                     var rid = Int32.Parse(recruitRankField.Data);
@@ -6194,44 +6316,46 @@ namespace EA_DB_Editor
                                 {
                                     sub = new ListViewItem.ListViewSubItem(lvitems, maddenTable.lRecords[i][f.Abbreviation]);
                                 }
-								break;
+                                break;
 
-							case "ComboBox":
+                            case "ComboBox":
 
-								if( f.ControlLink != "" )
-								{
-#region select the item via lookup
-#region find the ojbect in the list
-									if( f.KeyToIndexMappings.ContainsKey( maddenTable.lRecords[ i ][ f.Abbreviation ] ) )
-									{	((ComboBox) f.EditControl).SelectedIndex	= f.KeyToIndexMappings[ maddenTable.lRecords[ i ][ f.Abbreviation ] ];
-										sub	= new ListViewItem.ListViewSubItem( lvitems, ((ComboBox) f.EditControl).SelectedItem.ToString( ) );
-									}
+                                if (f.ControlLink != "")
+                                {
+                                    #region select the item via lookup
+                                    #region find the ojbect in the list
+                                    if (f.KeyToIndexMappings.ContainsKey(maddenTable.lRecords[i][f.Abbreviation]))
+                                    {
+                                        ((ComboBox)f.EditControl).SelectedIndex = f.KeyToIndexMappings[maddenTable.lRecords[i][f.Abbreviation]];
+                                        sub = new ListViewItem.ListViewSubItem(lvitems, ((ComboBox)f.EditControl).SelectedItem.ToString());
+                                    }
 
-									//for( x=0; x < ((ComboBox) f.EditControl).Items.Count; x++ )
-									//{
-									//    RefObj	ro	= (RefObj) ((ComboBox) f.EditControl).Items[ x ];
+                                    //for( x=0; x < ((ComboBox) f.EditControl).Items.Count; x++ )
+                                    //{
+                                    //    RefObj	ro	= (RefObj) ((ComboBox) f.EditControl).Items[ x ];
 
-									//    if( ro.key == maddenTable.lRecords[ i ][ f.Abbreviation ] )
-									//    {	((ComboBox) f.EditControl).SelectedIndex	= x;
-									//        break;
-									//    }
-									//}
-#endregion
-									//if( ((ComboBox) f.EditControl).SelectedIndex > -1 )
-									//    sub	= new ListViewItem.ListViewSubItem( lvitems, ((ComboBox) f.EditControl).SelectedItem.ToString( ) );
-									else
-									{
-										RefObj	ro	= new RefObj( maddenTable.lRecords[ i ][ f.Abbreviation ], maddenTable.lRecords[ i ][ f.Abbreviation ] );
-										((ComboBox) f.EditControl).Items.Add( ro );
-										f.KeyToIndexMappings.Add( maddenTable.lRecords[ i ][ f.Abbreviation ], ((ComboBox) f.EditControl).Items.Count -1 );
-										((ComboBox) f.EditControl).SelectedIndex	= ((ComboBox) f.EditControl).Items.Count -1;
-										sub	= new ListViewItem.ListViewSubItem( lvitems, ro.value );
-									}
-#endregion
+                                    //    if( ro.key == maddenTable.lRecords[ i ][ f.Abbreviation ] )
+                                    //    {	((ComboBox) f.EditControl).SelectedIndex	= x;
+                                    //        break;
+                                    //    }
+                                    //}
+                                    #endregion
+                                    //if( ((ComboBox) f.EditControl).SelectedIndex > -1 )
+                                    //    sub	= new ListViewItem.ListViewSubItem( lvitems, ((ComboBox) f.EditControl).SelectedItem.ToString( ) );
+                                    else
+                                    {
+                                        RefObj ro = new RefObj(maddenTable.lRecords[i][f.Abbreviation], maddenTable.lRecords[i][f.Abbreviation]);
+                                        ((ComboBox)f.EditControl).Items.Add(ro);
+                                        f.KeyToIndexMappings.Add(maddenTable.lRecords[i][f.Abbreviation], ((ComboBox)f.EditControl).Items.Count - 1);
+                                        ((ComboBox)f.EditControl).SelectedIndex = ((ComboBox)f.EditControl).Items.Count - 1;
+                                        sub = new ListViewItem.ListViewSubItem(lvitems, ro.value);
+                                    }
+                                    #endregion
 
-								}	else
-								{
-#region select by index
+                                }
+                                else
+                                {
+                                    #region select by index
                                     if (((ComboBox)f.EditControl).Items.Count < Convert.ToInt32(maddenTable.lRecords[i][f.Abbreviation]))
                                         sub = new ListViewItem.ListViewSubItem(lvitems, maddenTable.lRecords[i][f.Abbreviation]);
                                     else
@@ -6239,97 +6363,98 @@ namespace EA_DB_Editor
                                         ((ComboBox)f.EditControl).SelectedIndex = Math.Min(((ComboBox)f.EditControl).Items.Count - 1, Convert.ToInt32(maddenTable.lRecords[i][f.Abbreviation]));
                                         sub = new ListViewItem.ListViewSubItem(lvitems, ((ComboBox)f.EditControl).SelectedItem.ToString());
                                     }
-#endregion
-								}
-								break;
+                                    #endregion
+                                }
+                                break;
 
-							case "Calculated":
-								sub	= new ListViewItem.ListViewSubItem( lvitems, f.RunFormula( lChildFields, maddenTable.lRecords[ i ] ).ToString( ) );
-								break;
+                            case "Calculated":
+                                sub = new ListViewItem.ListViewSubItem(lvitems, f.RunFormula(lChildFields, maddenTable.lRecords[i]).ToString());
+                                break;
 
-							case "AdjustedComboBox":
-								((ComboBox) f.EditControl).SelectedIndex	= Convert.ToInt32( maddenTable.lRecords[ i ][ f.Abbreviation ] ) + f.Offset;
-								sub	= new ListViewItem.ListViewSubItem( lvitems, ((ComboBox) f.EditControl).SelectedItem.ToString( ) );
-								break;
+                            case "AdjustedComboBox":
+                                ((ComboBox)f.EditControl).SelectedIndex = Convert.ToInt32(maddenTable.lRecords[i][f.Abbreviation]) + f.Offset;
+                                sub = new ListViewItem.ListViewSubItem(lvitems, ((ComboBox)f.EditControl).SelectedItem.ToString());
+                                break;
 
-							case "MappedComboBox":
-								Field	f2	= ( getMappedField != null ) ? getMappedField( f.ControlIF ) : null;
-								if( f2 == null )
-								{	MessageBox.Show( "Could not find mapped field therefore cannot edit value!" );
-									break;
-								}
-								((ComboBox) f.EditControl).SelectedIndex	= Convert.ToInt32( maddenTable.lRecords[ i ][ f2.Abbreviation ] );
-								sub	= new ListViewItem.ListViewSubItem( lvitems, ((ComboBox) f.EditControl).SelectedItem.ToString( ) );
-								break;
+                            case "MappedComboBox":
+                                Field f2 = (getMappedField != null) ? getMappedField(f.ControlIF) : null;
+                                if (f2 == null)
+                                {
+                                    MessageBox.Show("Could not find mapped field therefore cannot edit value!");
+                                    break;
+                                }
+                                ((ComboBox)f.EditControl).SelectedIndex = Convert.ToInt32(maddenTable.lRecords[i][f2.Abbreviation]);
+                                sub = new ListViewItem.ListViewSubItem(lvitems, ((ComboBox)f.EditControl).SelectedItem.ToString());
+                                break;
 
-							case "TimeOfDayInMinutes":
-								TimeSpan	span	= TimeSpan.FromMinutes( Convert.ToInt32( maddenTable.lRecords[ i ][ f.Abbreviation ] ) );
-								DateTime	time	= new DateTime( 2012, 1, 1 );
-								time				= time + span;
-								sub					= new ListViewItem.ListViewSubItem( lvitems, time.ToString( "t" ) );
-								break;
+                            case "TimeOfDayInMinutes":
+                                TimeSpan span = TimeSpan.FromMinutes(Convert.ToInt32(maddenTable.lRecords[i][f.Abbreviation]));
+                                DateTime time = new DateTime(2012, 1, 1);
+                                time = time + span;
+                                sub = new ListViewItem.ListViewSubItem(lvitems, time.ToString("t"));
+                                break;
 
-							default:
-								sub	= new ListViewItem.ListViewSubItem( lvitems, maddenTable.lRecords[ i ][ f.Abbreviation ] );
-								break;
-						}
-						sub.Tag								= f;
-						lvitems.SubItems.Add( sub );
-					}
+                            default:
+                                sub = new ListViewItem.ListViewSubItem(lvitems, maddenTable.lRecords[i][f.Abbreviation]);
+                                break;
+                        }
+                        sub.Tag = f;
+                        lvitems.SubItems.Add(sub);
+                    }
 
-					lvitems.UseItemStyleForSubItems	= true;
-					lvitems.Tag						= maddenTable.lRecords[ i ];
+                    lvitems.UseItemStyleForSubItems = true;
+                    lvitems.Tag = maddenTable.lRecords[i];
 
-					((ListView) DisplayControl).Items.Add( lvitems );
+                    ((ListView)DisplayControl).Items.Add(lvitems);
 
-				}
-			}
-#endregion
-#region columns not specified
-			else
-			{
-				((ListView) DisplayControl).Clear( );
+                }
+            }
+            #endregion
+            #region columns not specified
+            else
+            {
+                ((ListView)DisplayControl).Clear();
 
-				for( i=0; i < maddenTable.lFields.Count; i++ )
-				{
-					ColumnHeader	ch	= new ColumnHeader( );
-					ch.Text				= maddenTable.lFields[ i ].name;
-					ch.Tag				= maddenTable.lFields[ i ];
+                for (i = 0; i < maddenTable.lFields.Count; i++)
+                {
+                    ColumnHeader ch = new ColumnHeader();
+                    ch.Text = maddenTable.lFields[i].name;
+                    ch.Tag = maddenTable.lFields[i];
 
-					((ListView) DisplayControl).Columns.Add( ch );
-				}
+                    ((ListView)DisplayControl).Columns.Add(ch);
+                }
 
-				for( i=0; i < maddenTable.lRecords.Count; i++ )
-				{
-					if( ! FieldFilter.ProcessFilters( lFilters, maddenTable.lFields, maddenTable.lRecords[ i ] ) )
-						continue;
+                for (i = 0; i < maddenTable.lRecords.Count; i++)
+                {
+                    if (!FieldFilter.ProcessFilters(lFilters, maddenTable.lFields, maddenTable.lRecords[i]))
+                        continue;
 
-					ListViewItem lvitems = new ListViewItem( ( i+1 ).ToString( ) );
+                    ListViewItem lvitems = new ListViewItem((i + 1).ToString());
 
-					for( j=0; j < maddenTable.lFields.Count; j++ )
-					{
-						ListViewItem.ListViewSubItem	sub	= new ListViewItem.ListViewSubItem( lvitems, maddenTable.lRecords[ i ][ maddenTable.lFields[ j ].name ] );
-						sub.Tag								= maddenTable.lFields[ j ];
-						lvitems.SubItems.Add( sub );
-					}
+                    for (j = 0; j < maddenTable.lFields.Count; j++)
+                    {
+                        ListViewItem.ListViewSubItem sub = new ListViewItem.ListViewSubItem(lvitems, maddenTable.lRecords[i][maddenTable.lFields[j].name]);
+                        sub.Tag = maddenTable.lFields[j];
+                        lvitems.SubItems.Add(sub);
+                    }
 
-					lvitems.UseItemStyleForSubItems	= true;
-					lvitems.Tag						= maddenTable.lRecords[ i ];
+                    lvitems.UseItemStyleForSubItems = true;
+                    lvitems.Tag = maddenTable.lRecords[i];
 
-					((ListView) DisplayControl).Items.Add( lvitems );
+                    ((ListView)DisplayControl).Items.Add(lvitems);
 
-				}
-			}
-#endregion
+                }
+            }
+            #endregion
 
-			((ListView) DisplayControl).AutoResizeColumns( ColumnHeaderAutoResizeStyle.HeaderSize );
-			((ListView) DisplayControl).EndUpdate( );
-			Cursor.Current	= Cursors.Default;
-		}
-		public void RefreshGridData( MaddenTable maddenTable )
-		{
-			UpdateGridData( maddenTable, lastFilters );
-		}
+            ((ListView)DisplayControl).AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+            ((ListView)DisplayControl).EndUpdate();
+            Cursor.Current = Cursors.Default;
+        }
+        public void RefreshGridData(MaddenTable maddenTable)
+        {
+            UpdateGridData(maddenTable, lastFilters);
+        }
 
         public void SortForSchedule()
         {
@@ -6347,45 +6472,45 @@ namespace EA_DB_Editor
             "GATG",
         };
 
-		public void GridClick( object obj, SubItemEventArgs args )
-		{
-			Field	f	= (Field) args.Item.SubItems[ args.SubItem ].Tag;
-			if( f != null && f.EditControl != null && ! f.ControlLocked )
-			{
-				if( (args.Button & MouseButtons.Right) != 0 )
-				{
-					Point	point	= DisplayControl.PointToClient( Cursor.Position );
-					if( f.Description != "" )
-						toolTip.Show( f.Description, DisplayControl, point.X, point.Y, 5000 );
-				}
-			}
+        public void GridClick(object obj, SubItemEventArgs args)
+        {
+            Field f = (Field)args.Item.SubItems[args.SubItem].Tag;
+            if (f != null && f.EditControl != null && !f.ControlLocked)
+            {
+                if ((args.Button & MouseButtons.Right) != 0)
+                {
+                    Point point = DisplayControl.PointToClient(Cursor.Position);
+                    if (f.Description != "")
+                        toolTip.Show(f.Description, DisplayControl, point.X, point.Y, 5000);
+                }
+            }
 
             args.SingleClickAllowed = AllowedSingleClickEdits.Contains(f.Abbreviation);
-		}
+        }
 
-		public void GridItemClick( object obj, SubItemEventArgs args )
-		{
-			Field	f	= (Field) args.Item.SubItems[ args.SubItem ].Tag;
-			if( f != null && f.EditControl != null && ! f.ControlLocked && f.ControlType != "Calculated" )
-			{
-				f.EditControl.Parent	= DisplayControl;
-				((ListViewEx.ListViewEx) DisplayControl).StartEditing( f.EditControl, args.Item, args.SubItem );
-			}
-		}
-		public void GridItemEdited( object obj, SubItemEventArgs args )
-		{
+        public void GridItemClick(object obj, SubItemEventArgs args)
+        {
+            Field f = (Field)args.Item.SubItems[args.SubItem].Tag;
+            if (f != null && f.EditControl != null && !f.ControlLocked && f.ControlType != "Calculated")
+            {
+                f.EditControl.Parent = DisplayControl;
+                ((ListViewEx.ListViewEx)DisplayControl).StartEditing(f.EditControl, args.Item, args.SubItem);
+            }
+        }
+        public void GridItemEdited(object obj, SubItemEventArgs args)
+        {
             if (this.isRecruitPitchTable && args.SubItem == 1)
             {
                 return;
             }
 
-			Field	f	= Field.FindField( lChildFields, ((ListView) DisplayControl).Columns[ args.SubItem ].Text );
-			if( f != null && f.EditControl != null )
-			{
-				MaddenRecord	mr	= (MaddenRecord) args.Item.Tag;
+            Field f = Field.FindField(lChildFields, ((ListView)DisplayControl).Columns[args.SubItem].Text);
+            if (f != null && f.EditControl != null)
+            {
+                MaddenRecord mr = (MaddenRecord)args.Item.Tag;
 
-				if( mr != null )
-				{
+                if (mr != null)
+                {
                     switch (f.ControlType)
                     {
                         case "ComboBox":
@@ -6448,7 +6573,7 @@ namespace EA_DB_Editor
                                         var oppRecord = MaddenTable.Query(teamScheduleTable, query).SingleOrDefault();
                                         teamScheduleRecord["TGID"] = ro.key;
                                         oppRecord["OGID"] = ro.key;
-                                        
+
                                         // if both teams are marked as "1" then this is a neutral site game, don't do anything
                                         if ((teamScheduleRecord["THOA"] == "1" && oppRecord["THOA"] == "1") == false)
                                         {
@@ -6577,7 +6702,7 @@ namespace EA_DB_Editor
                                 var newWeek = mr[f.Abbreviation] = f.EditControl.Text;
 
                                 var teamScheduleRecord = MaddenTable.Query(teamScheduleTable, query).ToArray();
-                                foreach(var ts in teamScheduleRecord)
+                                foreach (var ts in teamScheduleRecord)
                                 {
                                     ts[f.Abbreviation] = newWeek;
                                 }
@@ -6604,101 +6729,111 @@ namespace EA_DB_Editor
                             break;
                     }
 
-					// perform recalcs
-					for( int i=0; i < lChildFields.Count; i++ )
-					{	if( lChildFields[ i ].ControlType == "Calculated" )
-						{	ColumnHeader	ch	= ((ListView) DisplayControl).Columns[ i +1 ];
+                    // perform recalcs
+                    for (int i = 0; i < lChildFields.Count; i++)
+                    {
+                        if (lChildFields[i].ControlType == "Calculated")
+                        {
+                            ColumnHeader ch = ((ListView)DisplayControl).Columns[i + 1];
 
-							if( ch != null )
-							{	args.Item.SubItems[ ch.Index ].Text	= lChildFields[ i ].RunFormula( lChildFields, mr ).ToString( );
-							}
-						}
-					}
+                            if (ch != null)
+                            {
+                                args.Item.SubItems[ch.Index].Text = lChildFields[i].RunFormula(lChildFields, mr).ToString();
+                            }
+                        }
+                    }
 
-				}
-			}
-		}
-		public void GridColumnClicked( object sender, ColumnClickEventArgs e )
-		{
-			Field	cf	= (Field) ((ListView) DisplayControl).Columns[ e.Column ].Tag;
+                }
+            }
+        }
+        public void GridColumnClicked(object sender, ColumnClickEventArgs e)
+        {
+            Field cf = (Field)((ListView)DisplayControl).Columns[e.Column].Tag;
 
             var comparer = new ListViewItemComparer(e.Column, cf);
             comparer.isRecruitPitchTable = this.isRecruitPitchTable;
             ((ListView)DisplayControl).ListViewItemSorter = comparer;
-			((ListView) DisplayControl).Sort( );
+            ((ListView)DisplayControl).Sort();
 
-			ListViewItemComparer.sortDir	= -ListViewItemComparer.sortDir;
-		}
-		public void TabSelecting(object sender, TabControlCancelEventArgs e)
-		{
- 			if( viewChanged != null && e.TabPage != null )
-				viewChanged( (View) e.TabPage.Tag );
-		}
+            ListViewItemComparer.sortDir = -ListViewItemComparer.sortDir;
+        }
+        public void TabSelecting(object sender, TabControlCancelEventArgs e)
+        {
+            if (viewChanged != null && e.TabPage != null)
+                viewChanged((View)e.TabPage.Tag);
+        }
 
-		static public View FindView( List<View> lMappedViews, string Name )
-		{	foreach( View v in lMappedViews )
-			{	if( v.Name == Name )
-					return v;
-			}
-			return null;
-		}
-		static public bool ProcessAllViewSettings( List<View> lMappedViews, List<Field> lMappedFields )
-		{	foreach( View v in lMappedViews )
-			{	if( ! v.ProcessSettings( lMappedFields ) )
-					return false;
-			}
-			return true;
-		}
-		static public bool SetViewChildren( List<View> lMappedViews, Form MainForm )
-		{
-			// set all to be children of the main form first by default
-			foreach( View v in lMappedViews )
-				MainForm.Controls.Add( v.DisplayControl );
+        static public View FindView(List<View> lMappedViews, string Name)
+        {
+            foreach (View v in lMappedViews)
+            {
+                if (v.Name == Name)
+                    return v;
+            }
+            return null;
+        }
+        static public bool ProcessAllViewSettings(List<View> lMappedViews, List<Field> lMappedFields)
+        {
+            foreach (View v in lMappedViews)
+            {
+                if (!v.ProcessSettings(lMappedFields))
+                    return false;
+            }
+            return true;
+        }
+        static public bool SetViewChildren(List<View> lMappedViews, Form MainForm)
+        {
+            // set all to be children of the main form first by default
+            foreach (View v in lMappedViews)
+                MainForm.Controls.Add(v.DisplayControl);
 
-			foreach( View v in lMappedViews )
-			{
-				foreach( string s in v.ChildViews )
-				{
-					View	temp	= View.FindView( lMappedViews, s );
-					if( temp != null )
-					{	// first remove from the main form
-						MainForm.Controls.Remove( temp.DisplayControl );
+            foreach (View v in lMappedViews)
+            {
+                foreach (string s in v.ChildViews)
+                {
+                    View temp = View.FindView(lMappedViews, s);
+                    if (temp != null)
+                    {   // first remove from the main form
+                        MainForm.Controls.Remove(temp.DisplayControl);
 
-						// add to child list and control's children
-						v.lChildren.Add( temp );
+                        // add to child list and control's children
+                        v.lChildren.Add(temp);
 
-						if( v.Type != "Tab" )
-						{
-							v.DisplayControl.Controls.Add( temp.DisplayControl );
-						}
-						else
-						{
-							TabPage	page	= new TabPage( temp.Name );
-							page.Controls.Add( temp.DisplayControl );
-							page.Tag		= temp;
-							((TabControl) v.DisplayControl).Controls.Add( page );
-						}
-					}	else
-					{
-						MessageBox.Show( "Child view " + s + " not found for view " + v.Name, "Error in config" );
-						return false;
-					}
-				}
-			}
+                        if (v.Type != "Tab")
+                        {
+                            v.DisplayControl.Controls.Add(temp.DisplayControl);
+                        }
+                        else
+                        {
+                            TabPage page = new TabPage(temp.Name);
+                            page.Controls.Add(temp.DisplayControl);
+                            page.Tag = temp;
+                            ((TabControl)v.DisplayControl).Controls.Add(page);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Child view " + s + " not found for view " + v.Name, "Error in config");
+                        return false;
+                    }
+                }
+            }
 
-			TabControl	tab	= null;
-			foreach( Control c in MainForm.Controls )
-			{	if( c.GetType( ).Name == "TabControl" )
-				{	tab	= (TabControl) c;
-					break;
-				}
-			}
-			tab.SelectedIndex	= -1;
-			tab.SelectedIndex	= 0;
+            TabControl tab = null;
+            foreach (Control c in MainForm.Controls)
+            {
+                if (c.GetType().Name == "TabControl")
+                {
+                    tab = (TabControl)c;
+                    break;
+                }
+            }
+            tab.SelectedIndex = -1;
+            tab.SelectedIndex = 0;
 
-			return true;
-		}
-	}
+            return true;
+        }
+    }
     class ListViewItemComparer : IComparer
     {
         private int col;
@@ -6747,597 +6882,629 @@ namespace EA_DB_Editor
         }
     }
 
-	public class RefObj
-	{
-		public string	key		= "";
-		public string	value	= "";
-
-		public RefObj( )
-		{
-		}
-		public RefObj( string k, string v )
-		{	key		= k;
-			value	= v;
-		}
-		public override string ToString()
-		{
-			return value;
-		}
-	}
-	public class FieldFilter
-	{
-		public enum Operation
-		{
-			None,
-			Equal,
-			NotEqual,
-			GreaterThan,
-			LessThan,
-			Contains,
-			DoesNotContain,
-			EndsWith,
-			StartsWith,
-			Set,
-			Adjust
-		}
-
-		public string		field	= "";
-		public string		value	= "";
-		public Operation	op		= Operation.None;
-
-		public FieldFilter( )
-		{
-		}
-		public FieldFilter( string f, string operation, string v )
-		{	Create( f, operation, v );
-		}
-		public void Create( string f, string operation, string v )
-		{
-			field	= f;
-			value	= v;
-
-			switch( operation.ToLower( ) )
-			{
-				case "=":			op	= Operation.Equal;
-					break;
-				case "!=":			op	= Operation.NotEqual;
-					break;
-				case ">":			op	= Operation.GreaterThan;
-					break;
-				case "<":			op	= Operation.LessThan;
-					break;
-				case "contains":	op	= Operation.Contains;
-					break;
-				case "!contains":	op	= Operation.DoesNotContain;
-					break;
-				case "endswith":	op	= Operation.EndsWith;
-					break;
-				case "startswith":	op	= Operation.StartsWith;
-					break;
-				// mass operations
-				case "<-":			op	= Operation.Set;
-					break;
-				case "+/-":			op	= Operation.Adjust;
-					break;
-			}
-		}
-		public bool Process( List<Field> lMF, MaddenRecord mr )
-		{
-			Field	f		= Field.FindField( lMF, field );
-			string	code	= f.Abbreviation != "" ? f.Abbreviation : f.name;
-
-			switch( op )
-			{
-				case Operation.Contains:
-				case Operation.DoesNotContain:
-				case Operation.EndsWith:
-				case Operation.StartsWith:
-
-#region is a combox item
-					if( f.ControlType.EndsWith( "ComboBox" ) )
-					{	string	testData	= "";
-
-						// need to find item based on type of combobox
-#region regular combobox with an item list
-						if( f.ControlType == "ComboBox" && f.ControlLink == "" )
-						{	testData	= ((ComboBox) f.EditControl ).Items[ Convert.ToInt32( mr[ code ] ) ].ToString( );
-						}
-#endregion
-#region linked combobox
-						if( f.ControlType == "ComboBox" && f.ControlLink != "" )
-						{
-							RefObj	linkedObj	= null;
-#region find the ojbect in the list
-							for( int x=0; x < ((ComboBox) f.EditControl).Items.Count; x++ )
-							{
-								RefObj	ro	= (RefObj) ((ComboBox) f.EditControl).Items[ x ];
-								if( ro.key == mr[ f.Abbreviation ] )
-								{	linkedObj	= ro;
-									break;
-								}
-							}
-#endregion
-							testData	= ( linkedObj != null ) ? linkedObj.value : "";
-						}
-#endregion
-#region adjusted combobox with an item list
-						if( f.ControlType == "AdjustedComboBox" )
-						{	testData	= ((ComboBox) f.EditControl ).Items[ Convert.ToInt32( mr[ code ] ) + f.Offset ].ToString( );
-						}
-#endregion
-#region mapped combobox with an item list
-						if( f.ControlType == "MappedComboBox" )
-							testData	= ((ComboBox) f.EditControl ).Items[ Convert.ToInt32( mr[ f.ControlIF ] ) ].ToString( );
-#endregion
-
-						switch( op )
-						{
-							case Operation.Contains:
-								return ( testData.IndexOf( value ) == -1 ) ? false : true;
-
-							case Operation.DoesNotContain:
-								return ( testData.IndexOf( value ) > -1 ) ? false : true;
-
-							case Operation.EndsWith:
-								return testData.EndsWith( value );
-
-							case Operation.StartsWith:
-								return testData.StartsWith( value );
-						}
-					}
-#endregion
-
-#region not a combobox variant
-					switch( op )
-					{
-						case Operation.Contains:
-							return ( mr[ code ].IndexOf( value ) == -1 ) ? false : true;
-
-						case Operation.DoesNotContain:
-							return ( mr[ code ].IndexOf( value ) > -1 ) ? false : true;
-
-						case Operation.EndsWith:
-							return mr[ code ].EndsWith( value );
-
-						case Operation.StartsWith:
-							return mr[ code ].StartsWith( value );
-					}
-#endregion
-					return false;	// should never get here
-
-
-				case Operation.Equal:
-					return ( f.CompareDataAsType( mr[ code ], value ) == 0 ) ? true : false;
-
-				case Operation.NotEqual:
-					return ( f.CompareDataAsType( mr[ code ], value ) != 0 ) ? true : false;
-
-				case Operation.GreaterThan:
-					return ( f.CompareDataAsType( mr[ code ], value ) == 1 ) ? true : false;
-
-				case Operation.LessThan:
-					return ( f.CompareDataAsType( mr[ code ], value ) == -1 ) ? true : false;
-
-				// mass operations
-				case Operation.Set:
-					mr[ code ]	= value.ToString( );
-					return true;
-
-				case Operation.Adjust:
-					mr[ code ]	= ( Convert.ToInt32( mr[ code ] ) + Convert.ToInt32( value.ToString( ) ) ).ToString( );
-					return true;
-			}
-			return false;
-		}
-
-		static public bool ProcessFilters( List<FieldFilter> lFF, List<Field> lMF, MaddenRecord mr )
-		{	bool	ret	= true;
-
-			if( lFF != null && lMF != null && mr != null )
-			{
-				foreach( FieldFilter ff in lFF )
-					ret	&= ff.Process( lMF, mr );
-			}
-
-			return ret;
-		}
-	}
-
-	// xml config info used in copying known fields / tables
-	public class XMLConfig
-	{
-#region fields
-		public string		StartLabel					= "";
-		public string		Name						= "";
-		public string		Abbreviation				= "";
-		public string		Type						= "";
-		public string		Description					= "";
-		public string		ControlType					= "";
-		public bool			ControlLink					= false;
-		public string		LinkTable					= "";
-		public string		IndexField					= "";
-		public string		ReferenceField				= "";
-		public string		ReferenceField2				= "";
-		public List<string>	ControlItems				= new List<string>( );
-		public string		PosX						= "";
-		public string		PosY						= "";
-		public string		PosZ						= "";
-		public string		SizeW						= "";
-		public string		SizeH						= "";
-		public string		SrcType						= "";
-		public string		SrcName						= "";
-		public List<string>	Children					= new List<string>( );
-		public List<string>	ChildFields					= new List<string>( );
-		public string		Min							= "";
-		public string		Max							= "";
-		public List<Field.Formula>	Formulas			= new List<Field.Formula>( );
-		public string		Offset						= "";
-#endregion
-
-		public XMLConfig( ){}
-		public override string ToString()
-		{	string	data	= "";
-
-#region view
-			if( StartLabel == "View" )
-			{
-				data	+= "<View>\r\n";
-				data	+= "\t<Name>" + Name + "</Name>\r\n";
-				data	+= "\t<Type>" + Type + "</Type>\r\n";
-				data	+= "\t<Position>\r\n";
-				data	+= "\t\t<X>" + PosX + "</X>\r\n";
-				data	+= "\t\t<Y>" + PosY + "</Y>\r\n";
-				data	+= "\t\t<Z>" + PosZ + "</Z>\r\n";
-				data	+= "\t</Position>\r\n";
-				data	+= "\t<Size>\r\n";
-				data	+= "\t\t<Width>"  + SizeW + "</Width>\r\n";
-				data	+= "\t\t<Height>" + SizeH + "</Height>\r\n";
-				data	+= "\t</Size>\r\n";
-
-				if( SrcName != "" && SrcType != "" )
-				{
-					data	+= "\t<Source>\r\n";
-					data	+= "\t\t<Type>" + SrcType + "</Type>\r\n";
-					data	+= "\t\t<Name>" + SrcName + "</Name>\r\n";
-					data	+= "\t</Source>\r\n";
-				}
-
-				if( Children.Count >0 )
-				{
-					foreach( string s in Children )
-						data	+= "\t<Child>" + s + "</Child>\r\n";
-				}
-
-				if( ChildFields.Count >0 )
-				{
-					foreach( string s in ChildFields )
-						data	+= "\t<Field>" + s + "</Field>\r\n";
-				}
-
-				data	+= "</View>\r\n\r\n\r\n";
-			}
-#endregion
-#region table
-			if( StartLabel == "Table" )
-			{
-				data	+= "<Table>\r\n";
-				data	+= "\t<Abbreviation>" + Abbreviation + "</Abbreviation>\r\n";
-				data	+= "\t<Name>" + Name + "</Name>\r\n";
-				data	+= "</Table>\r\n\r\n";
-			}
-#endregion
-#region field
-			if( StartLabel == "Field" )
-			{
-				data	+= "<Field>\r\n";
-				data	+= "\t<Abbreviation>" + Abbreviation + "</Abbreviation>\r\n";
-				data	+= "\t<Name>" + Name + "</Name>\r\n";
-				data	+= "\t<ControlType>" + ControlType + "</ControlType>\r\n";
-
-				if( ControlItems.Count >0 )
-				{
-					foreach( string s in ControlItems )
-						data	+= "\t<ControlItem>" + s + "</ControlItem>\r\n";
-				}
-
-				if( ControlLink )
-				{
-					data	+= "\t<ControlLink>\r\n";
-					data	+= "\t\t<Table>" + LinkTable + "</Table>\r\n";
-					data	+= "\t\t<IndexField>" + IndexField + "</IndexField>\r\n";
-
-					if( ReferenceField != "" )
-					data	+= "\t\t<ReferenceField>" + ReferenceField + "</ReferenceField>\r\n";
-					if( ReferenceField2 != "" )
-						data	+= "\t\t<ReferenceField2>" + ReferenceField2 + "</ReferenceField2>\r\n";
-
-					if( Formulas.Count >0 )
-					{
-						data	+= "\t\t<Formulas>\r\n";
-						foreach( Field.Formula form in Formulas )
-						{
-							data	+= "\t\t\t<Formula>\r\n";
-							data	+= "\t\t\t\t<IndexValue>" + form.IndexValue + "</IndexValue>\r\n";
-							if( form.Variables.Count >0 )
-							{
-								data	+= "\t\t\t\t<Variables>\r\n";
-								foreach( Field.Variable var in form.Variables )
-								{
-									data	+= "\t\t\t\t\t<Variable>\r\n";
-									data	+= "\t\t\t\t\t\t<Field>" + var.vField + "</Field>\r\n";
-									data	+= "\t\t\t\t\t\t<Multiplier>" + var.Multiplier.ToString( ) + "</Multiplier>\r\n";
-									data	+= "\t\t\t\t\t</Variable>\r\n";
-								}
-								data	+= "\t\t\t\t</Variables>\r\n";
-							}
-							data	+= "\t\t\t\t<Adjustment>" + form.Adjustment.ToString( ) + "</Adjustment>\r\n";
-							data	+= "\t\t\t</Formula>\r\n";
-						}
-						data	+= "\t\t</Formulas>\r\n";
-					}
-
-					if( Min != "" )
-						data	+= "\t\t<Min>" + Min + "</Min>\r\n";
-					if( Max != "" )
-						data	+= "\t\t<Max>" + Max + "</Max>\r\n";
-					data	+= "\t</ControlLink>\r\n";
-				}
-
-				if( Offset != "" )
-				data	+= "\t<Offset>" + Offset + "</Offset>\r\n";
-				data	+= "\t<Description>" + Description + "</Description>\r\n";
-				data	+= "\t<Type>" + Type + "</Type>\r\n";
-				data	+= "</Field>\r\n";
-			}
-#endregion
-
-			return data;
-		}
-		public void Copy( XMLConfig org )
-		{
-			StartLabel					= org.StartLabel;
-			Name						= org.Name;
-			Abbreviation				= org.Abbreviation;
-			Type						= org.Type;
-			Description					= org.Description;
-			ControlType					= org.ControlType;
-			ControlLink					= org.ControlLink;
-			LinkTable					= org.LinkTable;
-			IndexField					= org.IndexField;
-			ReferenceField				= org.ReferenceField;
-			ReferenceField2				= org.ReferenceField2;
-			ControlItems				= new List<string>( org.ControlItems );
-			PosX						= org.PosX;
-			PosY						= org.PosY;
-			PosZ						= org.PosZ;
-			SizeW						= org.SizeW;
-			SizeH						= org.SizeH;
-			SrcType						= org.SrcType;
-			SrcName						= org.SrcName;
-			Children					= new List<string>( org.Children );
-			ChildFields					= new List<string>( org.ChildFields );
-			Min							= org.Min;
-			Max							= org.Max;
-			Formulas					= new List<Field.Formula>( org.Formulas );
-		}
-
-		static public void ReadXMLConfig( string configfile, List<XMLConfig> views, List<XMLConfig> tables, List<XMLConfig> fields )
-		{
-			XMLConfig			xml				= null;
-			string				Path			= "\\";
-
-
-			XmlTextReader	reader	= new XmlTextReader( configfile );
-			while( reader.Read( ) )
-			{
-				switch( reader.NodeType )
-				{
-					case XmlNodeType.Element:
-#region map open elements
-						if( Path == "\\xml\\" && reader.Name == "Field" )
-						{	xml				= new XMLConfig( );
-							xml.StartLabel	= "Field";
-						}
-
-						if( Path == "\\xml\\" && reader.Name == "Table" )
-						{	xml				= new XMLConfig( );
-							xml.StartLabel	= "Table";
-						}
-
-						if( Path == "\\xml\\" && (reader.Name == "View" || reader.Name == "Main") )
-						{	xml				= new XMLConfig( );
-							xml.StartLabel	= "View";
-						}
-
-						if( reader.Name == "Formulas" )
-						{	xml.Formulas	= Field.Formula.ReadFormulas( reader, Path + "Formulas\\" );
-							break;
-						}
-#endregion
-
-						Path	+= reader.Name + "\\";
-						break;
-
-					case XmlNodeType.Text:
-
-#region map main entries	
-						if( Path.EndsWith( "Main\\Size\\Width\\" ) )
-							xml.SizeW	= reader.Value;
-
-						if( Path.EndsWith( "Main\\Size\\Height\\" ) )
-							xml.SizeH	= reader.Value;
-#endregion
-
-#region map field entries
-						if( Path.EndsWith( "Field\\Abbreviation\\" ) )
-							xml.Abbreviation	= reader.Value;
-
-						if( Path.EndsWith( "Field\\Name\\" ) )
-							xml.Name			= reader.Value;
-
-						if( Path.EndsWith( "Field\\ControlType\\" ) )
-							xml.ControlType		= reader.Value;
-
-						if( Path.EndsWith( "Field\\ControlItem\\" ) )
-							xml.ControlItems.Add( reader.Value );
-
-						if( Path.EndsWith( "Field\\ControlLink\\Table\\" ) )
-						{	xml.ControlLink		= true;
-							xml.LinkTable		= reader.Value;
-						}
-
-						if( Path.EndsWith( "Field\\ControlLink\\IndexField\\" ) )
-						{	xml.ControlLink		= true;
-							xml.IndexField		= reader.Value;
-						}
-
-						if( Path.EndsWith( "Field\\ControlLink\\ReferenceField\\" ) )
-						{	xml.ControlLink		= true;
-							xml.ReferenceField	= reader.Value;
-						}
-
-						if( Path.EndsWith( "Field\\ControlLink\\ReferenceField2\\" ) )
-						{	xml.ControlLink		= true;
-							xml.ReferenceField2	= reader.Value;
-						}
-
-						if( Path.EndsWith( "Field\\ControlLink\\Formulas\\" ) )
-						{	xml.ControlLink		= true;
-							xml.Formulas		= Field.Formula.ReadFormulas( reader, Path );
-						}
-
-						if( Path.EndsWith( "Field\\ControlLink\\Min\\" ) )
-						{	xml.ControlLink		= true;
-							xml.Min				= reader.Value;
-						}
-
-						if( Path.EndsWith( "Field\\ControlLink\\Max\\" ) )
-						{	xml.ControlLink		= true;
-							xml.Max				= reader.Value;
-						}
-
-						if( Path.EndsWith( "Field\\Offset\\" ) )
-							xml.Offset			= reader.Value;
-
-						if( Path.EndsWith( "Field\\Description\\" ) )
-							xml.Description		= reader.Value;
-
-						if( Path.EndsWith( "Field\\Type\\" ) )
-							xml.Type			= reader.Value;
-#endregion
-
-#region map table entries	
-						if( Path.EndsWith( "Table\\Abbreviation\\" ) )
-							xml.Abbreviation	= reader.Value;
-
-						if( Path.EndsWith( "Table\\Name\\" ) )
-							xml.Name			= reader.Value;
-#endregion
-
-#region map view entries
-						if( Path.EndsWith( "View\\Name\\" ) )
-							xml.Name			= reader.Value;
-
-						if( Path.EndsWith( "View\\Type\\" ) )
-							xml.Type			= reader.Value;
-
-						if( Path.EndsWith( "View\\Source\\Type\\" ) )
-							xml.SrcType			= reader.Value;
-
-						if( Path.EndsWith( "View\\Source\\Name\\" ) )
-							xml.SrcName			= reader.Value;
-
-						if( Path.EndsWith( "View\\Position\\X\\" ) )
-							xml.PosX			= reader.Value;
-
-						if( Path.EndsWith( "View\\Position\\Y\\" ) )
-							xml.PosY			= reader.Value;
-
-						if( Path.EndsWith( "View\\Position\\Z\\" ) )
-							xml.PosZ			= reader.Value;
-
-						if( Path.EndsWith( "View\\Size\\Width\\" ) )
-							xml.SizeW			= reader.Value;
-
-						if( Path.EndsWith( "View\\Size\\Height\\" ) )
-							xml.SizeH			= reader.Value;
-
-						if( Path.EndsWith( "View\\Child\\" ) )
-							xml.Children.Add( reader.Value );
-
-						if( Path.EndsWith( "View\\Field\\" ) )
-							xml.ChildFields.Add( reader.Value );
-#endregion
-						break;
-
-					case XmlNodeType.EndElement:
-#region map close elements
-						if( Path == "\\xml\\Field\\" && reader.Name == "Field" )
-							fields.Add( xml );
-
-						if( Path == "\\xml\\Table\\" && reader.Name == "Table" )
-							tables.Add( xml );
-
-						if( Path == "\\xml\\View\\" && reader.Name == "View" )
-							views.Add( xml );
-#endregion
-
-						try
-						{	Path	= Path.Remove( Path.LastIndexOf( reader.Name + "\\" ) );
-						}	catch( Exception e )
-						{
-							MessageBox.Show( "XML closing element not found: " + reader.Name + ", " + reader.LineNumber, "Error in XML config" );
-							throw( e );
-						}
-						break;
-				}
-			}
-			reader.Close( );
-			return;
-		}
-		static public void CopyMappedValues( List<XMLConfig> from, List<XMLConfig> to )
-		{
-			foreach( XMLConfig xml in to )
-			{
-				XMLConfig	f	= from.Find( (x) => x.Abbreviation == xml.Abbreviation );
-				if( f != null )
-				{
-					if( f.Name != "" )
-						xml.Copy( f );
-				}
-
-			}
-		}
-		static public void UseFriendlyNames( List<XMLConfig> views, List<XMLConfig> tables, List<XMLConfig> fields )
-		{
-			foreach( XMLConfig v in views )
-			{
-				// make sure source table is using the friendly name
-				XMLConfig	t	= tables.Find( (a) => a.Abbreviation == v.SrcName );
-				if( t != null && t.Name != "" && t.Name != t.Abbreviation )
-					v.SrcName	= t.Name;
-
-				// now do the same for the fields
-				for( int i=0; i < v.ChildFields.Count; i++ )
-				{
-					XMLConfig	f	= fields.Find( (a) => a.Abbreviation == v.ChildFields[ i ] );
-					if( f != null && f.Name != "" && f.Name != f.Abbreviation )
-						v.ChildFields[ i ]	= f.Name;
-				}
-			}
-
-		}
-		static public string WriteXMLConfig( List<XMLConfig> views, List<XMLConfig> tables, List<XMLConfig> fields )
-		{	string	data	= "<xml>\r\n\r\n\r\n";
-
-			foreach( XMLConfig x in views )
-				data	+= x.ToString( );
-			foreach( XMLConfig x in tables )
-				data	+= x.ToString( );
-			foreach( XMLConfig x in fields )
-				data	+= x.ToString( );
-
-			return data + "\r\n\r\n</xml>\r\n";
-		}
-	}
+    public class RefObj
+    {
+        public string key = "";
+        public string value = "";
+
+        public RefObj()
+        {
+        }
+        public RefObj(string k, string v)
+        {
+            key = k;
+            value = v;
+        }
+        public override string ToString()
+        {
+            return value;
+        }
+    }
+    public class FieldFilter
+    {
+        public enum Operation
+        {
+            None,
+            Equal,
+            NotEqual,
+            GreaterThan,
+            LessThan,
+            Contains,
+            DoesNotContain,
+            EndsWith,
+            StartsWith,
+            Set,
+            Adjust
+        }
+
+        public string field = "";
+        public string value = "";
+        public Operation op = Operation.None;
+
+        public FieldFilter()
+        {
+        }
+        public FieldFilter(string f, string operation, string v)
+        {
+            Create(f, operation, v);
+        }
+        public void Create(string f, string operation, string v)
+        {
+            field = f;
+            value = v;
+
+            switch (operation.ToLower())
+            {
+                case "=":
+                    op = Operation.Equal;
+                    break;
+                case "!=":
+                    op = Operation.NotEqual;
+                    break;
+                case ">":
+                    op = Operation.GreaterThan;
+                    break;
+                case "<":
+                    op = Operation.LessThan;
+                    break;
+                case "contains":
+                    op = Operation.Contains;
+                    break;
+                case "!contains":
+                    op = Operation.DoesNotContain;
+                    break;
+                case "endswith":
+                    op = Operation.EndsWith;
+                    break;
+                case "startswith":
+                    op = Operation.StartsWith;
+                    break;
+                // mass operations
+                case "<-":
+                    op = Operation.Set;
+                    break;
+                case "+/-":
+                    op = Operation.Adjust;
+                    break;
+            }
+        }
+        public bool Process(List<Field> lMF, MaddenRecord mr)
+        {
+            Field f = Field.FindField(lMF, field);
+            string code = f.Abbreviation != "" ? f.Abbreviation : f.name;
+
+            switch (op)
+            {
+                case Operation.Contains:
+                case Operation.DoesNotContain:
+                case Operation.EndsWith:
+                case Operation.StartsWith:
+
+                    #region is a combox item
+                    if (f.ControlType.EndsWith("ComboBox"))
+                    {
+                        string testData = "";
+
+                        // need to find item based on type of combobox
+                        #region regular combobox with an item list
+                        if (f.ControlType == "ComboBox" && f.ControlLink == "")
+                        {
+                            testData = ((ComboBox)f.EditControl).Items[Convert.ToInt32(mr[code])].ToString();
+                        }
+                        #endregion
+                        #region linked combobox
+                        if (f.ControlType == "ComboBox" && f.ControlLink != "")
+                        {
+                            RefObj linkedObj = null;
+                            #region find the ojbect in the list
+                            for (int x = 0; x < ((ComboBox)f.EditControl).Items.Count; x++)
+                            {
+                                RefObj ro = (RefObj)((ComboBox)f.EditControl).Items[x];
+                                if (ro.key == mr[f.Abbreviation])
+                                {
+                                    linkedObj = ro;
+                                    break;
+                                }
+                            }
+                            #endregion
+                            testData = (linkedObj != null) ? linkedObj.value : "";
+                        }
+                        #endregion
+                        #region adjusted combobox with an item list
+                        if (f.ControlType == "AdjustedComboBox")
+                        {
+                            testData = ((ComboBox)f.EditControl).Items[Convert.ToInt32(mr[code]) + f.Offset].ToString();
+                        }
+                        #endregion
+                        #region mapped combobox with an item list
+                        if (f.ControlType == "MappedComboBox")
+                            testData = ((ComboBox)f.EditControl).Items[Convert.ToInt32(mr[f.ControlIF])].ToString();
+                        #endregion
+
+                        switch (op)
+                        {
+                            case Operation.Contains:
+                                return (testData.IndexOf(value) == -1) ? false : true;
+
+                            case Operation.DoesNotContain:
+                                return (testData.IndexOf(value) > -1) ? false : true;
+
+                            case Operation.EndsWith:
+                                return testData.EndsWith(value);
+
+                            case Operation.StartsWith:
+                                return testData.StartsWith(value);
+                        }
+                    }
+                    #endregion
+
+                    #region not a combobox variant
+                    switch (op)
+                    {
+                        case Operation.Contains:
+                            return (mr[code].IndexOf(value) == -1) ? false : true;
+
+                        case Operation.DoesNotContain:
+                            return (mr[code].IndexOf(value) > -1) ? false : true;
+
+                        case Operation.EndsWith:
+                            return mr[code].EndsWith(value);
+
+                        case Operation.StartsWith:
+                            return mr[code].StartsWith(value);
+                    }
+                    #endregion
+                    return false;   // should never get here
+
+
+                case Operation.Equal:
+                    return (f.CompareDataAsType(mr[code], value) == 0) ? true : false;
+
+                case Operation.NotEqual:
+                    return (f.CompareDataAsType(mr[code], value) != 0) ? true : false;
+
+                case Operation.GreaterThan:
+                    return (f.CompareDataAsType(mr[code], value) == 1) ? true : false;
+
+                case Operation.LessThan:
+                    return (f.CompareDataAsType(mr[code], value) == -1) ? true : false;
+
+                // mass operations
+                case Operation.Set:
+                    mr[code] = value.ToString();
+                    return true;
+
+                case Operation.Adjust:
+                    mr[code] = (Convert.ToInt32(mr[code]) + Convert.ToInt32(value.ToString())).ToString();
+                    return true;
+            }
+            return false;
+        }
+
+        static public bool ProcessFilters(List<FieldFilter> lFF, List<Field> lMF, MaddenRecord mr)
+        {
+            bool ret = true;
+
+            if (lFF != null && lMF != null && mr != null)
+            {
+                foreach (FieldFilter ff in lFF)
+                    ret &= ff.Process(lMF, mr);
+            }
+
+            return ret;
+        }
+    }
+
+    // xml config info used in copying known fields / tables
+    public class XMLConfig
+    {
+        #region fields
+        public string StartLabel = "";
+        public string Name = "";
+        public string Abbreviation = "";
+        public string Type = "";
+        public string Description = "";
+        public string ControlType = "";
+        public bool ControlLink = false;
+        public string LinkTable = "";
+        public string IndexField = "";
+        public string ReferenceField = "";
+        public string ReferenceField2 = "";
+        public List<string> ControlItems = new List<string>();
+        public string PosX = "";
+        public string PosY = "";
+        public string PosZ = "";
+        public string SizeW = "";
+        public string SizeH = "";
+        public string SrcType = "";
+        public string SrcName = "";
+        public List<string> Children = new List<string>();
+        public List<string> ChildFields = new List<string>();
+        public string Min = "";
+        public string Max = "";
+        public List<Field.Formula> Formulas = new List<Field.Formula>();
+        public string Offset = "";
+        #endregion
+
+        public XMLConfig() { }
+        public override string ToString()
+        {
+            string data = "";
+
+            #region view
+            if (StartLabel == "View")
+            {
+                data += "<View>\r\n";
+                data += "\t<Name>" + Name + "</Name>\r\n";
+                data += "\t<Type>" + Type + "</Type>\r\n";
+                data += "\t<Position>\r\n";
+                data += "\t\t<X>" + PosX + "</X>\r\n";
+                data += "\t\t<Y>" + PosY + "</Y>\r\n";
+                data += "\t\t<Z>" + PosZ + "</Z>\r\n";
+                data += "\t</Position>\r\n";
+                data += "\t<Size>\r\n";
+                data += "\t\t<Width>" + SizeW + "</Width>\r\n";
+                data += "\t\t<Height>" + SizeH + "</Height>\r\n";
+                data += "\t</Size>\r\n";
+
+                if (SrcName != "" && SrcType != "")
+                {
+                    data += "\t<Source>\r\n";
+                    data += "\t\t<Type>" + SrcType + "</Type>\r\n";
+                    data += "\t\t<Name>" + SrcName + "</Name>\r\n";
+                    data += "\t</Source>\r\n";
+                }
+
+                if (Children.Count > 0)
+                {
+                    foreach (string s in Children)
+                        data += "\t<Child>" + s + "</Child>\r\n";
+                }
+
+                if (ChildFields.Count > 0)
+                {
+                    foreach (string s in ChildFields)
+                        data += "\t<Field>" + s + "</Field>\r\n";
+                }
+
+                data += "</View>\r\n\r\n\r\n";
+            }
+            #endregion
+            #region table
+            if (StartLabel == "Table")
+            {
+                data += "<Table>\r\n";
+                data += "\t<Abbreviation>" + Abbreviation + "</Abbreviation>\r\n";
+                data += "\t<Name>" + Name + "</Name>\r\n";
+                data += "</Table>\r\n\r\n";
+            }
+            #endregion
+            #region field
+            if (StartLabel == "Field")
+            {
+                data += "<Field>\r\n";
+                data += "\t<Abbreviation>" + Abbreviation + "</Abbreviation>\r\n";
+                data += "\t<Name>" + Name + "</Name>\r\n";
+                data += "\t<ControlType>" + ControlType + "</ControlType>\r\n";
+
+                if (ControlItems.Count > 0)
+                {
+                    foreach (string s in ControlItems)
+                        data += "\t<ControlItem>" + s + "</ControlItem>\r\n";
+                }
+
+                if (ControlLink)
+                {
+                    data += "\t<ControlLink>\r\n";
+                    data += "\t\t<Table>" + LinkTable + "</Table>\r\n";
+                    data += "\t\t<IndexField>" + IndexField + "</IndexField>\r\n";
+
+                    if (ReferenceField != "")
+                        data += "\t\t<ReferenceField>" + ReferenceField + "</ReferenceField>\r\n";
+                    if (ReferenceField2 != "")
+                        data += "\t\t<ReferenceField2>" + ReferenceField2 + "</ReferenceField2>\r\n";
+
+                    if (Formulas.Count > 0)
+                    {
+                        data += "\t\t<Formulas>\r\n";
+                        foreach (Field.Formula form in Formulas)
+                        {
+                            data += "\t\t\t<Formula>\r\n";
+                            data += "\t\t\t\t<IndexValue>" + form.IndexValue + "</IndexValue>\r\n";
+                            if (form.Variables.Count > 0)
+                            {
+                                data += "\t\t\t\t<Variables>\r\n";
+                                foreach (Field.Variable var in form.Variables)
+                                {
+                                    data += "\t\t\t\t\t<Variable>\r\n";
+                                    data += "\t\t\t\t\t\t<Field>" + var.vField + "</Field>\r\n";
+                                    data += "\t\t\t\t\t\t<Multiplier>" + var.Multiplier.ToString() + "</Multiplier>\r\n";
+                                    data += "\t\t\t\t\t</Variable>\r\n";
+                                }
+                                data += "\t\t\t\t</Variables>\r\n";
+                            }
+                            data += "\t\t\t\t<Adjustment>" + form.Adjustment.ToString() + "</Adjustment>\r\n";
+                            data += "\t\t\t</Formula>\r\n";
+                        }
+                        data += "\t\t</Formulas>\r\n";
+                    }
+
+                    if (Min != "")
+                        data += "\t\t<Min>" + Min + "</Min>\r\n";
+                    if (Max != "")
+                        data += "\t\t<Max>" + Max + "</Max>\r\n";
+                    data += "\t</ControlLink>\r\n";
+                }
+
+                if (Offset != "")
+                    data += "\t<Offset>" + Offset + "</Offset>\r\n";
+                data += "\t<Description>" + Description + "</Description>\r\n";
+                data += "\t<Type>" + Type + "</Type>\r\n";
+                data += "</Field>\r\n";
+            }
+            #endregion
+
+            return data;
+        }
+        public void Copy(XMLConfig org)
+        {
+            StartLabel = org.StartLabel;
+            Name = org.Name;
+            Abbreviation = org.Abbreviation;
+            Type = org.Type;
+            Description = org.Description;
+            ControlType = org.ControlType;
+            ControlLink = org.ControlLink;
+            LinkTable = org.LinkTable;
+            IndexField = org.IndexField;
+            ReferenceField = org.ReferenceField;
+            ReferenceField2 = org.ReferenceField2;
+            ControlItems = new List<string>(org.ControlItems);
+            PosX = org.PosX;
+            PosY = org.PosY;
+            PosZ = org.PosZ;
+            SizeW = org.SizeW;
+            SizeH = org.SizeH;
+            SrcType = org.SrcType;
+            SrcName = org.SrcName;
+            Children = new List<string>(org.Children);
+            ChildFields = new List<string>(org.ChildFields);
+            Min = org.Min;
+            Max = org.Max;
+            Formulas = new List<Field.Formula>(org.Formulas);
+        }
+
+        static public void ReadXMLConfig(string configfile, List<XMLConfig> views, List<XMLConfig> tables, List<XMLConfig> fields)
+        {
+            XMLConfig xml = null;
+            string Path = "\\";
+
+
+            XmlTextReader reader = new XmlTextReader(configfile);
+            while (reader.Read())
+            {
+                switch (reader.NodeType)
+                {
+                    case XmlNodeType.Element:
+                        #region map open elements
+                        if (Path == "\\xml\\" && reader.Name == "Field")
+                        {
+                            xml = new XMLConfig();
+                            xml.StartLabel = "Field";
+                        }
+
+                        if (Path == "\\xml\\" && reader.Name == "Table")
+                        {
+                            xml = new XMLConfig();
+                            xml.StartLabel = "Table";
+                        }
+
+                        if (Path == "\\xml\\" && (reader.Name == "View" || reader.Name == "Main"))
+                        {
+                            xml = new XMLConfig();
+                            xml.StartLabel = "View";
+                        }
+
+                        if (reader.Name == "Formulas")
+                        {
+                            xml.Formulas = Field.Formula.ReadFormulas(reader, Path + "Formulas\\");
+                            break;
+                        }
+                        #endregion
+
+                        Path += reader.Name + "\\";
+                        break;
+
+                    case XmlNodeType.Text:
+
+                        #region map main entries	
+                        if (Path.EndsWith("Main\\Size\\Width\\"))
+                            xml.SizeW = reader.Value;
+
+                        if (Path.EndsWith("Main\\Size\\Height\\"))
+                            xml.SizeH = reader.Value;
+                        #endregion
+
+                        #region map field entries
+                        if (Path.EndsWith("Field\\Abbreviation\\"))
+                            xml.Abbreviation = reader.Value;
+
+                        if (Path.EndsWith("Field\\Name\\"))
+                            xml.Name = reader.Value;
+
+                        if (Path.EndsWith("Field\\ControlType\\"))
+                            xml.ControlType = reader.Value;
+
+                        if (Path.EndsWith("Field\\ControlItem\\"))
+                            xml.ControlItems.Add(reader.Value);
+
+                        if (Path.EndsWith("Field\\ControlLink\\Table\\"))
+                        {
+                            xml.ControlLink = true;
+                            xml.LinkTable = reader.Value;
+                        }
+
+                        if (Path.EndsWith("Field\\ControlLink\\IndexField\\"))
+                        {
+                            xml.ControlLink = true;
+                            xml.IndexField = reader.Value;
+                        }
+
+                        if (Path.EndsWith("Field\\ControlLink\\ReferenceField\\"))
+                        {
+                            xml.ControlLink = true;
+                            xml.ReferenceField = reader.Value;
+                        }
+
+                        if (Path.EndsWith("Field\\ControlLink\\ReferenceField2\\"))
+                        {
+                            xml.ControlLink = true;
+                            xml.ReferenceField2 = reader.Value;
+                        }
+
+                        if (Path.EndsWith("Field\\ControlLink\\Formulas\\"))
+                        {
+                            xml.ControlLink = true;
+                            xml.Formulas = Field.Formula.ReadFormulas(reader, Path);
+                        }
+
+                        if (Path.EndsWith("Field\\ControlLink\\Min\\"))
+                        {
+                            xml.ControlLink = true;
+                            xml.Min = reader.Value;
+                        }
+
+                        if (Path.EndsWith("Field\\ControlLink\\Max\\"))
+                        {
+                            xml.ControlLink = true;
+                            xml.Max = reader.Value;
+                        }
+
+                        if (Path.EndsWith("Field\\Offset\\"))
+                            xml.Offset = reader.Value;
+
+                        if (Path.EndsWith("Field\\Description\\"))
+                            xml.Description = reader.Value;
+
+                        if (Path.EndsWith("Field\\Type\\"))
+                            xml.Type = reader.Value;
+                        #endregion
+
+                        #region map table entries	
+                        if (Path.EndsWith("Table\\Abbreviation\\"))
+                            xml.Abbreviation = reader.Value;
+
+                        if (Path.EndsWith("Table\\Name\\"))
+                            xml.Name = reader.Value;
+                        #endregion
+
+                        #region map view entries
+                        if (Path.EndsWith("View\\Name\\"))
+                            xml.Name = reader.Value;
+
+                        if (Path.EndsWith("View\\Type\\"))
+                            xml.Type = reader.Value;
+
+                        if (Path.EndsWith("View\\Source\\Type\\"))
+                            xml.SrcType = reader.Value;
+
+                        if (Path.EndsWith("View\\Source\\Name\\"))
+                            xml.SrcName = reader.Value;
+
+                        if (Path.EndsWith("View\\Position\\X\\"))
+                            xml.PosX = reader.Value;
+
+                        if (Path.EndsWith("View\\Position\\Y\\"))
+                            xml.PosY = reader.Value;
+
+                        if (Path.EndsWith("View\\Position\\Z\\"))
+                            xml.PosZ = reader.Value;
+
+                        if (Path.EndsWith("View\\Size\\Width\\"))
+                            xml.SizeW = reader.Value;
+
+                        if (Path.EndsWith("View\\Size\\Height\\"))
+                            xml.SizeH = reader.Value;
+
+                        if (Path.EndsWith("View\\Child\\"))
+                            xml.Children.Add(reader.Value);
+
+                        if (Path.EndsWith("View\\Field\\"))
+                            xml.ChildFields.Add(reader.Value);
+                        #endregion
+                        break;
+
+                    case XmlNodeType.EndElement:
+                        #region map close elements
+                        if (Path == "\\xml\\Field\\" && reader.Name == "Field")
+                            fields.Add(xml);
+
+                        if (Path == "\\xml\\Table\\" && reader.Name == "Table")
+                            tables.Add(xml);
+
+                        if (Path == "\\xml\\View\\" && reader.Name == "View")
+                            views.Add(xml);
+                        #endregion
+
+                        try
+                        {
+                            Path = Path.Remove(Path.LastIndexOf(reader.Name + "\\"));
+                        }
+                        catch (Exception e)
+                        {
+                            MessageBox.Show("XML closing element not found: " + reader.Name + ", " + reader.LineNumber, "Error in XML config");
+                            throw (e);
+                        }
+                        break;
+                }
+            }
+            reader.Close();
+            return;
+        }
+        static public void CopyMappedValues(List<XMLConfig> from, List<XMLConfig> to)
+        {
+            foreach (XMLConfig xml in to)
+            {
+                XMLConfig f = from.Find((x) => x.Abbreviation == xml.Abbreviation);
+                if (f != null)
+                {
+                    if (f.Name != "")
+                        xml.Copy(f);
+                }
+
+            }
+        }
+        static public void UseFriendlyNames(List<XMLConfig> views, List<XMLConfig> tables, List<XMLConfig> fields)
+        {
+            foreach (XMLConfig v in views)
+            {
+                // make sure source table is using the friendly name
+                XMLConfig t = tables.Find((a) => a.Abbreviation == v.SrcName);
+                if (t != null && t.Name != "" && t.Name != t.Abbreviation)
+                    v.SrcName = t.Name;
+
+                // now do the same for the fields
+                for (int i = 0; i < v.ChildFields.Count; i++)
+                {
+                    XMLConfig f = fields.Find((a) => a.Abbreviation == v.ChildFields[i]);
+                    if (f != null && f.Name != "" && f.Name != f.Abbreviation)
+                        v.ChildFields[i] = f.Name;
+                }
+            }
+
+        }
+        static public string WriteXMLConfig(List<XMLConfig> views, List<XMLConfig> tables, List<XMLConfig> fields)
+        {
+            string data = "<xml>\r\n\r\n\r\n";
+
+            foreach (XMLConfig x in views)
+                data += x.ToString();
+            foreach (XMLConfig x in tables)
+                data += x.ToString();
+            foreach (XMLConfig x in fields)
+                data += x.ToString();
+
+            return data + "\r\n\r\n</xml>\r\n";
+        }
+    }
 }
