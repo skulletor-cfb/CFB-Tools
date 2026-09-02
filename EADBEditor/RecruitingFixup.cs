@@ -605,6 +605,44 @@ namespace EA_DB_Editor
         static int[] skillPlayers = { 1, 13, 14, 15, 16, 17, 18 };
         static int[] linePlayers = { 5, 6, 7, 8, 9, 10, 11, 12 };
 
+        static MaddenRecord FindRecruit(MaddenTable pitchTable, int recruitId)
+        {
+            foreach (var recruit in pitchTable.lRecords)
+            {
+                foreach (var entry in recruit.lEntries)
+                {
+                    if (entry.field.Abbreviation == "PRSI")
+                    {
+                        if (Int32.Parse(entry.Data) == recruitId)
+                        {
+                            return recruit;
+                        }
+                    }
+                }
+            }
+
+            throw new Exception("bad data");
+        }
+
+        static MaddenRecord FindRecruit(MaddenTable pitchTable, int recruitId)
+        {
+            foreach (var recruit in pitchTable.lRecords)
+            {
+                foreach (var entry in recruit.lEntries)
+                {
+                    if (entry.field.Abbreviation == "PRSI")
+                    {
+                        if (Int32.Parse(entry.Data) == recruitId)
+                        {
+                            return recruit;
+                        }
+                    }
+                }
+            }
+
+            throw new Exception("bad data");
+        }
+
         public static bool IsIndependentG5(this int teamId)
         {
             return TeamAndConferences[teamId] == IndId && teamId != 16 && teamId != 68;
@@ -761,6 +799,20 @@ namespace EA_DB_Editor
         public static bool TeamsInSameConference(this Dictionary<int, int> teams, int a, int b)
         {
             return teams[b] == teams[a];
+        private static Dictionary<int, int> prestigeMap;
+        public static Dictionary<int, int> PrestigeMap
+        {
+            get
+            {
+                if (prestigeMap == null)
+                {
+                    var table = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "TEAM");
+                    prestigeMap = table.lRecords.ToDictionary(mr => mr["TGID"].ToInt32(), mr => mr["TPRX"].ToInt32());
+                }
+
+                return prestigeMap;
+
+            }
         }
 
         public static bool TeamsEligbleForReplacement(this Dictionary<int, int> teams, int home, int away)
@@ -799,10 +851,7 @@ namespace EA_DB_Editor
                     prestigeMap = table.lRecords.ToDictionary(mr => mr["TGID"].ToInt32(), mr => mr["TPRX"].ToInt32());
                 }
 
-                return prestigeMap;
-
-            }
-        }
+        static Dictionary<int, int> PrestigeMap;
         public static int[] ACCConfTeams { get { return TeamAndConferences.Where(kvp => kvp.Value == ACCId).Select(kvp => kvp.Key).ToArray(); } }
         public static int[] ACC { get { return TeamAndConferences.Where(kvp => kvp.Value == ACCId).Select(kvp => kvp.Key).Concat(new[] { 68 }).Distinct().ToArray(); } }
 

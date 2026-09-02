@@ -94,6 +94,7 @@ namespace EA_DB_Editor
             DirectoryInfo[] dirs2 = dir2.GetDirectories()
                 .Where(d=>!d.Name.ToUpperInvariant().Contains("app_code".ToUpperInvariant()))
                 .Where(d => !d.Name.ToUpperInvariant().Contains("BIN".ToUpperInvariant()))
+                .Where(d => !d.Name.ToUpperInvariant().Contains("baked".ToUpperInvariant()))
                 .Where(d => !d.Name.ToUpperInvariant().Contains("REPORTS".ToUpperInvariant()))
                 .Where(d => !d.Name.ToUpperInvariant().Contains("Continuation".ToUpperInvariant()))
                     .OrderByDescending(dirInfo => dirInfo.Name).ToArray();
