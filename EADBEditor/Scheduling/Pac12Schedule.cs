@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace EA_DB_Editor
 {
@@ -11,9 +9,9 @@ namespace EA_DB_Editor
 
         private static Func<Dictionary<int, int[]>>[] CorrectCreators = new Func<Dictionary<int, int[]>>[]
         {
-            CreateB, CreateB,
             CreateC, CreateC,
             CreateD, CreateD,
+            CreateB, CreateB,
             CreateA, CreateA,
         };
 
@@ -38,7 +36,7 @@ namespace EA_DB_Editor
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
             var creatorsToUse = CorrectCreators;
-            var idx = (Form1.DynastyYear - 2576) % creatorsToUse.Length;
+            var idx = (Form1.DynastyYear - 2581) % creatorsToUse.Length;
 
             var result = creatorsToUse[idx]();
             result = result.Verify(12, RecruitingFixup.Pac16Id, "Pac12");
@@ -100,18 +98,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                USC.Create(),
-                UCLA.Create(),
-                Cal.Create(),
-                Stanford.Create(),
-                WSU.Create(),
-                Wash.Create(),
-                UO.Create(),
-                OSU.Create(),
-                ASU.Create(),
-                Arizona.Create(),
-                Utah.Create(),
-                BYU.Create(),
+                USC.Create(UCLA, Stanford, Wash, ASU, BYU),
+                UCLA.Create(Cal, WSU, UO, Arizona),
+                Cal.Create(USC, Wash, OSU, BYU),
+                Stanford.Create(UCLA, Cal, OSU, Utah),
+                WSU.Create(USC, Stanford, UO, ASU),
+                Wash.Create(UCLA, WSU, OSU, Arizona, Utah),
+                UO.Create(Cal, Stanford, Wash, Arizona, BYU),
+                OSU.Create(USC, WSU, UO, ASU, Utah),
+                ASU.Create(UCLA, Stanford, Wash, Arizona, Utah),
+                Arizona.Create(USC, Cal, WSU, BYU),
+                Utah.Create(UCLA, Cal, UO, Arizona),
+                BYU.Create(Stanford, WSU, OSU, ASU, Utah),
             }.Create();
         }
 
