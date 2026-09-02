@@ -138,11 +138,11 @@ namespace EA_DB_Editor
                         // IsBSUTCU,
                         IsISUKSU,
                         IsTexasOU,
-                        g => MatchTeams(13, g, 20, 38), // ISU-Cincy end the season when they play
+    //                    g => MatchTeams(13, g, 20, 38), // ISU-Cincy end the season when they play
                         g => MatchTeams(7,g,11,94), //BU-TT in week 7
-                        g => MatchTeams(12, g, 39, 58), // neb-ku week 12
+  //                      g => MatchTeams(12, g, 39, 58), // neb-ku week 12
                         g => MatchTeams(4, g, 83, 89), //TCU-SMU week 4
-                        g => MatchTeams(13, g, 33, 83), // smu-hou week 13
+//                        g => MatchTeams(13, g, 33, 83), // smu-hou week 13
                         g => MatchTeams(13, g, 22, 72), // cu-ok st week 13
                     };
                 }
@@ -199,23 +199,40 @@ namespace EA_DB_Editor
 
         public int? IsNUCU(PreseasonScheduledGame game)
         {
-            return MatchTeams(7, game, 58, 22);
+            return MatchTeams(13, game, 22, 58);
         }
 
         public int? IsNUOU(PreseasonScheduledGame game)
         {
-            return MatchTeams(13 + Is10TeamBig12Modifier, game, 58, 71);
+            return MatchTeams(12 + Is10TeamBig12Modifier, game, 58, 71);
         }
 
         public int? IsOSUOU(PreseasonScheduledGame game)
         {
-            return MatchTeams(12 + Is10TeamBig12Modifier, game, 72, 71);
+            return MatchTeams(13 + Is10TeamBig12Modifier, game, 71, 72);
         }
 
     }
 
     public class AmericanLocks : ConferenceLocks
     {
+        private List<int> featuredRivalryWeek = new List<int>
+        {
+            12,
+            11,
+            10,
+            9,
+            8,
+        };
+
+        private int Pop()
+        {
+            var idx = featuredRivalryWeek.Count.RAND() ;   
+            var result = featuredRivalryWeek[idx];
+            featuredRivalryWeek.RemoveAt(idx);
+            return result;
+        }
+
         private Func<PreseasonScheduledGame, int?>[] lockChecks;
         protected override Func<PreseasonScheduledGame, int?>[] LockChecks
         {
@@ -226,22 +243,11 @@ namespace EA_DB_Editor
                     lockChecks = new Func<PreseasonScheduledGame, int?>[]
                     {
                         g=>MatchTeams(13, g, 8, 57), // army-navy
-                        g=>MatchTeams(13, g, 64, 232), // nt-utsa
-                        g=>MatchTeams(13, g, 79, 97), // rice-tulsa
-                        g=>MatchTeams(13, g, 25, 100), // charlotte-ecu
-                        g=>MatchTeams(13, g, 48, 98), // memphis-uab
-  //                      g=>MatchTeams(13, g, 85, 96), // usm-tulane
-    //                    g=>MatchTeams(12, g, 85, 98), // usm-uab
-
-      //                  g=>MatchTeams(12, g, 90, 232), // utsa-temple
-        //                g=>MatchTeams(6, g, 48, 85), // usm-memphis
-                        g=>MatchTeams(7, g, 18, 97), // ucf-tulsa
-                        g=>MatchTeams(6, g, 18, 25), // ucf-ecu
-          //              g=>MatchTeams(7, g, 25, 85), // usm-ecu
-                        g=>MatchTeams(6, g, 79, 83), // rice-smu
-                        g=>MatchTeams(6, g, 33, 97), // hou-tulsa
-                        g=>MatchTeams(6, g, 79, 96), // tulane-rice
-                        g=>MatchTeams(8, g, 33, 79), // hou-rice
+                        g=>MatchTeams(Pop(), g, 64, 232), // nt-utsa
+                        g=>MatchTeams(Pop(), g, 79, 97), // rice-tulsa
+                        g=>MatchTeams(Pop(), g, 25, 100), // charlotte-ecu
+                        g=>MatchTeams(Pop(), g, 48, 98), // memphis-uab
+                        g=>MatchTeams(Pop(), g, 144, 229), // usf-fau
                     };
                 }
 
