@@ -344,7 +344,7 @@ namespace EA_DB_Editor
             {
                 TemporarilyRemoveFcsGameFromSchedule(schedules, game);
             }
-        }
+        
 
             var nonConf = schedules.Values.SelectMany(games => games.Where(g => g != null && g.Week > 4 && !g.IsLateSeasonRivalryGame() && !g.IsConferenceGame() && !g.IsFCSGame())).Distinct().OrderByDescending(g => g.WeekIndex).ToArray();
 
@@ -382,9 +382,6 @@ namespace EA_DB_Editor
                 homeSchd[openWeek] = game;
                 homeSchd[currentGameWeek] = null;
             }
-
-            FcsGamesEarly(schedules);
-        }
 
             FcsGamesEarly(schedules);
         }
