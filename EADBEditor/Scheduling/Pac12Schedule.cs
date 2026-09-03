@@ -29,7 +29,7 @@ namespace EA_DB_Editor
 
         public static void ProcessPac12Schedule(Dictionary<int, TeamSchedule> schedule)
         {
-            schedule.ProcessSchedule(ScenarioForSeason, Pac12ConferenceSchedule, RecruitingFixup.Pac16Id, RecruitingFixup.Pac12);
+            schedule.ProcessSchedule(ScenarioForSeason, Pac12ConferenceSchedule, TableUtility.Pac16Id, TableUtility.Pac12);
         }
 
 
@@ -39,7 +39,7 @@ namespace EA_DB_Editor
             var idx = (Form1.DynastyYear - 2581) % creatorsToUse.Length;
 
             var result = creatorsToUse[idx]();
-            result = result.Verify(12, RecruitingFixup.Pac16Id, "Pac12");
+            result = result.Verify(12, TableUtility.Pac16Id, "Pac12");
             Pac12ConferenceSchedule = result.BuildHashSet();
             return result;
         }
