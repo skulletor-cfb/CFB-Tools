@@ -216,22 +216,7 @@ namespace EA_DB_Editor
 
     public class AmericanLocks : ConferenceLocks
     {
-        private List<int> featuredRivalryWeek = new List<int>
-        {
-            12,
-            11,
-            10,
-            9,
-            8,
-        };
-
-        private int Pop()
-        {
-            var idx = featuredRivalryWeek.Count.RAND() ;   
-            var result = featuredRivalryWeek[idx];
-            featuredRivalryWeek.RemoveAt(idx);
-            return result;
-        }
+        private static int[] featuredRivalryWeek = ConfScheduleFixer.CreateAndShuffle(12, 11, 10, 9, 8);
 
         private Func<PreseasonScheduledGame, int?>[] lockChecks;
         protected override Func<PreseasonScheduledGame, int?>[] LockChecks
@@ -243,11 +228,11 @@ namespace EA_DB_Editor
                     lockChecks = new Func<PreseasonScheduledGame, int?>[]
                     {
                         g=>MatchTeams(13, g, 8, 57), // army-navy
-                        g=>MatchTeams(Pop(), g, 64, 232), // nt-utsa
-                        g=>MatchTeams(Pop(), g, 79, 97), // rice-tulsa
-                        g=>MatchTeams(Pop(), g, 25, 100), // charlotte-ecu
-                        g=>MatchTeams(Pop(), g, 48, 98), // memphis-uab
-                        g=>MatchTeams(Pop(), g, 144, 229), // usf-fau
+                        g=>MatchTeams(featuredRivalryWeek[0], g, 64, 232), // nt-utsa
+                        g=>MatchTeams(featuredRivalryWeek[1], g, 79, 97), // rice-tulsa
+                        g=>MatchTeams(featuredRivalryWeek[2], g, 25, 100), // charlotte-ecu
+                        g=>MatchTeams(featuredRivalryWeek[3], g, 48, 98), // memphis-uab
+                        g=>MatchTeams(featuredRivalryWeek[4], g, 144, 229), // usf-fau
                     };
                 }
 

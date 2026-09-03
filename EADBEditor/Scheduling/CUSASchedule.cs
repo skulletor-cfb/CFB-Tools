@@ -40,6 +40,7 @@ namespace EA_DB_Editor
 
         public static void ProcessCUSASchedule(Dictionary<int, TeamSchedule> schedule)
         {
+            return;
             schedule.ProcessSchedule(ScenarioForSeason, CUSAConferenceSchedule, RecruitingFixup.CUSAId, RecruitingFixup.CUSA);
         }
 
