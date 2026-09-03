@@ -116,6 +116,12 @@ namespace RefreshRunner
         [STAThread]
         static void Main(string[] args)
         {
+            if (args.Length == 1 && args[0] == "eval")
+            {
+                Eval();
+                return;
+            }
+
             if (args.Length == 1 && args[0] == "dump")
             {
                 Dump();
@@ -321,17 +327,35 @@ namespace RefreshRunner
         // dont check this in
         static string accessKey = "no";
 
-        static void Dump()
+        static FileInfo NewestSave()
         {
             const string saveFiles = @"c:\rpcs3\dev_hdd0\home\00000001\savedata";
-            const string outputDirectory = @"d:\dynastyTables";
-            const string teamFile = outputDirectory + @"\team.csv";
-            const string schdFile = outputDirectory + @"\schd.csv";
-
             // get the latest file
             var dir = new DirectoryInfo(saveFiles);
             var files = dir.GetFiles("USR-DATA", SearchOption.AllDirectories);
             var newest = files.OrderByDescending(f => f.LastWriteTime).First();
+            return newest;
+        }
+
+        static void Eval()
+        {
+            // setup file reading
+            var newest = NewestSave();
+            var appDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString());
+            var form = CreateForm(appDomain);
+            form.OpenDynastyFile(newest.FullName);
+            var list = form.ReadUpsets();
+            var sb = new StringBuilder();
+            list.ForEach(s => sb.AppendLine(s));
+            Console.WriteLine(sb);
+        }
+
+        static void Dump()
+        {
+            const string outputDirectory = @"d:\dynastyTables";
+            const string teamFile = outputDirectory + @"\team.csv";
+            const string schdFile = outputDirectory + @"\schd.csv";
+            var newest = NewestSave();
 
             // setup output
             if (Directory.Exists(outputDirectory))

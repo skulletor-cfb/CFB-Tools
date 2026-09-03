@@ -92,7 +92,7 @@ namespace EA_DB_Editor
                     break;
             }
 
-            result = result.Verify(12, RecruitingFixup.Big12Id, "Big12");
+            result = result.Verify(12, TableUtility.Big12Id, "Big12");
             Big12ConferenceSchedule = result.BuildHashSet();
             return result;
         }
@@ -121,8 +121,8 @@ namespace EA_DB_Editor
             schedule.ProcessSchedule(
                 ScenarioForSeason,
                 Big12ConferenceSchedule,
-                RecruitingFixup.Big12Id,
-                RecruitingFixup.Big12);
+                TableUtility.Big12Id,
+                TableUtility.Big12);
         }
 
         private static (PreseasonScheduledGame[], int) GetAllConferenceGames(this Dictionary<int, TeamSchedule> schedule, Dictionary<int, int[]> homeSchedules)

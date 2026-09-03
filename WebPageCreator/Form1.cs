@@ -474,6 +474,11 @@ namespace EA_DB_Editor
             Clipboard.SetText(s);
         }
 
+        public List<string> ReadUpsets()
+        {
+            return TableUtility.ReportBadUpsets();
+        }
+
         public void DumpTables(string dir)
         {
             StringBuilder sb = null;

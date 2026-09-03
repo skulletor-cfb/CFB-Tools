@@ -1404,16 +1404,16 @@ namespace EA_DB_Editor
             Dictionary<string, List<MaddenRecord>> schedules = new Dictionary<string, List<MaddenRecord>>();
 
             var allGamesAllTeams = teamScheduleTable.lRecords.GroupBy(mr => mr["TGID"].ToInt32()).ToDictionary(g => g.Key, g => g.ToArray());
-            var P5Teams = allGamesAllTeams.Where(kvp => RecruitingFixup.IsP5(kvp.Key));
+            var P5Teams = allGamesAllTeams.Where(kvp => kvp.Key.IsP5());
             StringBuilder sb = new StringBuilder();
             StringBuilder confGames = new StringBuilder();
             HashSet<string> matches = new HashSet<string>();
             foreach (var team in P5Teams)
             {
-                var ooc = team.Value.Where(mr => mr["OGID"].ToInt32() != 1023).Where(mr => !RecruitingFixup.TeamAndConferences.TeamsInSameConference(team.Key, mr["OGID"].ToInt32())).ToArray();
+                var ooc = team.Value.Where(mr => mr["OGID"].ToInt32() != 1023).Where(mr => !TableUtility.TeamAndConferences.TeamsInSameConference(team.Key, mr["OGID"].ToInt32())).ToArray();
 
                 // no P5 opponents
-                if (!ooc.Any(mr => RecruitingFixup.IsP5(mr["OGID"].ToInt32())))
+                if (!ooc.Any(mr => mr["OGID"].ToInt32().IsP5()))
                 {
                     var fcsCount = ooc.Count(mr => mr["OGID"].ToInt32().IsFcsTeam());
                     sb.AppendLine(string.Format("TeamId:  {0}  - weeks  {1} - FCS={2}", RecruitingFixup.TeamNames[team.Key], string.Join(",", ooc.Select(mr => 1 + mr["SEWN"].ToInt32()).ToArray()), fcsCount));
@@ -1448,9 +1448,9 @@ namespace EA_DB_Editor
                 var team = teamScheduleTable.lRecords[i]["TGID"];
                 var opponent = teamScheduleTable.lRecords[i]["OGID"];
 
-                if (RecruitingFixup.IsP5(opponent.ToInt32()) &&
-                    RecruitingFixup.IsP5(team.ToInt32()) &&
-                    !RecruitingFixup.TeamAndConferences.TeamsInSameConference(team.ToInt32(), opponent.ToInt32()) &&
+                if (opponent.ToInt32().IsP5() &&
+                    team.ToInt32().IsP5() &&
+                    !TableUtility.TeamAndConferences.TeamsInSameConference(team.ToInt32(), opponent.ToInt32()) &&
                     !ScheduleFixup.IsNotreDameGame(team.ToInt32(), opponent.ToInt32()))
                 {
                     var week = 1 + teamScheduleTable.lRecords[i]["SEWN"].ToInt32();
@@ -1481,7 +1481,7 @@ namespace EA_DB_Editor
 
                     teamOOC.AddGame(opponent.ToInt32());
                 }
-                else if (RosterCopy.IsFcsTeam(opponent.ToInt32()))
+                else if (opponent.ToInt32().IsFcsTeam())
                 {
                     TeamOOC teamOOC = null;
 
@@ -3036,8 +3036,8 @@ namespace EA_DB_Editor
                 var oppId = record.lEntries[1].Data.ToInt32();
 
                 // in the same conference
-                if (RecruitingFixup.TeamAndConferences.TryGetValue(teamId, out var teamConfId) &&
-                    RecruitingFixup.TeamAndConferences.TryGetValue(oppId, out var oppConfId) &&
+                if (TableUtility.TeamAndConferences.TryGetValue(teamId, out var teamConfId) &&
+                    TableUtility.TeamAndConferences.TryGetValue(oppId, out var oppConfId) &&
                     teamConfId == oppConfId)
                 {
                     if (teamConfOppRecord.TryGetValue(teamId, out var oppRecord))
@@ -3052,7 +3052,7 @@ namespace EA_DB_Editor
                 }
             }
 
-            var sorted = teamConfOppRecord.OrderBy(kvp => RecruitingFixup.TeamAndConferences[kvp.Key]).ThenByDescending(kvp => kvp.Value.WinPct);
+            var sorted = teamConfOppRecord.OrderBy(kvp => TableUtility.TeamAndConferences[kvp.Key]).ThenByDescending(kvp => kvp.Value.WinPct);
             sb = new StringBuilder();
             foreach (var team in sorted)
             {
@@ -3114,7 +3114,7 @@ namespace EA_DB_Editor
                 row["SGNM"] = "127";
             }
 
-            //RecruitingFixup.TeamAndConferences
+            //TableUtility.TeamAndConferences
             var bowlTable = MaddenTable.FindTable(maddenDB.lTables, "BOWL").lRecords
                 .Where(mr => mr["SEWN"].ToInt32() > 16)
                 .ToDictionary(

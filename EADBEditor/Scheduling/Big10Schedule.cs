@@ -47,7 +47,7 @@ namespace EA_DB_Editor
 
         public static void ProcessBig10Schedule(Dictionary<int, TeamSchedule> schedule)
         {
-            schedule.ProcessSchedule(ScenarioForSeason, Big10ConferenceSchedule, RecruitingFixup.Big10Id, RecruitingFixup.Big10);
+            schedule.ProcessSchedule(ScenarioForSeason, Big10ConferenceSchedule, TableUtility.Big10Id, TableUtility.Big10);
         }
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
@@ -60,7 +60,7 @@ namespace EA_DB_Editor
             }
 */
             var result = Creators[idx]();
-            result = result.Verify(12, RecruitingFixup.Big10Id, "Big10");
+            result = result.Verify(12, TableUtility.Big10Id, "Big10");
             Big10ConferenceSchedule = result.BuildHashSet();
             return result;
         }

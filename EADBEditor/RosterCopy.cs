@@ -696,11 +696,6 @@ public        static void CopyRecordData(Dictionary<string, DBData> source, Dict
             // return TeamBuilderTeams.Contains(teamId) || (teamId != 0 && teamId != 1023 && teamId != 300 && teamId < 600);
             return (teamId != 0 && teamId != 1023 && teamId != 300 && teamId < 600); ;
         }
-
-        public static bool IsFcsTeam(this int teamId)
-        {
-            return teamId >= 160 && teamId <= 164;
-        }
     }
 
     [DataContract]
