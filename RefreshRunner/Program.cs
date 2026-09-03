@@ -1,4 +1,5 @@
 ﻿using EA_DB_Editor;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -326,9 +327,18 @@ namespace RefreshRunner
 
         // dont check this in
         static string accessKey = "no";
+        const string outputDirectory = @"d:\dynastyTables";
 
         static FileInfo NewestSave()
         {
+            // setup output
+            if (Directory.Exists(outputDirectory))
+            {
+                Directory.Delete(outputDirectory, true);
+            }
+
+            Directory.CreateDirectory(outputDirectory);
+
             const string saveFiles = @"c:\rpcs3\dev_hdd0\home\00000001\savedata";
             // get the latest file
             var dir = new DirectoryInfo(saveFiles);
@@ -339,6 +349,7 @@ namespace RefreshRunner
 
         static void Eval()
         {
+            const string upsetsFile = outputDirectory + @"\upsets.json";
             // setup file reading
             var newest = NewestSave();
             var appDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString());
@@ -346,24 +357,19 @@ namespace RefreshRunner
             form.OpenDynastyFile(newest.FullName);
             var list = form.ReadUpsets();
             var sb = new StringBuilder();
-            list.ForEach(s => sb.AppendLine(s));
+            list.ForEach(s => sb.AppendLine(s.Headline));
             Console.WriteLine(sb);
+
+            var json  = JsonConvert.SerializeObject(list, Formatting.Indented);
+            File.WriteAllText(upsetsFile, json);
+            Console.WriteLine(upsetsFile);
         }
 
         static void Dump()
         {
-            const string outputDirectory = @"d:\dynastyTables";
             const string teamFile = outputDirectory + @"\team.csv";
             const string schdFile = outputDirectory + @"\schd.csv";
             var newest = NewestSave();
-
-            // setup output
-            if (Directory.Exists(outputDirectory))
-            {
-                Directory.Delete(outputDirectory, true);
-            }
-
-            Directory.CreateDirectory(outputDirectory);
 
             // setup file reading
             var appDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString());

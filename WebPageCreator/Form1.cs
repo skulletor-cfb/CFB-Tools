@@ -474,7 +474,7 @@ namespace EA_DB_Editor
             Clipboard.SetText(s);
         }
 
-        public List<string> ReadUpsets()
+        public List<UpsetAlert> ReadUpsets()
         {
             return TableUtility.ReportBadUpsets();
         }

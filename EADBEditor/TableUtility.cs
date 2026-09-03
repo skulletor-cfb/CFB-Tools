@@ -5,6 +5,16 @@ using System.Security.Cryptography;
 
 namespace EA_DB_Editor
 {
+    [Serializable]
+    public class UpsetAlert
+    {
+        public string Headline { get; set; }
+
+        public int Game { get; set; }
+
+        public string Scenario { get; set; }
+    }
+
     public static class TableUtility
     {
         public static MaddenTable FindTable(string name)
@@ -47,6 +57,26 @@ namespace EA_DB_Editor
             return mr["TROV"].ToInt32();
         }
 
+        public static int WinPct(this MaddenRecord mr)
+        {
+            var win = mr.Wins();
+            var loss = mr.Losses();
+
+            if ((win + loss) == 0) return -1;
+
+            return (win * 1000) / (win + loss);
+        }   
+
+        public static int Wins(this MaddenRecord mr)
+        {
+            return mr["TSWI"].ToInt32();
+        }
+
+        public static int Losses(this MaddenRecord mr)
+        {
+            return mr["TSLO"].ToInt32();
+        }
+
         public static int AwayScore(this MaddenRecord mr)
         {
             return mr["GASC"].ToInt32();
@@ -62,32 +92,44 @@ namespace EA_DB_Editor
             return mr["TGID"].ToInt32();
         }
 
+        public static int GameNumber(this MaddenRecord mr)
+        {
+            return mr["SGNM"].ToInt32();
+        }
+
         public static string DisplayName(this Dictionary<int, MaddenRecord> dict, int tgid)
         {
             var team = dict[tgid];
-            return $"#{team.MediaPollRanking()} {team.TeamName()}";
+            var ranking = team.MediaPollRanking();
+            var rankingField = ranking <= 25 ? $"#{ranking} " : string.Empty;
+            return $"{rankingField}{team.TeamName()}";
         }
 
-        public static List<string> ReportBadUpsets()
+        public static List<UpsetAlert> ReportBadUpsets()
         {
-            var result = new List<string>();
+            var result = new List<UpsetAlert>();
 
             var sgin = FindTable("SGIN");
             var team = FindTable("TEAM").lRecords.ToDictionary(mr => mr.TeamId(), mr => mr);
 
             foreach (var mr in sgin.lRecords)
             {
-                var (needsFixing, winningTeam, losingTeam) = mr.EvaluateGameForStudioUpdate();
+                var (needsFixing, winningTeam, losingTeam, reason) = mr.EvaluateGameForStudioUpdate(team);
                 if (needsFixing)
                 {
-                    result.Add($"Upset: {team.DisplayName(winningTeam)} defeats {team.DisplayName(losingTeam)}");
+                    result.Add(new UpsetAlert
+                    {
+                        Headline = $"{team.DisplayName(winningTeam)} defeats {team.DisplayName(losingTeam)}",
+                        Game = mr.GameNumber(),
+                        Scenario = reason,
+                    });
                 }
             }
 
             return result;
         }
 
-        public static (bool needsFixing, int winningTeam, int losingTeam) EvaluateGameForStudioUpdate(this MaddenRecord mr)
+        public static (bool needsFixing, int winningTeam, int losingTeam, string reason) EvaluateGameForStudioUpdate(this MaddenRecord mr, Dictionary<int, MaddenRecord> teams)
         {
             var away = mr.GetAwayTeam();
             var home = mr.GetHomeTeam();
@@ -95,12 +137,13 @@ namespace EA_DB_Editor
             var homeScore = mr.HomeScore();
             var winner = 0;
             var loser = 0;
-            var result = false;
+            bool homeLost = false;
 
             if (awayScore > homeScore)
             {
                 winner = away;
                 loser = home;
+                homeLost = true;
             }
             else
             {
@@ -111,10 +154,40 @@ namespace EA_DB_Editor
             // g5 beating p5 warrants a look
             if (winner.IsG5() && loser.IsP5OrND())
             {
-
+                return (true, winner, loser, "G5");
             }
 
-            return (result, winner, loser);
+            // big overall gap
+            var winnerRating = teams[winner].TeamRating();
+            var loserRating = teams[loser].TeamRating();
+            if ((loserRating - winnerRating) >= 10)
+            {
+                return (true, winner, loser, $"OVR: {winnerRating} :: {loserRating}");
+            }
+
+            // unranked beats ranked team
+            var winnerRank = teams[winner].MediaPollRanking();
+            var loserRank = teams[loser].MediaPollRanking();
+
+            if (winnerRank > 25 && loserRank <= 25)
+            {
+                return (true, winner, loser, $"Unranked: {winnerRating} :: {loserRating}");
+            }
+
+            if (homeLost && ((loserRating - winnerRating) > 5))
+            {
+                return (true, winner, loser, $"HomeLoss: {winnerRating} :: {loserRating}");
+            }
+
+            var winnerRecord = teams[winner].WinPct();
+            var loserRecord = teams[loser].WinPct();
+
+            if (winnerRecord > 650 && loserRecord < 500)
+            {
+                return (true, winner, loser, $"WinPct: {winnerRecord} :: {loserRecord}");
+            }
+
+            return (false, winner, loser, string.Empty);
         }
 
         public static int GetHomeTeam(this MaddenRecord mr)
