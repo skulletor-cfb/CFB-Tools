@@ -972,7 +972,7 @@ namespace EA_DB_Editor
             Fix(
                 schedules, 
                 new Big12Locks(), 
-                RecruitingFixup.Big12Id,
+                TableUtility.Big12Id,
                 s =>
                 {
                     // find USF/UCF game and set it to week 14

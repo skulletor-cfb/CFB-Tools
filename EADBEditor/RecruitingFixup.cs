@@ -724,26 +724,26 @@ namespace EA_DB_Editor
 
             if (conf == TableUtility.IndId) return true;
 
-            if (conf == Big12Id)
+            if (conf == TableUtility.Big12Id)
             {
                 return current == 8;
             }
 
-            if(conf == CUSAId && count == 4)
+            if(conf == TableUtility.CUSAId && count == 4)
             {
                 return current == 6;
             }
 
-            if (conf == Big12Id && count == 16)
+            if (conf == TableUtility.Big12Id && count == 16)
                 expected = 9;
 
             if (conf == TableUtility.SECId && current == 10)
                 return true;
 
-            if (count == 12 && conf == Pac16Id)
+            if (count == 12 && conf == TableUtility.Pac16Id)
                 return current == 9;
 
-            if (count == 12 && conf == Big10Id)
+            if (count == 12 && conf == TableUtility.Big10Id)
                 return current == 9;
 
             if (count == 16 && conf == TableUtility.ACCId)
@@ -770,19 +770,19 @@ namespace EA_DB_Editor
 
         public static bool ConferenceHomeGameCount(this TeamSchedule schedule, int teamId)
         {
-            var conf = TeamAndConferences[teamId];
-            var confGames = schedule.Count(g => g != null && g.HomeTeam == teamId && teamAndConferences[g.AwayTeam] == conf);
+            var conf = TableUtility.TeamAndConferences[teamId];
+            var confGames = schedule.Count(g => g != null && g.HomeTeam == teamId && TableUtility.TeamAndConferences[g.AwayTeam] == conf);
 
-            if (conf == CUSAId)
+            if (conf == TableUtility.CUSAId)
             {
                 return confGames == 3;
             }
 
-            if (conf == Big10Id || conf == Pac16Id)
+            if (conf == TableUtility.Big10Id || conf == TableUtility.Pac16Id)
             {
                 return confGames == 4 || confGames == 5;
             }
-            if (conf == Big12Id)
+            if (conf == TableUtility.Big12Id)
             {
                 return confGames == 4 ;
             }
