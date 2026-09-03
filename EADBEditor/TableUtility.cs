@@ -1,7 +1,10 @@
-﻿using System;
+﻿using System.IO;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Security.Cryptography;
+using Newtonsoft.Json;
 
 namespace EA_DB_Editor
 {
@@ -198,6 +201,23 @@ namespace EA_DB_Editor
         public static int GetAwayTeam(this MaddenRecord mr)
         {
             return mr["GATG"].ToInt32();
+        }
+
+        public static void FixSgin(string upsetsFile)
+        {
+            var json = File.ReadAllText(upsetsFile);
+            var upsets = JsonConvert.DeserializeObject<List<UpsetAlert>>(json);
+            var hash = new HashSet<int>(upsets.Select(u => u.Game));
+
+            var sgin = FindTable("SGIN");
+
+            foreach (var mr in sgin.lRecords)
+            {
+                if (hash.Contains(mr.GameNumber()))
+                {
+                    mr["SGNM"] = "127";
+                }
+            }
         }
 
         public static void SetupForStudioUpdates()

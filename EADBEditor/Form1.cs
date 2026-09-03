@@ -4272,6 +4272,16 @@ namespace EA_DB_Editor
         {
             TableUtility.SetupForStudioUpdates();
         }
+
+        private void fixSGINToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FileDialog fd = new OpenFileDialog();
+
+            if (fd.ShowDialog() == DialogResult.OK)
+            {
+                TableUtility.FixSgin(fd.FileName);
+            }
+        }
     }
 
     [DataContract]
