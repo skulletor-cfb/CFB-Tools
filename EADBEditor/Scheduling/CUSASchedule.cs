@@ -40,7 +40,7 @@ namespace EA_DB_Editor
 
         public static void ProcessCUSASchedule(Dictionary<int, TeamSchedule> schedule)
         {
-            schedule.ProcessSchedule(ScenarioForSeason, CUSAConferenceSchedule, RecruitingFixup.CUSAId, RecruitingFixup.CUSA);
+            schedule.ProcessSchedule(ScenarioForSeason, CUSAConferenceSchedule, TableUtility.CUSAId, TableUtility.CUSA);
         }
 
 
@@ -48,7 +48,7 @@ namespace EA_DB_Editor
         {
             var idx = (Form1.DynastyYear - 2550) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(9, RecruitingFixup.CUSAId, "CUSA");
+            result = result.Verify(9, TableUtility.CUSAId, "CUSA");
             CUSAConferenceSchedule = result.BuildHashSet();
             return result;
         }

@@ -28,7 +28,7 @@ namespace EA_DB_Editor
 
         public static void ProcessAmericanSchedule(Dictionary<int, TeamSchedule> schedule)
         {
-             schedule.ProcessSchedule(ScenarioForSeason, AmericanConferenceSchedule, RecruitingFixup.AmericanId, RecruitingFixup.American);
+             schedule.ProcessSchedule(ScenarioForSeason, AmericanConferenceSchedule, TableUtility.AmericanId, TableUtility.American);
         }
 
 
@@ -45,7 +45,7 @@ namespace EA_DB_Editor
                     break;
             }
 
-            result = result.Verify(12, RecruitingFixup.AmericanId, "American");
+            result = result.Verify(12, TableUtility.AmericanId, "American");
             AmericanConferenceSchedule = result.BuildHashSet();
             return result;
         }

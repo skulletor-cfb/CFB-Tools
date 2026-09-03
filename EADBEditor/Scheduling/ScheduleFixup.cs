@@ -121,7 +121,7 @@ namespace EA_DB_Editor
 
         public static bool IsIndependentBYU(this int byuId)
         {
-            return byuId == 16 && RecruitingFixup.TeamAndConferences[byuId] == RecruitingFixup.IndId;
+            return byuId == 16 && TableUtility.TeamAndConferences[byuId] == TableUtility.IndId;
         }
 
         public static bool RanG5Fixup = false;
@@ -182,11 +182,11 @@ namespace EA_DB_Editor
                 };
 
                 // if this is an ACC Game we need to have our special ACC schedule
-                if (game.IsConferenceGame() && RecruitingFixup.TeamAndConferences[homeTeam] == RecruitingFixup.ACCId && game.ShouldFixAccGame())
+                if (game.IsConferenceGame() && TableUtility.TeamAndConferences[homeTeam] == TableUtility.ACCId && game.ShouldFixAccGame())
                 {
                     game.SwapHomeAwayTeam(mr);
                 }
-                else if (false && game.IsConferenceGame() && RecruitingFixup.TeamAndConferences[homeTeam] == RecruitingFixup.AmericanId && game.ShouldFixSunBeltGame())
+                else if (false && game.IsConferenceGame() && TableUtility.TeamAndConferences[homeTeam] == TableUtility .AmericanId && game.ShouldFixSunBeltGame())
                 {
                     game.SwapHomeAwayTeam(mr);
                 }
@@ -197,7 +197,7 @@ namespace EA_DB_Editor
                     game.SwapHomeAwayTeam(mr);
                 }
 #endif
-                else if (false && game.IsConferenceGame() && RecruitingFixup.TeamAndConferences[homeTeam] == RecruitingFixup.Big12Id)
+                else if (false && game.IsConferenceGame() && TableUtility.TeamAndConferences[homeTeam] == TableUtility.Big12Id)
                 {
                     // FINDME : BIG 12 HOME/AWAY FIXES
                     bool doSwitch = false;
@@ -447,7 +447,7 @@ namespace EA_DB_Editor
                 sb.AppendLine(",,,,,,,,,,,,,,,,,,");
 
 
-                foreach (var tsch in teamSchedule.OrderBy(kvp => RecruitingFixup.TeamAndConferences[kvp.Key]).ThenBy(kvp => RecruitingFixup.TeamNames[kvp.Key]))
+                foreach (var tsch in teamSchedule.OrderBy(kvp => TableUtility.TeamAndConferences[kvp.Key]).ThenBy(kvp => RecruitingFixup.TeamNames[kvp.Key]))
                 {
                     var prefix = string.Empty;
 
@@ -524,7 +524,7 @@ namespace EA_DB_Editor
                         notes += "No FCS.  ";
                     }
 
-                    if (fcsOpp >= 1 && tsch.Key.IsG5() && RecruitingFixup.TeamAndConferences[tsch.Key] != RecruitingFixup.AmericanId && !RanG5Fixup)
+                    if (fcsOpp >= 1 && tsch.Key.IsG5() && TableUtility.TeamAndConferences[tsch.Key] != TableUtility.AmericanId && !RanG5Fixup)
                     {
                         notes += "G5-FCS MATCHUP.  ";
                     }
@@ -700,7 +700,7 @@ namespace EA_DB_Editor
 
         static bool InTheSameConference(int a, int b)
         {
-            return RecruitingFixup.TeamAndConferences[a] == RecruitingFixup.TeamAndConferences[b];
+            return TableUtility.TeamAndConferences[a] == TableUtility.TeamAndConferences[b];
         }
 
         static int FCSGames = 0;
@@ -2320,7 +2320,7 @@ namespace EA_DB_Editor
             {
                 this.Opponents.Add(opp);
 
-                if (RecruitingFixup.IsP5(opp))
+                if (opp.IsP5())
                     this.CurrentPower5++;
             }
         }
@@ -2329,7 +2329,7 @@ namespace EA_DB_Editor
         {
             get
             {
-                return this.Opponents.Where(opp => RecruitingFixup.IsP5(opp)).Count();
+                return this.Opponents.Where(opp => opp.IsP5()).Count();
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using EA_DB_Editor;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -116,6 +117,12 @@ namespace RefreshRunner
         [STAThread]
         static void Main(string[] args)
         {
+            if (args.Length == 1 && args[0] == "eval")
+            {
+                Eval();
+                return;
+            }
+
             if (args.Length == 1 && args[0] == "dump")
             {
                 Dump();
@@ -320,19 +327,10 @@ namespace RefreshRunner
 
         // dont check this in
         static string accessKey = "no";
+        const string outputDirectory = @"d:\dynastyTables";
 
-        static void Dump()
+        static FileInfo NewestSave()
         {
-            const string saveFiles = @"c:\rpcs3\dev_hdd0\home\00000001\savedata";
-            const string outputDirectory = @"d:\dynastyTables";
-            const string teamFile = outputDirectory + @"\team.csv";
-            const string schdFile = outputDirectory + @"\schd.csv";
-
-            // get the latest file
-            var dir = new DirectoryInfo(saveFiles);
-            var files = dir.GetFiles("USR-DATA", SearchOption.AllDirectories);
-            var newest = files.OrderByDescending(f => f.LastWriteTime).First();
-
             // setup output
             if (Directory.Exists(outputDirectory))
             {
@@ -340,6 +338,38 @@ namespace RefreshRunner
             }
 
             Directory.CreateDirectory(outputDirectory);
+
+            const string saveFiles = @"c:\rpcs3\dev_hdd0\home\00000001\savedata";
+            // get the latest file
+            var dir = new DirectoryInfo(saveFiles);
+            var files = dir.GetFiles("USR-DATA", SearchOption.AllDirectories);
+            var newest = files.OrderByDescending(f => f.LastWriteTime).First();
+            return newest;
+        }
+
+        static void Eval()
+        {
+            const string upsetsFile = outputDirectory + @"\upsets.json";
+            // setup file reading
+            var newest = NewestSave();
+            var appDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString());
+            var form = CreateForm(appDomain);
+            form.OpenDynastyFile(newest.FullName);
+            var list = form.ReadUpsets();
+            var sb = new StringBuilder();
+            list.ForEach(s => sb.AppendLine(s.Headline));
+            Console.WriteLine(sb);
+
+            var json  = JsonConvert.SerializeObject(list, Formatting.Indented);
+            File.WriteAllText(upsetsFile, json);
+            Console.WriteLine(upsetsFile);
+        }
+
+        static void Dump()
+        {
+            const string teamFile = outputDirectory + @"\team.csv";
+            const string schdFile = outputDirectory + @"\schd.csv";
+            var newest = NewestSave();
 
             // setup file reading
             var appDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString());
