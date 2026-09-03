@@ -46,7 +46,7 @@ namespace EA_DB_Editor
 
         public static void ProcessSECSchedule(Dictionary<int, TeamSchedule> schedule)
         {
-            schedule.ProcessSchedule(ScenarioForSeason, SECConfSchedule, RecruitingFixup.SECId, RecruitingFixup.SEC);
+            schedule.ProcessSchedule(ScenarioForSeason, SECConfSchedule, TableUtility.SECId, TableUtility.SEC);
         }
 
 
@@ -56,7 +56,7 @@ namespace EA_DB_Editor
             var idx = (Form1.DynastyYear - 2548) % creatorsToUse.Length;
 
             var result = creatorsToUse[idx]();
-            result = result.Verify(14, RecruitingFixup.SECId, "SEC");
+            result = result.Verify(14, TableUtility.SECId, "SEC");
             SECConfSchedule = result.BuildHashSet();
             return result;
         }

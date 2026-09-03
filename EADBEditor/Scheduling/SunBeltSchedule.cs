@@ -47,7 +47,7 @@ namespace EA_DB_Editor
 
         public static void ProcessSunbeltSchedule(Dictionary<int, TeamSchedule> schedule)
         {
-            schedule.ProcessSchedule(ScenarioForSeason, SunbeltConferenceSchedule, RecruitingFixup.SBCId, RecruitingFixup.SBC);
+            schedule.ProcessSchedule(ScenarioForSeason, SunbeltConferenceSchedule, TableUtility.SBCId, TableUtility.SBC);
         }
 
 
@@ -70,7 +70,7 @@ namespace EA_DB_Editor
                     break;
             }
 
-            result = result.Verify(14, RecruitingFixup.SBCId, "SunBelt");
+            result = result.Verify(14, TableUtility.SBCId, "SunBelt");
             SunbeltConferenceSchedule = result.BuildHashSet();
             return result;
         }

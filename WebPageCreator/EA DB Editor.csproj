@@ -149,6 +149,8 @@
     <Compile Include="Recruiting.cs" />
     <Compile Include="Schedule.cs" />
     <Compile Include="Seasons.cs" />
+<Compile Include="..\EADBEditor\TableUtility.cs" />
+
     <Compile Include="TeamArticles.cs" />
     <Compile Include="TeamDepthChart.cs" />
     <Compile Include="TeamDraftHistory.cs" />

@@ -46,11 +46,6 @@ namespace EA_DB_Editor
             return mr["POVR"].ToInt32();
         }
 
-        public static int TeamId(this MaddenRecord mr)
-        {
-            return mr["TGID"].ToInt32();
-        }
-
         public static int RightSleeve(this MaddenRecord mr)
         {
             return mr["PLSR"].ToInt32();

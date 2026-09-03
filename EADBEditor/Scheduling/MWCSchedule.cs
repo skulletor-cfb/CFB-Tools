@@ -41,7 +41,7 @@ namespace EA_DB_Editor
 
         public static void ProcessMWCSchedule(Dictionary<int, TeamSchedule> schedule)
         {
-            schedule.ProcessSchedule(ScenarioForSeason, MWCConferenceSchedule, RecruitingFixup.MWCId, RecruitingFixup.MWC);
+            schedule.ProcessSchedule(ScenarioForSeason, MWCConferenceSchedule, TableUtility.MWCId, TableUtility.MWC);
         }
 
 
@@ -50,7 +50,7 @@ namespace EA_DB_Editor
         {
             var idx = (Form1.DynastyYear - 2545) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(12, RecruitingFixup.MWCId, "MWC");
+            result = result.Verify(12, TableUtility.MWCId, "MWC");
             MWCConferenceSchedule = result.BuildHashSet();
             return result;
         }

@@ -40,7 +40,7 @@ namespace EA_DB_Editor
 
         public static void ProcessMACSchedule(Dictionary<int, TeamSchedule> schedule)
         {
-            schedule.ProcessSchedule(ScenarioForSeason, MACConferenceSchedule, RecruitingFixup.MACId, RecruitingFixup.MAC);
+            schedule.ProcessSchedule(ScenarioForSeason, MACConferenceSchedule, TableUtility.MACId, TableUtility.MAC);
         }
 
 
@@ -48,7 +48,7 @@ namespace EA_DB_Editor
         {
             var idx = (Form1.DynastyYear - 2491) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(12, RecruitingFixup.MACId, "MAC");
+            result = result.Verify(12, TableUtility.MACId, "MAC");
             MACConferenceSchedule = result.BuildHashSet();
             return result;
         }

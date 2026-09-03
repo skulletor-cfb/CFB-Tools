@@ -30,7 +30,7 @@ namespace EA_DB_Editor
                     {
                         var swapee = games[j];
 
-                        if (swapee.MustReplace && RecruitingFixup.TeamAndConferences[game.HomeTeam] != RecruitingFixup.TeamAndConferences[swapee.HomeTeam])
+                        if (swapee.MustReplace && TableUtility.TeamAndConferences[game.HomeTeam] != TableUtility.TeamAndConferences[swapee.HomeTeam])
                         {
                             ScheduleFixup.SwapTeams(game, swapee);
                             schedules[game.AwayTeam][game.WeekIndex] = game;
@@ -768,7 +768,7 @@ namespace EA_DB_Editor
 
         public static void Fix(Dictionary<int, TeamSchedule> schedules, ConferenceLocks confLocks, int confId, Action<Dictionary<int, TeamSchedule>> special = null)
         {
-            var teams = RecruitingFixup.TeamAndConferences.Where(kvp => kvp.Value == confId).Select(kvp => kvp.Key).ToArray();
+            var teams = TableUtility.TeamAndConferences.Where(kvp => kvp.Value == confId).Select(kvp => kvp.Key).ToArray();
             Shuffle(teams);
             var allConfGames = new Dictionary<long, PreseasonScheduledGame>();
 
@@ -915,22 +915,22 @@ namespace EA_DB_Editor
 
         public static void SunBeltFix(Dictionary<int, TeamSchedule> schedules)
         {
-            Fix(schedules, new SunBeltLocks(), RecruitingFixup.SBCId);
+            Fix(schedules, new SunBeltLocks(), TableUtility.SBCId);
         }
 
         public static void MWCFix(Dictionary<int, TeamSchedule> schedules)
         {
-            Fix(schedules, new MWCLocks(), RecruitingFixup.MWCId);
+            Fix(schedules, new MWCLocks(), TableUtility.MWCId);
         }
 
         public static void MACFix(Dictionary<int, TeamSchedule> schedules)
         {
-            Fix(schedules, new MACLocks(), RecruitingFixup.MACId);
+            Fix(schedules, new MACLocks(), TableUtility.MACId);
         }
 
         public static void CUSAFix(Dictionary<int, TeamSchedule> schedules)
         {
-            Fix(schedules, new CUSALocks(), RecruitingFixup.CUSAId);
+            Fix(schedules, new CUSALocks(), TableUtility.CUSAId);
 
             /*
             var dict = new Dictionary<int, int[]>()
@@ -959,12 +959,12 @@ namespace EA_DB_Editor
 
         public static void AmericanFix(Dictionary<int, TeamSchedule> schedules)
         {
-            Fix(schedules, new AmericanLocks(), RecruitingFixup.AmericanId);
+            Fix(schedules, new AmericanLocks(), TableUtility.AmericanId);
         }
 
         public static void Big10Fix(Dictionary<int, TeamSchedule> schedules)
         {
-            Fix(schedules, new Big10Locks(), RecruitingFixup.Big10Id);
+            Fix(schedules, new Big10Locks(), TableUtility.Big10Id);
         }
 
         public static void Big12Fix(Dictionary<int, TeamSchedule> schedules)
@@ -986,7 +986,7 @@ namespace EA_DB_Editor
 
         public static void SecFix(Dictionary<int, TeamSchedule> schedules)
         {
-            Fix(schedules, new SecLocks(), RecruitingFixup.SECId);
+            Fix(schedules, new SecLocks(), TableUtility.SECId);
         }
 
         public static void AccFix(Dictionary<int, TeamSchedule> schedules)
@@ -996,7 +996,7 @@ namespace EA_DB_Editor
             Fix(
                 schedules,
                 accLocks,
-                RecruitingFixup.ACCId,
+                TableUtility.ACCId,
                 s =>
                 {
                     // find UL/UK game and set it to week 13
@@ -1010,7 +1010,7 @@ namespace EA_DB_Editor
 
         public static void Pac12Fix(Dictionary<int, TeamSchedule> schedules)
         {
-            Fix(schedules, new Pac12Locks(), RecruitingFixup.Pac16Id);
+            Fix(schedules, new Pac12Locks(), TableUtility.Pac16Id);
         }
 
         private static HashSet<PreseasonScheduledGame> RejectedOnce = new HashSet<PreseasonScheduledGame>();
@@ -1062,8 +1062,8 @@ namespace EA_DB_Editor
                 {
                     RejectedOnce.Add(game);
 
-                    var conf = RecruitingFixup.TeamAndConferences[awayTeam];
-                    var findLate = conf == RecruitingFixup.Pac16Id || conf == RecruitingFixup.Big10Id || conf == RecruitingFixup.MACId || conf == RecruitingFixup.SBCId || conf == RecruitingFixup.CUSAId || conf == RecruitingFixup.AmericanId || conf == RecruitingFixup.MWCId;
+                    var conf = TableUtility.TeamAndConferences[awayTeam];
+                    var findLate = conf == TableUtility.Pac16Id || conf == TableUtility.Big10Id || conf == TableUtility.MACId || conf == TableUtility.SBCId || conf == TableUtility.CUSAId || conf == TableUtility.AmericanId || conf == TableUtility.MWCId;
 
                     var finalTry = FindCommonOpenWeek(homeSchedule.FindOpenWeeks(week), awaySchedule.FindOpenWeeks(week), findLate, out var nextOpen) ? nextOpen : week;
                     return AssignGame(game, schedules, finalTry);
@@ -1108,8 +1108,8 @@ namespace EA_DB_Editor
                 {
                     RejectedOnce.Add(game);
 
-                    var conf = RecruitingFixup.TeamAndConferences[awayTeam];
-                    var findLate = conf == RecruitingFixup.Pac16Id || conf == RecruitingFixup.Big10Id || conf == RecruitingFixup.MACId || conf == RecruitingFixup.SBCId || conf == RecruitingFixup.CUSAId || conf == RecruitingFixup.AmericanId || conf == RecruitingFixup.MWCId;
+                    var conf = TableUtility.TeamAndConferences[awayTeam];
+                    var findLate = conf == TableUtility.Pac16Id || conf == TableUtility.Big10Id || conf == TableUtility.MACId || conf == TableUtility.SBCId || conf == TableUtility.CUSAId || conf == TableUtility.AmericanId || conf == TableUtility.MWCId;
 
                     var finalTry = FindCommonOpenWeek(homeSchedule.FindOpenWeeks(week), awaySchedule.FindOpenWeeks(week), findLate, out var nextOpen) ? nextOpen : week;
                     return AssignGame(game, schedules, finalTry);
@@ -1266,8 +1266,8 @@ namespace EA_DB_Editor
 
         public bool IsConferenceGame()
         {
-            return RecruitingFixup.TeamAndConferences[AwayTeam] == RecruitingFixup.TeamAndConferences[HomeTeam] &&
-                RecruitingFixup.TeamAndConferences[HomeTeam] != 17;
+            return TableUtility.TeamAndConferences[AwayTeam] == TableUtility.TeamAndConferences[HomeTeam] &&
+                TableUtility.TeamAndConferences[HomeTeam] != 17;
         }
 
         public int? ConferenceGameId()
@@ -1277,13 +1277,13 @@ namespace EA_DB_Editor
                 return null;
             }
 
-            return RecruitingFixup.TeamAndConferences[HomeTeam];
+            return TableUtility.TeamAndConferences[HomeTeam];
         }
 
         public bool IsAmericanConferenceGame()
         {
             var conf = this.ConferenceGameId();
-            return conf.HasValue && conf.Value == RecruitingFixup.AmericanId;
+            return conf.HasValue && conf.Value == TableUtility.AmericanId;
         }
 
         public override bool Equals(object obj)

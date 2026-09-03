@@ -321,7 +321,7 @@ namespace EA_DB_Editor
 
             for (int i = 6; i >= 1; i--)
             {
-                var teams = RecruitingFixup.PrestigeMap.Where(kvp => kvp.Value == i).Select(kvp => kvp.Key).ToArray();
+                var teams = TableUtility.PrestigeMap.Where(kvp => kvp.Value == i).Select(kvp => kvp.Key).ToArray();
                 teams.Shuffle();
                 result.AddRange(teams);
             }
