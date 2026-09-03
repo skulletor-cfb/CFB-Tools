@@ -4262,6 +4262,16 @@ namespace EA_DB_Editor
             TransferPortal.BuildTeamRosterPicture();
         }
 
+        /// <summary>
+        /// we want to have studio updates
+        /// in preseason make sure all non-fcs games have a studio update
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void igniteScheduleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TableUtility.SetupForStudioUpdates();
+        }
     }
 
     [DataContract]

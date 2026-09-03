@@ -136,6 +136,7 @@
     <Compile Include="Scheduling\ScheduleReader.cs" />
     <Compile Include="Scheduling\ScheduleUtility.cs" />
     <Compile Include="Scheduling\SunBeltSchedule.cs" />
+    <Compile Include="TableUtility.cs" />
     <Compile Include="TeamEntry.cs">
       <SubType>Form</SubType>
     </Compile>
