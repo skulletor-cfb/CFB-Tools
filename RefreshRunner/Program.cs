@@ -1,6 +1,7 @@
 ﻿using EA_DB_Editor;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -350,19 +351,36 @@ namespace RefreshRunner
         static void Eval()
         {
             const string upsetsFile = outputDirectory + @"\upsets.json";
+            const string allFile = outputDirectory + @"\results.json";
             // setup file reading
             var newest = NewestSave();
             var appDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString());
             var form = CreateForm(appDomain);
             form.OpenDynastyFile(newest.FullName);
             var list = form.ReadUpsets();
-            var sb = new StringBuilder();
-            list.ForEach(s => sb.AppendLine(s.Headline));
-            Console.WriteLine(sb);
+            WriteFile(list, upsetsFile, true);
+            WriteFile(list, allFile, false);
+        }
 
-            var json  = JsonConvert.SerializeObject(list, Formatting.Indented);
-            File.WriteAllText(upsetsFile, json);
-            Console.WriteLine(upsetsFile);
+        static void WriteFile( List<UpsetAlert> alerts, string file, bool upsets)
+        {
+            var sb = new StringBuilder();
+            foreach (var alert in alerts)
+            {
+                if (alert.Upset == upsets)
+                {
+                    sb.AppendLine(alert.Headline);
+                }
+            }
+
+            if (upsets)
+            {
+                Console.WriteLine(sb);
+            }
+
+            var json = JsonConvert.SerializeObject(alerts.Where(a => a.Upset == upsets).ToArray(), Formatting.Indented);
+            File.WriteAllText(file, json);
+            Console.WriteLine(file);
         }
 
         static void Dump()
