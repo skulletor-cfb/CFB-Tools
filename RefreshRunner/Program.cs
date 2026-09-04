@@ -118,6 +118,12 @@ namespace RefreshRunner
         [STAThread]
         static void Main(string[] args)
         {
+            if (args.Length == 2 && args[0] == "cal")
+            {
+                Calendar(Int32.Parse(args[1]));
+                return;
+            }
+
             if (args.Length == 1 && args[0] == "eval")
             {
                 Eval();
@@ -346,6 +352,53 @@ namespace RefreshRunner
             var files = dir.GetFiles("USR-DATA", SearchOption.AllDirectories);
             var newest = files.OrderByDescending(f => f.LastWriteTime).First();
             return newest;
+        }
+
+        static void Calendar(int year)
+        {
+            DateTime GetThanksgivingDate()
+            {
+
+                for (int i = 22; i <= 30; i++)
+                {
+                    var testDate = new DateTime(year, 11, i, 0, 0, 0);
+                    if (testDate.DayOfWeek == DayOfWeek.Thursday)
+                    {
+                        return testDate;
+                    }
+                }
+
+                return default;
+            }
+
+            DateTime GetLaborDay()
+            {
+
+                for (int i = 1; i <= 7; i++)
+                {
+                    var testDate = new DateTime(year, 9, i, 0, 0, 0);
+                    if (testDate.DayOfWeek == DayOfWeek.Monday)
+                    {
+                        return testDate;
+                    }
+                }
+
+                return default;
+            }
+
+            var laborDAy = GetLaborDay();
+            Console.WriteLine($"Labor Day is on {laborDAy.ToShortDateString()}");
+            var thanksgiving = GetThanksgivingDate();
+            var lastSaturday = thanksgiving.AddDays(2);
+            Console.WriteLine($"Thanksgiving is on {thanksgiving.ToShortDateString()}");
+            var firstSaturday = lastSaturday.AddDays(-7 * 13);
+            var currWeek = firstSaturday;
+
+            for (int i = 1; i <= 14; i++)
+            {
+                Console.WriteLine($"Week {i}: {currWeek.ToShortDateString()}");
+                currWeek = currWeek.AddDays(7);
+            }
         }
 
         static void Eval()
