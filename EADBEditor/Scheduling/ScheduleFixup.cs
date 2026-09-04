@@ -1366,10 +1366,12 @@ namespace EA_DB_Editor
                 query["SGNM"] = gameNum.ToString();
                 query["SEWN"] = week.ToString();
 
+#if false // we have a way to control this now
                 // turns off rece davis feature
                 gameRecord["GFHU"] = "1";
                 gameRecord["GFFU"] = "1";
                 gameRecord["GMFX"] = "0";
+#endif
 
                 if (week > 13)
                     continue;
