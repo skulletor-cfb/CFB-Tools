@@ -487,6 +487,14 @@ namespace EA_DB_Editor
 
             if (System.Windows.Forms.DialogResult.OK == openFileDialog.ShowDialog())
             {
+                const string backupDir = @".\backups";
+                // make a backup of the file in working directory
+                if (Directory.Exists(backupDir) == false)
+                {
+                    Directory.CreateDirectory(backupDir);
+                }
+
+                File.Copy(openFileDialog.FileName, $@"{backupDir}\{openFileDialog.SafeFileName}.backup", true);
                 Cursor.Current = Cursors.WaitCursor;
                 maddenDB = new MaddenDatabase(openFileDialog.FileName);
 
