@@ -1905,10 +1905,10 @@ namespace EA_DB_Editor
                             names,
                             firstList,
                             lastList,
-                            60,
-                            60);
+                            50,
+                            50);
                     }
-                    else
+                    else if(false)
                     {
                         ChangeName(face, recruit, wfnDict, wlnDict, names, names.WFN, names.WLN, 20, 20);
                     }
