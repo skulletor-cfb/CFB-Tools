@@ -487,6 +487,14 @@ namespace EA_DB_Editor
 
             if (System.Windows.Forms.DialogResult.OK == openFileDialog.ShowDialog())
             {
+                const string backupDir = @".\backups";
+                // make a backup of the file in working directory
+                if (Directory.Exists(backupDir) == false)
+                {
+                    Directory.CreateDirectory(backupDir);
+                }
+
+                File.Copy(openFileDialog.FileName, $@"{backupDir}\{openFileDialog.SafeFileName}.backup", true);
                 Cursor.Current = Cursors.WaitCursor;
                 maddenDB = new MaddenDatabase(openFileDialog.FileName);
 
@@ -1897,12 +1905,12 @@ namespace EA_DB_Editor
                             names,
                             firstList,
                             lastList,
-                            70,
-                            70);
+                            60,
+                            60);
                     }
                     else
                     {
-                        ChangeName(face, recruit, wfnDict, wlnDict, names, names.WFN, names.WLN, 30, 30);
+                        ChangeName(face, recruit, wfnDict, wlnDict, names, names.WFN, names.WLN, 20, 20);
                     }
                 }
 
@@ -2098,25 +2106,6 @@ namespace EA_DB_Editor
             }
 
             return i % 100;
-        }
-
-        /// <summary>
-        /// returns a number from 0 to range-1
-        /// RAND % range
-        /// </summary>
-        /// <param name="range"></param>
-        /// <returns></returns>
-        public static int RAND(int range)
-        {
-            var guid = Guid.NewGuid().ToByteArray().Take(4).ToArray();
-            var i = BitConverter.ToInt32(guid, 0);
-
-            if (i < 0)
-            {
-                i &= 0x7fffffff;
-            }
-
-            return i % range;
         }
 
 
@@ -2535,7 +2524,7 @@ namespace EA_DB_Editor
                             .Where(pb => !RarePlaybooks.Contains(pb))
                             .ToArray();
 
-                        playbook = choices[RAND(choices.Length)];
+                        playbook = choices[choices.Length.RAND()];
                         record["CPID"] = playbook.ToString();
                     }
                 }
@@ -3397,8 +3386,9 @@ namespace EA_DB_Editor
             {
                 var schd = MaddenTable.FindTable(maddenDB.lTables, "SCHD");
                 var currentSeason = schd.lRecords.Where(r => r["SEYR"].ToInt32() == 0).First()["SESI"];
+                var gamesToAdd = Math.Max(entry.TeamId, 23); // we need at least 23 games added to clean up acc/b12 schedules
 
-                for (int i = 0; i < entry.TeamId; i++)
+                for (int i = 0; i < gamesToAdd; i++)
                 {
                     var week = i % 13;
 
@@ -3487,8 +3477,8 @@ namespace EA_DB_Editor
             {
                 var player = players.lRecords.Where(r => r["PGID"].ToInt32() == i).Single();
 
-                var fidx = RAND(fn.Length);
-                var lidx = RAND(ln.Length);
+                var fidx = fn.Length.RAND();
+                var lidx = ln.Length.RAND();
 
                 player["PFNA"] = fn[fidx];
                 player["PLNA"] = ln[lidx];
@@ -4247,7 +4237,7 @@ namespace EA_DB_Editor
 
                 if (!TeamsToExclude.Contains(teamId))
                 {
-                    var value = RAND(3);
+                    var value = 3.RAND();
                     mr["PLSO"] = value.ToString();
                 }
             }

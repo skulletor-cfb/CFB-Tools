@@ -1,6 +1,7 @@
 ﻿using EA_DB_Editor;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -117,6 +118,12 @@ namespace RefreshRunner
         [STAThread]
         static void Main(string[] args)
         {
+            if (args.Length == 2 && args[0] == "cal")
+            {
+                Calendar(Int32.Parse(args[1]));
+                return;
+            }
+
             if (args.Length == 1 && args[0] == "eval")
             {
                 Eval();
@@ -347,22 +354,126 @@ namespace RefreshRunner
             return newest;
         }
 
+        static void Calendar(int year)
+        {
+            DateTime GetThanksgivingDate()
+            {
+
+                for (int i = 22; i <= 30; i++)
+                {
+                    var testDate = new DateTime(year, 11, i, 0, 0, 0);
+                    if (testDate.DayOfWeek == DayOfWeek.Thursday)
+                    {
+                        return testDate;
+                    }
+                }
+
+                return default;
+            }
+
+            DateTime GetLaborDay()
+            {
+
+                for (int i = 1; i <= 7; i++)
+                {
+                    var testDate = new DateTime(year, 9, i, 0, 0, 0);
+                    if (testDate.DayOfWeek == DayOfWeek.Monday)
+                    {
+                        return testDate;
+                    }
+                }
+
+                return default;
+            }
+
+            DateTime GetThirdSaturdayInOctober()
+            {
+                for (int i = 15; i <= 22; i++)
+                {
+                    var testDate = new DateTime(year, 10, i, 0, 0, 0);
+                    if (testDate.DayOfWeek == DayOfWeek.Saturday)
+                    {
+                        return testDate;
+                    }
+                }
+
+                return default;
+            }
+
+            DateTime GetTexasStateFairStartDate()
+            {
+                // last friday in september
+
+                    for (int i = 30; i >= 20; i--)
+                    {
+                        var testDate = new DateTime(year, 9, i, 0, 0, 0);
+                        if (testDate.DayOfWeek == DayOfWeek.Friday)
+                        {
+                            return testDate;
+                        }
+                    }
+
+                    return default;
+            }
+
+            var thirdSaturday = GetThirdSaturdayInOctober();
+            var laborDAy = GetLaborDay();
+            var thanksgiving = GetThanksgivingDate();
+            var lastSaturday = thanksgiving.AddDays(2);
+            var texStateFair = GetTexasStateFairStartDate();
+            var redRiverShowdown = texStateFair.AddDays(15);
+            if(redRiverShowdown.Day >= 15)
+            {
+                redRiverShowdown = redRiverShowdown.AddDays(-7);
+            }
+            Console.WriteLine($"Labor Day is on {laborDAy.ToShortDateString()}");
+            Console.WriteLine($"Texas State Fair starts on {texStateFair.ToShortDateString()}");
+            Console.WriteLine($"Red River Showdown is on {redRiverShowdown.ToShortDateString()}");
+            Console.WriteLine($"Third Saturday in October is on {thirdSaturday.ToShortDateString()}");
+            Console.WriteLine($"Thanksgiving is on {thanksgiving.ToShortDateString()}");
+            var firstSaturday = lastSaturday.AddDays(-7 * 13);
+            var currWeek = firstSaturday;
+
+            for (int i = 1; i <= 14; i++)
+            {
+                Console.WriteLine($"Week {i}: {currWeek.ToShortDateString()}");
+                currWeek = currWeek.AddDays(7);
+            }
+        }
+
         static void Eval()
         {
             const string upsetsFile = outputDirectory + @"\upsets.json";
+            const string allFile = outputDirectory + @"\results.json";
             // setup file reading
             var newest = NewestSave();
             var appDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString());
             var form = CreateForm(appDomain);
             form.OpenDynastyFile(newest.FullName);
             var list = form.ReadUpsets();
-            var sb = new StringBuilder();
-            list.ForEach(s => sb.AppendLine(s.Headline));
-            Console.WriteLine(sb);
+            WriteFile(list, upsetsFile, true);
+            WriteFile(list, allFile, false);
+        }
 
-            var json  = JsonConvert.SerializeObject(list, Formatting.Indented);
-            File.WriteAllText(upsetsFile, json);
-            Console.WriteLine(upsetsFile);
+        static void WriteFile( List<UpsetAlert> alerts, string file, bool upsets)
+        {
+            var sb = new StringBuilder();
+            foreach (var alert in alerts)
+            {
+                if (alert.Upset == upsets)
+                {
+                    sb.AppendLine(alert.Headline);
+                }
+            }
+
+            if (upsets)
+            {
+                Console.WriteLine(sb);
+            }
+
+            var json = JsonConvert.SerializeObject(alerts.Where(a => a.Upset == upsets).ToArray(), Formatting.Indented);
+            File.WriteAllText(file, json);
+            Console.WriteLine(file);
         }
 
         static void Dump()

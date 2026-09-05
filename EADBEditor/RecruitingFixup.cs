@@ -63,7 +63,7 @@ namespace EA_DB_Editor
     public static class RecruitingFixup
     {
         // should be -1 if we haven't added any CAPs
-        public static int DontChange = 5;
+        public static int DontChange = 10;
         const int P5Cutoff = 300;
 
         public static Random RAND = new Random(BitConverter.ToInt32(Guid.NewGuid().ToByteArray().Take(4).ToArray(), 0));
@@ -482,6 +482,25 @@ namespace EA_DB_Editor
         static int[] skillPlayers = { 1, 13, 14, 15, 16, 17, 18 };
         static int[] linePlayers = { 5, 6, 7, 8, 9, 10, 11, 12 };
 
+        static MaddenRecord FindRecruit(MaddenTable pitchTable, int recruitId)
+        {
+            foreach (var recruit in pitchTable.lRecords)
+            {
+                foreach (var entry in recruit.lEntries)
+                {
+                    if (entry.field.Abbreviation == "PRSI")
+                    {
+                        if (Int32.Parse(entry.Data) == recruitId)
+                        {
+                            return recruit;
+                        }
+                    }
+                }
+            }
+
+            throw new Exception("bad data");
+        }
+
 
         private static Dictionary<int, int> teamAndDivisions;
         private static Dictionary<int, string> teamNames;
@@ -602,6 +621,21 @@ namespace EA_DB_Editor
             return teams[b] == teams[a];
         }
 
+        private static Dictionary<int, int> prestigeMap;
+        public static Dictionary<int, int> PrestigeMap
+        {
+            get
+            {
+                if (prestigeMap == null)
+                {
+                    var table = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "TEAM");
+                    prestigeMap = table.lRecords.ToDictionary(mr => mr["TGID"].ToInt32(), mr => mr["TPRX"].ToInt32());
+                }
+
+                return prestigeMap;
+            }
+        }
+
         public static bool TeamsEligbleForReplacement(this Dictionary<int, int> teams, int home, int away)
         {
             if (ScheduleFixup.IsNotreDameGame(home, away) || OnTheirOwn.Contains(home) || OnTheirOwn.Contains(away))
@@ -618,7 +652,7 @@ namespace EA_DB_Editor
 
         static string[] academies = { "1", "8", "57" };
         public static int[] OnTheirOwn = TeamsOnTheirOwn();
-#if false
+#if true
         public static int[] DontFoolWith = new int[0];// American.ToArray();
 #else
         public static int[] DontFoolWith = TableUtility.American.ToArray();
@@ -690,6 +724,16 @@ namespace EA_DB_Editor
 
             if (conf == TableUtility.IndId) return true;
 
+            if (conf == TableUtility.Big12Id)
+            {
+                return current == 8;
+            }
+
+            if(conf == TableUtility.CUSAId && count == 4)
+            {
+                return current == 6;
+            }
+
             if (conf == TableUtility.Big12Id && count == 16)
                 expected = 9;
 
@@ -697,7 +741,10 @@ namespace EA_DB_Editor
                 return true;
 
             if (count == 12 && conf == TableUtility.Pac16Id)
-                return current == 8;
+                return current == 9;
+
+            if (count == 12 && conf == TableUtility.Big10Id)
+                return current == 9;
 
             if (count == 16 && conf == TableUtility.ACCId)
                 expected = 8;
@@ -724,6 +771,21 @@ namespace EA_DB_Editor
         public static bool ConferenceHomeGameCount(this TeamSchedule schedule, int teamId)
         {
             var conf = TableUtility.TeamAndConferences[teamId];
+            var confGames = schedule.Count(g => g != null && g.HomeTeam == teamId && TableUtility.TeamAndConferences[g.AwayTeam] == conf);
+
+            if (conf == TableUtility.CUSAId)
+            {
+                return confGames == 3;
+            }
+
+            if (conf == TableUtility.Big10Id || conf == TableUtility.Pac16Id)
+            {
+                return confGames == 4 || confGames == 5;
+            }
+            if (conf == TableUtility.Big12Id)
+            {
+                return confGames == 4 ;
+            }
 
             if (conf == TableUtility.Pac16Id) return true;
             if (conf == TableUtility.Big12Id && (TableUtility.Big12.Length == 16 || TableUtility.Big12.Length == 10)) return true;
@@ -736,7 +798,6 @@ namespace EA_DB_Editor
             //if (conf == ACCId && AccTeams > 14)
             //    return true;
 
-            var confGames = schedule.Count(g => g != null && g.HomeTeam == teamId && TableUtility.TeamAndConferences[g.AwayTeam] == conf);
 
             if (conf == TableUtility.CUSAId && TableUtility.CUSA.Length == 5 && confGames == 2) return true;
 

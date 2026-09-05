@@ -16,6 +16,8 @@ namespace EA_DB_Editor
         public int Game { get; set; }
 
         public string Scenario { get; set; }
+
+        public bool Upset { get; set; }
     }
 
     public static class TableUtility
@@ -118,15 +120,13 @@ namespace EA_DB_Editor
             foreach (var mr in sgin.lRecords)
             {
                 var (needsFixing, winningTeam, losingTeam, reason) = mr.EvaluateGameForStudioUpdate(team);
-                if (needsFixing)
+                result.Add(new UpsetAlert
                 {
-                    result.Add(new UpsetAlert
-                    {
-                        Headline = $"{team.DisplayName(winningTeam)} defeats {team.DisplayName(losingTeam)}",
-                        Game = mr.GameNumber(),
-                        Scenario = reason,
-                    });
-                }
+                    Headline = $"{team.DisplayName(winningTeam)} defeats {team.DisplayName(losingTeam)}",
+                    Game = mr.GameNumber(),
+                    Scenario = reason,
+                    Upset = needsFixing,
+                });
             }
 
             return result;
@@ -185,7 +185,7 @@ namespace EA_DB_Editor
             var winnerRecord = teams[winner].WinPct();
             var loserRecord = teams[loser].WinPct();
 
-            if (winnerRecord > 650 && loserRecord < 500)
+            if (loserRecord > 650 && winnerRecord < 500)
             {
                 return (true, winner, loser, $"WinPct: {winnerRecord} :: {loserRecord}");
             }
@@ -233,6 +233,9 @@ namespace EA_DB_Editor
                 // don't change anything about the games vs fcs teams
                 if (away.IsFcsTeam())
                 {
+                    mr["GFFU"] = "1";
+                    mr["GFHU"] = "1";
+                    mr["GMFX"] = "0";
                     continue;
                 }
 
@@ -240,8 +243,8 @@ namespace EA_DB_Editor
                 if (userTeams.Contains(home) || userTeams.Contains(away))
                 {
                     mr["GFFU"] = "1";
-                    mr["GFHU"] = "0";
-                    mr["GMFX"] = "0";
+                    mr["GFHU"] = "1";
+                    mr["GMFX"] = "1";
                 }
                 else
                 {

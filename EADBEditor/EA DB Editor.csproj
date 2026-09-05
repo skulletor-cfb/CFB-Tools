@@ -70,7 +70,6 @@
     <Compile Include="Recruiting\TeamRecruiter.cs" />
     <Compile Include="Recruiting\TransferCandidate.cs" />
     <Compile Include="Recruiting\TransferPortal.cs" />
-    <Compile Include="Scheduling\AmericanPodSchedule.cs" />
     <Compile Include="RecruitAllAmericans.cs" />
     <Compile Include="Recruiting\TransferPortalClass.cs" />
     <Compile Include="Scheduling\ACCPodSchedule.cs" />
@@ -93,6 +92,7 @@
     <Compile Include="ConfigCopySelection.Designer.cs">
       <DependentUpon>ConfigCopySelection.cs</DependentUpon>
     </Compile>
+    <Compile Include="Scheduling\ConferenceLocks.cs" />
     <Compile Include="Scheduling\SECSchedule.cs" />
     <Compile Include="Scheduling\TeamSchedule.cs" />
     <Compile Include="Scheduling\CUSASchedule.cs" />
