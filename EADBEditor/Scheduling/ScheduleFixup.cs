@@ -1467,7 +1467,7 @@ namespace EA_DB_Editor
                 }
 
                 // smu-tcu play at 279 when smu is in big 12 on friday night
-                else if (false && MatchTeams(homeTeam, awayTeam, new[] { 83, 89 }))
+                else if (MatchTeams(homeTeam, awayTeam, new[] { 83, 89 }))
                 {
                     gameRecord["SGID"] = "257";
                     gameRecord["GDAT"] = "4";
