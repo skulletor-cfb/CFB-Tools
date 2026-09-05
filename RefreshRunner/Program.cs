@@ -386,10 +386,50 @@ namespace RefreshRunner
                 return default;
             }
 
+            DateTime GetThirdSaturdayInOctober()
+            {
+                for (int i = 15; i <= 22; i++)
+                {
+                    var testDate = new DateTime(year, 10, i, 0, 0, 0);
+                    if (testDate.DayOfWeek == DayOfWeek.Saturday)
+                    {
+                        return testDate;
+                    }
+                }
+
+                return default;
+            }
+
+            DateTime GetTexasStateFairStartDate()
+            {
+                // last friday in september
+
+                    for (int i = 30; i >= 20; i--)
+                    {
+                        var testDate = new DateTime(year, 9, i, 0, 0, 0);
+                        if (testDate.DayOfWeek == DayOfWeek.Friday)
+                        {
+                            return testDate;
+                        }
+                    }
+
+                    return default;
+            }
+
+            var thirdSaturday = GetThirdSaturdayInOctober();
             var laborDAy = GetLaborDay();
-            Console.WriteLine($"Labor Day is on {laborDAy.ToShortDateString()}");
             var thanksgiving = GetThanksgivingDate();
             var lastSaturday = thanksgiving.AddDays(2);
+            var texStateFair = GetTexasStateFairStartDate();
+            var redRiverShowdown = texStateFair.AddDays(15);
+            if(redRiverShowdown.Day >= 15)
+            {
+                redRiverShowdown = redRiverShowdown.AddDays(-7);
+            }
+            Console.WriteLine($"Labor Day is on {laborDAy.ToShortDateString()}");
+            Console.WriteLine($"Texas State Fair starts on {texStateFair.ToShortDateString()}");
+            Console.WriteLine($"Red River Showdown is on {redRiverShowdown.ToShortDateString()}");
+            Console.WriteLine($"Third Saturday in October is on {thirdSaturday.ToShortDateString()}");
             Console.WriteLine($"Thanksgiving is on {thanksgiving.ToShortDateString()}");
             var firstSaturday = lastSaturday.AddDays(-7 * 13);
             var currWeek = firstSaturday;
