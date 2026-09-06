@@ -10,11 +10,23 @@ namespace EA_DB_Editor.Scheduling
 {
     public abstract class NetworkSchedule
     {
+        private Dictionary<int, List<TelevisedGame>> weeklySchedule = null;
         public string Name { get; }
 
         protected List<TelevisedGame> SelectedGames { get; } = new List<TelevisedGame>();
 
-        protected Dictionary<int, List<TelevisedGame>> WeeklySchedule { get; set; }
+        protected Dictionary<int, List<TelevisedGame>> WeeklySchedule
+        {
+            get
+            {
+                if (weeklySchedule == null)
+                {
+                    weeklySchedule = this.SelectedGames.GroupBy(g => g.Week).ToDictionary(g => g.Key, g => g.OrderBy(game => game.Score).ToList());
+                }
+
+                return weeklySchedule;
+            }
+        }
 
         protected Dictionary<TimeSlot, TelevisedGame> Primary = new Dictionary<TimeSlot, TelevisedGame>();
 
@@ -35,9 +47,9 @@ namespace EA_DB_Editor.Scheduling
         protected void WriteReport(string file, Dictionary<TimeSlot, TelevisedGame> network)
         {
             var sb = new StringBuilder();
-            foreach (var kvp in network.OrderBy(k => k.Key.Week).ThenBy(k => k.Key.GTOD))
+            foreach (var kvp in network.OrderBy(k => k.Key.Week).ThenBy(k => k.Key.Day).ThenBy(k => k.Key.GTOD))
             {
-                sb.AppendLine($"{kvp.Key.Week}-{kvp.Key.GTOD}: {kvp.Value?.AwayTeam} at {kvp.Value?.HomeTeam}");
+                sb.AppendLine($"{kvp.Key.ToString()} - {kvp.Value?.AwayTeam} at {kvp.Value?.HomeTeam}");
             }
 
             File.WriteAllText($"{file}-tv-debug.log", sb.ToString());

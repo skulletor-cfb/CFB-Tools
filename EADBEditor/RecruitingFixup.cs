@@ -656,6 +656,10 @@ namespace EA_DB_Editor
             return TableUtility.Big12.Contains(teamId) && teamId != 68;
         }
 
+        public static bool IsBig10Team(this int teamId)
+        {
+            return TableUtility.Big10.Contains(teamId) && teamId != 68;
+        }
 
         public static bool IsAmericanTeam(this int teamId)
         {

@@ -34,8 +34,14 @@ namespace EA_DB_Editor.Scheduling
         /// assigned means it's in a network/timeslot
         /// </summary>
         public bool Assigned { get; private set; }
-        public bool IsAccGame { get; }
+        public bool IsAccGame => ConferenceOwner == TableUtility.ACCId;
         public bool IsHawaiiGame => HomeTeam == 32;
+        public bool IsBig10Game => ConferenceOwner == TableUtility.Big10Id;
+        public bool IsPac12Game => ConferenceOwner == TableUtility.Pac16Id;
+        public bool IsNotreDameHomeGame => HomeTeam.IsIndependentND();
+        public bool IsShamrockSeries => (IsNotreDameHomeGame || AwayTeam == TableUtility.NotreDameId) && GTOD == new TimeSlot(8, 7).GTOD;
+        public bool IsNotreDameAtNavy => (HomeTeam == 57 && AwayTeam == TableUtility.NotreDameId);
+        public bool BothTeamsRanked { get; }
         public TelevisedGame(MaddenRecord mr, Dictionary<int, MaddenRecord> teams)
         {
             Record = mr;
@@ -48,7 +54,7 @@ namespace EA_DB_Editor.Scheduling
             score += ScheduleFixup.IsRivalryGame(AwayTeam, HomeTeam) ? -10 : 0;
             score += TableUtility.TeamAndConferences.TeamsInSameConference(AwayTeam, HomeTeam) ? -5 : 0;
             Score = score;
-            ConferenceOwner = HomeTeam.IsIndependentND() ? TableUtility.NotreDameId : TableUtility.GameConferenceOwner(HomeTeam);
+            ConferenceOwner = (IsNotreDameHomeGame || IsShamrockSeries || IsNotreDameAtNavy) ? TableUtility.NotreDameId : TableUtility.GameConferenceOwner(HomeTeam);
             Week = mr.GameWeek();
             Day = mr.GameDay();
             GTOD = mr.GTOD();
@@ -59,7 +65,13 @@ namespace EA_DB_Editor.Scheduling
             Score += IsP5Game ? -5 : 0;
             IsFCSGame = AwayTeam.IsFcsTeam();
             Score += IsFCSGame ? 100 : 0;
-            IsAccGame = HomeTeam.IsAccTeam();
+
+            if ((AwayTeam == 70 && HomeTeam == 51) || (AwayTeam == 51 && HomeTeam == 70))
+            {
+                Score += -100000;
+            }
+
+            BothTeamsRanked = (home.CoachPollRanking() <= 25 || home.MediaPollRanking() <= 25) && (away.CoachPollRanking() <= 25 || away.MediaPollRanking() <= 25) ;
         }
 
         public override bool Equals(object obj)
@@ -91,6 +103,12 @@ namespace EA_DB_Editor.Scheduling
         {
             Assigned = true;
             Selected = true;
+        }
+
+        public TelevisedGame Deselect()
+        {
+            Selected = false;
+            return this;
         }
     }
 }

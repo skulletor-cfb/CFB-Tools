@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using EA_DB_Editor.Scheduling.TV;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -175,13 +176,11 @@ namespace EA_DB_Editor.Scheduling
             }
 
             // espn takes the top MWC game for the 10:30pm slot
-            var mwcGames = televisedGames[TableUtility.MWCId].GroupBy(g => g.Week).ToDictionary(g => g.Key, g => g.Where(game => !game.Selected).OrderBy(game => game.Score).ToList());
+            var mwcGames = televisedGames[TableUtility.MWCId].GetAvailableGamesByWeek();
             foreach (var kvp in mwcGames)
             {
                 this.SelectedGames.Add(kvp.Value[0].Select());
             }
-
-            WeeklySchedule = this.SelectedGames.GroupBy(g => g.Week).ToDictionary(g => g.Key, g => g.OrderBy(game => game.Score).ToList());
         }
     }
 }

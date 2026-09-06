@@ -8,6 +8,17 @@ namespace EA_DB_Editor.Scheduling
 {
     public class TimeSlot
     {
+        private static readonly Dictionary<int, string> Days = new Dictionary<int, string>
+        {
+            [0] = "Mon",
+            [1] = "Tue",
+            [2] = "Wed",
+            [3] = "Thur",
+            [4] = "Fri",
+            [5] = "Sat",
+            [6] = "Sun",
+        };
+
         public static readonly TimeSlot ShamrockSeries = new TimeSlot(8, 7);// 807pm
         public static readonly TimeSlot MayhemAtMBS = new TimeSlot(7, 33); // 733pm
         public static readonly TimeSlot OysterBowl = new TimeSlot(7, 17); //717 pm
@@ -25,6 +36,13 @@ namespace EA_DB_Editor.Scheduling
             AM = am;
             Day = day;
             Week = week;
+        }
+
+        public override string ToString()
+        {
+            var am = AM ? "AM" : "PM";
+            var min = Minute < 10 ? "0" + Minute : Minute.ToString();
+            return $"Week {this.Week}-{Days[this.Day]}-{this.Hour}:{min}{am}";
         }
 
         public override bool Equals(object obj)

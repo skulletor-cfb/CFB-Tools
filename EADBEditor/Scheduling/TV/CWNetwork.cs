@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EA_DB_Editor.Scheduling.TV
 {
-    public class CWNetwork:NetworkSchedule
+    public class CWNetwork : NetworkSchedule
     {
         private class WeekSchedule
         {
@@ -111,11 +111,20 @@ namespace EA_DB_Editor.Scheduling.TV
         /// <param name="games"></param>
         public override void SelectGames(Dictionary<int, List<TelevisedGame>> televisedGames)
         {
-            // take the unselected acc games
-            this.SelectedGames.AddRange(televisedGames[TableUtility.ACCId].Where(g => !g.Selected && !g.IsFCSGame).OrderByDescending(g => g.Score).Take(1).Select(g => g.Select()));
+            // take the unselected acc games, 1 per week
+            var accGames = televisedGames[TableUtility.ACCId].GetAvailableGamesByWeek(selector: g => !g.Selected && !g.IsFCSGame, orderFunc: g => -g.Score);
+            foreach (var kvp in accGames)
+            {
+                var game = kvp.Value.Take(1).FirstOrDefault();
+
+                if (game != null)
+                {
+                    this.SelectedGames.Add(game.Select());
+                }
+            }
 
             // take the 2nd best and 3rd mwc games of the week
-            var mwcGames = televisedGames[TableUtility.MWCId].GroupBy(g => g.Week).ToDictionary(g => g.Key, g => g.Where(game => !game.Selected).OrderBy(game => game.Score).ToList());
+            var mwcGames = televisedGames[TableUtility.MWCId].GetAvailableGamesByWeek();
             foreach (var kvp in mwcGames)
             {
                 // espn takes the top game
@@ -138,13 +147,11 @@ namespace EA_DB_Editor.Scheduling.TV
                 }
 
                 // later in the season we go friday
-                if(mwc.Length > 3 && kvp.Key > 5)
+                if (mwc.Length > 3 && kvp.Key > 5)
                 {
                     this.SelectedGames.Add(mwc[3].Select());
                 }
             }
-
-            WeeklySchedule = this.SelectedGames.GroupBy(g => g.Week).ToDictionary(g => g.Key, g => g.OrderBy(game => game.Score).ToList());
         }
     }
 }

@@ -22,10 +22,14 @@ namespace EA_DB_Editor.Scheduling
             // select the games
             CWNetwork.Instance.SelectGames(games);
             ESPNNetworks.Instance.SelectGames(games);
+            CBSNetwork.Instance.SelectGames(games);
+            NBCNetwork.Instance.SelectGames(games);
 
             // assign the games
             CWNetwork.Instance.AssignGames().Report();
             ESPNNetworks.Instance.AssignGames().Report();
+            CBSNetwork.Instance.AssignGames().Report();
+            NBCNetwork.Instance.AssignGames().Report();
         }
 
         public static bool GameNeedsAssignment(this TelevisedGame game)
