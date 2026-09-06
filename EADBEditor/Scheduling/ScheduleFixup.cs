@@ -124,6 +124,11 @@ namespace EA_DB_Editor
             return byuId == 16 && TableUtility.TeamAndConferences[byuId] == TableUtility.IndId;
         }
 
+        public static bool IsIndependentND(this int id)
+        {
+            return id == TableUtility.NotreDameId && TableUtility.TeamAndConferences[id] == TableUtility.IndId;
+        }
+
         public static bool RanG5Fixup = false;
 
         public static (Dictionary<int, TeamSchedule> teamSchedule, MaddenRecord[] scheduleTable) FillSchedule(bool reorderNeedsToBeRun, bool dontShowMessageBox = false)

@@ -356,88 +356,18 @@ namespace RefreshRunner
 
         static void Calendar(int year)
         {
-            DateTime GetThanksgivingDate()
+            var cal = new SeasonCalendar(year);
+            Console.WriteLine($"Labor Day is on {cal.LaborDay.ToShortDateString()}");
+            Console.WriteLine($"Texas State Fair starts on {cal.TexasStateFairStartDate.ToShortDateString()}");
+            Console.WriteLine($"Red River Showdown is on {cal.RedRiverShowdown.ToShortDateString()}");
+            Console.WriteLine($"Third Saturday in October is on {cal.ThirdSaturdayInOctober.ToShortDateString()}");
+            Console.WriteLine($"Thanksgiving is on {cal.Thanksgiving.ToShortDateString()}");
+            var ldweek = cal.IsLaborDayWeekendFirstWeek ? 1 : 2;
+            Console.WriteLine($"Labor Day Weekend is week {ldweek}");
+
+            for (int i = 0; i < cal.Weeks.Length; i++)
             {
-
-                for (int i = 22; i <= 30; i++)
-                {
-                    var testDate = new DateTime(year, 11, i, 0, 0, 0);
-                    if (testDate.DayOfWeek == DayOfWeek.Thursday)
-                    {
-                        return testDate;
-                    }
-                }
-
-                return default;
-            }
-
-            DateTime GetLaborDay()
-            {
-
-                for (int i = 1; i <= 7; i++)
-                {
-                    var testDate = new DateTime(year, 9, i, 0, 0, 0);
-                    if (testDate.DayOfWeek == DayOfWeek.Monday)
-                    {
-                        return testDate;
-                    }
-                }
-
-                return default;
-            }
-
-            DateTime GetThirdSaturdayInOctober()
-            {
-                for (int i = 15; i <= 22; i++)
-                {
-                    var testDate = new DateTime(year, 10, i, 0, 0, 0);
-                    if (testDate.DayOfWeek == DayOfWeek.Saturday)
-                    {
-                        return testDate;
-                    }
-                }
-
-                return default;
-            }
-
-            DateTime GetTexasStateFairStartDate()
-            {
-                // last friday in september
-
-                    for (int i = 30; i >= 20; i--)
-                    {
-                        var testDate = new DateTime(year, 9, i, 0, 0, 0);
-                        if (testDate.DayOfWeek == DayOfWeek.Friday)
-                        {
-                            return testDate;
-                        }
-                    }
-
-                    return default;
-            }
-
-            var thirdSaturday = GetThirdSaturdayInOctober();
-            var laborDAy = GetLaborDay();
-            var thanksgiving = GetThanksgivingDate();
-            var lastSaturday = thanksgiving.AddDays(2);
-            var texStateFair = GetTexasStateFairStartDate();
-            var redRiverShowdown = texStateFair.AddDays(15);
-            if(redRiverShowdown.Day >= 15)
-            {
-                redRiverShowdown = redRiverShowdown.AddDays(-7);
-            }
-            Console.WriteLine($"Labor Day is on {laborDAy.ToShortDateString()}");
-            Console.WriteLine($"Texas State Fair starts on {texStateFair.ToShortDateString()}");
-            Console.WriteLine($"Red River Showdown is on {redRiverShowdown.ToShortDateString()}");
-            Console.WriteLine($"Third Saturday in October is on {thirdSaturday.ToShortDateString()}");
-            Console.WriteLine($"Thanksgiving is on {thanksgiving.ToShortDateString()}");
-            var firstSaturday = lastSaturday.AddDays(-7 * 13);
-            var currWeek = firstSaturday;
-
-            for (int i = 1; i <= 14; i++)
-            {
-                Console.WriteLine($"Week {i}: {currWeek.ToShortDateString()}");
-                currWeek = currWeek.AddDays(7);
+                Console.WriteLine($"Week {i+1}: {cal.Weeks[i].ToShortDateString()}");
             }
         }
 

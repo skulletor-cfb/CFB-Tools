@@ -1,4 +1,5 @@
-﻿using ListViewEx;
+﻿using EA_DB_Editor.Scheduling;
+using ListViewEx;
 using MC02Handler;
 using System;
 using System.Collections;
@@ -4289,6 +4290,12 @@ namespace EA_DB_Editor
             {
                 TableUtility.FixSgin(fd.FileName);
             }
+        }
+
+        private void tVTimeSlotsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TelevisionScheduler.FixTelevisionSchedule();
+            ScheduleFixup.ReadSchedule();
         }
     }
 
