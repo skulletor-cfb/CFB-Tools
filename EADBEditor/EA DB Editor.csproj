@@ -139,7 +139,12 @@
     <Compile Include="Scheduling\ScheduleReader.cs" />
     <Compile Include="Scheduling\ScheduleUtility.cs" />
     <Compile Include="Scheduling\SunBeltSchedule.cs" />
-    <Compile Include="Scheduling\TelevisionScheduler.cs" />
+    <Compile Include="Scheduling\TV\CWNetwork.cs" />
+    <Compile Include="Scheduling\TV\ESPNNetworks.cs" />
+    <Compile Include="Scheduling\TV\NetworkSchedule.cs" />
+    <Compile Include="Scheduling\TV\TelevisedGame.cs" />
+    <Compile Include="Scheduling\TV\TelevisionScheduler.cs" />
+    <Compile Include="Scheduling\TV\TimeSlot.cs" />
     <Compile Include="TableUtility.cs" />
     <Compile Include="TeamEntry.cs">
       <SubType>Form</SubType>
