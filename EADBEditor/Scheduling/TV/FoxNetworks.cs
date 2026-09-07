@@ -150,10 +150,10 @@ namespace EA_DB_Editor.Scheduling.TV
             var btn = games.Where(g => !g.Assigned && g.IsBig10Game).ToQueue();
             var stack = new Stack<TimeSlot>(
             new[]{
-                new TimeSlot(12,0,week),
-                new TimeSlot(7,15,week),
-                new TimeSlot(3,30,week),
                 new TimeSlot(7,0,week,day:4),
+                new TimeSlot(3,30,week),
+                new TimeSlot(7,15,week),
+                new TimeSlot(12,0,week),
             });
 
             while (btn.TryDequeueGame(out var game))

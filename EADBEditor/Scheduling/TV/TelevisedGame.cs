@@ -24,7 +24,7 @@ namespace EA_DB_Editor.Scheduling
         [JsonIgnore]
         public MaddenRecord Record { get; }
         public bool IsSecAccGame { get; }
-        public bool IsSecConferenceGame => IsConferenceGame && ConferenceOwner == TableUtility.SECId;
+        public bool IsSecConferenceGame => IsConferenceGame && IsSecGame;
         public bool IsP5Game { get; }
         public bool HomeTeamIsP5 { get; }
         public bool IsFCSGame { get; }
@@ -36,6 +36,7 @@ namespace EA_DB_Editor.Scheduling
         /// assigned means it's in a network/timeslot
         /// </summary>
         public bool Assigned { get; private set; }
+        public bool IsSecGame => ConferenceOwner == TableUtility.SECId;
         public bool IsAccGame => ConferenceOwner == TableUtility.ACCId;
         public bool IsHawaiiGame => HomeTeam == 32;
         public bool IsBig10Game => ConferenceOwner == TableUtility.Big10Id;

@@ -18,6 +18,8 @@ namespace EA_DB_Editor.Scheduling
         public Dictionary<TimeSlot, TelevisedGame> ESPN2 = new Dictionary<TimeSlot, TelevisedGame>();
 
         public Dictionary<TimeSlot, TelevisedGame> ESPNU = new Dictionary<TimeSlot, TelevisedGame>();
+        public Dictionary<TimeSlot, TelevisedGame> ACCN = new Dictionary<TimeSlot, TelevisedGame>();
+        public Dictionary<TimeSlot, TelevisedGame> SECN = new Dictionary<TimeSlot, TelevisedGame>();
         private ESPNNetworks() : base("ESPN")
         {
         }
@@ -28,6 +30,8 @@ namespace EA_DB_Editor.Scheduling
             WriteReport("espn", ESPN);
             WriteReport("espn2", ESPN2);
             WriteReport("espnu", ESPNU);
+            WriteReport("accn", ACCN);
+            WriteReport("secn", SECN);
         }
 
         public override NetworkSchedule AssignGames()
@@ -37,14 +41,75 @@ namespace EA_DB_Editor.Scheduling
             AssignP5ESPN();
             AssignABCNoon();
             AssignACCFriday();
-            MidMajorThursday();
+            AssignMidMajorThursday();
+            AssignACCNetwork();
+            AssignSECNetwork();
+            AssignP5ESPN_NoonGames();
             return this;
+        }
+
+        /// <summary>
+        /// SECN gets 1245/415/745 games
+        /// </summary>
+        private void AssignSECNetwork()
+        {
+
+            for (int i = 0; i <= 13; i++)
+            {
+                var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsSecGame).OrderBy(g => g.Score).ToQueue();
+
+                var stack = new Stack<TimeSlot>(
+                new[]{
+                new TimeSlot(12,45,i),
+                new TimeSlot(7,45,i),
+                new TimeSlot(4,15,i),
+                });
+
+                while (queue.TryDequeueGame(out var game))
+                {
+                    if (!stack.TryPop(out var timeslot))
+                    {
+                        break;
+                    }
+
+                    SECN.AssignGame(game, timeslot);
+                }
+            }
+        }
+
+        /// <summary>
+        /// ACCN gets 12/330/730 games
+        /// </summary>
+        private void AssignACCNetwork()
+        {
+
+            for (int i = 0; i <= 13; i++)
+            {
+                var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsAccGame).OrderBy(g => g.Score).ToQueue();
+
+                var stack = new Stack<TimeSlot>(
+                new[]{
+                new TimeSlot(12,0,i),
+                new TimeSlot(7,30,i),
+                new TimeSlot(3,30,i),
+                });
+
+                while (queue.TryDequeueGame(out var game))
+                {
+                    if (!stack.TryPop(out var timeslot))
+                    {
+                        break;
+                    }
+
+                    ACCN.AssignGame(game, timeslot);
+                }
+            }
         }
 
         /// <summary>
         /// mid major thursday games, not MWC at 730 on both ESPN/ESPN2
         /// </summary>
-        private void MidMajorThursday()
+        private void AssignMidMajorThursday()
         {
             // we start the friday after labor day
             var fridayStarts = TelevisionScheduler.LaborDayWeek() + 1;
@@ -147,6 +212,30 @@ namespace EA_DB_Editor.Scheduling
         /// <summary>
         /// best of the afternoon and 330 of the ESPN/ABC games
         /// </summary>
+        private void AssignP5ESPN_NoonGames()
+        {
+            for (int i = 0; i <= 13; i++)
+            {
+                var games = this.WeeklySchedule[i]
+                    .Where(g => !g.Assigned && g.HomeTeamIsP5 && !g.IsFCSGame).OrderBy(g => g.Score).ToQueue();
+
+                games.Enqueue(this.WeeklySchedule[i].Where(g => !g.IsFCSGame));
+
+                if (games.TryExhaustiveDequeue(out var game))
+                {
+                    ESPN.AssignGame(game, i, 12, 00);
+                }
+
+                if (games.TryExhaustiveDequeue(out game))
+                {
+                    ESPN2.AssignGame(game, i, 1, 0);
+                }
+            }
+        }
+
+        /// <summary>
+        /// best of the afternoon and 330 of the ESPN/ABC games
+        /// </summary>
         private void AssignP5ESPN()
         {
             for (int i = 0; i <= 13; i++)
@@ -168,12 +257,12 @@ namespace EA_DB_Editor.Scheduling
 
                 if (games.TryExhaustiveDequeue(out game))
                 {
-                    ESPN2.AssignGame(game, i, 8, 0);
+                    ESPN2.AssignGame(game, i, 4, 30);
                 }
 
                 if (games.TryExhaustiveDequeue(out game))
                 {
-                    ESPN2.AssignGame(game, i, 4, 0);
+                    ESPN2.AssignGame(game, i, 8, 30);
                 }
             }
         }
