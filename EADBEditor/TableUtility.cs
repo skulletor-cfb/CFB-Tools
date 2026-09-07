@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Linq;
 using System.Security.Cryptography;
 using Newtonsoft.Json;
+using EA_DB_Editor.Scheduling;
 
 namespace EA_DB_Editor
 {
@@ -654,6 +655,16 @@ namespace EA_DB_Editor
             return new Queue<T>(items);
         }
 
+        public static bool TryDequeueGame(this Queue<TelevisedGame> queue, out TelevisedGame game)
+        {
+            if (queue.TryDequeue(out game) && !game.Assigned)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         public static bool TryDequeue<T>(this Queue<T> queue, out T result)
         {
             if (queue.Count == 0)
@@ -663,6 +674,18 @@ namespace EA_DB_Editor
             }
 
             result = queue.Dequeue();
+            return true;
+        }
+
+        public static bool TryPop<T>(this Stack<T> stack, out T result)
+        {
+            if (stack.Count == 0)
+            {
+                result = default;
+                return false;
+            }
+
+            result = stack.Pop();
             return true;
         }
     }
@@ -686,7 +709,7 @@ namespace EA_DB_Editor
             Thanksgiving = year.GetThanksgivingDate();
             FinalDayOfSeason = Thanksgiving.AddDays(2);
             TexasStateFairStartDate = year.GetTexasStateFairStartDate();
-            var rrs= TexasStateFairStartDate.AddDays(15);
+            var rrs = TexasStateFairStartDate.AddDays(15);
             if (rrs.Day >= 15)
             {
                 rrs = rrs.AddDays(-7);
@@ -702,6 +725,23 @@ namespace EA_DB_Editor
             }
 
             IsLaborDayWeekendFirstWeek = LaborDay < Weeks[1];
+        }
+
+        public bool IsOctober(int week)
+        {
+            var date = Weeks[week];
+            return date.Month == 10;
+        }
+
+        public bool IsAugustSeptember(int week)
+        {
+            var date = Weeks[week];
+            return date.Month <= 10;
+        }
+        public bool IsNovember(int week)
+        {
+            var date = Weeks[week];
+            return date.Month >= 11;
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection.Emit;
+using System.Windows.Forms;
 
 namespace EA_DB_Editor.Scheduling
 {
@@ -55,5 +56,16 @@ namespace EA_DB_Editor.Scheduling
             File.WriteAllText($"{file}-tv-debug.log", sb.ToString());
         }
 
+        protected void WriteReport(string file, List<(TimeSlot time, TelevisedGame game)> streaming)
+        {
+            var sb = new StringBuilder();
+
+            foreach (var (time, game) in streaming.OrderBy(g => g.time.Week).ThenBy(g => g.time.Day).ThenBy(g => g.time.GTOD))
+            {
+                sb.AppendLine($"{time} - {game.AwayTeam} at {game.HomeTeam}");
+            }
+
+            File.WriteAllText($"{file}-tv-debug.log", sb.ToString());
+        }
     }
 }

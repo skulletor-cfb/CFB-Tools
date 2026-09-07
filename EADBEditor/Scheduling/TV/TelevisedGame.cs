@@ -37,11 +37,14 @@ namespace EA_DB_Editor.Scheduling
         public bool IsAccGame => ConferenceOwner == TableUtility.ACCId;
         public bool IsHawaiiGame => HomeTeam == 32;
         public bool IsBig10Game => ConferenceOwner == TableUtility.Big10Id;
+        public bool IsBig12Game => ConferenceOwner == TableUtility.Big12Id;
         public bool IsPac12Game => ConferenceOwner == TableUtility.Pac16Id;
         public bool IsNotreDameHomeGame => HomeTeam.IsIndependentND();
         public bool IsShamrockSeries => (IsNotreDameHomeGame || AwayTeam == TableUtility.NotreDameId) && GTOD == new TimeSlot(8, 7).GTOD;
         public bool IsNotreDameAtNavy => (HomeTeam == 57 && AwayTeam == TableUtility.NotreDameId);
         public bool BothTeamsRanked { get; }
+        public bool IsArizonaGame => HomeTeam == 4 || HomeTeam == 5;
+        public bool IsASUvAU => IsArizonaGame && (AwayTeam == 4 || AwayTeam == 5);
         public TelevisedGame(MaddenRecord mr, Dictionary<int, MaddenRecord> teams)
         {
             Record = mr;
@@ -93,9 +96,11 @@ namespace EA_DB_Editor.Scheduling
             return this;
         }
 
-        public TelevisedGame Assign()
+        public TelevisedGame Assign(TimeSlot time)
         {
             Assigned = true;
+            this.Record["GTOD"] = time.ToGTOD();
+            this.Record["GDAT"] = time.Day.ToString();
             return this;
         }
 
