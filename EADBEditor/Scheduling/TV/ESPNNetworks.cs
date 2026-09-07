@@ -47,7 +47,53 @@ namespace EA_DB_Editor.Scheduling
             AssignP5ESPN_NoonGames();
             AssignACCNetwork(new[] { new TimeSlot(12, 0), new TimeSlot(7, 30), });
             AssignSECNetwork(new[] { new TimeSlot(12, 45), new TimeSlot(7, 45), });
+            AssignESPNU();
             return this;
+        }
+
+        /// <summary>
+        /// 12pm, 3:30pm, 7pm, 1030pm
+        /// </summary>
+        private void AssignESPNU()
+        {
+            // first we're just going to assign the mid afternoon and evening games
+            for (int i = 0; i <= 13; i++)
+            {
+                var queue = this.WeeklySchedule[i].Where(g => !g.Assigned ).OrderBy(g => g.Score).ToQueue();
+
+                if(queue.TryExhaustiveDequeue(out var game))
+                {
+                    ESPNU.AssignGame(game, i, 3, 30);
+                }
+
+                if (queue.TryExhaustiveDequeue(out game))
+                {
+                    ESPNU.AssignGame(game, i, 7, 0);
+                }
+            }
+
+            // next late MWC games
+            for (int i = 0; i <= 13; i++)
+            {
+                var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsMWCGame).OrderBy(g => g.Score).ToQueue();
+
+                if (queue.TryExhaustiveDequeue(out var game))
+                {
+                    ESPNU.AssignGame(game, i, 10, 30);
+                }
+            }
+
+
+            // finally not MWC
+            for (int i = 0; i <= 13; i++)
+            {
+                var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && !g.IsMWCGame).OrderBy(g => g.Score).ToQueue();
+
+                if (queue.TryExhaustiveDequeue(out var game))
+                {
+                    ESPNU.AssignGame(game, i, 12, 0);
+                }
+            }
         }
 
         /// <summary>
