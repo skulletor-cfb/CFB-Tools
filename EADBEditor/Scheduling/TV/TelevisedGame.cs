@@ -9,6 +9,8 @@ namespace EA_DB_Editor.Scheduling
 {
     public class TelevisedGame
     {
+        public DateTime Date => this.GetDate();
+
         public int Score { get; }
 
         public int ConferenceOwner { get; }
@@ -42,6 +44,7 @@ namespace EA_DB_Editor.Scheduling
         public bool IsBig10Game => ConferenceOwner == TableUtility.Big10Id;
         public bool IsBig12Game => ConferenceOwner == TableUtility.Big12Id;
         public bool IsPac12Game => ConferenceOwner == TableUtility.Pac16Id;
+        public bool IsMACGame => ConferenceOwner == TableUtility.MACId;
         public bool IsNotreDameHomeGame => HomeTeam.IsIndependentND();
         public bool IsShamrockSeries => (IsNotreDameHomeGame || AwayTeam == TableUtility.NotreDameId) && GTOD == new TimeSlot(8, 7).GTOD;
         public bool IsNotreDameAtNavy => (HomeTeam == 57 && AwayTeam == TableUtility.NotreDameId);

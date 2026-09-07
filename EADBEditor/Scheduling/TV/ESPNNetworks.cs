@@ -1,4 +1,5 @@
 ﻿using EA_DB_Editor.Scheduling.TV;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,6 +21,7 @@ namespace EA_DB_Editor.Scheduling
         public Dictionary<TimeSlot, TelevisedGame> ESPNU = new Dictionary<TimeSlot, TelevisedGame>();
         public Dictionary<TimeSlot, TelevisedGame> ACCN = new Dictionary<TimeSlot, TelevisedGame>();
         public Dictionary<TimeSlot, TelevisedGame> SECN = new Dictionary<TimeSlot, TelevisedGame>();
+        public Dictionary<TimeSlot, TelevisedGame> Streaming = new Dictionary<TimeSlot, TelevisedGame>();
         private ESPNNetworks() : base("ESPN")
         {
         }
@@ -32,10 +34,12 @@ namespace EA_DB_Editor.Scheduling
             WriteReport("espnu", ESPNU);
             WriteReport("accn", ACCN);
             WriteReport("secn", SECN);
+            WriteReport("espn-plus", Streaming);
         }
 
         public override NetworkSchedule AssignGames()
         {
+            AssignMACtion();
             AssignMWCAfterDark();
             AssignSecGamesOfTheWeek();
             AssignP5ESPN();
@@ -49,6 +53,78 @@ namespace EA_DB_Editor.Scheduling
             AssignSECNetwork(new[] { new TimeSlot(12, 45), new TimeSlot(7, 45), });
             AssignESPNU();
             return this;
+        }
+
+        private void AssignMACtion()
+        {
+            TelevisedGame game = null;
+            var firstWeekOfNovember = TelevisionScheduler.LastWeekOfOctober() + 1;
+            for (int i = firstWeekOfNovember; i <= 12; i++)
+            {
+                var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsMACGame).OrderBy(g => g.Score).ToQueue();
+
+                if (queue.TryDequeueGame(out game))
+                {
+                    ESPN2.AssignGame(game, i, 7, 0, 1);
+                }
+
+                if (queue.TryDequeueGame(out game))
+                {
+                    ESPN2.AssignGame(game, i, 7, 0, 2);
+                }
+
+                if (queue.TryDequeueGame(out game))
+                {
+                    ESPNU.AssignGame(game, i, 7, 30, 1);
+                }
+
+                if (queue.TryDequeueGame(out game))
+                {
+                    ESPNU.AssignGame(game, i, 7, 30, 2);
+                }
+
+                if (queue.TryDequeueGame(out game))
+                {
+                    CBSSportsNetwork.Instance.SubLicense(game, new TimeSlot(8, 0, i, day: 1));
+                }
+
+                if (queue.TryDequeueGame(out game))
+                {
+                    CBSSportsNetwork.Instance.SubLicense(game, new TimeSlot(8, 0, i, day: 2));
+                }
+            }
+
+            // week 13 goes tuesday, friday, saturday
+            var lastWeek = this.WeeklySchedule[13].Where(g => !g.Assigned && g.IsMACGame).OrderBy(g => g.Score).ToQueue();
+            if (lastWeek.TryDequeueGame(out game))
+            {
+                ESPN2.AssignGame(game, 13, 7, 0, 1);
+            }
+
+            if (lastWeek.TryDequeueGame(out game))
+            {
+                ESPNU.AssignGame(game, 13, 12, 0, 4);
+            }
+
+            if (lastWeek.TryDequeueGame(out game))
+            {
+                CBSSportsNetwork.Instance.SubLicense(game, new TimeSlot(12, 0, 13, day: 5));
+            }
+
+            if (lastWeek.TryDequeueGame(out game))
+            {
+                CBSSportsNetwork.Instance.SubLicense(game, new TimeSlot(12, 30, 13, day: 4));
+            }
+
+            if (lastWeek.TryDequeueGame(out game))
+            {
+                CBSSportsNetwork.Instance.SubLicense(game, new TimeSlot(7, 30, 13, day: 1));
+            }
+
+            if (lastWeek.TryDequeueGame(out game))
+            {
+                Streaming.AssignGame(game, 13, 12, 0, day: 5);
+            }
         }
 
         /// <summary>

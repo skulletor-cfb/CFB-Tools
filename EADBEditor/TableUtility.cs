@@ -771,5 +771,10 @@ namespace EA_DB_Editor
             var date = Weeks[week];
             return date.Month >= 11;
         }
+        public DateTime GetDate(int week, int day)
+        {
+            var saturday = Weeks[week];
+            return saturday.AddDays(day - 5);
+        }
     }
 }

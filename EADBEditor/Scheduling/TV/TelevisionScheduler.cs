@@ -13,7 +13,19 @@ namespace EA_DB_Editor.Scheduling
 {
     public static class TelevisionScheduler
     {
-        public static SeasonCalendar CurrentSeason = new SeasonCalendar(Form1.DynastyYear);
+        private static  SeasonCalendar currentSeason;
+        public static SeasonCalendar CurrentSeason
+        {
+            get
+            {
+                if (currentSeason == null)
+                {
+                    currentSeason = new SeasonCalendar(Form1.DynastyYear);
+                }
+
+                return currentSeason;
+            }
+        }
 
         public static void FixTelevisionSchedule()
         {
@@ -128,6 +140,24 @@ namespace EA_DB_Editor.Scheduling
         public static int LaborDayWeek()
         {
             return CurrentSeason.IsLaborDayWeekendFirstWeek ? 0 : 1;
+        }
+
+        public static DateTime GetDate(this TelevisedGame game)
+        {
+            return CurrentSeason.GetDate(game.Week, game.Day);
+        }
+
+        public static int LastWeekOfOctober()
+        {
+            for (int i = CurrentSeason.Weeks.Length - 1; i >= 0; i--)
+            {
+                if (CurrentSeason.IsOctober(i))
+                {
+                    return i;
+                }
+            }
+
+            throw new Exception("Bad calendar");
         }
     }
 }

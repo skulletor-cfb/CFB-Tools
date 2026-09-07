@@ -28,6 +28,11 @@ namespace EA_DB_Editor.Scheduling
                 return weeklySchedule;
             }
         }
+        public virtual void SubLicense(TelevisedGame game, TimeSlot slot)
+        {
+            Primary.AssignGame(game, slot);
+        }
+
 
         protected Dictionary<TimeSlot, TelevisedGame> Primary = new Dictionary<TimeSlot, TelevisedGame>();
 
