@@ -61,6 +61,7 @@ namespace EA_DB_Editor.Scheduling
         public bool IntraConferenceP5 => AwayTeamIsP5 && HomeTeamIsP5 && TableUtility.TeamAndConferences[AwayTeam] != TableUtility.TeamAndConferences[HomeTeam];
         public bool IsMWCGame => ConferenceOwner == TableUtility.MWCId;
         public bool IsAmericanGame => ConferenceOwner == TableUtility.AmericanId;
+        public bool IsSunBeltGame => ConferenceOwner == TableUtility.SBCId;
         public bool IsEggBowl => CheckMatchup(55, 73);
         public bool IsTexasShowDown => CheckMatchup(92, 93);
         public bool IsCivilWar => CheckMatchup(39, 56);

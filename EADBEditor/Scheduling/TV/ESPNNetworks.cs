@@ -61,6 +61,10 @@ namespace EA_DB_Editor.Scheduling
         {
             AssignThanksgivingDay();
             AssignSECThanksgivingWeekend();
+
+            // top sun belt game is at 3pm friday on ESPN+
+            var game = this.WeeklySchedule[13].Where(g => !g.Assigned && g.IsSunBeltGame).ToQueue().Dequeue();
+            Streaming.AssignGame(game, 13, 3, 0, 4);
         }
 
         private void AssignSECThanksgivingWeekend()
