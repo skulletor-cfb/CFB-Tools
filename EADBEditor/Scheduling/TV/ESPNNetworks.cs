@@ -42,28 +42,25 @@ namespace EA_DB_Editor.Scheduling
             AssignABCNoon();
             AssignACCFriday();
             AssignMidMajorThursday();
-            AssignACCNetwork();
-            AssignSECNetwork();
+            AssignACCNetwork(new[] { new TimeSlot(3, 30) });
+            AssignSECNetwork(new[] { new TimeSlot(4, 15) });
             AssignP5ESPN_NoonGames();
+            AssignACCNetwork(new[] { new TimeSlot(12, 0), new TimeSlot(7, 30), });
+            AssignSECNetwork(new[] { new TimeSlot(12, 45), new TimeSlot(7, 45), });
             return this;
         }
 
         /// <summary>
         /// SECN gets 1245/415/745 games
         /// </summary>
-        private void AssignSECNetwork()
+        private void AssignSECNetwork(params TimeSlot[] slots)
         {
 
             for (int i = 0; i <= 13; i++)
             {
                 var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsSecGame).OrderBy(g => g.Score).ToQueue();
 
-                var stack = new Stack<TimeSlot>(
-                new[]{
-                new TimeSlot(12,45,i),
-                new TimeSlot(7,45,i),
-                new TimeSlot(4,15,i),
-                });
+                var stack = new Stack<TimeSlot>(slots);
 
                 while (queue.TryDequeueGame(out var game))
                 {
@@ -72,7 +69,7 @@ namespace EA_DB_Editor.Scheduling
                         break;
                     }
 
-                    SECN.AssignGame(game, timeslot);
+                    SECN.AssignGame(game, new TimeSlot(timeslot.Hour, timeslot.Minute, i, timeslot.AM, timeslot.Day));
                 }
             }
         }
@@ -80,19 +77,13 @@ namespace EA_DB_Editor.Scheduling
         /// <summary>
         /// ACCN gets 12/330/730 games
         /// </summary>
-        private void AssignACCNetwork()
+        private void AssignACCNetwork(params TimeSlot[] slots)
         {
 
             for (int i = 0; i <= 13; i++)
             {
                 var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsAccGame).OrderBy(g => g.Score).ToQueue();
-
-                var stack = new Stack<TimeSlot>(
-                new[]{
-                new TimeSlot(12,0,i),
-                new TimeSlot(7,30,i),
-                new TimeSlot(3,30,i),
-                });
+                var stack = new Stack<TimeSlot>(slots);
 
                 while (queue.TryDequeueGame(out var game))
                 {
@@ -101,7 +92,7 @@ namespace EA_DB_Editor.Scheduling
                         break;
                     }
 
-                    ACCN.AssignGame(game, timeslot);
+                    ACCN.AssignGame(game, new TimeSlot(timeslot.Hour, timeslot.Minute, i, timeslot.AM, timeslot.Day));
                 }
             }
         }
