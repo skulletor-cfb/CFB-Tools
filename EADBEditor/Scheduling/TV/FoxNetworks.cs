@@ -77,7 +77,8 @@ namespace EA_DB_Editor.Scheduling.TV
             var p12idx = 0;
             var timeIdx = 0;
 
-            var queue = games.Where(g => !g.Assigned && !g.IsPac12Game).Concat(games.Where(g => !g.Assigned && g.IsPac12Game)).ToQueue();
+            var queue = games.Where(g => !g.Assigned && !g.IsPac12Game).ToQueue();
+            queue.Enqueue(games.Where(g => !g.Assigned && g.IsPac12Game));
 
             while (queue.TryDequeueGame(out var game))
             {
@@ -169,18 +170,33 @@ namespace EA_DB_Editor.Scheduling.TV
         private void AssignFoxGames(int week, List<TelevisedGame> games)
         {
             // top big 10 goes to FOX big noon, if none is available fall back to big 12
-            var bigNoon = games.Where(g => g.IsBig10Game).Concat(games.Where(g => g.IsBig12Game)).FirstOrDefault();
-            FOX.AssignGame(bigNoon, week, 12, 0);
+            var queue= games.Where(g => g.IsBig10Game).ToQueue();
+            queue.Enqueue(games.Where(g => g.IsBig12Game));
+            if (queue.TryExhaustiveDequeue(out var bigNoon))
+            {
+                FOX.AssignGame(bigNoon, week, 12, 0);
+            }
 
             // best available big 12 game goes to 3:30pm, fall back to pac 12
-            var bg12Afternoon = games.Where(g => g.IsBig12Game && !g.Assigned).Concat(games.Where(g => g.IsPac12Game)).FirstOrDefault();
-            FOX.AssignGame(bg12Afternoon, week, 3, 30);
+            queue = games.Where(g => g.IsBig12Game && !g.Assigned).ToQueue();
+            queue.Enqueue(games.Where(g => g.IsPac12Game));
 
-            // in september there's no playoff baseball so we get a late game, lead with pac 12 and fallback to big 12
+            if (queue.TryExhaustiveDequeue(out var bg12Afternoon))
+            {
+                FOX.AssignGame(bg12Afternoon, week, 3, 30);
+            }
+
+            // in september there's no playoff baseball so we get a late game, lead with pac 12 and fallback to big 12/big 10
             if (!week.IsOctober())
             {
-                var primetimeGame = games.Where(g => g.IsPac12Game && !g.Assigned).Concat(games.Where(g => g.IsBig10Game && !g.Assigned)).Concat(games.Where(g => g.IsBig12Game && !g.Assigned)).FirstOrDefault();
-                FOX.AssignGame(primetimeGame, week, 7, 30);
+                queue = games.Where(g => g.IsPac12Game && !g.Assigned).ToQueue();
+                queue.Enqueue(games.Where(g => g.IsBig12Game && !g.Assigned));
+                queue.Enqueue(games.Where(g => g.IsBig10Game && !g.Assigned));
+
+                if (queue.TryExhaustiveDequeue(out var primetimeGame))
+                {
+                    FOX.AssignGame(primetimeGame, week, 7, 30);
+                }
             }
 
             // fox friday , in september it's the best of the remaining big12/big 10/pac 12 games at 830pm

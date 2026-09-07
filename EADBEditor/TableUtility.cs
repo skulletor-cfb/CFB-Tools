@@ -655,6 +655,34 @@ namespace EA_DB_Editor
             return new Queue<T>(items);
         }
 
+        public static void Enqueue<T>(this Queue<T> queue, IEnumerable<T> items)
+        {
+            foreach (var item in items)
+            {
+                queue.Enqueue(item);
+            }
+        }
+
+        /// <summary>
+        /// dequeue until we empty the queue
+        /// </summary>
+        /// <param name="queue"></param>
+        /// <param name="game"></param>
+        /// <returns></returns>
+        public static bool TryExhaustiveDequeue(this Queue<TelevisedGame> queue, out TelevisedGame game)
+        {
+            while(queue.Count > 0)
+            {
+                if(queue.TryDequeueGame(out game))
+                {
+                    return true;
+                }
+            }
+
+            game = null;
+            return false;
+        }
+
         public static bool TryDequeueGame(this Queue<TelevisedGame> queue, out TelevisedGame game)
         {
             if (queue.TryDequeue(out game) && !game.Assigned)

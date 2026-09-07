@@ -16,25 +16,10 @@ namespace EA_DB_Editor.Scheduling
         public Dictionary<TimeSlot, TelevisedGame> ABC = new Dictionary<TimeSlot, TelevisedGame>();
         public Dictionary<TimeSlot, TelevisedGame> ESPN = new Dictionary<TimeSlot, TelevisedGame>();
         public Dictionary<TimeSlot, TelevisedGame> ESPN2 = new Dictionary<TimeSlot, TelevisedGame>();
+
+        public Dictionary<TimeSlot, TelevisedGame> ESPNU = new Dictionary<TimeSlot, TelevisedGame>();
         private ESPNNetworks() : base("ESPN")
         {
-            //build ABC, they have 12, 3:30, 7:30 each saturday
-            for (int i = 0; i <= 13; i++)
-            {
-                var noon = new TimeSlot(12, 0, i);
-                var secGotw = new TimeSlot(3, 30, i);
-                var espnPrimetime = new TimeSlot(7, 00, i);
-                var primetime = new TimeSlot(7, 30, i);
-                var eightPM = new TimeSlot(8, 00, i);
-                var afterDark = new TimeSlot(10, 30, i);
-                ABC.Add(noon, null);
-                ABC.Add(secGotw, null);
-                ABC.Add(primetime, null);
-                ESPN.Add(noon, null);
-                ESPN.Add(secGotw, null);
-                ESPN.Add(espnPrimetime, null);
-                ESPN.Add(afterDark, null);
-            }
         }
 
         public override void Report()
@@ -42,6 +27,7 @@ namespace EA_DB_Editor.Scheduling
             WriteReport("abc", ABC);
             WriteReport("espn", ESPN);
             WriteReport("espn2", ESPN2);
+            WriteReport("espnu", ESPNU);
         }
 
         public override NetworkSchedule AssignGames()
@@ -49,7 +35,113 @@ namespace EA_DB_Editor.Scheduling
             AssignMWCAfterDark();
             AssignSecGamesOfTheWeek();
             AssignP5ESPN();
+            AssignABCNoon();
+            AssignACCFriday();
+            MidMajorThursday();
             return this;
+        }
+
+        /// <summary>
+        /// mid major thursday games, not MWC at 730 on both ESPN/ESPN2
+        /// </summary>
+        private void MidMajorThursday()
+        {
+            // we start the friday after labor day
+            var fridayStarts = TelevisionScheduler.LaborDayWeek() + 1;
+
+            for (int i = fridayStarts; i <= 12; i++)
+            {
+                var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && !g.HomeTeamIsP5).OrderBy(g => g.Score).ToQueue();
+                var games = new List<TelevisedGame>();
+                bool mwcFound = false;
+
+                // find 3 games, but at most 1 mwc game
+                while (games.Count < 3)
+                {
+                    if (queue.TryDequeueGame(out var game))
+                    {
+                        if (mwcFound && game.IsMWCGame)
+                        {
+                            continue;
+                        }
+         
+                        games.Add(game);
+                        mwcFound = mwcFound || game.IsMWCGame;
+                    }
+                }
+
+                var espnuGame = games[2];
+                var espnuTimeSlot = games[2].IsMWCGame ? new TimeSlot(8, 30, i, day: 3) : new TimeSlot(7, 0, i, day: 3);
+
+                var espnGame = games[0].IsMWCGame ? games[1] : games[0];
+                var espnTimeSlot = new TimeSlot(7, 30, i, day: 3);
+
+                var espn2Game = games[0].IsMWCGame ? games[0] : games[1];
+                var espn2Timeslot = espn2Game.IsMWCGame ? new TimeSlot(8, 30, i, day: 3) : new TimeSlot(8, 0, i, day: 3);
+
+                ESPN.AssignGame(espnGame, espnTimeSlot);
+                ESPNU.AssignGame(espnuGame, espnuTimeSlot);
+                ESPN2.AssignGame(espn2Game, espn2Timeslot);
+            }
+        }
+
+        // the best acc game left is one friday 8pm
+        private void AssignACCFriday()
+        {
+            // we start the friday after labor day
+            var fridayStarts = TelevisionScheduler.LaborDayWeek()+1;
+
+            for (int i = fridayStarts; i <= 12; i++)
+            {
+                // look for conference game first
+                var queue = this.WeeklySchedule[i]
+                    .Where(g => g.IsAccGame && g.IsConferenceGame).ToQueue();
+
+                // any acc hosted game
+                queue.Enqueue(this.WeeklySchedule[i].Where(g => g.IsAccGame));
+
+                if(queue.TryExhaustiveDequeue(out var game))
+                {
+                    ESPN.AssignGame(game, i, 8, 0, 4);
+                }
+            }
+        }
+
+        private void AssignABCNoon()
+        {
+            // first 5 weeks is the best game left over
+            for (int i = 0; i < 5; i++)
+            {
+                var queue = this.WeeklySchedule[i]
+                    .Where(g => !g.Assigned && g.IntraConferenceP5).OrderBy(g => g.Score).ToQueue();
+
+                queue.Enqueue(this.WeeklySchedule[i]
+                    .Where(g => !g.Assigned && g.HomeTeamIsP5).OrderBy(g => g.Score));
+
+                queue.Enqueue(this.WeeklySchedule[i]);
+
+                if (queue.TryExhaustiveDequeue(out var game))
+                {
+                    ABC.AssignGame(game, i, 12, 0);
+                }
+            }
+
+            // sec games first
+            for (int i = 5; i <= 13; i++)
+            {
+                var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsSecConferenceGame).OrderBy(g => g.Score).ToQueue();
+                queue.Enqueue(this.WeeklySchedule[i].Where(g => !g.IsMWCGame));
+
+                if (queue.TryExhaustiveDequeue(out var game))
+                {
+                    if (game.IsMWCGame)
+                    {
+                        continue;
+                    }
+
+                    ABC.AssignGame(game, i, 12, 0);
+                }
+            }
         }
 
         /// <summary>
@@ -62,22 +154,24 @@ namespace EA_DB_Editor.Scheduling
                 var games = this.WeeklySchedule[i]
                     .Where(g => !g.Assigned && g.HomeTeamIsP5).OrderBy(g => g.Score).ToQueue();
 
-                if (games.TryDequeueGame(out var game))
+                games.Enqueue(this.WeeklySchedule[i]);
+
+                if (games.TryExhaustiveDequeue(out var game))
                 {
                     ESPN.AssignGame(game, i, 7, 0);
                 }
 
-                if (games.TryDequeueGame(out game))
-                {
-                    ESPN2.AssignGame(game, i, 8, 0);
-                }
-
-                if (games.TryDequeueGame(out game))
+                if (games.TryExhaustiveDequeue(out game))
                 {
                     ESPN.AssignGame(game, i, 3, 30);
                 }
 
-                if (games.TryDequeueGame(out game))
+                if (games.TryExhaustiveDequeue(out game))
+                {
+                    ESPN2.AssignGame(game, i, 8, 0);
+                }
+
+                if (games.TryExhaustiveDequeue(out game))
                 {
                     ESPN2.AssignGame(game, i, 4, 0);
                 }
@@ -116,7 +210,7 @@ namespace EA_DB_Editor.Scheduling
                 // top one goes to 330 unless its LSU
                 var secConferenceGames = games.Where(g => !g.Assigned && g.IsSecConferenceGame).OrderBy(g => g.Score).ToQueue();
 
-                if (secConferenceGames.TryDequeueGame(out var gotw))
+                if (secConferenceGames.TryExhaustiveDequeue(out var gotw))
                 {
                     var secondarySlot = new TimeSlot(7, 30, i);
                     if (gotw.HomeTeam == TableUtility.LSUId)
@@ -129,23 +223,23 @@ namespace EA_DB_Editor.Scheduling
                         ABC.AssignGame(gotw, i, 3, 30);
                     }
 
-                    if (secGames.TryDequeueGame(out var primetime))
+                    if (secGames.TryExhaustiveDequeue(out var primetime))
                     {
                         ABC.AssignGame(primetime, secondarySlot);
                     }
-                    else if (secConferenceGames.TryDequeueGame(out primetime))
+                    else if (secConferenceGames.TryExhaustiveDequeue(out primetime))
                     {
                         ABC.AssignGame(primetime, secondarySlot);
                     }
                 }
                 else
                 {
-                    if (secGames.TryDequeueGame(out var primetime))
+                    if (secGames.TryExhaustiveDequeue(out var primetime))
                     {
                         ABC.AssignGame(primetime, i, 7, 30);
                     }
 
-                    if (secGames.TryDequeueGame(out gotw))
+                    if (secGames.TryExhaustiveDequeue(out gotw))
                     {
                         ABC.AssignGame(gotw, i, 3, 30);
                     }
@@ -163,7 +257,7 @@ namespace EA_DB_Editor.Scheduling
 
             // for big 12 espn gets half in the cadnce 0-3, 5, 7, 9, 11, 13, 15, 17, 19 ...
             var big12Games = televisedGames[TableUtility.Big12Id];
-            this.SelectedGames.AddRange(big12Games.Take(4).Select(g=>g.Select()));
+            this.SelectedGames.AddRange(big12Games.Take(4).Select(g => g.Select()));
 
             // remove the first 4 and last 4 from big 12 games and assign half
             var big12OnESPN = big12Games.Skip(4).Take(big12Games.Count - 8).ToArray();
@@ -178,6 +272,9 @@ namespace EA_DB_Editor.Scheduling
             {
                 this.SelectedGames.Add(kvp.Value[0].Select());
             }
+
+            // all american, sun belt, cusa, mac games
+            this.SelectedGames.AddRange(televisedGames.Values.SelectMany(g => g).Where(g => !g.Selected && !g.HomeTeamIsP5).Select(g => g.Select()));
         }
     }
 }

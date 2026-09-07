@@ -53,6 +53,9 @@ namespace EA_DB_Editor.Scheduling
         public bool IsMilitaryAcademyGame => IsArmyAirForce || IsAirForceNavy || IsArmyNavy;
         public bool IsAirForce => HomeTeam == 1;
         public bool IsMilitaryHomeGame => IsAirForce || HomeTeam == 8 || HomeTeam == 57;
+        public bool AwayTeamIsP5 => AwayTeam.IsP5OrND();
+        public bool IntraConferenceP5 => AwayTeamIsP5 && HomeTeamIsP5 && TableUtility.TeamAndConferences[AwayTeam] != TableUtility.TeamAndConferences[HomeTeam];
+        public bool IsMWCGame => ConferenceOwner == TableUtility.MWCId;
         public TelevisedGame(MaddenRecord mr, Dictionary<int, MaddenRecord> teams)
         {
             Record = mr;
@@ -64,6 +67,7 @@ namespace EA_DB_Editor.Scheduling
             score /= 2;
             score += ScheduleFixup.IsRivalryGame(AwayTeam, HomeTeam) ? -10 : 0;
             score += TableUtility.TeamAndConferences.TeamsInSameConference(AwayTeam, HomeTeam) ? -5 : 0;
+            score -= (home.Prestige() + away.Prestige()) / 2; // more prestigious game should rank higher
             Score = score;
             ConferenceOwner = (IsNotreDameHomeGame || IsShamrockSeries || IsNotreDameAtNavy) ? TableUtility.NotreDameId : TableUtility.GameConferenceOwner(HomeTeam);
             Week = mr.GameWeek();

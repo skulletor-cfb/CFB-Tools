@@ -68,7 +68,14 @@ namespace EA_DB_Editor.Scheduling
             }
 
             // rocky mountain showdown will get assigned manually
-            if ((game.HomeTeam == 22 && game.AwayTeam == 23) || (game.HomeTeam == 23 && game.AwayTeam == 22))
+            if (game.CheckMatchup(22, 23))
+            {
+                game.PreAssigned();
+                return false;
+            }
+
+            // thanksgiving and black friday will be pre assigned
+            if (game.Week == 13 && game.Day != 5)
             {
                 game.PreAssigned();
                 return false;
@@ -116,6 +123,11 @@ namespace EA_DB_Editor.Scheduling
         public static void ReturnInventory(this List<TelevisedGame> games)
         {
             games.Where(g => !g.Assigned).ToList().ForEach(g => g.Deselect());
+        }
+
+        public static int LaborDayWeek()
+        {
+            return CurrentSeason.IsLaborDayWeekendFirstWeek ? 0 : 1;
         }
     }
 }
