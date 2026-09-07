@@ -13,7 +13,7 @@ namespace EA_DB_Editor.Scheduling
 {
     public static class TelevisionScheduler
     {
-        private static  SeasonCalendar currentSeason;
+        private static SeasonCalendar currentSeason;
         public static SeasonCalendar CurrentSeason
         {
             get
@@ -27,10 +27,12 @@ namespace EA_DB_Editor.Scheduling
             }
         }
 
+        public static Dictionary<int, List<TelevisedGame>> AllGames = null;
+
         public static void FixTelevisionSchedule()
         {
             var team = TableUtility.FindTable("TEAM").lRecords.ToDictionary(mr => mr.TeamId());
-            var games = TableUtility.FindTable("SCHD").lRecords
+            var games = AllGames = TableUtility.FindTable("SCHD").lRecords
                 .Select(mr => new TelevisedGame(mr, team))
                 .Where(g => g.GameNeedsAssignment())
                 .GroupBy(g => g.ConferenceOwner)
@@ -123,7 +125,7 @@ namespace EA_DB_Editor.Scheduling
 
         public static void AssignGame(this Dictionary<TimeSlot, TelevisedGame> schedule, TelevisedGame game, TimeSlot timeslot)
         {
-            if( game == null|| schedule.ContainsKey(timeslot))  return;
+            if (game == null || schedule.ContainsKey(timeslot)) return;
 
             schedule[timeslot] = game.Assign(timeslot);
         }
@@ -168,6 +170,19 @@ namespace EA_DB_Editor.Scheduling
         public static int LastWeekOfOctober()
         {
             for (int i = CurrentSeason.Weeks.Length - 1; i >= 0; i--)
+            {
+                if (CurrentSeason.IsOctober(i))
+                {
+                    return i;
+                }
+            }
+
+            throw new Exception("Bad calendar");
+        }
+
+        public static int FirstWeekOfOctober()
+        {
+            for (int i = 0; i <= 13; i++)
             {
                 if (CurrentSeason.IsOctober(i))
                 {

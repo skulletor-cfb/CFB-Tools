@@ -39,6 +39,7 @@ namespace EA_DB_Editor.Scheduling
 
         public override NetworkSchedule AssignGames()
         {
+            AssignSunBeltTuesday();
             AssignThanksgivingWeekend();
             AssignMACtion();
             AssignMWCAfterDark();
@@ -55,6 +56,49 @@ namespace EA_DB_Editor.Scheduling
             AssignSECNetwork(new[] { new TimeSlot(12, 45), new TimeSlot(7, 45), });
             AssignESPNU();
             return this;
+        }
+
+        /// <summary>
+        /// find a matchup where they have a previous bye week
+        /// </summary>
+        private void AssignSunBeltTuesday()
+        {
+            var dict = new Dictionary<int, TelevisedGame[]>();
+            var sunBeltGames = TelevisionScheduler.AllGames.Values.SelectMany(g => g).Where(g => g.HomeTeam.IsSunBeltTeam() || g.AwayTeam.IsSunBeltTeam());
+
+            // build the schedules
+            foreach (var game in sunBeltGames)
+            {
+                if( !dict.TryGetValue(game.AwayTeam, out var awaySchedule))
+                {
+                    awaySchedule = dict[game.AwayTeam] = new TelevisedGame[14];
+                }
+
+                if (!dict.TryGetValue(game.HomeTeam, out var homeSchedule))
+                {
+                    homeSchedule = dict[game.HomeTeam] = new TelevisedGame[14];
+                }
+
+                awaySchedule[game.Week] = game;
+                homeSchedule[game.Week] = game;
+            }
+
+            // walk backgrounds with week 12
+            for (int i = 12; i > TelevisionScheduler.FirstWeekOfOctober(); i--)
+            {
+                var gamesThisWeek = sunBeltGames.Where(g => g.Week== i).ToList();
+                var eligibleGame = gamesThisWeek.Where(
+                    g =>
+                    {
+                        return dict[g.AwayTeam][i - 1] == null && dict[g.HomeTeam][i - 1] == null;
+                    }).FirstOrDefault();
+
+                if (eligibleGame != null)
+                {
+                    ESPN.AssignGame(eligibleGame, i, 8, 0, day: 1);
+                    continue;
+                }
+            }
         }
 
         private void AssignThanksgivingWeekend()
