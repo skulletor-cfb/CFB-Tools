@@ -39,12 +39,14 @@ namespace EA_DB_Editor.Scheduling
 
         public override NetworkSchedule AssignGames()
         {
+            AssignThanksgivingWeekend();
             AssignMACtion();
             AssignMWCAfterDark();
             AssignSecGamesOfTheWeek();
             AssignP5ESPN();
             AssignABCNoon();
             AssignACCFriday();
+            AssignAmericanFriday();
             AssignMidMajorThursday();
             AssignACCNetwork(new[] { new TimeSlot(3, 30) });
             AssignSECNetwork(new[] { new TimeSlot(4, 15) });
@@ -53,6 +55,41 @@ namespace EA_DB_Editor.Scheduling
             AssignSECNetwork(new[] { new TimeSlot(12, 45), new TimeSlot(7, 45), });
             AssignESPNU();
             return this;
+        }
+
+        private void AssignThanksgivingWeekend()
+        {
+            AssignThanksgivingDay();
+            AssignSECThanksgivingWeekend();
+        }
+
+        private void AssignSECThanksgivingWeekend()
+        {
+            var queue = this.WeeklySchedule[13].Where(g => !g.Assigned&&( g.IsSecGame || g.IsSecAccGame)).ToQueue();
+            ABC.AssignGame(queue.Dequeue(), 13, 7, 30, 4);
+            ABC.AssignGame(queue.Dequeue(), 13, 3, 30, 5);
+            ABC.AssignGame(queue.Dequeue(), 13, 7, 30, 5);
+            ABC.AssignGame(queue.Dequeue(), 13, 3, 30, 4);
+            ABC.AssignGame(queue.Dequeue(), 13, 12, 0, 5);
+            ABC.AssignGame(queue.Dequeue(), 13, 12, 0, 4);
+        }
+
+        private void AssignThanksgivingDay()
+        {
+            // start with thanksgiving egg bowl at 12pm
+            var eggBowl = this.WeeklySchedule[13].Where(g => g.IsEggBowl).FirstOrDefault();
+            var kuMizzou = this.WeeklySchedule[13].Where(g => g.IsCivilWar).FirstOrDefault();
+            var texasTamu = this.WeeklySchedule[13].Where(g => g.IsTexasShowDown).FirstOrDefault();
+            var texasTech = this.WeeklySchedule[13].Where(g => g.IsTexasTechGame).FirstOrDefault();
+            var smuhou = this.WeeklySchedule[13].Where(g => g.IsSMUHOU).FirstOrDefault();
+            var tcubu = this.WeeklySchedule[13].Where(g => g.IsTCUBU).FirstOrDefault();
+            var queue = new[] { texasTamu, kuMizzou, texasTech, eggBowl }.Where(g => g != null).ToQueue();
+            queue.Enqueue(this.WeeklySchedule[13].Where(g => g.IsAccGame && g.IsConferenceGame).Skip(2).First());
+            queue.Enqueue(new[] { tcubu, smuhou }.Where(g => g != null));
+
+            ESPN.AssignGame(queue.Dequeue(), 13, 8, 0, 3);
+            ESPN.AssignGame(queue.Dequeue(), 13, 4, 0, 3);
+            ESPN.AssignGame(queue.Dequeue(), 13, 12, 0, 3);
         }
 
         private void AssignMACtion()
@@ -263,11 +300,43 @@ namespace EA_DB_Editor.Scheduling
             }
         }
 
+        /// <summary>
+        /// the best American game of the week is played on Friday ESPN2, starting 3 weeks after labor day
+        /// </summary>
+        private void AssignAmericanFriday()
+        {
+            TelevisedGame game = null;
+            // we start the friday after labor day
+            var fridayStarts = TelevisionScheduler.LaborDayWeek() + 3;
+
+            for (int i = fridayStarts; i <= 12; i++)
+            {
+                // look for conference game first
+                var queue = this.WeeklySchedule[i].Where(g => g.IsAmericanGame && !g.Assigned).ToQueue();
+
+                if (queue.TryExhaustiveDequeue(out  game))
+                {
+                    ESPN2.AssignGame(game, i, 7, 30, 4);
+                }
+            }
+
+            var blackFriday = this.WeeklySchedule[13].Where(g => g.IsAmericanGame && !g.Assigned).ToQueue();
+            if (blackFriday.TryDequeueGame(out  game))
+            {
+                ESPN.AssignGame(game, 13, 12, 0, 4);
+            }
+
+            if (blackFriday.TryDequeueGame(out game))
+            {
+                ESPN.AssignGame(game, 13, 3, 30, 4);
+            }
+        }
+
         // the best acc game left is one friday 8pm
         private void AssignACCFriday()
         {
             // we start the friday after labor day
-            var fridayStarts = TelevisionScheduler.LaborDayWeek()+1;
+            var fridayStarts = TelevisionScheduler.LaborDayWeek() + 1;
 
             for (int i = fridayStarts; i <= 12; i++)
             {
@@ -278,7 +347,7 @@ namespace EA_DB_Editor.Scheduling
                 // any acc hosted game
                 queue.Enqueue(this.WeeklySchedule[i].Where(g => g.IsAccGame));
 
-                if(queue.TryExhaustiveDequeue(out var game))
+                if (queue.TryExhaustiveDequeue(out var game))
                 {
                     ESPN.AssignGame(game, i, 8, 0, 4);
                 }
@@ -305,10 +374,11 @@ namespace EA_DB_Editor.Scheduling
             }
 
             // sec games first
-            for (int i = 5; i <= 13; i++)
+            for (int i = 5; i <= 12; i++)
             {
                 var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsSecConferenceGame).OrderBy(g => g.Score).ToQueue();
-                queue.Enqueue(this.WeeklySchedule[i].Where(g => !g.IsMWCGame));
+                queue.Enqueue(this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsAmericanGame));
+                queue.Enqueue(this.WeeklySchedule[i].Where(g => !g.Assigned && !g.IsMWCGame));
 
                 if (queue.TryExhaustiveDequeue(out var game))
                 {
@@ -360,7 +430,7 @@ namespace EA_DB_Editor.Scheduling
 
                 if (games.TryExhaustiveDequeue(out var game))
                 {
-                    ESPN.AssignGame(game, i, 7, 0);
+                    ESPN.AssignGame(game, i, 8, 0);
                 }
 
                 if (games.TryExhaustiveDequeue(out game))
@@ -375,7 +445,7 @@ namespace EA_DB_Editor.Scheduling
 
                 if (games.TryExhaustiveDequeue(out game))
                 {
-                    ESPN2.AssignGame(game, i, 8, 30);
+                    ESPN2.AssignGame(game, i, 7, 0);
                 }
             }
         }
@@ -403,7 +473,7 @@ namespace EA_DB_Editor.Scheduling
         /// </summary>
         private void AssignSecGamesOfTheWeek()
         {
-            for (int i = 0; i <= 13; i++)
+            for (int i = 0; i <= 12; i++)
             {
                 // top sec conference game
                 var games = this.WeeklySchedule[i];

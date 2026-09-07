@@ -20,6 +20,13 @@ namespace EA_DB_Editor.Scheduling.TV
                 var nd = kvp.Value.Where(g => g.IsNotreDameHomeGame).FirstOrDefault();
                 var b10 = kvp.Value.Where(g => !g.IsNotreDameHomeGame).FirstOrDefault();
 
+                // nbc plays the last game on friday
+                if (kvp.Key == 13)
+                {
+                    Primary.AssignGame(b10, kvp.Key, 7, 30, day: 4);
+                    b10 = null;
+                }
+
                 // no nd game, b10 it is
                 if (nd == null)
                 {

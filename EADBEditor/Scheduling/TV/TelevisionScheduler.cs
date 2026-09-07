@@ -45,12 +45,20 @@ namespace EA_DB_Editor.Scheduling
             FoxNetworks.Instance.SelectGames(games);
 
             // assign the games
-            CWNetwork.Instance.AssignGames().Report();
-            ESPNNetworks.Instance.AssignGames().Report();
-            CBSNetwork.Instance.AssignGames().Report();
-            NBCNetwork.Instance.AssignGames().Report();
-            FoxNetworks.Instance.AssignGames().Report();
-            CBSSportsNetwork.Instance.AssignGames().Report();
+            CWNetwork.Instance.AssignGames();
+            ESPNNetworks.Instance.AssignGames();
+            CBSNetwork.Instance.AssignGames();
+            NBCNetwork.Instance.AssignGames();
+            FoxNetworks.Instance.AssignGames();
+            CBSSportsNetwork.Instance.AssignGames();
+
+            //report
+            CWNetwork.Instance.Report();
+            ESPNNetworks.Instance.Report();
+            CBSNetwork.Instance.Report();
+            NBCNetwork.Instance.Report();
+            FoxNetworks.Instance.Report();
+            CBSSportsNetwork.Instance.Report();
 
             var unassigned = games.Values.SelectMany(l => l).Where(g => g.Assigned == false).ToList();
             var json = JsonConvert.SerializeObject(
@@ -93,6 +101,13 @@ namespace EA_DB_Editor.Scheduling
                 return false;
             }
 
+            // Mayhem at MBS, Oyster Bowl, Johnny Majors Classic do not get reassigned
+            if (game.GTOD == 733 || game.GTOD == 717 || game.GTOD == 737)
+            {
+                game.PreAssigned();
+                return false;
+            }
+
             return !game.Assigned;
         }
 
@@ -108,11 +123,14 @@ namespace EA_DB_Editor.Scheduling
 
         public static void AssignGame(this Dictionary<TimeSlot, TelevisedGame> schedule, TelevisedGame game, TimeSlot timeslot)
         {
+            if( game == null|| schedule.ContainsKey(timeslot))  return;
+
             schedule[timeslot] = game.Assign(timeslot);
         }
 
         public static void AssignGame(this List<(TimeSlot time, TelevisedGame game)> schedule, TelevisedGame game, TimeSlot timeslot)
         {
+            if (game == null) return;
             schedule.Add((timeslot, game.Assign(timeslot)));
         }
 

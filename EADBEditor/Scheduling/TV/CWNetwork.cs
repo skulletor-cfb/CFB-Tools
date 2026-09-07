@@ -85,7 +85,16 @@ namespace EA_DB_Editor.Scheduling.TV
 
                     if (schedule.Late == null)
                     {
-                        schedule.Late = late;
+
+                        // week 13, the late game goes to Friday 430pm
+                        if (week == 13)
+                        {
+                            schedule.Late = new TimeSlot(4, 30, week, day: 4);
+                        }
+                        else
+                        {
+                            schedule.Late = late;
+                        }
                         Primary.AssignGame(game, schedule.Late);
                         continue;
                     }

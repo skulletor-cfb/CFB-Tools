@@ -60,6 +60,13 @@ namespace EA_DB_Editor.Scheduling
         public bool AwayTeamIsP5 => AwayTeam.IsP5OrND();
         public bool IntraConferenceP5 => AwayTeamIsP5 && HomeTeamIsP5 && TableUtility.TeamAndConferences[AwayTeam] != TableUtility.TeamAndConferences[HomeTeam];
         public bool IsMWCGame => ConferenceOwner == TableUtility.MWCId;
+        public bool IsAmericanGame => ConferenceOwner == TableUtility.AmericanId;
+        public bool IsEggBowl => CheckMatchup(55, 73);
+        public bool IsTexasShowDown => CheckMatchup(92, 93);
+        public bool IsCivilWar => CheckMatchup(39, 56);
+        public bool IsTexasTechGame => CheckMatchup(92, 94);
+        public bool IsTCUBU => CheckMatchup(11, 89);
+        public bool IsSMUHOU => CheckMatchup(33, 83);
         public TelevisedGame(MaddenRecord mr, Dictionary<int, MaddenRecord> teams)
         {
             Record = mr;

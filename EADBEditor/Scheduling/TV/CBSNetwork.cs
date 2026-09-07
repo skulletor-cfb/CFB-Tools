@@ -29,7 +29,8 @@ namespace EA_DB_Editor.Scheduling.TV
                 {
                     if (game.IsBig10Game)
                     {
-                        var slot = new TimeSlot(3, 30, week: kvp.Key);
+                        // CBS game is black friday at noon 
+                        var slot = kvp.Key == 13 ? new TimeSlot(12, 0, week: kvp.Key, day: 4) : new TimeSlot(3, 30, week: kvp.Key);
 
                         if (!Primary.ContainsKey(slot))
                         {
