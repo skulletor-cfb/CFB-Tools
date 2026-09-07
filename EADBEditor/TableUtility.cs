@@ -665,7 +665,7 @@ namespace EA_DB_Editor
             return false;
         }
 
-        public static bool TryDequeue<T>(this Queue<T> queue, out T result)
+        private static bool TryDequeue<T>(this Queue<T> queue, out T result)
         {
             if (queue.Count == 0)
             {

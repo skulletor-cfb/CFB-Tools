@@ -65,22 +65,22 @@ namespace EA_DB_Editor.Scheduling
                 var games = this.WeeklySchedule[i]
                     .Where(g => !g.Assigned && g.HomeTeamIsP5).OrderBy(g => g.Score).ToQueue();
 
-                if (games.TryDequeue(out var game))
+                if (games.TryDequeueGame(out var game))
                 {
                     ESPN.AssignGame(game, i, 7, 0);
                 }
 
-                if (games.TryDequeue(out game))
+                if (games.TryDequeueGame(out game))
                 {
                     ESPN2.AssignGame(game, i, 8, 0);
                 }
 
-                if (games.TryDequeue(out game))
+                if (games.TryDequeueGame(out game))
                 {
                     ESPN.AssignGame(game, i, 3, 30);
                 }
 
-                if (games.TryDequeue(out game))
+                if (games.TryDequeueGame(out game))
                 {
                     ESPN2.AssignGame(game, i, 3, 30);
                 }
@@ -119,7 +119,7 @@ namespace EA_DB_Editor.Scheduling
                 // top one goes to 330 unless its LSU
                 var secConferenceGames = games.Where(g => !g.Assigned && g.IsSecConferenceGame).OrderBy(g => g.Score).ToQueue();
 
-                if (secConferenceGames.TryDequeue(out var gotw))
+                if (secConferenceGames.TryDequeueGame(out var gotw))
                 {
                     var secondarySlot = new TimeSlot(7, 30, i);
                     if (gotw.HomeTeam == TableUtility.LSUId)
@@ -132,23 +132,23 @@ namespace EA_DB_Editor.Scheduling
                         ABC.AssignGame(gotw, i, 3, 30);
                     }
 
-                    if (secGames.TryDequeue(out var primetime))
+                    if (secGames.TryDequeueGame(out var primetime))
                     {
                         ABC.AssignGame(primetime, secondarySlot);
                     }
-                    else if (secConferenceGames.TryDequeue(out primetime))
+                    else if (secConferenceGames.TryDequeueGame(out primetime))
                     {
                         ABC.AssignGame(primetime, secondarySlot);
                     }
                 }
                 else
                 {
-                    if (secGames.TryDequeue(out var primetime))
+                    if (secGames.TryDequeueGame(out var primetime))
                     {
                         ABC.AssignGame(primetime, i, 7, 30);
                     }
 
-                    if (secGames.TryDequeue(out gotw))
+                    if (secGames.TryDequeueGame(out gotw))
                     {
                         ABC.AssignGame(gotw, i, 3, 30);
                     }

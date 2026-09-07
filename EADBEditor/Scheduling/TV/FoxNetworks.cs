@@ -155,7 +155,7 @@ namespace EA_DB_Editor.Scheduling.TV
                 new TimeSlot(7,0,week,day:4),
             });
 
-            while (btn.TryDequeue(out var game))
+            while (btn.TryDequeueGame(out var game))
             {
                 if (!stack.TryPop(out var timeslot))
                 {
