@@ -140,6 +140,7 @@
     <Compile Include="Scheduling\ScheduleUtility.cs" />
     <Compile Include="Scheduling\SunBeltSchedule.cs" />
     <Compile Include="Scheduling\TV\CBSNetwork.cs" />
+    <Compile Include="Scheduling\TV\CBSSportsNetwork.cs" />
     <Compile Include="Scheduling\TV\CWNetwork.cs" />
     <Compile Include="Scheduling\TV\ESPNNetworks.cs" />
     <Compile Include="Scheduling\TV\FoxNetworks.cs" />

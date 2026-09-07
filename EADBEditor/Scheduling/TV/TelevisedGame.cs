@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,6 +21,7 @@ namespace EA_DB_Editor.Scheduling
         public int AwayTeam { get; }
         public int HomeTeam { get; }
         public bool IsConferenceGame { get; }
+        [JsonIgnore]
         public MaddenRecord Record { get; }
         public bool IsSecAccGame { get; }
         public bool IsSecConferenceGame => IsConferenceGame && ConferenceOwner == TableUtility.SECId;
@@ -45,6 +47,12 @@ namespace EA_DB_Editor.Scheduling
         public bool BothTeamsRanked { get; }
         public bool IsArizonaGame => HomeTeam == 4 || HomeTeam == 5;
         public bool IsASUvAU => IsArizonaGame && (AwayTeam == 4 || AwayTeam == 5);
+        public bool IsArmyNavy => CheckMatchup(8, 57);
+        public bool IsArmyAirForce => CheckMatchup(1, 8);
+        public bool IsAirForceNavy => CheckMatchup(1, 57);
+        public bool IsMilitaryAcademyGame => IsArmyAirForce || IsAirForceNavy || IsArmyNavy;
+        public bool IsAirForce => HomeTeam == 1;
+        public bool IsMilitaryHomeGame => IsAirForce || HomeTeam == 8 || HomeTeam == 57;
         public TelevisedGame(MaddenRecord mr, Dictionary<int, MaddenRecord> teams)
         {
             Record = mr;
@@ -114,6 +122,11 @@ namespace EA_DB_Editor.Scheduling
         {
             Selected = false;
             return this;
+        }
+
+        public bool CheckMatchup(int a, int b)
+        {
+            return (HomeTeam == a && AwayTeam == b) || (HomeTeam == b && AwayTeam == a);
         }
     }
 }

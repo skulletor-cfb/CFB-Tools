@@ -47,7 +47,7 @@ namespace EA_DB_Editor.Scheduling.TV
             }
 
             // we might need to put games back into the pool
-            this.SelectedGames.Where(g => !g.Assigned).ToList().ForEach(g => g.Deselect());
+            this.SelectedGames.ReturnInventory();
             return this;
         }
 
@@ -65,14 +65,6 @@ namespace EA_DB_Editor.Scheduling.TV
 
             // all the notre dame games
             this.SelectedGames.AddRange(televisedGames[TableUtility.NotreDameId].Select(g => g.Select()));
-        }
-
-        private void AssignLateGame()
-        {
-        }
-
-        private void AssignAfternoonGame()
-        {
         }
     }
 }

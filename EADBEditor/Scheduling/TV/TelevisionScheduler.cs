@@ -1,8 +1,10 @@
 ﻿using EA_DB_Editor.Scheduling.TV;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -23,10 +25,11 @@ namespace EA_DB_Editor.Scheduling
                 .ToDictionary(g => g.Key, g => g.ToList());
 
             // select the games
-            CWNetwork.Instance.SelectGames(games);
-            ESPNNetworks.Instance.SelectGames(games);
             CBSNetwork.Instance.SelectGames(games);
             NBCNetwork.Instance.SelectGames(games);
+            CBSSportsNetwork.Instance.SelectGames(games);
+            CWNetwork.Instance.SelectGames(games);
+            ESPNNetworks.Instance.SelectGames(games);
             FoxNetworks.Instance.SelectGames(games);
 
             // assign the games
@@ -35,6 +38,16 @@ namespace EA_DB_Editor.Scheduling
             CBSNetwork.Instance.AssignGames().Report();
             NBCNetwork.Instance.AssignGames().Report();
             FoxNetworks.Instance.AssignGames().Report();
+            CBSSportsNetwork.Instance.AssignGames().Report();
+
+            var unassigned = games.Values.SelectMany(l => l).Where(g => g.Assigned == false).ToList();
+            var json = JsonConvert.SerializeObject(
+                new
+                {
+                    count = unassigned.Count,
+                    unassigned,
+                }, Formatting.Indented);
+            File.WriteAllText("unassigned-games.txt", json);
         }
 
         public static bool GameNeedsAssignment(this TelevisedGame game)
@@ -98,6 +111,11 @@ namespace EA_DB_Editor.Scheduling
         public static bool IsNovember(this int week)
         {
             return CurrentSeason.IsNovember(week);
+        }
+
+        public static void ReturnInventory(this List<TelevisedGame> games)
+        {
+            games.Where(g => !g.Assigned).ToList().ForEach(g => g.Deselect());
         }
     }
 }

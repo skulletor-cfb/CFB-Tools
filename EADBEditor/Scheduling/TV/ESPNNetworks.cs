@@ -82,7 +82,7 @@ namespace EA_DB_Editor.Scheduling
 
                 if (games.TryDequeueGame(out game))
                 {
-                    ESPN2.AssignGame(game, i, 3, 30);
+                    ESPN2.AssignGame(game, i, 4, 0);
                 }
             }
         }
