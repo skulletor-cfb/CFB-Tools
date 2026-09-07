@@ -34,9 +34,6 @@ namespace EA_DB_Editor.Scheduling
                 ESPN.Add(secGotw, null);
                 ESPN.Add(espnPrimetime, null);
                 ESPN.Add(afterDark, null);
-                ESPN2.Add(noon, null);
-                ESPN2.Add(secGotw, null);
-                ESPN2.Add(eightPM, null);
             }
         }
 
