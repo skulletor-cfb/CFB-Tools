@@ -80,7 +80,7 @@ namespace EA_DB_Editor.Scheduling.TV
             var queue = games.Where(g => !g.Assigned && !g.IsPac12Game).ToQueue();
             queue.Enqueue(games.Where(g => !g.Assigned && g.IsPac12Game));
 
-            while (queue.TryDequeueGame(out var game))
+            while (queue.TryDequeueGameForAssignment(out var game))
             {
                 if (game.IsPac12Game)
                 {
@@ -156,7 +156,7 @@ namespace EA_DB_Editor.Scheduling.TV
                 new TimeSlot(12,0,week),
             });
 
-            while (btn.TryDequeueGame(out var game))
+            while (btn.TryDequeueGameForAssignment(out var game))
             {
                 if (!stack.TryPop(out var timeslot))
                 {
@@ -176,7 +176,7 @@ namespace EA_DB_Editor.Scheduling.TV
             if (week <= 12)
             {
                 queue.Enqueue(games.Where(g => g.IsBig12Game));
-                if (queue.TryExhaustiveDequeue(out var bigNoon))
+                if (queue.TryDequeueGameForAssignment(out var bigNoon))
                 {
                     FOX.AssignGame(bigNoon, week, 12, 0);
                 }
@@ -209,7 +209,7 @@ namespace EA_DB_Editor.Scheduling.TV
             queue = games.Where(g => g.IsBig12Game && !g.Assigned).ToQueue();
             queue.Enqueue(games.Where(g => g.IsPac12Game));
 
-            if (queue.TryExhaustiveDequeue(out var bg12Afternoon))
+            if (queue.TryDequeueGameForAssignment(out var bg12Afternoon))
             {
                 FOX.AssignGame(bg12Afternoon, week, 3, 30);
             }
@@ -221,7 +221,7 @@ namespace EA_DB_Editor.Scheduling.TV
                 queue.Enqueue(games.Where(g => g.IsBig12Game && !g.Assigned));
                 queue.Enqueue(games.Where(g => g.IsBig10Game && !g.Assigned));
 
-                if (queue.TryExhaustiveDequeue(out var primetimeGame))
+                if (queue.TryDequeueGameForAssignment(out var primetimeGame))
                 {
                     FOX.AssignGame(primetimeGame, week, 7, 30);
                 }

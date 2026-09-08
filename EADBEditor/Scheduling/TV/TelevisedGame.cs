@@ -92,7 +92,7 @@ namespace EA_DB_Editor.Scheduling
             HomeTeamIsP5 = HomeTeam.IsP5OrND();
             Score += IsP5Game ? -5 : 0;
             IsFCSGame = AwayTeam.IsFcsTeam();
-            Score += IsFCSGame ? 100 : 0;
+            Score += IsFCSGame ? 1000 : 0;
 
             if ((AwayTeam == 70 && HomeTeam == 51) || (AwayTeam == 51 && HomeTeam == 70))
             {

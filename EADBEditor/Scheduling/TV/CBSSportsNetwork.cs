@@ -22,7 +22,7 @@ namespace EA_DB_Editor.Scheduling.TV
                 // military games go first
                 var queue = kvp.Value.Where(g => g.IsMilitaryHomeGame).ToQueue();
 
-                while (queue.TryDequeueGame(out var game))
+                while (queue.TryDequeueGameForAssignment(out var game))
                 {
                     if (game.IsAirForce)
                     {
@@ -41,7 +41,7 @@ namespace EA_DB_Editor.Scheduling.TV
 
                 // cusa games
                 queue = kvp.Value.Where(g => !g.IsMilitaryHomeGame).ToQueue();
-                while (queue.TryDequeueGame(out var game))
+                while (queue.TryDequeueGameForAssignment(out var game))
                 {
                     if (!Primary.ContainsKey(noon))
                     {

@@ -56,7 +56,7 @@ namespace EA_DB_Editor.Scheduling.TV
                     evening = new TimeSlot(7, 30, week: week);
                 }
 
-                while (queue.TryDequeueGame(out var game))
+                while (queue.TryDequeueGameForAssignment(out var game))
                 {
                     // acc will be played either at 4pm or 12:30pm
                     if (game.IsAccGame)
@@ -111,6 +111,7 @@ namespace EA_DB_Editor.Scheduling.TV
                 }
             }
 
+            this.SelectedGames.ReturnInventory();
             return this;
         }
 

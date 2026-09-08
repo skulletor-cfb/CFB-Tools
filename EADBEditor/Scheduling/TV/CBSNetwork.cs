@@ -25,7 +25,7 @@ namespace EA_DB_Editor.Scheduling.TV
             {
                 var queue = kvp.Value.ToQueue();
 
-                while (queue.TryDequeueGame(out var game))
+                while (queue.TryDequeueGameForAssignment(out var game))
                 {
                     if (game.IsBig10Game)
                     {

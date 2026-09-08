@@ -669,7 +669,7 @@ namespace EA_DB_Editor
         /// <param name="queue"></param>
         /// <param name="game"></param>
         /// <returns></returns>
-        public static bool TryExhaustiveDequeue(this Queue<TelevisedGame> queue, out TelevisedGame game)
+        public static bool TryDequeueGameForAssignment(this Queue<TelevisedGame> queue, out TelevisedGame game)
         {
             while(queue.Count > 0)
             {
@@ -683,7 +683,7 @@ namespace EA_DB_Editor
             return false;
         }
 
-        public static bool TryDequeueGame(this Queue<TelevisedGame> queue, out TelevisedGame game)
+        private static bool TryDequeueGame(this Queue<TelevisedGame> queue, out TelevisedGame game)
         {
             if (queue.TryDequeue(out game) && !game.Assigned)
             {

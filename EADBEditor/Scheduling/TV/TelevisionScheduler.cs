@@ -40,19 +40,24 @@ namespace EA_DB_Editor.Scheduling
 
             // select the games
             CBSNetwork.Instance.SelectGames(games);
+            CBSNetwork.Instance.AssignGames();
+
             NBCNetwork.Instance.SelectGames(games);
+            NBCNetwork.Instance.AssignGames();
+
             CBSSportsNetwork.Instance.SelectGames(games);
+            CBSSportsNetwork.Instance.AssignGames();
+
             CWNetwork.Instance.SelectGames(games);
+            CWNetwork.Instance.AssignGames();
+
+            // espn and fox now select
             ESPNNetworks.Instance.SelectGames(games);
             FoxNetworks.Instance.SelectGames(games);
 
             // assign the games
-            CWNetwork.Instance.AssignGames();
             ESPNNetworks.Instance.AssignGames();
-            CBSNetwork.Instance.AssignGames();
-            NBCNetwork.Instance.AssignGames();
             FoxNetworks.Instance.AssignGames();
-            CBSSportsNetwork.Instance.AssignGames();
 
             //report
             CWNetwork.Instance.Report();
@@ -154,7 +159,10 @@ namespace EA_DB_Editor.Scheduling
 
         public static void ReturnInventory(this List<TelevisedGame> games)
         {
-            games.Where(g => !g.Assigned).ToList().ForEach(g => g.Deselect());
+            foreach (var game in games.Where(g => !g.Assigned))
+            {
+                game.Deselect();
+            }
         }
 
         public static int LaborDayWeek()
