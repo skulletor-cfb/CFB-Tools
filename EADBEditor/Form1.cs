@@ -1811,7 +1811,7 @@ namespace EA_DB_Editor
         {
             var dict = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var name in names)
+            foreach (var name in names ?? Array.Empty<string>())
             {
                 dict[name] = 0;
             }
@@ -1906,8 +1906,8 @@ namespace EA_DB_Editor
                             names,
                             firstList,
                             lastList,
-                            50,
-                            50);
+                            35,
+                            35);
                     }
                     else if(false)
                     {
