@@ -45,6 +45,7 @@ namespace EA_DB_Editor.Scheduling
         public bool IsBig12Game => ConferenceOwner == TableUtility.Big12Id;
         public bool IsPac12Game => ConferenceOwner == TableUtility.Pac16Id;
         public bool IsMACGame => ConferenceOwner == TableUtility.MACId;
+        public bool IsCUSAGame => ConferenceOwner == TableUtility.CUSAId;
         public bool IsNotreDameHomeGame => HomeTeam.IsIndependentND();
         public bool IsShamrockSeries => (IsNotreDameHomeGame || AwayTeam == TableUtility.NotreDameId) && GTOD == new TimeSlot(8, 7).GTOD;
         public bool IsNotreDameAtNavy => (HomeTeam == 57 && AwayTeam == TableUtility.NotreDameId);
