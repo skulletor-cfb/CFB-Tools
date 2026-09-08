@@ -1,11 +1,8 @@
-﻿using System.IO;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
+using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using Newtonsoft.Json;
-using EA_DB_Editor.Scheduling;
 
 namespace EA_DB_Editor
 {
@@ -661,48 +658,6 @@ namespace EA_DB_Editor
             {
                 queue.Enqueue(item);
             }
-        }
-
-        /// <summary>
-        /// dequeue until we empty the queue
-        /// </summary>
-        /// <param name="queue"></param>
-        /// <param name="game"></param>
-        /// <returns></returns>
-        public static bool TryDequeueGameForAssignment(this Queue<TelevisedGame> queue, out TelevisedGame game)
-        {
-            while(queue.Count > 0)
-            {
-                if(queue.TryDequeueGame(out game))
-                {
-                    return true;
-                }
-            }
-
-            game = null;
-            return false;
-        }
-
-        private static bool TryDequeueGame(this Queue<TelevisedGame> queue, out TelevisedGame game)
-        {
-            if (queue.TryDequeue(out game) && !game.Assigned)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        private static bool TryDequeue<T>(this Queue<T> queue, out T result)
-        {
-            if (queue.Count == 0)
-            {
-                result = default;
-                return false;
-            }
-
-            result = queue.Dequeue();
-            return true;
         }
 
         public static bool TryPop<T>(this Stack<T> stack, out T result)
