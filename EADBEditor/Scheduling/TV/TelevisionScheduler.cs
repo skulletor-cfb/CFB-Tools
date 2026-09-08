@@ -200,5 +200,47 @@ namespace EA_DB_Editor.Scheduling
 
             throw new Exception("Bad calendar");
         }
+
+        /// <summary>
+        /// dequeue until we empty the queue
+        /// </summary>
+        /// <param name="queue"></param>
+        /// <param name="game"></param>
+        /// <returns></returns>
+        public static bool TryDequeueGameForAssignment(this Queue<TelevisedGame> queue, out TelevisedGame game)
+        {
+            while (queue.Count > 0)
+            {
+                if (queue.TryDequeueGame(out game))
+                {
+                    return true;
+                }
+            }
+
+            game = null;
+            return false;
+        }
+
+        private static bool TryDequeueGame(this Queue<TelevisedGame> queue, out TelevisedGame game)
+        {
+            if (queue.TryDequeue(out game) && !game.Assigned)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool TryDequeue<T>(this Queue<T> queue, out T result)
+        {
+            if (queue.Count == 0)
+            {
+                result = default;
+                return false;
+            }
+
+            result = queue.Dequeue();
+            return true;
+        }
     }
 }
