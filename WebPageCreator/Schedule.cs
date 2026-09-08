@@ -703,7 +703,7 @@ namespace EA_DB_Editor
                 tg.Score = game.HomeTeam.MediaPollRank + game.HomeTeam.CoachesPollRank + game.AwayTeam.CoachesPollRank + game.AwayTeam.MediaPollRank;
                 tg.Score /= 2;
                 tg.Score += (game.HomeTeam.MainRival == game.AwayTeam.MainRival ? -10 : 0);
-                tg.Score += (game.HomeTeam.DivisionId == game.AwayTeam.DivisionId && game.HomeTeam.DivisionId != 30) ? -5 : 0;
+                tg.Score += (game.HomeTeam.ConferenceId == game.AwayTeam.ConferenceId) ? -5 : 0;
 
                 games.Add(tg);
             }

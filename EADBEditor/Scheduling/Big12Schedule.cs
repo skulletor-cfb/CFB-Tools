@@ -138,7 +138,7 @@ namespace EA_DB_Editor
             return result;
         }
 
-        public static void ProcessSchedule(this Dictionary<int, TeamSchedule> schedule, Dictionary<int, int[]> homeSchedules, Dictionary<int, HashSet<int>> opponents, int confId, int[] conference, int? excludeTeam = null)
+        public static void ProcessSchedule(this Dictionary<int, TeamSchedule> schedule, Dictionary<int, int[]> homeSchedules, Dictionary<int, HashSet<int>> opponents, int confId, int[] conference, int? excludeTeam = null, int? avoidWeek = null)
         {
             var neededToSchedule = CreateExpectedPairs(opponents);
 
@@ -180,7 +180,7 @@ namespace EA_DB_Editor
             foreach (var need in neededToSchedule)
             {
                 int week = -1;
-                if (!ConfScheduleFixer.FindCommonOpenWeek(schedule[need.Item1].FindOpenWeeks(), schedule[need.Item2].FindOpenWeeks(), out week))
+                if (!ConfScheduleFixer.FindCommonOpenWeek(schedule[need.Item1].FindOpenWeeks(avoidWeek), schedule[need.Item2].FindOpenWeeks(avoidWeek), out week))
                 {
                     week = 14;
                 }
