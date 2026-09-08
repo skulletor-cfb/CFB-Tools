@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Linq;
 using System.Security.Cryptography;
 using Newtonsoft.Json;
+using EA_DB_Editor.Scheduling;
 
 namespace EA_DB_Editor
 {
@@ -16,6 +17,8 @@ namespace EA_DB_Editor
         public int Game { get; set; }
 
         public string Scenario { get; set; }
+
+        public bool Upset { get; set; }
     }
 
     public static class TableUtility
@@ -41,6 +44,11 @@ namespace EA_DB_Editor
             return result;
         }
 
+        public static int GTOD(this MaddenRecord mr)
+        {
+            return mr["GTOD"].ToInt32();
+        }
+
         public static int Prestige(this MaddenRecord mr)
         {
             return mr["TPRX"].ToInt32();
@@ -55,6 +63,12 @@ namespace EA_DB_Editor
             return mr["TMRK"].ToInt32();
         }
 
+        public static int CoachPollRanking(this MaddenRecord mr)
+        {
+            return mr["TCRK"].ToInt32();
+        }
+
+
         public static int TeamRating(this MaddenRecord mr)
         {
             return mr["TROV"].ToInt32();
@@ -68,7 +82,7 @@ namespace EA_DB_Editor
             if ((win + loss) == 0) return -1;
 
             return (win * 1000) / (win + loss);
-        }   
+        }
 
         public static int Wins(this MaddenRecord mr)
         {
@@ -100,6 +114,15 @@ namespace EA_DB_Editor
             return mr["SGNM"].ToInt32();
         }
 
+        public static int GameWeek(this MaddenRecord mr)
+        {
+            return mr["SEWN"].ToInt32();
+        }
+        public static int GameDay(this MaddenRecord mr)
+        {
+            return mr["GDAT"].ToInt32();
+        }
+
         public static string DisplayName(this Dictionary<int, MaddenRecord> dict, int tgid)
         {
             var team = dict[tgid];
@@ -118,15 +141,13 @@ namespace EA_DB_Editor
             foreach (var mr in sgin.lRecords)
             {
                 var (needsFixing, winningTeam, losingTeam, reason) = mr.EvaluateGameForStudioUpdate(team);
-                if (needsFixing)
+                result.Add(new UpsetAlert
                 {
-                    result.Add(new UpsetAlert
-                    {
-                        Headline = $"{team.DisplayName(winningTeam)} defeats {team.DisplayName(losingTeam)}",
-                        Game = mr.GameNumber(),
-                        Scenario = reason,
-                    });
-                }
+                    Headline = $"{team.DisplayName(winningTeam)} defeats {team.DisplayName(losingTeam)}",
+                    Game = mr.GameNumber(),
+                    Scenario = reason,
+                    Upset = needsFixing,
+                });
             }
 
             return result;
@@ -185,7 +206,7 @@ namespace EA_DB_Editor
             var winnerRecord = teams[winner].WinPct();
             var loserRecord = teams[loser].WinPct();
 
-            if (winnerRecord > 650 && loserRecord < 500)
+            if (loserRecord > 650 && winnerRecord < 500)
             {
                 return (true, winner, loser, $"WinPct: {winnerRecord} :: {loserRecord}");
             }
@@ -233,6 +254,9 @@ namespace EA_DB_Editor
                 // don't change anything about the games vs fcs teams
                 if (away.IsFcsTeam())
                 {
+                    mr["GFFU"] = "1";
+                    mr["GFHU"] = "1";
+                    mr["GMFX"] = "0";
                     continue;
                 }
 
@@ -240,8 +264,8 @@ namespace EA_DB_Editor
                 if (userTeams.Contains(home) || userTeams.Contains(away))
                 {
                     mr["GFFU"] = "1";
-                    mr["GFHU"] = "0";
-                    mr["GMFX"] = "0";
+                    mr["GFHU"] = "1";
+                    mr["GMFX"] = "1";
                 }
                 else
                 {
@@ -309,6 +333,11 @@ namespace EA_DB_Editor
         public static int[] CUSA { get { return TeamAndConferences.Where(kvp => kvp.Value == CUSAId).Select(kvp => kvp.Key).ToArray(); } }
         public static int[] SBC { get { return TeamAndConferences.Where(kvp => kvp.Value == SBCId).Select(kvp => kvp.Key).ToArray(); } }
         public static int[] MWC { get { return TeamAndConferences.Where(kvp => kvp.Value == MWCId).Select(kvp => kvp.Key).ToArray(); } }
+
+        public static int GameConferenceOwner(int homeTeam)
+        {
+            return TeamAndConferences[homeTeam];
+        }
 
         private static Dictionary<int, int> teamAndConferences;
 
@@ -559,5 +588,193 @@ namespace EA_DB_Editor
         }
 
         #endregion
+        #region calendar utlities
+        public static DateTime GetThanksgivingDate(this int year)
+        {
+
+            for (int i = 22; i <= 30; i++)
+            {
+                var testDate = new DateTime(year, 11, i, 0, 0, 0);
+                if (testDate.DayOfWeek == DayOfWeek.Thursday)
+                {
+                    return testDate;
+                }
+            }
+
+            return default;
+        }
+
+        public static DateTime GetLaborDay(this int year)
+        {
+
+            for (int i = 1; i <= 7; i++)
+            {
+                var testDate = new DateTime(year, 9, i, 0, 0, 0);
+                if (testDate.DayOfWeek == DayOfWeek.Monday)
+                {
+                    return testDate;
+                }
+            }
+
+            return default;
+        }
+
+        public static DateTime GetThirdSaturdayInOctober(this int year)
+        {
+            for (int i = 15; i <= 22; i++)
+            {
+                var testDate = new DateTime(year, 10, i, 0, 0, 0);
+                if (testDate.DayOfWeek == DayOfWeek.Saturday)
+                {
+                    return testDate;
+                }
+            }
+
+            return default;
+        }
+
+        public static DateTime GetTexasStateFairStartDate(this int year)
+        {
+            // last friday in september
+
+            for (int i = 30; i >= 20; i--)
+            {
+                var testDate = new DateTime(year, 9, i, 0, 0, 0);
+                if (testDate.DayOfWeek == DayOfWeek.Friday)
+                {
+                    return testDate;
+                }
+            }
+
+            return default;
+        }
+        #endregion
+
+        public static Queue<T> ToQueue<T>(this IEnumerable<T> items)
+        {
+            return new Queue<T>(items);
+        }
+
+        public static void Enqueue<T>(this Queue<T> queue, IEnumerable<T> items)
+        {
+            foreach (var item in items)
+            {
+                queue.Enqueue(item);
+            }
+        }
+
+        /// <summary>
+        /// dequeue until we empty the queue
+        /// </summary>
+        /// <param name="queue"></param>
+        /// <param name="game"></param>
+        /// <returns></returns>
+        public static bool TryDequeueGameForAssignment(this Queue<TelevisedGame> queue, out TelevisedGame game)
+        {
+            while(queue.Count > 0)
+            {
+                if(queue.TryDequeueGame(out game))
+                {
+                    return true;
+                }
+            }
+
+            game = null;
+            return false;
+        }
+
+        private static bool TryDequeueGame(this Queue<TelevisedGame> queue, out TelevisedGame game)
+        {
+            if (queue.TryDequeue(out game) && !game.Assigned)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool TryDequeue<T>(this Queue<T> queue, out T result)
+        {
+            if (queue.Count == 0)
+            {
+                result = default;
+                return false;
+            }
+
+            result = queue.Dequeue();
+            return true;
+        }
+
+        public static bool TryPop<T>(this Stack<T> stack, out T result)
+        {
+            if (stack.Count == 0)
+            {
+                result = default;
+                return false;
+            }
+
+            result = stack.Pop();
+            return true;
+        }
+    }
+
+    public class SeasonCalendar
+    {
+        public bool IsLaborDayWeekendFirstWeek { get; }
+        public DateTime[] Weeks { get; }
+        public DateTime FirstDayOfSeason { get; }
+        public DateTime ThirdSaturdayInOctober { get; }
+        public DateTime LaborDay { get; }
+        public DateTime Thanksgiving { get; }
+        public DateTime FinalDayOfSeason { get; }
+        public DateTime TexasStateFairStartDate { get; }
+        public DateTime RedRiverShowdown { get; }
+        public SeasonCalendar(int year)
+        {
+            Weeks = new DateTime[14];
+            ThirdSaturdayInOctober = year.GetThirdSaturdayInOctober();
+            LaborDay = year.GetLaborDay();
+            Thanksgiving = year.GetThanksgivingDate();
+            FinalDayOfSeason = Thanksgiving.AddDays(2);
+            TexasStateFairStartDate = year.GetTexasStateFairStartDate();
+            var rrs = TexasStateFairStartDate.AddDays(15);
+            if (rrs.Day >= 15)
+            {
+                rrs = rrs.AddDays(-7);
+            }
+            RedRiverShowdown = rrs;
+            FirstDayOfSeason = FinalDayOfSeason.AddDays(-7 * 13);
+
+            var curr = FirstDayOfSeason;
+            for (int i = 0; i < Weeks.Length; i++)
+            {
+                Weeks[i] = curr;
+                curr = curr.AddDays(7);
+            }
+
+            IsLaborDayWeekendFirstWeek = LaborDay < Weeks[1];
+        }
+
+        public bool IsOctober(int week)
+        {
+            var date = Weeks[week];
+            return date.Month == 10;
+        }
+
+        public bool IsAugustSeptember(int week)
+        {
+            var date = Weeks[week];
+            return date.Month <= 10;
+        }
+        public bool IsNovember(int week)
+        {
+            var date = Weeks[week];
+            return date.Month >= 11;
+        }
+        public DateTime GetDate(int week, int day)
+        {
+            var saturday = Weeks[week];
+            return saturday.AddDays(day - 5);
+        }
     }
 }

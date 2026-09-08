@@ -1,4 +1,5 @@
-﻿using ListViewEx;
+﻿using EA_DB_Editor.Scheduling;
+using ListViewEx;
 using MC02Handler;
 using System;
 using System.Collections;
@@ -487,6 +488,14 @@ namespace EA_DB_Editor
 
             if (System.Windows.Forms.DialogResult.OK == openFileDialog.ShowDialog())
             {
+                const string backupDir = @".\backups";
+                // make a backup of the file in working directory
+                if (Directory.Exists(backupDir) == false)
+                {
+                    Directory.CreateDirectory(backupDir);
+                }
+
+                File.Copy(openFileDialog.FileName, $@"{backupDir}\{openFileDialog.SafeFileName}.backup", true);
                 Cursor.Current = Cursors.WaitCursor;
                 maddenDB = new MaddenDatabase(openFileDialog.FileName);
 
@@ -4281,6 +4290,12 @@ namespace EA_DB_Editor
             {
                 TableUtility.FixSgin(fd.FileName);
             }
+        }
+
+        private void tVTimeSlotsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TelevisionScheduler.FixTelevisionSchedule();
+            ScheduleFixup.ReadSchedule();
         }
     }
 

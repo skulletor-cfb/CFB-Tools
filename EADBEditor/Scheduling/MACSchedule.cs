@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EA_DB_Editor.Scheduling;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -40,7 +41,7 @@ namespace EA_DB_Editor
 
         public static void ProcessMACSchedule(Dictionary<int, TeamSchedule> schedule)
         {
-            schedule.ProcessSchedule(ScenarioForSeason, MACConferenceSchedule, TableUtility.MACId, TableUtility.MAC);
+            schedule.ProcessSchedule(ScenarioForSeason, MACConferenceSchedule, TableUtility.MACId, TableUtility.MAC, avoidWeek: TelevisionScheduler.LastWeekOfOctober());
         }
 
 

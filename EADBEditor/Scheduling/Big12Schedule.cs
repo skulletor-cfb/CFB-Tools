@@ -172,15 +172,15 @@ namespace EA_DB_Editor
             return result;
         }
 
-        public static void ProcessSchedule(this Dictionary<int, TeamSchedule> schedule, Dictionary<int, int[]> homeSchedules, Dictionary<int, HashSet<int>> opponents, int confId, int[] conference, int? excludeTeam = null)
+        public static void ProcessSchedule(this Dictionary<int, TeamSchedule> schedule, Dictionary<int, int[]> homeSchedules, Dictionary<int, HashSet<int>> opponents, int confId, int[] conference, int? excludeTeam = null, int? avoidWeek = null)
         {
             var neededToSchedule = CreateExpectedPairs(opponents);
 
             // get all conference games - should be 54
             var (confGames, expectedGames) = schedule.GetAllConferenceGames(homeSchedules);
-            int successfullyScheduleGames = 0; 
+            int successfullyScheduleGames = 0;
 
-            if(confGames.Length != expectedGames)
+            if (confGames.Length != expectedGames)
             {
                 throw new Exception("Error reading schedule!");
             }
@@ -214,7 +214,7 @@ namespace EA_DB_Editor
             foreach (var need in neededToSchedule)
             {
                 int week = -1;
-                if (!ConfScheduleFixer.FindCommonOpenWeek(schedule[need.Item1].FindOpenWeeks(), schedule[need.Item2].FindOpenWeeks(), out week))
+                if (!ConfScheduleFixer.FindCommonOpenWeek(schedule[need.Item1].FindOpenWeeks(avoidWeek), schedule[need.Item2].FindOpenWeeks(avoidWeek), out week))
                 {
                     week = 14;
                 }
