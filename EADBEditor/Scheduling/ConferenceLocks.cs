@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EA_DB_Editor.Scheduling;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -153,10 +154,7 @@ namespace EA_DB_Editor
 
         public int? IsTexasOU(PreseasonScheduledGame game)
         {
-            var week = game.WeekIndex;
-            if (game.WeekIndex != 5 && game.WeekIndex != 6)
-                week = DateTime.UtcNow.Second % 2 == 0 ? 5 : 6;
-
+            var week = (int)(TelevisionScheduler.CurrentSeason.RedRiverShowdown - TelevisionScheduler.CurrentSeason.FirstDayOfSeason).TotalDays / 7;
             return MatchTeams(week, game, 92, 71);
         }
 
@@ -580,12 +578,35 @@ namespace EA_DB_Editor
                 {
                     lockChecks = new Func<PreseasonScheduledGame, int?>[]
                     {
-                        IsSecConfGame
+                        IsUFUGA,
+                        IsScarUGA,
+                        IsAlabamaTennGame,
+                        IsTennVandyGame,
+                        IsSecConfGame,
                     };
                 }
 
                 return lockChecks;
             }
+        }
+
+        public int? IsUFUGA(PreseasonScheduledGame game)
+        {
+            var week = TelevisionScheduler.LastWeekOfOctober();
+            return MatchTeams(week, game, 27, 30);
+        }
+
+        public int? IsScarUGA(PreseasonScheduledGame game)
+        {
+            var week = TelevisionScheduler.LaborDayWeek() + 1;
+            return MatchTeams(week, game, 30, 84);
+        }
+
+
+        public int? IsAlabamaTennGame(PreseasonScheduledGame game)
+        {
+            var week = (int)(TelevisionScheduler.CurrentSeason.ThirdSaturdayInOctober - TelevisionScheduler.CurrentSeason.FirstDayOfSeason).TotalDays / 7;
+            return MatchTeams(week, game, 3, 91);
         }
 
         public int? IsTennVandyGame(PreseasonScheduledGame game)
@@ -602,9 +623,7 @@ namespace EA_DB_Editor
                 return 0;
             }
 
-            var isTennvandy = IsTennVandyGame(game);
-
-            return isTennvandy.HasValue ? isTennvandy.Value : game.WeekIndex;
+            return game.WeekIndex;
         }
     }
 }
