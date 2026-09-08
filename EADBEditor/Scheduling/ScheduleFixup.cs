@@ -124,6 +124,11 @@ namespace EA_DB_Editor
             return byuId == 16 && TableUtility.TeamAndConferences[byuId] == TableUtility.IndId;
         }
 
+        public static bool IsIndependentND(this int id)
+        {
+            return id == TableUtility.NotreDameId && TableUtility.TeamAndConferences[id] == TableUtility.IndId;
+        }
+
         public static bool RanG5Fixup = false;
 
         public static (Dictionary<int, TeamSchedule> teamSchedule, MaddenRecord[] scheduleTable) FillSchedule(bool reorderNeedsToBeRun, bool dontShowMessageBox = false)
@@ -1373,10 +1378,12 @@ namespace EA_DB_Editor
                 query["SGNM"] = gameNum.ToString();
                 query["SEWN"] = week.ToString();
 
+#if false // we have a way to control this now
                 // turns off rece davis feature
                 gameRecord["GFHU"] = "1";
                 gameRecord["GFFU"] = "1";
                 gameRecord["GMFX"] = "0";
+#endif
 
                 if (week > 13)
                     continue;
@@ -1470,7 +1477,7 @@ namespace EA_DB_Editor
                 else if (MatchTeams(homeTeam, awayTeam, new[] { 83, 89 }))
                 {
                     gameRecord["SGID"] = "257";
-                    gameRecord["GDAT"] = "4";
+                    //gameRecord["GDAT"] = "4";
                     gameRecord["GTOD"] = "1200";
                     query["TGID"] = awayTeam.ToString();
                     teamScheduleRecord = MaddenTable.Query(teamSchedules, query).Single();
@@ -1481,7 +1488,7 @@ namespace EA_DB_Editor
                 else if (false && MatchTeams(homeTeam, awayTeam, new[] { 33, 79 }))
                 {
                     gameRecord["SGID"] = "272";
-                    gameRecord["GDAT"] = "4";
+                   // gameRecord["GDAT"] = "4";
                     gameRecord["GTOD"] = "1200";
                     query["TGID"] = awayTeam.ToString();
                     teamScheduleRecord = MaddenTable.Query(teamSchedules, query).Single();
@@ -1491,49 +1498,49 @@ namespace EA_DB_Editor
                 // colorado-nebraska play on black friday primetime
                 else if (false && MatchTeams(homeTeam, awayTeam, new[] { 22, 58 }) && week == 13)
                 {
-                    gameRecord["GDAT"] = "4";
+                   // gameRecord["GDAT"] = "4";
                     gameRecord["GTOD"] = "1200";
                 }
 
                 // ou-nebraska play on black friday primetime
                 else if (false && MatchTeams(homeTeam, awayTeam, new[] { 58, 71 }) && week == 13)
                 {
-                    gameRecord["GDAT"] = "4";
+                //    gameRecord["GDAT"] = "4";
                     gameRecord["GTOD"] = "1200";
                 }
 
                 // uva-vt play on black friday early
                 else if (MatchTeams(homeTeam, awayTeam, new[] { 107, 108 }))
                 {
-                    gameRecord["GDAT"] = "4";
+                //    gameRecord["GDAT"] = "4";
                     gameRecord["GTOD"] = "720";
                 }
 
                 // wsu-uw play on black friday 4pm PST
                 else if (MatchTeams(homeTeam, awayTeam, new[] { 110, 111 }))
                 {
-                    gameRecord["GDAT"] = "4";
+               //     gameRecord["GDAT"] = "4";
                     gameRecord["GTOD"] = "1140";
                 }
 
                 // unc-ncsu play on black friday 4pm EST
                 else if (MatchTeams(homeTeam, awayTeam, new[] { 110, 111 }))
                 {
-                    gameRecord["GDAT"] = "4";
+                 //   gameRecord["GDAT"] = "4";
                     gameRecord["GTOD"] = "960";
                 }
 
                 // usf-ucf play at 8pm too
                 else if (MatchTeams(homeTeam, awayTeam, new[] { 18, 144 }) && week == 13)
                 {
-                    gameRecord["GDAT"] = "4";
+               //     gameRecord["GDAT"] = "4";
                     gameRecord["GTOD"] = "1200";
                 }
 
                 // egg bowl is on thursday 430
                 else if (MatchTeams(homeTeam, awayTeam, new[] { 55, 73 }))
                 {
-                    gameRecord["GDAT"] = "3";
+                //    gameRecord["GDAT"] = "3";
                     gameRecord["GTOD"] = "990";
                 }
 
