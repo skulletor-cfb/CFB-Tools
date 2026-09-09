@@ -16,7 +16,7 @@ namespace EA_DB_Editor
 
         public virtual int? CheckWeekLock(PreseasonScheduledGame game)
         {
-            return LockChecks.Select(f => f(game)).Where(lw => lw.HasValue).SingleOrDefault();
+            return LockChecks.Select(f => f(game)).Where(lw => lw.HasValue).FirstOrDefault();
         }
 
         protected abstract Func<PreseasonScheduledGame, int?>[] LockChecks { get; }
