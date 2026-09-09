@@ -751,6 +751,13 @@ namespace EA_DB_Editor
             }
         }
 
+        public static T[] CreateAndShuffle<T>(params T[] array)
+        {
+            var arr = new List<T>(array).ToArray();
+            Shuffle(arr);
+            return arr;
+        }
+
         public static void Fix(Dictionary<int, TeamSchedule> schedules, ConferenceLocks confLocks, int confId, Action<Dictionary<int, TeamSchedule>> special = null)
         {
             var teams = TableUtility.TeamAndConferences.Where(kvp => kvp.Value == confId).Select(kvp => kvp.Key).ToArray();
