@@ -736,7 +736,7 @@ namespace EA_DB_Editor
         /// </summary>
         /// <typeparam name="T">Array element type.</typeparam>
         /// <param name="array">Array to shuffle.</param>
-        public static void Shuffle<T>(this T[] array)
+        public static T[] Shuffle<T>(this T[] array)
         {
             int n = array.Length;
             for (int i = 0; i < (n - 1); i++)
@@ -749,13 +749,14 @@ namespace EA_DB_Editor
                 array[r] = array[i];
                 array[i] = t;
             }
+
+            return array;
         }
 
         public static T[] CreateAndShuffle<T>(params T[] array)
         {
             var arr = new List<T>(array).ToArray();
-            Shuffle(arr);
-            return arr;
+            return Shuffle(arr);
         }
 
         public static void Fix(Dictionary<int, TeamSchedule> schedules, ConferenceLocks confLocks, int confId, Action<Dictionary<int, TeamSchedule>> special = null)

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EA_DB_Editor.Scheduling.TV
 {
@@ -10,21 +8,20 @@ namespace EA_DB_Editor.Scheduling.TV
     {
         public static readonly FoxNetworks Instance = new FoxNetworks();
 
-        public Dictionary<TimeSlot, TelevisedGame> FOX = new Dictionary<TimeSlot, TelevisedGame>();
-        public Dictionary<TimeSlot, TelevisedGame> FS1 = new Dictionary<TimeSlot, TelevisedGame>();
-        public Dictionary<TimeSlot, TelevisedGame> BTN = new Dictionary<TimeSlot, TelevisedGame>();
-        public List<(TimeSlot time, TelevisedGame game)> Streaming = new List<(TimeSlot time, TelevisedGame game)>();
+        public ChannelSchedule FOX => this.Primary;
+        public ChannelSchedule FS1 = new ChannelSchedule(ChannelName.FoxSports1);
+        public ChannelSchedule BTN = new ChannelSchedule(ChannelName.BigTenNetwork);
 
-        private FoxNetworks() : base("FOX")
+        private FoxNetworks() : base(ChannelName.FOX, StreamingProvider.FoxOne)
         {
         }
 
         public override void Report()
         {
-            WriteReport("FOX", FOX);
-            WriteReport("FS1", FS1);
-            WriteReport("BTN", BTN);
-            WriteReport("FoxOne", Streaming);
+            WriteReport(FOX);
+            WriteReport(FS1);
+            WriteReport(BTN);
+            WriteReport(Streaming);
         }
 
         public override NetworkSchedule AssignGames()
@@ -183,9 +180,6 @@ namespace EA_DB_Editor.Scheduling.TV
             }
             else if (week == 13)  // last week of the season, fox will sublicense big 10 games on friday
             {
-                // Ohio State-Michigan sat 12pm
-                FOX.AssignGame(queue.Dequeue(), week, 12, 0, day: 5);
-
                 // 330pm b12 game to CBS Friday
                 queue = games.Where(g => g.IsBig12Game && !g.Assigned).ToQueue();
                 CBSNetwork.Instance.SubLicense(queue.Dequeue(), new TimeSlot(3, 30, week: week, day: 4));
@@ -214,8 +208,11 @@ namespace EA_DB_Editor.Scheduling.TV
                 FOX.AssignGame(bg12Afternoon, week, 3, 30);
             }
 
-            // in september there's no playoff baseball so we get a late game, lead with pac 12 and fallback to big 12/big 10
-            if (!week.IsOctober())
+            var worldSeriesEnd = TelevisionScheduler.LastWeekOfOctober();
+            var worldSeriesStart = worldSeriesEnd - 1;
+
+            // FOX doesn't broadcast night games during world series week
+            if (week != worldSeriesEnd && week != worldSeriesStart)
             {
                 queue = games.Where(g => g.IsPac12Game && !g.Assigned).ToQueue();
                 queue.Enqueue(games.Where(g => g.IsBig12Game && !g.Assigned));
@@ -230,16 +227,35 @@ namespace EA_DB_Editor.Scheduling.TV
             // fox friday , in september it's the best of the remaining big12/big 10/pac 12 games at 830pm
             if (week.IsAugustSeptember() && week > 0)
             {
-                var friday = this.SelectedGames.Where(g => !g.Assigned).OrderBy(g => g.Score).FirstOrDefault();
-                FOX.AssignGame(friday, week, 8, 30, 4);
+                var friday = this.SelectedGames.Where(g => !g.Assigned && !g.IsBig10Game).OrderBy(g => g.Score).FirstOrDefault();
+                FOX.AssignGame(friday, week, 8, 0, day: 4);
+
+				var btn= this.SelectedGames.Where(g => !g.Assigned && g.IsBig10Game).OrderByDescending(g => g.Score).FirstOrDefault();
+				BTN.AssignGame(btn, week, 7, 0, day: 4);
+			}
+
+			// fox friday the rest of the year is big 10/pac12
+			if (!week.IsAugustSeptember() && week != worldSeriesEnd && week != worldSeriesStart && week != 13)
+            {
+                var friday = this.SelectedGames.Where(g => !g.Assigned && !g.IsBig12Game).OrderBy(g => g.Score).ToQueue();
+
+                if (friday.TryDequeueGameForAssignment(out var game))
+                {
+                    FOX.AssignGame(game, week, 8, 30, day: 4);
+                }
+            }
+        }
+
+        public override bool PreassignGame(TelevisedGame game)
+        {
+            // the game belongs at 12pm saturday no matter what
+            if (game.CheckMatchup(51, 70))
+            {
+                FOX.PreassignGame(game, new TimeSlot(12, 0, week: game.Week, day: game.Day), true);
+                return false;
             }
 
-            // fox friday the rest of the year is big 10/pac12
-            if (!week.IsAugustSeptember() && week <= 12)
-            {
-                var friday = this.SelectedGames.Where(g => !g.Assigned && !g.IsBig12Game).OrderBy(g => g.Score).FirstOrDefault();
-                FOX.AssignGame(friday, week, 8, 30, 4);
-            }
+            return base.PreassignGame(game);
         }
     }
 }

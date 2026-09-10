@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace EA_DB_Editor
 {
@@ -647,18 +648,6 @@ namespace EA_DB_Editor
         }
         #endregion
 
-        public static Queue<T> ToQueue<T>(this IEnumerable<T> items)
-        {
-            return new Queue<T>(items);
-        }
-
-        public static void Enqueue<T>(this Queue<T> queue, IEnumerable<T> items)
-        {
-            foreach (var item in items)
-            {
-                queue.Enqueue(item);
-            }
-        }
 
         public static bool TryPop<T>(this Stack<T> stack, out T result)
         {
