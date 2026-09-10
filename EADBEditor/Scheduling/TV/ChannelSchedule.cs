@@ -19,16 +19,10 @@ namespace EA_DB_Editor.Scheduling
         FoxSports1,
         NBC,
         SECNetwork,
-        TheMW,
-        Peacock,
+
     }
 
-    public interface ITelelvisionProvider
-    {
-        bool AssignGame(TelevisedGame game, TimeSlot timeslot);
-    }
-
-    public class ChannelSchedule : ITelelvisionProvider
+    public class ChannelSchedule
     {
         private Dictionary<TimeSlot, TelevisedGame> schedule = new Dictionary<TimeSlot, TelevisedGame>();
 
@@ -43,8 +37,6 @@ namespace EA_DB_Editor.Scheduling
             var schedule = new ChannelSchedule(name);
             return schedule.Register();
         }
-
-        public bool IsTimeslotAvailable(TimeSlot ts) => schedule.ContainsKey(ts) == false;
 
         public IEnumerable<(TimeSlot time, TelevisedGame game)> Games => this.schedule.Select(kvp => (kvp.Key, kvp.Value));
 
@@ -70,15 +62,9 @@ namespace EA_DB_Editor.Scheduling
             return true;
         }
 
-        public bool PreassignGame(TelevisedGame game, TimeSlot timeslot, bool setGameTime)
+        public void PreassignGame(TelevisedGame game, TimeSlot timeslot, bool setGameTime = false)
         {
-            if (schedule.ContainsKey(timeslot))
-            {
-                return false;
-            }
-
             schedule[timeslot] = game.PreAssign(setGameTime ? timeslot : null);
-            return game.Assigned;
         }
 
         public string WriteReport()

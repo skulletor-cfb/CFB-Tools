@@ -9,8 +9,6 @@ namespace EA_DB_Editor.Scheduling
         private Dictionary<int, List<TelevisedGame>> weeklySchedule = null;
         private List<TelevisedGame> games = new List<TelevisedGame>();
 
-        public IEnumerable<TelevisedGame> Games => games;
-
         public void Select(TelevisedGame game)
         {
             games.Add(game.Select());
@@ -37,8 +35,6 @@ namespace EA_DB_Editor.Scheduling
             }
         }
 
-        public TelevisedGameQueue ToAssignmentQueue() => this.games.Where(g => !g.Assigned).ToQueue();
-
         public void ReturnInventory()
         {
             foreach (var game in games.Where(g => !g.Assigned))
@@ -56,20 +52,16 @@ namespace EA_DB_Editor.Scheduling
 
         protected Dictionary<int, List<TelevisedGame>> WeeklySchedule => SelectedGames.WeeklySchedule;
 
+        public virtual void SubLicense(TelevisedGame game, TimeSlot slot)
+        {
+            Primary.AssignGame(game, slot);
+        }
+
         public virtual bool PreassignGame(TelevisedGame game)
         {
             return !game.Assigned;
         }
 
-        public virtual void Offer(IEnumerable<TelevisedGame> games)
-        {
-            this.SelectedGames.Select(games);
-        }
-
-        public virtual void Offer(TelevisedGame game)
-        {
-            this.SelectedGames.Select(game);
-        }
 
         protected ChannelSchedule Primary { get; }
 
@@ -83,11 +75,9 @@ namespace EA_DB_Editor.Scheduling
             TelevisionScheduler.Register(Primary);
         }
 
-        public abstract NetworkSchedule AssignGames();
+        public abstract void SelectGames(Dictionary<int, List<TelevisedGame>> televisedGames);
 
-        public virtual void AssignStreaming()
-        {
-        }
+        public abstract NetworkSchedule AssignGames();
 
         public virtual void Report()
         {

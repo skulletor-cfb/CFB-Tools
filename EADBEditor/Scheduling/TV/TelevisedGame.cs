@@ -24,18 +24,6 @@ namespace EA_DB_Editor.Scheduling
             }
         }
 
-        public GameTimeOfDay(DateTime time)
-        {
-            Hour = time.Hour;
-            Minute = time.Minute;
-            AM = Hour < 12;
-
-            if (Hour > 12)
-            {
-                Hour -= 12;
-            }
-        }
-
         public int Value => Hour * 60 + Minute;
 
         public bool Equals(int gtod) => this.Value == gtod;
@@ -76,8 +64,6 @@ namespace EA_DB_Editor.Scheduling
         public bool IsSecGame => ConferenceOwner == TableUtility.SECId;
         public bool IsAccGame => ConferenceOwner == TableUtility.ACCId;
         public bool IsHawaiiGame => HomeTeam == 32;
-        public bool IsArmyGame => HomeTeam == 8;
-        public bool IsNavyGame => HomeTeam == 57;
         public bool IsBig10Game => ConferenceOwner == TableUtility.Big10Id;
         public bool IsBig12Game => ConferenceOwner == TableUtility.Big12Id;
         public bool IsPac12Game => ConferenceOwner == TableUtility.Pac16Id;
@@ -139,7 +125,7 @@ namespace EA_DB_Editor.Scheduling
             IsFCSGame = AwayTeam.IsFcsTeam();
             Score += IsFCSGame ? 1000 : 0;
 
-            if (CheckMatchup(51, 70) || CheckMatchup(3, 9))
+            if ((AwayTeam == 70 && HomeTeam == 51) || (AwayTeam == 51 && HomeTeam == 70))
             {
                 Score += -100000;
             }
