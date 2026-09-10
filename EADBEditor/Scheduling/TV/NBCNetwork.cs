@@ -9,7 +9,7 @@ namespace EA_DB_Editor.Scheduling.TV
     public class NBCNetwork:NetworkSchedule
     {
         public static readonly NBCNetwork Instance = new NBCNetwork();
-        private NBCNetwork() : base("NBC")
+        private NBCNetwork() : base(ChannelName.NBC, StreamingProvider.Peacock)
         {
         }
 

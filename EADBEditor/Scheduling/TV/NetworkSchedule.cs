@@ -1,18 +1,14 @@
-﻿using System.IO;
-using System;
+﻿using EA_DB_Editor.Scheduling.TV;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection.Emit;
-using System.Windows.Forms;
 
 namespace EA_DB_Editor.Scheduling
 {
     public abstract class NetworkSchedule
     {
         private Dictionary<int, List<TelevisedGame>> weeklySchedule = null;
-        public string Name { get; }
+        public ChannelName Name { get; }
 
         protected List<TelevisedGame> SelectedGames { get; } = new List<TelevisedGame>();
 
@@ -33,12 +29,22 @@ namespace EA_DB_Editor.Scheduling
             Primary.AssignGame(game, slot);
         }
 
+        public virtual bool PreassignGame(TelevisedGame game)
+        {
+            return !game.Assigned;
+        }
 
-        protected Dictionary<TimeSlot, TelevisedGame> Primary = new Dictionary<TimeSlot, TelevisedGame>();
 
-        protected NetworkSchedule(string name)
+        protected ChannelSchedule Primary { get; }
+
+        public StreamingSchedule Streaming { get; }
+
+        protected NetworkSchedule(ChannelName name, StreamingProvider provider)
         {
             this.Name = name;
+            this.Streaming = new StreamingSchedule(provider);
+            this.Primary = new ChannelSchedule(name);
+            TelevisionScheduler.Register(Primary);
         }
 
         public abstract void SelectGames(Dictionary<int, List<TelevisedGame>> televisedGames);
@@ -47,30 +53,20 @@ namespace EA_DB_Editor.Scheduling
 
         public virtual void Report()
         {
-            WriteReport(this.Name, Primary);
+            WriteReport(Primary);
+            WriteReport(Streaming);
         }
 
-        protected void WriteReport(string file, Dictionary<TimeSlot, TelevisedGame> network)
+        protected void WriteReport(ChannelSchedule network)
         {
-            var sb = new StringBuilder();
-            foreach (var kvp in network.OrderBy(k => k.Key.Week).ThenBy(k => k.Key.Day).ThenBy(k => k.Key.GTOD))
-            {
-                sb.AppendLine($"{kvp.Key.ToString()} - {kvp.Value?.AwayTeam} at {kvp.Value?.HomeTeam}");
-            }
-
-            File.WriteAllText($"{file}-tv-debug.log", sb.ToString());
+            var report = network.WriteReport();
+            File.WriteAllText($"{network.Name}-tv-debug.log", report);
         }
 
-        protected void WriteReport(string file, List<(TimeSlot time, TelevisedGame game)> streaming)
+        protected void WriteReport(StreamingSchedule streaming)
         {
-            var sb = new StringBuilder();
-
-            foreach (var (time, game) in streaming.OrderBy(g => g.time.Week).ThenBy(g => g.time.Day).ThenBy(g => g.time.GTOD))
-            {
-                sb.AppendLine($"{time} - {game.AwayTeam} at {game.HomeTeam}");
-            }
-
-            File.WriteAllText($"{file}-tv-debug.log", sb.ToString());
+            var report = streaming.WriteReport();
+            File.WriteAllText($"{streaming.Provider}-tv-debug.log", report);
         }
     }
 }

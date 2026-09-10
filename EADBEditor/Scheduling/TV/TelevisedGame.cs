@@ -7,6 +7,28 @@ using System.Threading.Tasks;
 
 namespace EA_DB_Editor.Scheduling
 {
+    public class GameTimeOfDay
+    {
+        public int Hour { get; }
+        public int Minute { get; }
+        public bool AM { get; }
+        public GameTimeOfDay(int gtod)
+        {
+            Hour = gtod / 60;
+            Minute = gtod % 60;
+            AM = Hour < 12;
+
+            if (Hour > 12)
+            {
+                Hour -= 12;
+            }
+        }
+
+        public int Value => Hour * 60 + Minute;
+
+        public bool Equals(int gtod) => this.Value == gtod;
+    }
+
     public class TelevisedGame
     {
         public DateTime Date => this.GetDate();
@@ -20,6 +42,7 @@ namespace EA_DB_Editor.Scheduling
         public int Day { get; }
 
         public int GTOD { get; }
+        public GameTimeOfDay GameTimeOfDay { get; }
         public int AwayTeam { get; }
         public int HomeTeam { get; }
         public bool IsConferenceGame { get; }
@@ -52,10 +75,6 @@ namespace EA_DB_Editor.Scheduling
         public bool BothTeamsRanked { get; }
         public bool IsArizonaGame => HomeTeam == 4 || HomeTeam == 5;
         public bool IsASUvAU => IsArizonaGame && (AwayTeam == 4 || AwayTeam == 5);
-        public bool IsArmyNavy => CheckMatchup(8, 57);
-        public bool IsArmyAirForce => CheckMatchup(1, 8);
-        public bool IsAirForceNavy => CheckMatchup(1, 57);
-        public bool IsMilitaryAcademyGame => IsArmyAirForce || IsAirForceNavy || IsArmyNavy;
         public bool IsAirForce => HomeTeam == 1;
         public bool IsMilitaryHomeGame => IsAirForce || HomeTeam == 8 || HomeTeam == 57;
         public bool AwayTeamIsP5 => AwayTeam.IsP5OrND();
@@ -86,6 +105,7 @@ namespace EA_DB_Editor.Scheduling
             Week = mr.GameWeek();
             Day = mr.GameDay();
             GTOD = mr.GTOD();
+            GameTimeOfDay = new GameTimeOfDay(GTOD);
             IsConferenceGame = ConferenceOwner == TableUtility.GameConferenceOwner(AwayTeam);
             IsSecAccGame = (AwayTeam.IsSECTeam() && HomeTeam.IsAccTeam()) || (HomeTeam.IsSECTeam() && AwayTeam.IsAccTeam());
             IsP5Game = AwayTeam.IsP5OrND() && HomeTeam.IsP5OrND();
@@ -129,10 +149,17 @@ namespace EA_DB_Editor.Scheduling
             return this;
         }
 
-        public void PreAssigned()
+        public TelevisedGame PreAssign(TimeSlot time = null)
         {
+            if (time != null)
+            {
+                this.Record["GTOD"] = time.ToGTOD();
+                this.Record["GDAT"] = time.Day.ToString();
+            }
+
             Assigned = true;
             Selected = true;
+            return this;
         }
 
         public TelevisedGame Deselect()

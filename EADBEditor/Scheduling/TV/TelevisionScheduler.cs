@@ -4,10 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace EA_DB_Editor.Scheduling
 {
@@ -26,6 +24,8 @@ namespace EA_DB_Editor.Scheduling
                 return currentSeason;
             }
         }
+
+        private static Dictionary<ChannelName, ChannelSchedule> AllNetworks = new Dictionary<ChannelName, ChannelSchedule>();
 
         public static Dictionary<int, List<TelevisedGame>> AllGames = null;
 
@@ -79,61 +79,18 @@ namespace EA_DB_Editor.Scheduling
 
         public static bool GameNeedsAssignment(this TelevisedGame game)
         {
-            // labor day monday does not get assigned
-            if (game.Week <= 2 && game.Day == 0)
-            {
-                game.PreAssigned();
-                return false;
-            }
+            var preassigner = new Func<TelevisedGame, bool>[]
+                {
+                    CWNetwork.Instance.PreassignGame,
+                    ESPNNetworks.Instance.PreassignGame,
+                    CBSNetwork.Instance.PreassignGame,
+                    NBCNetwork.Instance.PreassignGame,
+                    FoxNetworks.Instance.PreassignGame,
+                    CBSSportsNetwork.Instance.PreassignGame,
+                };
 
-            // Sundays before labor day do not get assigned
-            // same with thur/fri as those are hand crafted
-            if (game.Week <= 1 && game.Day != 5)
-            {
-                game.PreAssigned();
-                return false;
-            }
-
-            // rocky mountain showdown will get assigned manually
-            if (game.CheckMatchup(22, 23))
-            {
-                game.PreAssigned();
-                return false;
-            }
-
-            // Mayhem at MBS, Oyster Bowl, Johnny Majors Classic do not get reassigned
-            if (game.GTOD == 733 || game.GTOD == 717 || game.GTOD == 737)
-            {
-                game.PreAssigned();
-                return false;
-            }
-
-            return !game.Assigned;
+            return preassigner.All(f => f(game));
         }
-
-        public static void AssignGame(this Dictionary<TimeSlot, TelevisedGame> schedule, TelevisedGame game, int week, int hour, int minute, int day = 5)
-        {
-            schedule.AssignGame(game, new TimeSlot(hour, minute, week, day: day));
-        }
-
-        public static void AssignGame(this List<(TimeSlot time, TelevisedGame game)> schedule, TelevisedGame game, int week, int hour, int minute, int day = 5)
-        {
-            schedule.AssignGame(game, new TimeSlot(hour, minute, week, day: day));
-        }
-
-        public static void AssignGame(this Dictionary<TimeSlot, TelevisedGame> schedule, TelevisedGame game, TimeSlot timeslot)
-        {
-            if (game == null || schedule.ContainsKey(timeslot)) return;
-
-            schedule[timeslot] = game.Assign(timeslot);
-        }
-
-        public static void AssignGame(this List<(TimeSlot time, TelevisedGame game)> schedule, TelevisedGame game, TimeSlot timeslot)
-        {
-            if (game == null) return;
-            schedule.Add((timeslot, game.Assign(timeslot)));
-        }
-
 
         public static bool IsOctober(this int week)
         {
@@ -194,46 +151,6 @@ namespace EA_DB_Editor.Scheduling
             throw new Exception("Bad calendar");
         }
 
-        /// <summary>
-        /// dequeue until we empty the queue
-        /// </summary>
-        /// <param name="queue"></param>
-        /// <param name="game"></param>
-        /// <returns></returns>
-        public static bool TryDequeueGameForAssignment(this Queue<TelevisedGame> queue, out TelevisedGame game)
-        {
-            while (queue.Count > 0)
-            {
-                if (queue.TryDequeueGame(out game))
-                {
-                    return true;
-                }
-            }
-
-            game = null;
-            return false;
-        }
-
-        private static bool TryDequeueGame(this Queue<TelevisedGame> queue, out TelevisedGame game)
-        {
-            if (queue.TryDequeue(out game) && !game.Assigned)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        private static bool TryDequeue<T>(this Queue<T> queue, out T result)
-        {
-            if (queue.Count == 0)
-            {
-                result = default;
-                return false;
-            }
-
-            result = queue.Dequeue();
-            return true;
-        }
+        public static void Register(ChannelSchedule schedule) => AllNetworks[schedule.Name] = schedule;
     }
 }

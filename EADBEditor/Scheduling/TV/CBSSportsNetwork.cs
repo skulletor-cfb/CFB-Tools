@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 
 namespace EA_DB_Editor.Scheduling.TV
 {
     public class CBSSportsNetwork : NetworkSchedule
     {
         public static readonly CBSSportsNetwork Instance = new CBSSportsNetwork();
-        private CBSSportsNetwork() : base("CBSSN")
+        private CBSSportsNetwork() : base(ChannelName.CBSSportsNetwork, StreamingProvider.None)
         {
         }
 
@@ -15,9 +14,9 @@ namespace EA_DB_Editor.Scheduling.TV
         {
             foreach (var kvp in this.WeeklySchedule)
             {
-                var late = new TimeSlot(7, 30, kvp.Key);
-                var noon = new TimeSlot(12, 0, kvp.Key);
-                var afternoon = new TimeSlot(3, 30, kvp.Key);
+                var late = new TimeSlot(7, 30, week: kvp.Key);
+                var noon = new TimeSlot(12, 0, week: kvp.Key);
+                var afternoon = new TimeSlot(3, 30, week: kvp.Key);
 
                 // military games go first
                 var queue = kvp.Value.Where(g => g.IsMilitaryHomeGame).ToQueue();
@@ -30,9 +29,8 @@ namespace EA_DB_Editor.Scheduling.TV
                         continue;
                     }
 
-                    if( !Primary.ContainsKey(afternoon))
+                    if (!Primary.AssignGame(game, afternoon))
                     {
-                        Primary.AssignGame(game, afternoon);
                         continue;
                     }
 
@@ -43,21 +41,18 @@ namespace EA_DB_Editor.Scheduling.TV
                 queue = kvp.Value.Where(g => !g.IsMilitaryHomeGame).ToQueue();
                 while (queue.TryDequeueGameForAssignment(out var game))
                 {
-                    if (!Primary.ContainsKey(noon))
+                    if (!Primary.AssignGame(game, noon))
                     {
-                        Primary.AssignGame(game, noon);
                         continue;
                     }
 
-                    if (!Primary.ContainsKey(late))
+                    if (!Primary.AssignGame(game, late))
                     {
-                        Primary.AssignGame(game, late);
                         continue;
                     }
 
-                    if (!Primary.ContainsKey(afternoon))
+                    if (!Primary.AssignGame(game, afternoon))
                     {
-                        Primary.AssignGame(game, afternoon);
                         continue;
                     }
                 }

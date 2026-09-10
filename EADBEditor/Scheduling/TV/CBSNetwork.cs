@@ -6,21 +6,34 @@ namespace EA_DB_Editor.Scheduling.TV
     public class CBSNetwork : NetworkSchedule
     {
         public static readonly CBSNetwork Instance = new CBSNetwork();
-        private CBSNetwork() : base("CBS")
+        private CBSNetwork() : base(ChannelName.CBS, StreamingProvider.ParamountPlus)
         {
+        }
+
+        public override bool PreassignGame(TelevisedGame game)
+        {
+            if (game.CheckMatchup(8, 57))
+            {
+                Primary.PreassignGame(game, new TimeSlot(3, 30, game.Week), true);
+            }
+
+            if (game.CheckMatchup(1, 8))
+            {
+                var timeslot = game.HomeTeam == 1 ? new TimeSlot(7, 30, game.Week) : new TimeSlot(3, 30, game.Week);
+                Primary.PreassignGame(game, timeslot, true);
+            }
+
+            if (game.CheckMatchup(1, 57))
+            {
+                var timeslot = game.HomeTeam == 1 ? new TimeSlot(3, 30, game.Week) : new TimeSlot(12, 0, game.Week);
+                Primary.PreassignGame(game, timeslot, true);
+            }
+
+            return base.PreassignGame(game);
         }
 
         public override NetworkSchedule AssignGames()
         {
-            var armyNavy = this.SelectedGames.Where(g => g.IsArmyNavy).First();
-            Primary.AssignGame(armyNavy, new TimeSlot(3, 30, armyNavy.Week));
-
-            var afArmy = this.SelectedGames.Where(g => g.IsArmyAirForce).First();
-            Primary.AssignGame(afArmy, new TimeSlot(7, 30, afArmy.Week));
-
-            var afNavy = this.SelectedGames.Where(g => g.IsAirForceNavy).First();
-            Primary.AssignGame(afNavy, new TimeSlot(12, 30, afNavy.Week));
-
             foreach (var kvp in this.WeeklySchedule)
             {
                 var queue = kvp.Value.ToQueue();
@@ -31,20 +44,12 @@ namespace EA_DB_Editor.Scheduling.TV
                     {
                         // CBS game is black friday at noon 
                         var slot = kvp.Key == 13 ? new TimeSlot(12, 0, week: kvp.Key, day: 4) : new TimeSlot(3, 30, week: kvp.Key);
-
-                        if (!Primary.ContainsKey(slot))
-                        {
-                            Primary.AssignGame(game, slot);
-                        }
+                        Primary.AssignGame(game, slot);
                     }
                     else
                     {
-                        var slot = new TimeSlot( 7, 30, week: kvp.Key);
-
-                        if (!Primary.ContainsKey(slot))
-                        {
-                            Primary.AssignGame(game, slot);
-                        }
+                        var slot = new TimeSlot(7, 30, week: kvp.Key);
+                        Primary.AssignGame(game, slot);
                     }
                 }
             }
@@ -56,9 +61,6 @@ namespace EA_DB_Editor.Scheduling.TV
 
         public override void SelectGames(Dictionary<int, List<TelevisedGame>> televisedGames)
         {
-            // cbs takes the military academy games
-            this.SelectedGames.AddRange(televisedGames.Values.SelectMany(g => g).Where(g => g.IsMilitaryAcademyGame).Select(g => g.Select()));
-
             // every week get the third best Big 10 game
             var big10 = televisedGames[TableUtility.Big10Id].GetAvailableGamesByWeek();
             foreach (var kvp in big10)
