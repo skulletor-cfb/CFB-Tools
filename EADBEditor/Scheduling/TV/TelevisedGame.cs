@@ -130,9 +130,10 @@ namespace EA_DB_Editor.Scheduling
                 Score += -100000;
             }
 
-            BothTeamsRanked = (home.CoachPollRanking() <= 25 || home.MediaPollRanking() <= 25) && (away.CoachPollRanking() <= 25 || away.MediaPollRanking() <= 25) ;
+            BothTeamsRanked = (home.CoachPollRanking() <= 25 || home.MediaPollRanking() <= 25) && (away.CoachPollRanking() <= 25 || away.MediaPollRanking() <= 25);
         }
 
+        public override string ToString() => $"{Week}: {AwayName} at {HomeName}";
         public override bool Equals(object obj)
         {
             return obj is TelevisedGame other &&
