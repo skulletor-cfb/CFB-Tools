@@ -101,13 +101,6 @@ namespace EA_DB_Editor.Scheduling
                 return false;
             }
 
-            // thanksgiving and black friday will be pre assigned
-            if (game.Week == 13 && game.Day != 5)
-            {
-                game.PreAssigned();
-                return false;
-            }
-
             // Mayhem at MBS, Oyster Bowl, Johnny Majors Classic do not get reassigned
             if (game.GTOD == 733 || game.GTOD == 717 || game.GTOD == 737)
             {
