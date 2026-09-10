@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EA_DB_Editor.Scheduling.TV
 {
@@ -19,7 +16,7 @@ namespace EA_DB_Editor.Scheduling.TV
         }
 
         public static readonly CWNetwork Instance = new CWNetwork();
-        private CWNetwork() : base("CW")
+        private CWNetwork() : base(ChannelName.CW, StreamingProvider.None)
         {
         }
 

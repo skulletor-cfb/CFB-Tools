@@ -8,6 +8,16 @@ namespace EA_DB_Editor.Scheduling.TV
 {
     public static class TelevisionHelper
     {
+        public static TelevisedGameQueue ToQueue(this IEnumerable<TelevisedGame> items, int? take = null)
+        {
+            if (take.HasValue)
+            {
+                items = items.Take(take.Value);
+            }
+
+            return new TelevisedGameQueue(items);
+        }
+
         public static Dictionary<int, List<TelevisedGame>> GetAvailableGamesByWeek(
             this List<TelevisedGame> games, 
             Func<TelevisedGame,int> orderFunc = null,

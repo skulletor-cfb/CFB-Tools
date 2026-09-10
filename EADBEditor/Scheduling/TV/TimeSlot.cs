@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace EA_DB_Editor.Scheduling
 {
@@ -34,6 +30,15 @@ namespace EA_DB_Editor.Scheduling
             Hour = hour;
             Minute = minute;
             AM = am;
+            Day = day;
+            Week = week;
+        }
+
+        public TimeSlot(GameTimeOfDay gtod, int week, int day)
+        {
+            Hour = gtod.Hour;
+            Minute = gtod.Minute;
+            AM = gtod.AM;
             Day = day;
             Week = week;
         }
@@ -84,11 +89,6 @@ namespace EA_DB_Editor.Scheduling
             }
         }
 
-        public string ToGTOD()
-        {
-            var hourMod = AM ? Hour : (12 + Hour);
-            var result = hourMod * 60 + Minute;
-            return result.ToString();
-        }
+        public string ToGTOD() => GTOD.ToString();
     }
 }
