@@ -148,8 +148,11 @@
     <Compile Include="Scheduling\TV\FoxNetworks.cs" />
     <Compile Include="Scheduling\TV\NBCNetwork.cs" />
     <Compile Include="Scheduling\TV\NetworkSchedule.cs" />
+    <Compile Include="Scheduling\TV\StreamingSchedule.cs" />
     <Compile Include="Scheduling\TV\TelevisedGame.cs" />
+    <Compile Include="Scheduling\TV\TelevisedGameQueue.cs" />
     <Compile Include="Scheduling\TV\TelevisionHelper.cs" />
+    <Compile Include="Scheduling\TV\ChannelSchedule.cs" />
     <Compile Include="Scheduling\TV\TelevisionScheduler.cs" />
     <Compile Include="Scheduling\TV\TimeSlot.cs" />
     <Compile Include="TableUtility.cs" />

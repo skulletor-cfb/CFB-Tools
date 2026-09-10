@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EA_DB_Editor.Scheduling
 {
@@ -10,26 +7,24 @@ namespace EA_DB_Editor.Scheduling
     {
         private static readonly Dictionary<int, string> Days = new Dictionary<int, string>
         {
-            [0] = "Mon",
-            [1] = "Tue",
-            [2] = "Wed",
-            [3] = "Thu",
-            [4] = "Fri",
-            [5] = "Sat",
-            [6] = "Sun",
+            [0] = "Monday",
+            [1] = "Tuesday",
+            [2] = "Wednesday",
+            [3] = "Thursday",
+            [4] = "Friday",
+            [5] = "Saturday",
+            [6] = "Sunday",
         };
-
-        public static readonly TimeSlot ShamrockSeries = new TimeSlot(8, 7);// 807pm
-        public static readonly TimeSlot MayhemAtMBS = new TimeSlot(7, 33); // 733pm
-        public static readonly TimeSlot OysterBowl = new TimeSlot(7, 17); //717 pm
-        public static readonly TimeSlot JohnnyMajorsClassic = new TimeSlot(7, 37); //737pm
 
         public int Day { get; }
         public int Hour { get; }
         public int Minute { get; }
         public bool AM { get; }
-        public int? Week { get; }
-        public TimeSlot(int hour, int minute, int? week = null, bool am = false, int day = 5)
+        public int Week { get;  }
+        public string DayOfWeek => Days[Day];
+        public string Month =>TelevisionScheduler.CurrentSeason.Weeks[Week].AddDays(Day - 5).ToString("MMMM");
+        public int DayOfMonth => TelevisionScheduler.CurrentSeason.Weeks[Week].AddDays(Day - 5).Day;
+        public TimeSlot(int hour, int minute, int week , bool am = false, int day = 5)
         {
             Hour = hour;
             Minute = minute;
@@ -38,11 +33,25 @@ namespace EA_DB_Editor.Scheduling
             Week = week;
         }
 
-        public override string ToString()
+        public TimeSlot(GameTimeOfDay gtod, int week, int day)
+        {
+            Hour = gtod.Hour;
+            Minute = gtod.Minute;
+            AM = gtod.AM;
+            Day = day;
+            Week = week;
+        }
+
+        public string ToTimeString()
         {
             var am = AM ? "AM" : "PM";
             var min = Minute < 10 ? "0" + Minute : Minute.ToString();
-            return $"Week {this.Week}-{Days[this.Day]}-{this.Hour}:{min}{am}";
+            return $"{this.Hour}:{min}{am}";
+        }
+
+        public override string ToString()
+        {
+            return $"Week {this.Week}-{Days[this.Day].Substring(0, 3)}-{this.ToTimeString()}";
         }
 
         public override bool Equals(object obj)
@@ -59,7 +68,7 @@ namespace EA_DB_Editor.Scheduling
         {
             unchecked
             {
-                var arr = new int[] { this.Hour, this.Minute, this.Day, this.AM ? 101 : 103, this.Week ?? 113 };
+                var arr = new int[] { this.Hour, this.Minute, this.Day, this.AM ? 101 : 103, this.Week };
                 var code = 23;
 
                 foreach (var item in arr)
@@ -84,11 +93,6 @@ namespace EA_DB_Editor.Scheduling
             }
         }
 
-        public string ToGTOD()
-        {
-            var hourMod = AM ? Hour : (12 + Hour);
-            var result = hourMod * 60 + Minute;
-            return result.ToString();
-        }
+        public string ToGTOD() => GTOD.ToString();
     }
 }

@@ -4,10 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EA_DB_Editor.Scheduling.TV
+namespace EA_DB_Editor.Scheduling
 {
     public static class TelevisionHelper
     {
+        public static TelevisedGameQueue ToQueue(this IEnumerable<TelevisedGame> items, int? take = null)
+        {
+            if (take.HasValue)
+            {
+                items = items.Take(take.Value);
+            }
+
+            return new TelevisedGameQueue(items);
+        }
+
         public static Dictionary<int, List<TelevisedGame>> GetAvailableGamesByWeek(
             this List<TelevisedGame> games, 
             Func<TelevisedGame,int> orderFunc = null,
