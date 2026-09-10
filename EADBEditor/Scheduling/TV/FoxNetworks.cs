@@ -138,7 +138,7 @@ namespace EA_DB_Editor.Scheduling.TV
 
             // what's left can go to 4pm
             var afternoon = games.Where(g => !g.Assigned).FirstOrDefault();
-            FS1.AssignGame(primetime, week, 3, 30);
+            FS1.AssignGame(afternoon, week, 3, 30);
 
             // finally we get pac 12 after dark
             var afterDark = games.Where(g => !g.Assigned && g.IsPac12Game).FirstOrDefault();
