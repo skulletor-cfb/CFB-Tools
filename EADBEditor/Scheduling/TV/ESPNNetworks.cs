@@ -1,5 +1,4 @@
-﻿using EA_DB_Editor.Scheduling.TV;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,13 +11,13 @@ namespace EA_DB_Editor.Scheduling
     {
         public static readonly ESPNNetworks Instance = new ESPNNetworks();
 
-        public ChannelSchedule ABC = new ChannelSchedule(ChannelName.ABC);
+        public ChannelSchedule ABC =  ChannelSchedule.Create(ChannelName.ABC);
         public ChannelSchedule ESPN => this.Primary;
-        public ChannelSchedule ESPN2 = new ChannelSchedule(ChannelName.ESPN2);
+        public ChannelSchedule ESPN2 = ChannelSchedule.Create(ChannelName.ESPN2);
 
-        public ChannelSchedule ESPNU = new ChannelSchedule(ChannelName.ESPNU);
-        public ChannelSchedule ACCN = new ChannelSchedule(ChannelName.ACCNetwork);
-        public ChannelSchedule SECN = new ChannelSchedule(ChannelName.SECNetwork);
+        public ChannelSchedule ESPNU = ChannelSchedule.Create(ChannelName.ESPNU);
+        public ChannelSchedule ACCN = ChannelSchedule.Create(ChannelName.ACCNetwork);
+        public ChannelSchedule SECN = ChannelSchedule.Create(ChannelName.SECNetwork);
 
         private ESPNNetworks() : base(ChannelName.ESPN, StreamingProvider.ESPNPlus)
         {
@@ -27,12 +26,11 @@ namespace EA_DB_Editor.Scheduling
         public override void Report()
         {
             WriteReport(ABC);
-            WriteReport(ESPN);
             WriteReport(ESPN2);
             WriteReport(ESPNU);
             WriteReport(ACCN);
             WriteReport(SECN);
-            WriteReport(Streaming);
+            base.Report();
         }
 
         public override NetworkSchedule AssignGames()
@@ -47,11 +45,11 @@ namespace EA_DB_Editor.Scheduling
             AssignACCFriday();
             AssignAmericanFriday();
             AssignMidMajorThursday();
-            AssignACCNetwork(new[] { new TimeSlot(3, 30) });
-            AssignSECNetwork(new[] { new TimeSlot(4, 15) });
+            AssignACCNetwork(new Func<int, TimeSlot>[] { week => new TimeSlot(3, 30, week) });
+            AssignSECNetwork(new Func<int, TimeSlot>[] { week => new TimeSlot(4, 15, week) });
             AssignP5ESPN_NoonGames();
-            AssignACCNetwork(new[] { new TimeSlot(12, 0), new TimeSlot(7, 30), });
-            AssignSECNetwork(new[] { new TimeSlot(12, 45), new TimeSlot(7, 45), });
+            AssignACCNetwork(new Func<int, TimeSlot>[] { week => new TimeSlot(12, 0, week), week => new TimeSlot(7, 30, week), });
+            AssignSECNetwork(new Func<int, TimeSlot>[] { week => new TimeSlot(12, 45, week), week => new TimeSlot(7, 45, week), });
             AssignESPNU();
             AssignStreamingGames();
             return this;
@@ -305,23 +303,23 @@ namespace EA_DB_Editor.Scheduling
         /// <summary>
         /// SECN gets 1245/415/745 games
         /// </summary>
-        private void AssignSECNetwork(params TimeSlot[] slots)
+        private void AssignSECNetwork(Func<int, TimeSlot>[] slots)
         {
 
             for (int i = 0; i <= 13; i++)
             {
                 var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsSecGame).OrderBy(g => g.Score).ToQueue();
-
-                var stack = new Stack<TimeSlot>(slots);
+                var stack = new Stack<Func<int, TimeSlot>>(slots);
 
                 while (queue.TryDequeueGameForAssignment(out var game))
                 {
-                    if (!stack.TryPop(out var timeslot))
+                    if (!stack.TryPop(out var timeslotFunc))
                     {
                         break;
                     }
 
-                    SECN.AssignGame(game, new TimeSlot(timeslot.Hour, timeslot.Minute, i, timeslot.AM, timeslot.Day));
+                    var timeSlot = timeslotFunc(i);
+                    SECN.AssignGame(game, timeSlot);
                 }
             }
         }
@@ -329,22 +327,23 @@ namespace EA_DB_Editor.Scheduling
         /// <summary>
         /// ACCN gets 12/330/730 games
         /// </summary>
-        private void AssignACCNetwork(params TimeSlot[] slots)
+        private void AssignACCNetwork( Func<int,TimeSlot>[] slots)
         {
 
             for (int i = 0; i <= 13; i++)
             {
                 var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsAccGame).OrderBy(g => g.Score).ToQueue();
-                var stack = new Stack<TimeSlot>(slots);
+                var stack = new Stack<Func<int, TimeSlot>>(slots);
 
                 while (queue.TryDequeueGameForAssignment(out var game))
                 {
-                    if (!stack.TryPop(out var timeslot))
+                    if (!stack.TryPop(out var timeslotFunc))
                     {
                         break;
                     }
 
-                    ACCN.AssignGame(game, new TimeSlot(timeslot.Hour, timeslot.Minute, i, timeslot.AM, timeslot.Day));
+                    var timeSlot = timeslotFunc(i);
+                    ACCN.AssignGame(game, timeSlot);
                 }
             }
         }
@@ -619,31 +618,31 @@ namespace EA_DB_Editor.Scheduling
         public override void SelectGames(Dictionary<int, List<TelevisedGame>> televisedGames)
         {
             // take all sec games
-            this.SelectedGames.AddRange(televisedGames[TableUtility.SECId].Select(g => g.Select()));
+            this.SelectedGames.Select(televisedGames[TableUtility.SECId]);
 
             // take the unselected acc games
-            this.SelectedGames.AddRange(televisedGames[TableUtility.ACCId].Where(g => !g.Selected).Select(g => g.Select()));
+            this.SelectedGames.Select(televisedGames[TableUtility.ACCId].Where(g => !g.Selected));
 
             // for big 12 espn gets half in the cadnce 0-3, 5, 7, 9, 11, 13, 15, 17, 19 ...
             var big12Games = televisedGames[TableUtility.Big12Id];
-            this.SelectedGames.AddRange(big12Games.Take(4).Select(g => g.Select()));
+            this.SelectedGames.Select(big12Games.Take(4));
 
             // remove the first 4 and last 4 from big 12 games and assign half
             var big12OnESPN = big12Games.Skip(4).Take(big12Games.Count - 8).ToArray();
             for (int i = 1; i < big12OnESPN.Length; i += 2)
             {
-                this.SelectedGames.Add(big12OnESPN[i].Select());
+                this.SelectedGames.Select(big12OnESPN[i]);
             }
 
             // espn takes the top MWC game for the 10:30pm slot
             var mwcGames = televisedGames[TableUtility.MWCId].GetAvailableGamesByWeek();
             foreach (var kvp in mwcGames)
             {
-                this.SelectedGames.Add(kvp.Value[0].Select());
+                this.SelectedGames.Select(kvp.Value[0]);
             }
 
             // all american, sun belt, cusa, mac games
-            this.SelectedGames.AddRange(televisedGames.Values.SelectMany(g => g).Where(g => !g.Selected && !g.HomeTeamIsP5).Select(g => g.Select()));
+            this.SelectedGames.Select(televisedGames.Values.SelectMany(g => g).Where(g => !g.Selected && !g.HomeTeamIsP5));
 
             // every week get the 3rd best pac12 game
             var pac12 = televisedGames[TableUtility.Pac16Id].GetAvailableGamesByWeek();
@@ -651,7 +650,7 @@ namespace EA_DB_Editor.Scheduling
             {
                 if (kvp.Value.Count >= 3)
                 {
-                    this.SelectedGames.Add(kvp.Value[2].Select());
+                    this.SelectedGames.Select(kvp.Value[2]);
                 }
             }
         }
@@ -692,14 +691,14 @@ namespace EA_DB_Editor.Scheduling
             // Mayhem at MBS, Johnny Majors Classic do get the 8pm slot on ESPN
             if (game.GTOD == 1173 || game.GTOD == 1177)
             {
-                ESPN.PreassignGame(game, new TimeSlot(8, 0, game.Week, day: game.Day));
+                ESPN.PreassignGame(game, new TimeSlot(7, 0, game.Week, day: game.Day));
                 return false;
             }
 
             // ESPNU gets the oyster bowl  Oyster Bowl
             if (game.GTOD == 1157)
             {
-                var timeSlot = new TimeSlot(7, 30, game.Week, false, game.Day);
+                var timeSlot = new TimeSlot(8, 0, game.Week, false, game.Day);
                 ESPNU.PreassignGame(game, timeSlot);
                 return false;
             }

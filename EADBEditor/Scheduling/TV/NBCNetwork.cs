@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EA_DB_Editor.Scheduling.TV
+namespace EA_DB_Editor.Scheduling
 {
     public class NBCNetwork:NetworkSchedule
     {
@@ -34,13 +34,6 @@ namespace EA_DB_Editor.Scheduling.TV
                     continue;
                 }
 
-                // shamrock series is primetime, no big 10 game
-                if (nd.IsShamrockSeries)
-                {
-                    Primary.AssignGame(nd, kvp.Key, 8, 7);
-                    continue;
-                }
-
                 // nd plays at night if it's a premier game
                 if (nd.BothTeamsRanked)
                 {
@@ -58,6 +51,17 @@ namespace EA_DB_Editor.Scheduling.TV
             return this;
         }
 
+        public override bool PreassignGame(TelevisedGame game)
+        {
+            // Shamrock Series
+            if (game.GTOD == 1207 )
+            {
+                Primary.PreassignGame(game, new TimeSlot(8, 0, game.Week, day: game.Day));
+                return false;
+            }
+            return base.PreassignGame(game);
+        }
+
         public override void SelectGames(Dictionary<int, List<TelevisedGame>> televisedGames)
         {
             // every week get the 2nd best Big 10 game
@@ -66,12 +70,12 @@ namespace EA_DB_Editor.Scheduling.TV
             {
                 if (kvp.Value.Count > 1)
                 {
-                    this.SelectedGames.Add(kvp.Value[1].Select());
+                    this.SelectedGames.Select(kvp.Value[1]);
                 }
             }
 
             // all the notre dame games
-            this.SelectedGames.AddRange(televisedGames[TableUtility.NotreDameId].Select(g => g.Select()));
+            this.SelectedGames.Select(televisedGames[TableUtility.NotreDameId]);
         }
     }
 }

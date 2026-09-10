@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace EA_DB_Editor.Scheduling.TV
+namespace EA_DB_Editor.Scheduling
 {
     public class CWNetwork : NetworkSchedule
     {
@@ -126,7 +126,7 @@ namespace EA_DB_Editor.Scheduling.TV
 
                 if (game != null)
                 {
-                    this.SelectedGames.Add(game.Select());
+                    this.SelectedGames.Select(game);
                 }
             }
 
@@ -137,27 +137,8 @@ namespace EA_DB_Editor.Scheduling.TV
                 // espn takes the top game
                 var mwc = kvp.Value.Skip(1).ToArray();
 
-                if (mwc.Length > 0)
-                {
-                    this.SelectedGames.Add(mwc[0].Select());
-                }
-
-                if (mwc.Length > 1)
-                {
-                    this.SelectedGames.Add(mwc[1].Select());
-                }
-
-                // once we get into conf play, take a third
-                if (mwc.Length > 2 && kvp.Key > 5)
-                {
-                    this.SelectedGames.Add(mwc[2].Select());
-                }
-
-                // later in the season we go friday
-                if (mwc.Length > 3 && kvp.Key > 5)
-                {
-                    this.SelectedGames.Add(mwc[3].Select());
-                }
+                // take two for the first month of the season, then take as many as 4
+                this.SelectedGames.Select(mwc.Take(kvp.Key > 4 ? 4 : 2));
             }
         }
     }

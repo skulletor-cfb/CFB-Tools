@@ -673,8 +673,10 @@ namespace EA_DB_Editor
         public DateTime FinalDayOfSeason { get; }
         public DateTime TexasStateFairStartDate { get; }
         public DateTime RedRiverShowdown { get; }
+        public int Year { get; }
         public SeasonCalendar(int year)
         {
+            Year = year;
             Weeks = new DateTime[14];
             ThirdSaturdayInOctober = year.GetThirdSaturdayInOctober();
             LaborDay = year.GetLaborDay();
