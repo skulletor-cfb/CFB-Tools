@@ -70,7 +70,6 @@ namespace EA_DB_Editor.Scheduling
         public bool IsMACGame => ConferenceOwner == TableUtility.MACId;
         public bool IsCUSAGame => ConferenceOwner == TableUtility.CUSAId;
         public bool IsNotreDameHomeGame => HomeTeam.IsIndependentND();
-        public bool IsShamrockSeries => (IsNotreDameHomeGame || AwayTeam == TableUtility.NotreDameId) && GTOD == new TimeSlot(8, 7).GTOD;
         public bool IsNotreDameAtNavy => (HomeTeam == 57 && AwayTeam == TableUtility.NotreDameId);
         public bool BothTeamsRanked { get; }
         public bool IsArizonaGame => HomeTeam == 4 || HomeTeam == 5;
@@ -88,6 +87,12 @@ namespace EA_DB_Editor.Scheduling
         public bool IsTexasTechGame => CheckMatchup(92, 94);
         public bool IsTCUBU => CheckMatchup(11, 89);
         public bool IsSMUHOU => CheckMatchup(33, 83);
+        public string HomeName { get; }
+        public string AwayName { get; }
+        public int AwayRank { get; }
+        public int HomeRank { get; }
+        public string HomeConference { get; }
+        public string AwayConference { get; }
         public TelevisedGame(MaddenRecord mr, Dictionary<int, MaddenRecord> teams)
         {
             Record = mr;
@@ -95,13 +100,19 @@ namespace EA_DB_Editor.Scheduling
             AwayTeam = mr.GetAwayTeam();
             var away = teams[AwayTeam];
             var home = teams[HomeTeam];
-            var score = home.CoachPollRanking() + home.MediaPollRanking() + away.CoachPollRanking() + away.MediaPollRanking();
+            AwayName = away.TeamName();
+            HomeName = home.TeamName();
+            AwayRank = away.MediaPollRanking();
+            HomeRank = home.MediaPollRanking();
+            var score = home.CoachPollRanking() + HomeRank + away.CoachPollRanking() + AwayRank;
             score /= 2;
             score += ScheduleFixup.IsRivalryGame(AwayTeam, HomeTeam) ? -10 : 0;
             score += TableUtility.TeamAndConferences.TeamsInSameConference(AwayTeam, HomeTeam) ? -5 : 0;
             score -= (home.Prestige() + away.Prestige()) / 2; // more prestigious game should rank higher
             Score = score;
-            ConferenceOwner = (IsNotreDameHomeGame || IsShamrockSeries || IsNotreDameAtNavy) ? TableUtility.NotreDameId : TableUtility.GameConferenceOwner(HomeTeam);
+            ConferenceOwner = (IsNotreDameHomeGame || IsNotreDameAtNavy) ? TableUtility.NotreDameId : TableUtility.GameConferenceOwner(HomeTeam);
+            AwayConference = AwayTeam.IsFcsTeam() ? "FCS" : RecruitingFixup.ConferenceNames[TableUtility.GameConferenceOwner(AwayTeam)];
+            HomeConference = RecruitingFixup.ConferenceNames[TableUtility.GameConferenceOwner(HomeTeam)];
             Week = mr.GameWeek();
             Day = mr.GameDay();
             GTOD = mr.GTOD();
@@ -143,10 +154,7 @@ namespace EA_DB_Editor.Scheduling
 
         public TelevisedGame Assign(TimeSlot time)
         {
-            Assigned = true;
-            this.Record["GTOD"] = time.ToGTOD();
-            this.Record["GDAT"] = time.Day.ToString();
-            return this;
+            return PreAssign(time);
         }
 
         public TelevisedGame PreAssign(TimeSlot time = null)

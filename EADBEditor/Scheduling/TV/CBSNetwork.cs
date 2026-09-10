@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace EA_DB_Editor.Scheduling.TV
+namespace EA_DB_Editor.Scheduling
 {
     public class CBSNetwork : NetworkSchedule
     {
@@ -67,7 +67,7 @@ namespace EA_DB_Editor.Scheduling.TV
             {
                 if (kvp.Value.Count > 2)
                 {
-                    this.SelectedGames.Add(kvp.Value[2].Select());
+                    this.SelectedGames.Select(kvp.Value[2]);
                 }
             }
 
@@ -75,7 +75,7 @@ namespace EA_DB_Editor.Scheduling.TV
             var pac12 = televisedGames[TableUtility.Pac16Id].GetAvailableGamesByWeek();
             foreach (var kvp in pac12)
             {
-                this.SelectedGames.Add(kvp.Value[0].Select());
+                this.SelectedGames.Select(kvp.Value[0]);
             }
         }
     }

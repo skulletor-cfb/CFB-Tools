@@ -22,14 +22,21 @@ namespace EA_DB_Editor.Scheduling
             AssignGame(game, new TimeSlot(hour, minute, week, day: day));
         }
 
-        public StreamingSchedule(StreamingProvider provider)
+        private StreamingSchedule(StreamingProvider provider)
         {
             this.Provider = provider;
         }
 
+        public IEnumerable<(TimeSlot time, TelevisedGame game)> Games => this.schedule;
+
+        public static StreamingSchedule Create(StreamingProvider provider)
+        {
+            return new StreamingSchedule(provider).Register();
+        }
+
         public void AssignGame(TelevisedGame game, TimeSlot timeslot)
         {
-            if (game == null) return;
+            if (game == null || game.Assigned) return;
             schedule.Add((timeslot, game.Assign(timeslot)));
         }
 
