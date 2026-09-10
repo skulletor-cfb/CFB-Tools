@@ -29,7 +29,7 @@ namespace EA_DB_Editor.Scheduling
             [ChannelName.FoxSports1.ToString()] = "FS1",
             [ChannelName.SECNetwork.ToString()] = "SECN",
             [StreamingProvider.ESPNPlus.ToString()] = "ESPN+",
-            [StreamingProvider.FoxOne.ToString()] = "FOX1",
+            [StreamingProvider.FoxOne.ToString()] = "FOX One",
             [StreamingProvider.ParamountPlus.ToString()] = "Paramount+",
             [StreamingProvider.Peacock.ToString()] = StreamingProvider.Peacock.ToString(),
         };
