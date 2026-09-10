@@ -1,5 +1,4 @@
-﻿using EA_DB_Editor.Scheduling.TV;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -28,10 +27,18 @@ namespace EA_DB_Editor.Scheduling
         private Dictionary<TimeSlot, TelevisedGame> schedule = new Dictionary<TimeSlot, TelevisedGame>();
 
         public ChannelName Name { get; }
-        public ChannelSchedule(ChannelName name)
+        private ChannelSchedule(ChannelName name)
         {
             Name = name;
         }
+
+        public static ChannelSchedule Create(ChannelName name)
+        {
+            var schedule = new ChannelSchedule(name);
+            return schedule.Register();
+        }
+
+        public IEnumerable<(TimeSlot time, TelevisedGame game)> Games => this.schedule.Select(kvp => (kvp.Key, kvp.Value));
 
         public bool AssignGame(TelevisedGame game, int week, int hour, int minute, int day = 5)
         {
@@ -39,14 +46,14 @@ namespace EA_DB_Editor.Scheduling
         }
 
         /// <summary>
-        /// will try to assign the game, if unable to , will return the game so it can be requeued
+        /// will try to assign the game
         /// </summary>
         /// <param name="game"></param>
         /// <param name="timeslot"></param>
         /// <returns></returns>
         public bool AssignGame(TelevisedGame game, TimeSlot timeslot)
         {
-            if (game == null || schedule.ContainsKey(timeslot))
+            if (game == null || schedule.ContainsKey(timeslot) || game.Assigned)
             {
                 return false;
             }

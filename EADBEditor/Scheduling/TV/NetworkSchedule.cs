@@ -1,29 +1,57 @@
-﻿using EA_DB_Editor.Scheduling.TV;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace EA_DB_Editor.Scheduling
 {
-    public abstract class NetworkSchedule
+    public class GameSelections
     {
         private Dictionary<int, List<TelevisedGame>> weeklySchedule = null;
-        public ChannelName Name { get; }
+        private List<TelevisedGame> games = new List<TelevisedGame>();
 
-        protected List<TelevisedGame> SelectedGames { get; } = new List<TelevisedGame>();
+        public void Select(TelevisedGame game)
+        {
+            games.Add(game.Select());
+        }
 
-        protected Dictionary<int, List<TelevisedGame>> WeeklySchedule
+        public void Select(IEnumerable<TelevisedGame> games)
+        {
+            foreach (var game in games)
+            {
+                Select(game);
+            }
+        }
+
+        public Dictionary<int, List<TelevisedGame>> WeeklySchedule
         {
             get
             {
                 if (weeklySchedule == null)
                 {
-                    weeklySchedule = this.SelectedGames.GroupBy(g => g.Week).ToDictionary(g => g.Key, g => g.OrderBy(game => game.Score).ToList());
+                    weeklySchedule = this.games.GroupBy(g => g.Week).ToDictionary(g => g.Key, g => g.OrderBy(game => game.Score).ToList());
                 }
 
                 return weeklySchedule;
             }
         }
+
+        public void ReturnInventory()
+        {
+            foreach (var game in games.Where(g => !g.Assigned))
+            {
+                game.Deselect();
+            }
+        }
+    }
+
+    public abstract class NetworkSchedule
+    {
+        public ChannelName Name { get; }
+
+        protected GameSelections SelectedGames { get; } = new GameSelections();
+
+        protected Dictionary<int, List<TelevisedGame>> WeeklySchedule => SelectedGames.WeeklySchedule;
+
         public virtual void SubLicense(TelevisedGame game, TimeSlot slot)
         {
             Primary.AssignGame(game, slot);
@@ -42,8 +70,8 @@ namespace EA_DB_Editor.Scheduling
         protected NetworkSchedule(ChannelName name, StreamingProvider provider)
         {
             this.Name = name;
-            this.Streaming = new StreamingSchedule(provider);
-            this.Primary = new ChannelSchedule(name);
+            this.Streaming = StreamingSchedule.Create(provider);
+            this.Primary = ChannelSchedule.Create(name);
             TelevisionScheduler.Register(Primary);
         }
 

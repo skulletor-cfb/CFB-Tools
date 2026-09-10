@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EA_DB_Editor.Scheduling.TV
+namespace EA_DB_Editor.Scheduling
 {
     public class FoxNetworks : NetworkSchedule
     {
         public static readonly FoxNetworks Instance = new FoxNetworks();
 
         public ChannelSchedule FOX => this.Primary;
-        public ChannelSchedule FS1 = new ChannelSchedule(ChannelName.FoxSports1);
-        public ChannelSchedule BTN = new ChannelSchedule(ChannelName.BigTenNetwork);
+        public ChannelSchedule FS1 = ChannelSchedule.Create(ChannelName.FoxSports1);
+        public ChannelSchedule BTN = ChannelSchedule.Create(ChannelName.BigTenNetwork);
 
         private FoxNetworks() : base(ChannelName.FOX, StreamingProvider.FoxOne)
         {
@@ -19,8 +19,8 @@ namespace EA_DB_Editor.Scheduling.TV
         public override void Report()
         {
             WriteReport(FOX);
-            WriteReport(FS1);
             WriteReport(BTN);
+            WriteReport(FS1);
             WriteReport(Streaming);
         }
 
@@ -30,8 +30,8 @@ namespace EA_DB_Editor.Scheduling.TV
             {
                 var games = kvp.Value;
                 AssignFoxGames(kvp.Key, games);
-                AssignFS1Games(kvp.Key, games);
                 AssignBTNGames(kvp.Key, games);
+                AssignFS1Games(kvp.Key, games);
                 AssignStreamingGames(kvp.Key, games);
             }
 
@@ -42,13 +42,13 @@ namespace EA_DB_Editor.Scheduling.TV
         public override void SelectGames(Dictionary<int, List<TelevisedGame>> televisedGames)
         {
             // take the rest of the big 12 games
-            this.SelectedGames.AddRange(televisedGames[TableUtility.Big12Id].Where(g => !g.Selected).Select(g => g.Select()));
+            this.SelectedGames.Select(televisedGames[TableUtility.Big12Id].Where(g => !g.Selected));
 
             // take the rest of pac 12 games
-            this.SelectedGames.AddRange(televisedGames[TableUtility.Pac16Id].Where(g => !g.Selected).Select(g => g.Select()));
+            this.SelectedGames.Select(televisedGames[TableUtility.Pac16Id].Where(g => !g.Selected));
 
             // take the rest of the big 10 games
-            this.SelectedGames.AddRange(televisedGames[TableUtility.Big10Id].Where(g => !g.Selected).Select(g => g.Select()));
+            this.SelectedGames.Select(televisedGames[TableUtility.Big10Id].Where(g => !g.Selected));
         }
 
         private void AssignStreamingGames(int week, List<TelevisedGame> games)
@@ -125,6 +125,10 @@ namespace EA_DB_Editor.Scheduling.TV
 
         private void AssignFS1Games(int week, List<TelevisedGame> games)
         {
+            // definitely get pac 12 after dark
+            var afterDark = games.Where(g => !g.Assigned && g.IsPac12Game).FirstOrDefault();
+            FS1.AssignGame(afterDark, week, 10, 30);
+
             // fs1 shows the best non p12 game at noon
             var bigNoon = games.Where(g => !g.Assigned && !g.IsPac12Game).FirstOrDefault();
             FS1.AssignGame(bigNoon, week, 12, 0);
@@ -136,22 +140,21 @@ namespace EA_DB_Editor.Scheduling.TV
             // what's left can go to 4pm
             var afternoon = games.Where(g => !g.Assigned).FirstOrDefault();
             FS1.AssignGame(afternoon, week, 3, 30);
-
-            // finally we get pac 12 after dark
-            var afterDark = games.Where(g => !g.Assigned && g.IsPac12Game).FirstOrDefault();
-            FS1.AssignGame(afterDark, week, 10, 30);
         }
 
         private void AssignBTNGames(int week, List<TelevisedGame> games)
         {
             var btn = games.Where(g => !g.Assigned && g.IsBig10Game).ToQueue();
-            var stack = new Stack<TimeSlot>(
-            new[]{
+
+            // BTN Friday is only for the start of the season
+            IEnumerable<TimeSlot> slots = new[]{
                 new TimeSlot(7,0,week,day:4),
                 new TimeSlot(3,30,week),
                 new TimeSlot(7,15,week),
                 new TimeSlot(12,0,week),
-            });
+            }.Skip(week.IsAugustSeptember() ? 0 : 1);
+
+            var stack = new Stack<TimeSlot>(slots);
 
             while (btn.TryDequeueGameForAssignment(out var game))
             {
@@ -227,17 +230,17 @@ namespace EA_DB_Editor.Scheduling.TV
             // fox friday , in september it's the best of the remaining big12/big 10/pac 12 games at 830pm
             if (week.IsAugustSeptember() && week > 0)
             {
-                var friday = this.SelectedGames.Where(g => !g.Assigned && !g.IsBig10Game).OrderBy(g => g.Score).FirstOrDefault();
+                var friday = games.Where(g => !g.Assigned && !g.IsBig10Game).OrderBy(g => g.Score).FirstOrDefault();
                 FOX.AssignGame(friday, week, 8, 0, day: 4);
 
-				var btn= this.SelectedGames.Where(g => !g.Assigned && g.IsBig10Game).OrderByDescending(g => g.Score).FirstOrDefault();
+				var btn= games.Where(g => !g.Assigned && g.IsBig10Game).OrderByDescending(g => g.Score).FirstOrDefault();
 				BTN.AssignGame(btn, week, 7, 0, day: 4);
 			}
 
 			// fox friday the rest of the year is big 10/pac12
 			if (!week.IsAugustSeptember() && week != worldSeriesEnd && week != worldSeriesStart && week != 13)
             {
-                var friday = this.SelectedGames.Where(g => !g.Assigned && !g.IsBig12Game).OrderBy(g => g.Score).ToQueue();
+                var friday = games.Where(g => !g.Assigned && !g.IsBig12Game).OrderBy(g => g.Score).ToQueue();
 
                 if (friday.TryDequeueGameForAssignment(out var game))
                 {

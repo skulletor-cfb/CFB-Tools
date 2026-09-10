@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace EA_DB_Editor.Scheduling.TV
+namespace EA_DB_Editor.Scheduling
 {
     public class CBSSportsNetwork : NetworkSchedule
     {
@@ -29,7 +29,7 @@ namespace EA_DB_Editor.Scheduling.TV
                         continue;
                     }
 
-                    if (!Primary.AssignGame(game, afternoon))
+                    if (Primary.AssignGame(game, afternoon))
                     {
                         continue;
                     }
@@ -41,17 +41,17 @@ namespace EA_DB_Editor.Scheduling.TV
                 queue = kvp.Value.Where(g => !g.IsMilitaryHomeGame).ToQueue();
                 while (queue.TryDequeueGameForAssignment(out var game))
                 {
-                    if (!Primary.AssignGame(game, noon))
+                    if (Primary.AssignGame(game, noon))
                     {
                         continue;
                     }
 
-                    if (!Primary.AssignGame(game, late))
+                    if (Primary.AssignGame(game, late))
                     {
                         continue;
                     }
 
-                    if (!Primary.AssignGame(game, afternoon))
+                    if (Primary.AssignGame(game, afternoon))
                     {
                         continue;
                     }
@@ -67,7 +67,7 @@ namespace EA_DB_Editor.Scheduling.TV
             // get military military academy games left
             var games = televisedGames.Values.SelectMany(g => g).Where(g => g.IsMilitaryHomeGame && !g.Selected).ToList();
             games.AddRange(televisedGames.Values.SelectMany(g => g).Where(g => g.IsCUSAGame && !g.Selected));
-            this.SelectedGames.AddRange(games.Select(g => g.Select()));
+            this.SelectedGames.Select(games);
         }
     }
 }

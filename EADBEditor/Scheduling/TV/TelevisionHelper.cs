@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EA_DB_Editor.Scheduling.TV
+namespace EA_DB_Editor.Scheduling
 {
     public static class TelevisionHelper
     {
