@@ -547,16 +547,16 @@ namespace EA_DB_Editor.Scheduling
         /// </summary>
         private void AssignAfterDark()
         {
-            var stack = new Stack<ChannelSchedule>();
-            stack.Push(ESPN2);
-            stack.Push(ESPN);
-
             for (int i = 0; i <= 13; i++)
             {
+                // stack per week
+                var stack = new Stack<ChannelSchedule>(new[] { ESPN2, ESPN });
                 var games = this.WeeklySchedule[i];
-                var mwc = games.Where(g => !g.Assigned && (g.ConferenceOwner == TableUtility.MWCId || g.ConferenceOwner == TableUtility.Pac16Id)).OrderByDescending(g => g.ConferenceOwner).ThenBy(g => g.Score).ToQueue();
+                var queue = games.Where(g => !g.Assigned && g.ConferenceOwner == TableUtility.Pac16Id).ToQueue();
+                var mwc = games.Where(g => !g.Assigned && g.ConferenceOwner == TableUtility.MWCId);
+                queue.Enqueue(mwc);
 
-                if (mwc.TryDequeueGameForAssignment(out var game) && stack.TryPop(out var channel))
+                if (queue.TryDequeueGameForAssignment(out var game) && stack.TryPop(out var channel))
                 {
                     channel.AssignGame(game, i, 10, 30);
                 }
