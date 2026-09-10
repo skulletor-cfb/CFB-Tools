@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EA_DB_Editor.Scheduling
+namespace EA_DB_Editor
 {
     public static class ConfScheduleFixer
     {
