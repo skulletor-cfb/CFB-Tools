@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace EA_DB_Editor.Scheduling
@@ -20,6 +21,60 @@ namespace EA_DB_Editor.Scheduling
         {
         }
 
+        private void AssignACC()
+        {
+            foreach (var kvp in this.WeeklySchedule)
+            {
+                var game = kvp.Value.Where(g => g.IsAccGame).FirstOrDefault();
+                var timeslot = game.HomeRank <= 25 ? new TimeSlot(3, 30, kvp.Key) : new TimeSlot(12, 0, kvp.Key);
+                Primary.AssignGame(game, timeslot);
+            }
+        }
+
+        /// <summary>
+        /// assigm the MWC games at 7 and 1030
+        /// </summary>
+        private void AssignMWC()
+        {
+            // the best week 13 game goes to friday 430pm, can't be hawaii though
+            var game = this.WeeklySchedule[13].Where(g => g.IsMWCGame && !g.IsHawaiiGame).FirstOrDefault();
+            Primary.AssignGame(game, 13, 4, 30, day: 4);
+
+            foreach (var kvp in this.WeeklySchedule)
+            {
+                // get our games
+                var games = kvp.Value.Where(g => g.IsMWCGame).ToList();
+
+                var friday = new TimeSlot(9, 0, kvp.Key, day: 4);
+                var early = new TimeSlot(3, 30, kvp.Key);
+                var evening = new TimeSlot(7, 0, kvp.Key);
+                var late = AssignHawaiiGames(games, kvp.Key);
+
+                var stack = new Stack<TimeSlot>(new[] { late, friday, early, evening }.Where(ts => ts != null).Where(ts => Primary.IsTimeslotAvailable(ts)).ToArray().Shuffle());
+                var queue = games.ToQueue();
+
+                while (queue.TryDequeueGameForAssignment(out game))
+                {
+                    if (stack.TryPop(out var timeslot))
+                    {
+                        Primary.AssignGame(game, timeslot);
+                    }
+                }
+            }
+        }
+
+        private TimeSlot AssignHawaiiGames(List<TelevisedGame> games, int week)
+        {
+            // any hawaii games
+            var hawaiiGame = games.Where(g => g.IsHawaiiGame).FirstOrDefault();
+            if (hawaiiGame != null && Primary.AssignGame(hawaiiGame, hawaiiGame.CalculateHawaiiTimeSlot()))
+            {
+                return null;
+            }
+
+            return new TimeSlot(10, 30, week);
+        }
+
         /// <summary>
         /// mwc plays 
         /// hawaii game: 1230, 400, 730, 1130
@@ -28,118 +83,10 @@ namespace EA_DB_Editor.Scheduling
         /// <returns></returns>
         public override NetworkSchedule AssignGames()
         {
-            foreach (var kvp in this.WeeklySchedule.OrderBy(kvp => kvp.Key))
-            {
-
-                var games = kvp.Value.OrderBy(g => g.Score).ToArray();
-                var queue = games.Where(g => !g.IsHawaiiGame).ToQueue();
-                var hawaiiGame = games.Where(g => g.IsHawaiiGame).FirstOrDefault();
-                var gamesThisWeek = games.Length;
-                var week = kvp.Key;
-
-                // default slots
-                var schedule = new WeekSchedule();
-                var afternoon = new TimeSlot(3, 30, week: week);
-                var early = new TimeSlot(12, 0, week: week);
-                var evening = new TimeSlot(7, 0, week: week);
-                var late = new TimeSlot(10, 30, week: week);
-
-                if (hawaiiGame != null)
-                {
-                    schedule.Late = new TimeSlot(11, 30, week: week);
-                    Primary.AssignGame(hawaiiGame, schedule.Late);
-                    afternoon = new TimeSlot(4, 0, week: week);
-                    early = new TimeSlot(12, 30, week: week);
-                    evening = new TimeSlot(7, 30, week: week);
-                }
-
-                while (queue.TryDequeueGameForAssignment(out var game))
-                {
-                    // acc will be played either at 4pm or 12:30pm
-                    if (game.IsAccGame)
-                    {
-                        if (gamesThisWeek <= 3)
-                        {
-                            schedule.Afternoon = afternoon;
-                            Primary.AssignGame(game, schedule.Afternoon);
-                        }
-                        else
-                        {
-                            schedule.Early = early;
-                            Primary.AssignGame(game, schedule.Early);
-                        }
-
-                        continue;
-                    }
-
-                    // premier game, so it picks first
-                    if (schedule.Evening == null)
-                    {
-                        schedule.Evening = evening;
-                        Primary.AssignGame(game, schedule.Evening);
-                        continue;
-                    }
-
-                    if (schedule.Late == null)
-                    {
-
-                        // week 13, the late game goes to Friday 430pm
-                        if (week == 13)
-                        {
-                            schedule.Late = new TimeSlot(4, 30, week, day: 4);
-                        }
-                        else
-                        {
-                            schedule.Late = late;
-                        }
-                        Primary.AssignGame(game, schedule.Late);
-                        continue;
-                    }
-
-                    if (schedule.Afternoon == null)
-                    {
-                        schedule.Afternoon = afternoon;
-                        Primary.AssignGame(game, afternoon);
-                        continue;
-                    }
-
-                    // friday night is the last game
-                    Primary.AssignGame(game, new TimeSlot(9, 0, week: week, day: 4));
-                }
-            }
-
+            AssignACC();
+            AssignMWC();
             this.SelectedGames.ReturnInventory();
             return this;
-        }
-
-        /// <summary>
-        /// gets 2 MWC games and worst ACC non fcs game
-        /// </summary>
-        /// <param name="games"></param>
-        public override void SelectGames(Dictionary<int, List<TelevisedGame>> televisedGames)
-        {
-            // take the unselected acc games, 1 per week
-            var accGames = televisedGames[TableUtility.ACCId].GetAvailableGamesByWeek(selector: g => !g.Selected && !g.IsFCSGame, orderFunc: g => -g.Score);
-            foreach (var kvp in accGames)
-            {
-                var game = kvp.Value.Take(1).FirstOrDefault();
-
-                if (game != null)
-                {
-                    this.SelectedGames.Select(game);
-                }
-            }
-
-            // take the 2nd best and 3rd mwc games of the week
-            var mwcGames = televisedGames[TableUtility.MWCId].GetAvailableGamesByWeek();
-            foreach (var kvp in mwcGames)
-            {
-                // espn takes the top game
-                var mwc = kvp.Value.Skip(1).ToArray();
-
-                // take two for the first month of the season, then take as many as 4
-                this.SelectedGames.Select(mwc.Take(kvp.Key > 4 ? 4 : 2));
-            }
         }
     }
 }
