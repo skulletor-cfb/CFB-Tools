@@ -39,12 +39,12 @@ namespace EA_DB_Editor.Scheduling
 
         public override NetworkSchedule AssignGames()
         {
-            AssignPac12AfterDark();
             AssignSunBeltTuesday();
             AssignThanksgivingWeekend();
             AssignMACtion();
             AssignSecGamesOfTheWeek();
             AssignP5ESPN();
+            AssignPac12AfterDark();
             AssignABCNoon();
             AssignACCFriday();
             AssignAmericanFriday();
