@@ -710,7 +710,7 @@ namespace EA_DB_Editor
         public bool IsAugustSeptember(int week)
         {
             var date = Weeks[week];
-            return date.Month <= 10;
+            return date.Month == 8 || date.Month == 9;
         }
         public bool IsNovember(int week)
         {

@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Text;
 
 namespace EA_DB_Editor.Scheduling
@@ -32,6 +30,9 @@ namespace EA_DB_Editor.Scheduling
             [StreamingProvider.FoxOne.ToString()] = "FOX One",
             [StreamingProvider.ParamountPlus.ToString()] = "Paramount+",
             [StreamingProvider.Peacock.ToString()] = StreamingProvider.Peacock.ToString(),
+            [StreamingProvider.MWPlus.ToString()] = "MW+",
+            [ChannelName.TheMW.ToString()] = "The Mtn.",
+            [StreamingProvider.ACCNX.ToString()] = "ACCNX",
         };
 
         private static SeasonCalendar currentSeason;
@@ -51,38 +52,47 @@ namespace EA_DB_Editor.Scheduling
         private static Dictionary<ChannelName, ChannelSchedule> AllNetworks = new Dictionary<ChannelName, ChannelSchedule>();
         private static Dictionary<StreamingProvider, StreamingSchedule> AllStreamers = new Dictionary<StreamingProvider, StreamingSchedule>();
 
-        public static Dictionary<int, List<TelevisedGame>> AllGames = null;
+        public static Dictionary<int, ConferenceGameSlate> AllGames = null;
 
         public static void FixTelevisionSchedule()
         {
+            Reset();
             var team = TableUtility.FindTable("TEAM").lRecords.ToDictionary(mr => mr.TeamId());
             var fullset = TableUtility.FindTable("SCHD").lRecords
-                .Select(mr => new TelevisedGame(mr, team)).ToArray();
+                .Select(mr => new TelevisedGame(mr, team))
+                .OrderBy(g => g.Week)
+                .ThenBy(g => g.Score)
+                .ToArray();
 
             var gamesNeedingAssignment = fullset.Where(g => g.GameNeedsAssignment()).ToArray();
             var assignedGames = fullset.Where(g => g.Assigned).ToArray();
-            var games = AllGames = gamesNeedingAssignment.GroupBy(g => g.ConferenceOwner).ToDictionary(g => g.Key, g => g.ToList());
+            var games = AllGames = gamesNeedingAssignment.Organize();
 
-            // select the games
-            CBSNetwork.Instance.SelectGames(games);
-            CBSNetwork.Instance.AssignGames();
-
-            NBCNetwork.Instance.SelectGames(games);
-            NBCNetwork.Instance.AssignGames();
-
-            CBSSportsNetwork.Instance.SelectGames(games);
-            CBSSportsNetwork.Instance.AssignGames();
-
-            CWNetwork.Instance.SelectGames(games);
-            CWNetwork.Instance.AssignGames();
-
-            // espn and fox now select
-            ESPNNetworks.Instance.SelectGames(games);
-            FoxNetworks.Instance.SelectGames(games);
+            // make offers
+            ConferenceGameSlateHelper.MakeOffers();
 
             // assign the games
+            CBSNetwork.Instance.AssignGames();
+            NBCNetwork.Instance.AssignGames();
+            Peacock.Instance.AssignGames();
+            CBSSportsNetwork.Instance.AssignGames();
+            CWNetwork.Instance.AssignGames();
+            MountainWestSportsNetwork.Instance.AssignGames();
             ESPNNetworks.Instance.AssignGames();
             FoxNetworks.Instance.AssignGames();
+
+            // not all games made it to broadcast, so they go back to bigger carriers
+            ConferenceGameSlateHelper.DistributeUnassigned();
+
+            // what's left goes to streaming
+            CBSNetwork.Instance.AssignStreaming();
+            NBCNetwork.Instance.AssignStreaming();
+            Peacock.Instance.AssignStreaming();
+            CBSSportsNetwork.Instance.AssignStreaming();
+            CWNetwork.Instance.AssignStreaming();
+            MountainWestSportsNetwork.Instance.AssignStreaming();
+            ESPNNetworks.Instance.AssignStreaming();
+            FoxNetworks.Instance.AssignStreaming();
 
             //report
             CWNetwork.Instance.Report();
@@ -91,6 +101,8 @@ namespace EA_DB_Editor.Scheduling
             NBCNetwork.Instance.Report();
             FoxNetworks.Instance.Report();
             CBSSportsNetwork.Instance.Report();
+            MountainWestSportsNetwork.Instance.Report();
+            Peacock.Instance.Report();
 
             // all the games ordered by week, then day, then time
             var streaming = AllStreamers.SelectMany(s => s.Value.Games.Select(g => new { g.game, g.time, channel = s.Key.ToString() }));
@@ -114,10 +126,11 @@ namespace EA_DB_Editor.Scheduling
                     Week = g.time.Week + 1,
                     HomeConference = g.game.HomeConference,
                     AwayConference = g.game.AwayConference,
+                    Score = g.game.Score,
                 }).ToList();
 
             // what is unassigned
-            var unassigned = games.Values.SelectMany(l => l).Where(g => g.Assigned == false).ToList();
+            var unassigned = games.Values.SelectMany(l => l.Games).Where(g => g.Assigned == false).ToList();
             var set = new HashSet<TelevisedGame>(allAssignedGames.Select(g => g.game));
             foreach (var game in fullset)
             {
@@ -150,12 +163,12 @@ namespace EA_DB_Editor.Scheduling
         {
             var preassigner = new Func<TelevisedGame, bool>[]
                 {
-                    CWNetwork.Instance.PreassignGame,
                     ESPNNetworks.Instance.PreassignGame,
-                    CBSNetwork.Instance.PreassignGame,
-                    NBCNetwork.Instance.PreassignGame,
-                    FoxNetworks.Instance.PreassignGame,
+                    Big10AssignmentRotator.PreassignGame,
                     CBSSportsNetwork.Instance.PreassignGame,
+                    CWNetwork.Instance.PreassignGame,
+                    MountainWestSportsNetwork.Instance.PreassignGame,
+                    Peacock.Instance.PreassignGame,
                 };
 
             return preassigner.All(f => f(game));
@@ -185,6 +198,8 @@ namespace EA_DB_Editor.Scheduling
         {
             return CurrentSeason.GetDate(game.Week, game.Day);
         }
+
+        public static int MACtionStartWeek => LastWeekOfOctober() + 1;
 
         public static int LastWeekOfOctober()
         {
@@ -222,6 +237,58 @@ namespace EA_DB_Editor.Scheduling
         {
             AllStreamers[streamer.Provider] = streamer;
             return streamer;
+        }
+
+        /// <summary>
+        /// resets the tv schedule so it can be rebuilt
+        /// </summary>
+        public static void Reset()
+        {
+            var laborDayWeek = TelevisionScheduler.LaborDayWeek();
+            foreach (var mr in TableUtility.FindTable("SCHD").lRecords)
+            {
+                var week = mr.GameWeek();
+                var day = mr.GameDay();
+
+                // labor day is ignored
+                if (week <= (laborDayWeek + 1) && day == 0)
+                {
+                    continue;
+                }
+
+                // hand crafted opening weeks are ignored
+                if (week <= laborDayWeek && day != 5)
+                {
+                    continue;
+                }
+
+                mr["GDAT"] = "5";
+            }
+        }
+    }
+
+    public static class Big10AssignmentRotator
+    {
+        private static Func<TelevisedGame, bool>[] networks = new Func<TelevisedGame, bool>[]
+                {
+                    FoxNetworks.Instance.PreassignGame,
+                    NBCNetwork.Instance.PreassignGame,
+                    CBSNetwork.Instance.PreassignGame,
+                };
+
+        private static int idx = 0;
+
+        public static bool PreassignGame(TelevisedGame game)
+        {
+            if (game.CheckMatchup(51, 70))
+            {
+                return FoxNetworks.Instance.PreassignGame(game);
+            }
+
+            // we need to be exhaustive
+            return networks[idx++ % networks.Length](game) &&
+                networks[idx++ % networks.Length](game) &&
+                networks[idx++ % networks.Length](game);
         }
     }
 }

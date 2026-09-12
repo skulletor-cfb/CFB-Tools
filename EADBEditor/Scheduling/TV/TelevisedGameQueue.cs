@@ -10,6 +10,8 @@ namespace EA_DB_Editor.Scheduling
     {
         private Queue<TelevisedGame> queue;
 
+        public bool IsEmpty => queue.Count == 0;
+
         private TelevisedGameQueue()
         {
         }
@@ -50,6 +52,23 @@ namespace EA_DB_Editor.Scheduling
         }
 
         public TelevisedGame Dequeue() => queue.Dequeue();
+
+        public IEnumerable<TelevisedGame> Dequeue(int take)
+        {
+            var list = new List<TelevisedGame>();
+
+            for (int i = 0; i < take; i++)
+            {
+                if (!this.TryDequeue(out var game))
+                {
+                    break;
+                }
+
+                list.Add(game);
+            }
+
+            return list;
+        }
 
         private bool TryDequeue(out TelevisedGame result)
         {
