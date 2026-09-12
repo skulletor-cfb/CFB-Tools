@@ -109,7 +109,6 @@ namespace EA_DB_Editor.Scheduling
             for (int i = 0; i <= 13; i++)
             {
                 var queue = games[i].ToQueue();
-                CBSNetwork.Instance.Offer(queue.Dequeue(1));
                 ESPNNetworks.Instance.Offer(queue.Dequeue(1));
                 FoxNetworks.Instance.Offer(queue.Dequeue(1));
             }
