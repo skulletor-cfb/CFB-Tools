@@ -143,9 +143,11 @@
     <Compile Include="Scheduling\SunBeltSchedule.cs" />
     <Compile Include="Scheduling\TV\CBSNetwork.cs" />
     <Compile Include="Scheduling\TV\CBSSportsNetwork.cs" />
+    <Compile Include="Scheduling\TV\ConferenceGameSlate.cs" />
     <Compile Include="Scheduling\TV\CWNetwork.cs" />
     <Compile Include="Scheduling\TV\ESPNNetworks.cs" />
     <Compile Include="Scheduling\TV\FoxNetworks.cs" />
+    <Compile Include="Scheduling\TV\MountainWestSportsNetwork.cs" />
     <Compile Include="Scheduling\TV\NBCNetwork.cs" />
     <Compile Include="Scheduling\TV\NetworkSchedule.cs" />
     <Compile Include="Scheduling\TV\StreamingSchedule.cs" />

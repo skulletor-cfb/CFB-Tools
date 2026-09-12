@@ -753,7 +753,7 @@ namespace EA_DB_Editor
             return array;
         }
 
-        public static T[] CreateAndShuffle<T>(params T[] array)
+        public static T[] CreateAndShuffle<T>(this T[] array)
         {
             var arr = new List<T>(array).ToArray();
             return Shuffle(arr);
