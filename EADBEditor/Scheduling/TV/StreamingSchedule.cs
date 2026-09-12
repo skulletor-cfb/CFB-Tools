@@ -11,9 +11,11 @@ namespace EA_DB_Editor.Scheduling
         FoxOne,
         ParamountPlus,
         Peacock,
+        MWPlus,
+        ACCNX,
 
     }
-    public class StreamingSchedule
+    public class StreamingSchedule : ITelelvisionProvider
     {
         public StreamingProvider Provider { get; }
         private List<(TimeSlot time, TelevisedGame game)> schedule = new List<(TimeSlot time, TelevisedGame game)>();
@@ -34,10 +36,11 @@ namespace EA_DB_Editor.Scheduling
             return new StreamingSchedule(provider).Register();
         }
 
-        public void AssignGame(TelevisedGame game, TimeSlot timeslot)
+        public bool AssignGame(TelevisedGame game, TimeSlot timeslot)
         {
-            if (game == null || game.Assigned) return;
+            if (game == null || game.Assigned) return false;
             schedule.Add((timeslot, game.Assign(timeslot)));
+            return true;
         }
 
         public string WriteReport()

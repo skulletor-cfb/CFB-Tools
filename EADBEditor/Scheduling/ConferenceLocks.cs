@@ -214,7 +214,7 @@ namespace EA_DB_Editor
 
     public class AmericanLocks : ConferenceLocks
     {
-        private static int[] featuredRivalryWeek = ConfScheduleFixer.CreateAndShuffle(12, 11, 10, 9, 8);
+        private static int[] featuredRivalryWeek = ConfScheduleFixer.CreateAndShuffle(new[] { 12, 11, 10, 9, 8 });
 
         private Func<PreseasonScheduledGame, int?>[] lockChecks;
         protected override Func<PreseasonScheduledGame, int?>[] LockChecks
