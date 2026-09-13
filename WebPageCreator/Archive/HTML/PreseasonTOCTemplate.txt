@@ -12,7 +12,8 @@
 		<a href="TopClasses.html">Recruiting Roundup</a> | |
 		<a href="recruits.html">Recruits</a> | | 
 		<a href="TopCoaches.html">Top Coaches</a> | | 
-		<a href="KickOffWeek.html?preseason=true">Kick Off Week</a> |
+		<a href="KickOffWeek.html?preseason=true">Kick Off Week</a> | |
+		<a href="schedule.html">Schedule</a> |
 </b>        
 		</center>
       </td>
