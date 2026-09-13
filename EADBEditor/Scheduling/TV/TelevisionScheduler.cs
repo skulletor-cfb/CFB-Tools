@@ -156,9 +156,12 @@ namespace EA_DB_Editor.Scheduling
                     allGames,
                 });
             var html = Encoding.UTF8.GetString(Convert.FromBase64String(ScheduleHTML)).Replace(TvAllPlaceholder, json);
+            File.WriteAllText(TVScheduleFile, json);
             File.WriteAllText("schedule.html", html);
+            SeasonManager.CreateNewSeason();
         }
 
+        public const string TVScheduleFile = "tv-schedule.txt";
         public static bool GameNeedsAssignment(this TelevisedGame game)
         {
             var preassigner = new Func<TelevisedGame, bool>[]
