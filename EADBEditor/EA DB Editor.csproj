@@ -157,6 +157,7 @@
     <Compile Include="Scheduling\TV\ChannelSchedule.cs" />
     <Compile Include="Scheduling\TV\TelevisionScheduler.cs" />
     <Compile Include="Scheduling\TV\TimeSlot.cs" />
+    <Compile Include="SeasonManager.cs" />
     <Compile Include="TableUtility.cs" />
     <Compile Include="TeamEntry.cs">
       <SubType>Form</SubType>
