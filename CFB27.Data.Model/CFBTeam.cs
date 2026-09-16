@@ -416,8 +416,14 @@ namespace CFB27.Data.Model
         public string ADDemeanor { get; set; }
         #endregion
 
+        /// <summary>
+        /// unused/placeholder team slots use a TeamIndex (e.g. 255) with no classic id; those resolve to -1.
+        /// </summary>
         [JsonIgnore]
-        public int TeamId => TeamIdToOldIdMap[this.TeamIndex];
+        public int TeamId => TeamIdToOldIdMap.TryGetValue(this.TeamIndex, out var id) ? id : -1;
+
+        [JsonIgnore]
+        public bool HasClassicTeamId => TeamIdToOldIdMap.ContainsKey(this.TeamIndex);
 
         [JsonIgnore]
         public CFBTeamHistoricalData HistoricalData { get; set; }

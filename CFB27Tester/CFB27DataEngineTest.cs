@@ -67,5 +67,38 @@ namespace CFB27Tester
             var result = engine.CreateTeamSchedule(false);
             Assert.IsNotNull(result);
         }
+
+        [TestMethod]
+        public void ReadConferenceMetadata()
+        {
+            var result = engine.ReadConferenceMetadata();
+            Assert.IsNotEmpty(result);
+            Assert.IsTrue(result.Values.Any(c => c.Name == "SEC"));
+            Assert.IsTrue(result.Values.Any(c => c.Name == "ACC"));
+        }
+
+        [TestMethod]
+        public void CreatePlayers()
+        {
+            var rosters = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<Player>>();
+            var players = new System.Collections.Generic.Dictionary<int, Player>();
+            engine.CreatePlayers(rosters, players);
+
+            Assert.IsNotEmpty(players);
+            Assert.IsTrue(players.Values.All(p => !string.IsNullOrEmpty(p.FirstName)));
+            Assert.IsTrue(players.Values.All(p => p.Position >= 0));
+
+            var knownTeamIds = engine.Teams.Records.Where(t => t.HasClassicTeamId).Select(t => t.TeamId).ToHashSet();
+            Assert.IsTrue(rosters.Keys.All(knownTeamIds.Contains));
+            Assert.IsTrue(rosters.Values.All(r => r.Count > 0));
+        }
+
+        [TestMethod]
+        public void CalculateRosterSpots()
+        {
+            var ranking = new RecruitClassRanking { TeamId = engine.Teams.Records[0].TeamId };
+            var spots = engine.CalculateRosterSpots(ranking);
+            Assert.IsTrue(spots <= 70);
+        }
     }
 }

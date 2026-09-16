@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CFB27.Data.Model;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -393,6 +394,25 @@ namespace EA_DB_Editor
         public Player()
         {
             Stats = new Dictionary<int, PlayerStats>();
+        }
+
+        public Player(CFBPlayer player) : this()
+        {
+            Id = player.Row;
+            TeamId = player.TeamId;
+            FirstName = player.FirstName;
+            LastName = player.LastName;
+            Position = player.PositionId;
+            Number = player.JerseyNum;
+            Height = player.Height;
+            Ovr = player.OverallRating;
+            Awr = player.AwarenessRating;
+            Spd = player.SpeedRating;
+            Acc = player.AccelerationRating;
+            Agl = player.AgilityRating;
+            Str = player.StrengthRating;
+            Year = player.SchoolYearValue;
+            IsRedShirt = player.IsRedShirt;
         }
 
         public int TotalTouchDowns

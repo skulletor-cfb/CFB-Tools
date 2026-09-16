@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CFB27.Data.Model;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -57,6 +58,13 @@ namespace EA_DB_Editor
         {
             this.Divisions = new List<Division>();
         }
+
+        public Conference(CFBConference conf) : this()
+        {
+            Id = conf.Row;
+            Name = conf.Name;
+        }
+
         public Division FindDivision(int id)
         {
             return Divisions.Where(d => d.Id == id).SingleOrDefault();
@@ -72,6 +80,13 @@ namespace EA_DB_Editor
             Id = record.lEntries[1].Data.ToInt32();
             Name = record.lEntries[2].Data;
             SubName = record.lEntries[3].Data;
+        }
+
+        public Division(CFBDivision division)
+        {
+            Id = division.Row;
+            Name = division.Name;
+            SubName = division.ShortName;
         }
 
         [DataMember]

@@ -19,8 +19,16 @@ namespace EA_DB_Editor
         public CFBTable<CFBSeasonGame> SeasonGames { get; private set; }
         public Dictionary<int, CFBSeasonGame> BowlSeasonGames { get; }
         public CFBTable<CFBStory> Stories { get; }
+        public CFBTable<CFBSeasonInfo> SeasonInfo { get; private set; }
+        public CFBTable<CFBConference> Conferences { get; private set; }
+        public CFBTable<CFBDivisionList> DivisionLists { get; private set; }
+        public CFBTable<CFBDivision> Divisions { get; private set; }
+        public CFBTable<CFBPlayer> Players { get; private set; }
 
         public Dictionary<int, string> TeamNames => this.Teams.Records.ToDictionary(t => t.Row, t => t.DisplayName);
+
+        public int CurrentSeasonYear => this.SeasonInfo.Records[0].CurrentSeasonYear;
+        public int CurrentWeek => this.SeasonInfo.Records[0].CurrentWeek;
 
         public CFB27DataEngine(string rootDirectory)
         {
@@ -32,6 +40,11 @@ namespace EA_DB_Editor
             this.BowlSeasonGames = this.SeasonGames.Records.Where(g => !g.IsEmpty && g.IsBowlGame).ToDictionary(g => g.BowlId);
             this.Bowls = this.GetFile("BowlGame").ReadJson<CFBBowl>();
             this.Stories = this.GetFile("Story").ReadJson<CFBStory>();
+            this.SeasonInfo = this.GetFile("SeasonInfo").ReadJson<CFBSeasonInfo>();
+            this.Conferences = this.GetFile("Conference").ReadJson<CFBConference>();
+            this.DivisionLists = this.GetFile("Division[]").ReadJson<CFBDivisionList>();
+            this.Divisions = this.GetFile("Division").ReadJson<CFBDivision>();
+            this.Players = this.GetFile("Player").ReadJson<CFBPlayer>();
         }
 
         public Dictionary<string, Bowl> CreateBowlTable()
@@ -147,7 +160,19 @@ namespace EA_DB_Editor
 
         public void CreatePlayers(Dictionary<int, List<Player>> Rosters, Dictionary<int, Player> Players)
         {
-            throw new NotImplementedException();
+            foreach (var cfbPlayer in this.Players.Records.Where(p => !p.IsEmpty && p.HasTeam))
+            {
+                var player = new Player(cfbPlayer);
+                Players[player.Id] = player;
+
+                if (!Rosters.TryGetValue(player.TeamId, out var roster))
+                {
+                    roster = new List<Player>();
+                    Rosters[player.TeamId] = roster;
+                }
+
+                roster.Add(player);
+            }
         }
 
         public void ReadStats()
@@ -157,12 +182,34 @@ namespace EA_DB_Editor
 
         public Dictionary<int, Conference> ReadConferenceMetadata()
         {
-            throw new NotImplementedException();
+            var conferences = new Dictionary<int, Conference>();
+
+            foreach (var cfbConf in this.Conferences.Records.Where(c => !c.IsEmpty))
+            {
+                var conference = new Conference(cfbConf);
+
+                if (cfbConf.HasDivisions)
+                {
+                    var divisionList = this.DivisionLists.Records[cfbConf.DivisionListRow];
+                    foreach (var divisionRef in new[] { divisionList.Division0, divisionList.Division1 })
+                    {
+                        if (string.Equals(divisionRef, BaseRecord.NoRefString) || string.IsNullOrEmpty(divisionRef))
+                            continue;
+
+                        var cfbDivision = this.Divisions.Records[divisionRef.ToRowId()];
+                        conference.Divisions.Add(new Division(cfbDivision));
+                    }
+                }
+
+                conferences.Add(conference.Id, conference);
+            }
+
+            return conferences;
         }
 
         public Dictionary<int, Team> ReadTeams(bool isPreseason)
         {
-            return this.Teams.Records.ToDictionary(t => t.TeamId, t => new Team(t, isPreseason));
+            return this.Teams.Records.Where(t => t.HasClassicTeamId).ToDictionary(t => t.TeamId, t => new Team(t, isPreseason));
         }
 
         public Dictionary<string, Coach> ReadCoaches()
@@ -217,7 +264,7 @@ namespace EA_DB_Editor
 
         public int CalculateRosterSpots(RecruitClassRanking ranking)
         {
-            throw new NotImplementedException();
+            return 70 - this.Players.Records.Count(p => !p.IsEmpty && p.HasTeam && p.TeamId == ranking.TeamId);
         }
 
         public List<Record> ReadNcaaRecords()
