@@ -60,6 +60,37 @@ Injury - PINJ
 */
 namespace EA_DB_Editor
 {
+    public static class RecruitReader
+    {
+        public static Dictionary<int, List<MaddenRecord>> OrganizeRecruits()
+        {
+            var recruits = new Dictionary<int, MaddenRecord>();
+            var recruitTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPT");
+
+            foreach (var recruit in recruitTable.lRecords)
+            {
+                recruits[recruit["PRSI"].ToInt32()] = recruit;
+            }
+
+            var recruitPitchTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPR");
+            var result = new Dictionary<int, List<MaddenRecord>>();
+
+            foreach (var committedRecruit in recruitPitchTable.lRecords.Where(mr => mr["PTCM"] != "1023"))
+            {
+                var team = committedRecruit["PTCM"].ToInt32();
+
+                if (!result.TryGetValue(team, out var recruitList))
+                {
+                    recruitList = result[team] = new List<MaddenRecord>();
+                }
+
+                recruitList.Add(recruits[committedRecruit["PRSI"].ToInt32()]);
+            }
+
+            return result;
+        }
+    }
+
     public static class RecruitingFixup
     {
         // should be -1 if we haven't added any CAPs
