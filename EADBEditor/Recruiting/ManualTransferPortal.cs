@@ -178,7 +178,7 @@ namespace EA_DB_Editor
         {
             Dictionary<int, List<TransferCandidate>> GetRosters()
             {
-                return MaddenTable.FindTable(maddenDB.lTables, "PLAY").lRecords.Where(mr => mr["TGID"].ToInt32() != 1023)
+                var currentPlayers = MaddenTable.FindTable(maddenDB.lTables, "PLAY").lRecords.Where(mr => mr["TGID"].ToInt32() != 1023)
                     .GroupBy(
                         mr => mr["TGID"].ToInt32(),
                         mr => new TransferCandidate
@@ -195,17 +195,49 @@ namespace EA_DB_Editor
                             Position = mr["PPOS"].ToInt32().ToPositionName(),
                             PositionNumber = mr["PPOS"].ToInt32(),
                         })
-                    .ToDictionary(g => g.Key, g => g.OrderBy(p => p.PositionNumber).ThenByDescending(p => p.OVR).ThenByDescending(p => p.Year).ToList());
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                var recruits = RecruitReader.OrganizeRecruits();
+                foreach (var kvp in recruits)
+                {
+                    var recruitPlayers = kvp.Value.Select(mr =>
+                    {
+                        return new TransferCandidate
+                        {
+                            Id = -1,
+                            Year = -1,
+                            OVR = mr["POVR"].ToInt32(),
+                            First = mr["PFNA"],
+                            Last = mr["PLNA"],
+                            TeamId = kvp.Key,
+                            Position = mr["PPOS"].ToInt32().ToPositionName(),
+                            PositionNumber = mr["PPOS"].ToInt32(),
+                        };
+                    });
+
+                    currentPlayers[kvp.Key].AddRange(recruitPlayers);
+                }
+
+                var result = new Dictionary<int, List<TransferCandidate>>();
+
+                foreach (var kvp in currentPlayers)
+                {
+                    result[kvp.Key] = kvp.Value.OrderBy(p => p.PositionNumber).ThenByDescending(p => p.OVR).ThenByDescending(p => p.Year).ToList();
+                }
+
+                return result; 
             }
 
             var allRosters = GetRosters();
+
             var dir = Directory.CreateDirectory("rosters");
             foreach (var kvp in allRosters)
             {
                 var roster = new StringBuilder();
                 kvp.Value.ForEach(p => roster.AppendLine(p.ToCsvLine()));
 
-                var file = Path.Combine(dir.FullName, $"{kvp.Key}.csv");
+                var mod = kvp.Value.Count > 77 ? $"tx_{kvp.Value.Count}_" : string.Empty;
+                var file = Path.Combine(dir.FullName, $"{mod}{kvp.Key}.csv");
 
                 try
                 {

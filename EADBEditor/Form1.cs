@@ -1907,7 +1907,7 @@ namespace EA_DB_Editor
                             firstList,
                             lastList,
                             35,
-                            35);
+                            40);
                     }
                     else if(false)
                     {
@@ -2688,53 +2688,6 @@ namespace EA_DB_Editor
         {
             TransferPortal.MakeTransfersImmediatelyEligble();
             ManualTransferPortal.RunTransferPortal(maddenDB);
-#if false
-            StringBuilder sb = new StringBuilder();
-
-            // All back up QBs
-            var dchtTbl = MaddenTable.FindTable(maddenDB.lTables, "DCHT").lRecords.Where(mr => mr["PPOS"].ToInt32() == 0 && mr["ddep"].ToInt32() > 0 && mr["TGID"] != "1023").ToArray();
-            var dcht = new Dictionary<int, MaddenRecord>();
-            foreach (var d in dchtTbl)
-            {
-                var playerId = d["PGID"].ToInt32();
-                if (dcht.ContainsKey(playerId) == false)
-                {
-                    dcht.Add(playerId, d);
-                }
-            }
-
-            // senior qbs over 90
-            var players = MaddenTable.FindTable(maddenDB.lTables, "PLAY").lRecords.Where(mr => mr["TGID"].ToInt32() != 1023 && mr["POVR"].ToInt32() > 90 && mr["PYEA"].ToInt32() == 3);
-            foreach (var player in players)
-            {
-                // find if the QB is a backup
-                if (dcht.ContainsKey(player["PGID"].ToInt32()))
-                {
-                    sb.AppendLine(string.Format("{0} {1}, {2}", player["PFNA"], player["PLNA"], RecruitingFixup.TeamNames[player["TGID"].ToInt32()]));
-                }
-            }
-
-            sb.AppendLine("Teams with QB needs");
-            sb.AppendLine(string.Empty);
-            sb.AppendLine(string.Empty);
-            sb.AppendLine(string.Empty);
-
-            // sub 90 starters
-            dcht = MaddenTable.FindTable(maddenDB.lTables, "DCHT").lRecords.Where(mr => mr["TGID"].ToInt32().IsP5OrND() && mr["PPOS"].ToInt32() == 0 && mr["ddep"].ToInt32() == 0 && mr["TGID"] != "1023").ToArray()
-                .ToDictionary(mr => mr["PGID"].ToInt32());
-
-            players = MaddenTable.FindTable(maddenDB.lTables, "PLAY").lRecords.Where(mr => mr["TGID"].ToInt32() != 1023 && mr["POVR"].ToInt32() < 90);
-            foreach (var player in players)
-            {
-                // find if the QB is a backup
-                if (dcht.ContainsKey(player["PGID"].ToInt32()))
-                {
-                    sb.AppendLine(string.Format("{0} {1}, {2}", player["PFNA"], player["PLNA"], RecruitingFixup.TeamNames[player["TGID"].ToInt32()]));
-                }
-            }
-
-            File.WriteAllText("transfercandidates.txt", sb.ToString());
-#endif
         }
 
         private static int StaffRating = 125;
