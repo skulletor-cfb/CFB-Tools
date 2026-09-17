@@ -22,6 +22,70 @@ namespace EA_DB_Editor
         protected abstract Func<PreseasonScheduledGame, int?>[] LockChecks { get; }
     }
 
+    public class AllLocks : ConferenceLocks
+    {
+        private ConferenceLocks[] allLocks = new ConferenceLocks[]
+        {
+            new Big10Locks(),
+            new AccLocks(),
+            new SecLocks(),
+            new Pac12Locks(),
+            new Big12Locks(),
+            new CUSALocks(),
+            new MACLocks(),
+            new MWCLocks(),
+            new SunBeltLocks(),
+            new AmericanLocks(),
+        };
+
+        private Func<PreseasonScheduledGame, int?>[] lockChecks;
+        protected override Func<PreseasonScheduledGame, int?>[] LockChecks
+        {
+            get
+            {
+                if (lockChecks == null)
+                {
+                    lockChecks = new Func<PreseasonScheduledGame, int?>[]
+                    {
+                        g=>MatchTeams(9, g, 57, 68),
+                        IsNDUSC,
+                        IsNDStan,
+                        IsNDGame,
+                        g => MatchTeams(5, g, 1, 57),
+                        g => MatchTeams(9, g, 1, 8),
+                        g => MatchTeams(3, g, 20, 50),
+                    };
+                }
+
+                return lockChecks;
+            }
+        }
+
+        public int? IsNDGame(PreseasonScheduledGame game)
+        {
+            return game.HomeTeam == 68 || game.AwayTeam == 68 ? game.WeekIndex : default(int?);
+        }
+
+        public int? IsNDStan(PreseasonScheduledGame game)
+        {
+            var week = Form1.IsEvenYear.Value ? 13 : 7;
+            return MatchTeams(week, game, 68, 87);
+        }
+
+        public int? IsNDUSC(PreseasonScheduledGame game)
+        {
+            var week = Form1.IsEvenYear.Value ? 7 : 13;
+            return MatchTeams(week, game, 68, 102);
+        }
+
+        public override int? CheckWeekLock(PreseasonScheduledGame game)
+        {
+            var result = base.CheckWeekLock(game) ??
+            allLocks.Select(l => l.CheckWeekLock(game)).FirstOrDefault(r => r.HasValue);
+            return result;
+        }
+    }
+
     public class Big10Locks : ConferenceLocks
     {
         private Func<PreseasonScheduledGame, int?>[] lockChecks;
@@ -46,12 +110,20 @@ namespace EA_DB_Editor
                         IsPSURU,
                         IsWiscMinn,
                         IsMichMinn,
+                        IsIowaISU,
                     };
                 }
 
                 return lockChecks;
             }
         }
+
+        public int? IsIowaISU(PreseasonScheduledGame game)
+        {
+            var week = TelevisionScheduler.LaborDayWeek() + 1;
+            return MatchTeams(week, game, 37, 38);
+        }
+
         public int? IsWiscMinn(PreseasonScheduledGame game)
         {
             return MatchTeams(13, game, 114, 54);
@@ -144,7 +216,9 @@ namespace EA_DB_Editor
   //                      g => MatchTeams(12, g, 39, 58), // neb-ku week 12
                         g => MatchTeams(4, g, 83, 89), //TCU-SMU week 4
 //                        g => MatchTeams(13, g, 33, 83), // smu-hou week 13
-                        g => MatchTeams(13, g, 22, 72), // cu-ok st week 13
+                        g => MatchTeams(12, g, 22, 72), // cu-ok st week 13
+                        g => MatchTeams(2, g, 18, 144), // usf-ucf to week 2
+                        g => MatchTeams(0,g, 22,23), //csu-cu week 0
                     };
                 }
 
@@ -261,13 +335,14 @@ namespace EA_DB_Editor
                         g=>MatchTeams(13, g, 4, 5),
                         IsUscUCLA,
                         IsStanfordCal,
-                        g => MatchTeams(13,g,22,103),
-                        g => MatchTeams(g.Week,g,111,75),
-                        g => MatchTeams(g.Week,g,110,74),
-                        g => MatchTeams(g.Week,g,110,75),
-                        g => MatchTeams(g.Week,g,111,74),
-                        g => MatchTeams(g.Week,g,99,17),
-                        g => MatchTeams(g.Week,g,102,17),
+                        //g => MatchTeams(13,g,22,103),
+                        g => MatchTeams(g.WeekIndex,g,111,75),
+                        g => MatchTeams(g.WeekIndex,g,110,74),
+                        g => MatchTeams(g.WeekIndex,g,110,75),
+                        g => MatchTeams(g.WeekIndex,g,111,74),
+                        g => MatchTeams(g.WeekIndex,g,99,17),
+                        g => MatchTeams(g.WeekIndex,g,102,17),
+                        g => MatchTeams(0, g, 103, 104), // utah-utah st week 0
                     };
                 }
 
@@ -441,9 +516,17 @@ namespace EA_DB_Editor
                 {
                     lockChecks = new Func<PreseasonScheduledGame, int?>[]
                     {
+                        g=>MatchTeams(13, g, 30, 31), // uga-gt
+                        g=>MatchTeams(13, g, 27, 28), // fsu-uf
+                        g=>MatchTeams(13, g, 21, 84), // scar-clem
+                        g=>MatchTeams(13, g, 42, 44), // ul-uk
+                        IsWFDuke,
+                        IsPittWVU,
+                        IsVTUVA,
+                        IsUNCNCSU,
+                        IsMiamiBC,
                         IsFSUatMiami,
                         IsMiamiatFSU,
-                        IsMiamiBC,
                         IsMiamiVT,
                         IsBCVT,
                         IsSyracusePitt,
@@ -453,11 +536,7 @@ namespace EA_DB_Editor
                         IsNCSUWake,
                         IsUNCUVA,
                         IsUNCDuke,
-                        IsPittWVU,
-                        IsVTUVA,
-                        IsUNCNCSU,
                         IsClemsonGT,
-                        IsWFDuke,
                         IsWVUVT,
                     };
                 }
@@ -517,7 +596,7 @@ namespace EA_DB_Editor
         public int? IsUMDWVU(PreseasonScheduledGame game)
         {
             // set to week 3 if this is ever neutral again
-            return MatchTeams(game.Week, game, 47, 112);
+            return MatchTeams(game.WeekIndex, game, 47, 112);
         }
 
         public int? IsFSUUMD(PreseasonScheduledGame game)
@@ -563,7 +642,7 @@ namespace EA_DB_Editor
 
         public int? IsWVUVT(PreseasonScheduledGame game)
         {
-            return MatchTeams(7, game, 108, 112);
+            return MatchTeams(6, game, 108, 112);
         }
     }
 
@@ -578,17 +657,39 @@ namespace EA_DB_Editor
                 {
                     lockChecks = new Func<PreseasonScheduledGame, int?>[]
                     {
+                        g=>MatchTeams(13, g, 3, 9), //alabama-auburn
+                        g=>MatchTeams(13, g, 55, 73), //miss st - ole miss
+                        g=>MatchTeams(13, g, 6, 45), //lsu-ark
+                        g=>MatchTeams(13, g, 56, 93), //mizzou-tamu
+                        g=>MatchTeams(13, g, 30, 31), // uga-gt
+                        g=>MatchTeams(13, g, 27, 28), // fsu-uf
+                        g=>MatchTeams(13, g, 21, 84), // scar-clem
+                        g=>MatchTeams(13, g, 42, 44), // ul-uk
+                        IsTennVandyGame,
                         IsUFUGA,
                         IsScarUGA,
                         IsAlabamaTennGame,
-                        IsTennVandyGame,
-                        IsSecConfGame,
+                        g=>MatchTeams(12, g, 42,91), // uk-tenn
+                        g=>MatchTeams(g.WeekIndex, g, 9, 27), //uf-aub
+                        g=>MatchTeams(g.WeekIndex, g, 3, 55), //alabama-miss st
+                        g=>MatchTeams(g.WeekIndex, g, 9, 55), //auburn-miss st
+                        g=>MatchTeams(g.WeekIndex, g, 9, 30), //auburn-uga
+                        g=>MatchTeams(g.WeekIndex, g, 27, 84), //uf-scar
+                        g=>MatchTeams(g.WeekIndex, g, 27, 91), //uf-tenn
+                        g=>MatchTeams(g.WeekIndex, g, 27, 45), //uf-lsu
+                        g=>MatchTeams(g.WeekIndex, g, 42, 55), //uk-miss st
+                        g=>MatchTeams(g.WeekIndex, g, 9, 45), //lsu-aub
+                        g=>MatchTeams(g.WeekIndex, g, 73, 106), //miss st - ole miss
+                        g=>MatchTeams(g.WeekIndex, g, 3, 73), //ole miss-bama
+                        g=>MatchTeams(g.WeekIndex, g, 45, 73), //ole miss-lsu
+                        g=>MatchTeams(g.WeekIndex, g, 6, 93), //ark-tamu
                     };
                 }
 
                 return lockChecks;
             }
         }
+
 
         public int? IsUFUGA(PreseasonScheduledGame game)
         {
@@ -617,12 +718,6 @@ namespace EA_DB_Editor
 
         public int? IsSecConfGame(PreseasonScheduledGame game)
         {
-            var isUkTenn = MatchTeams(1000, game, 91, 42);
-            if (isUkTenn.HasValue)
-            {
-                return 0;
-            }
-
             return game.WeekIndex;
         }
     }
