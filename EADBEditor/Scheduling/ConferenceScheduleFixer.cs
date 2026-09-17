@@ -154,7 +154,7 @@ namespace EA_DB_Editor
 
         private static List<PreseasonScheduledGame> FindExtraBig12Games(Dictionary<int, TeamSchedule> schedules)
         {
-#if false
+#if true
             var result = new List<PreseasonScheduledGame>();
             var normalized = new Dictionary<int, int>();
 
@@ -375,9 +375,11 @@ namespace EA_DB_Editor
                 var openWeek = (home.IsSECTeam() || home == 68) ? homeSchd.FindLastOpenWeekForFcs() : homeSchd.FindOpenWeeks().First();
 
                 // set the game in the schedule
+                var currentWeek = game.Week;
                 game.SetWeek(openWeek);
                 game.GameNumber = monotronic++;
                 homeSchd[openWeek] = game;
+                homeSchd[currentWeek] = null;
             }
 
             FcsGamesEarly(schedules);
@@ -437,9 +439,11 @@ namespace EA_DB_Editor
                 var openWeek = (home.IsSECTeam() || home == 68) ? homeSchd.FindLastOpenWeekForFcs() : homeSchd.FindOpenWeeks().First();
 
                 // set the game in the schedule
+                var currWeek = game.Week;
                 game.SetWeek(openWeek);
                 game.GameNumber = monotronic++;
                 homeSchd[openWeek] = game;
+                homeSchd[currWeek] = null;
             }
 
             FcsGamesEarly(schedules);
@@ -540,7 +544,8 @@ namespace EA_DB_Editor
 
             // should not remove more than 8 games, but only 1 per team
             var extraConfGames = FindExtraSunBeltGames(schedules)
-                .Concat(FindExtraAccGames(schedules));
+                .Concat(FindExtraAccGames(schedules))
+                .Concat(FindExtraBig12Games(schedules));
 
             // p5-p5 games late in the season
             var replaceableGamesP5 = schedules.Values.SelectMany(games => games.Where(g => g != null && !g.IsRivalryGame() && !g.IsConferenceGame() && !g.IsFCSGame() && g.IsP5Game() && g.WeekIndex > 4)).Distinct().OrderByDescending(g => g.WeekIndex).ToArray();
@@ -575,8 +580,10 @@ namespace EA_DB_Editor
                 {
                     if (fbsTeamSchedule[i] == null)
                     {
+                        var currWeek = fcsGame.Week;
                         fcsGame.SetWeek(i);
                         schedules[fbsTeam][i] = fcsGame;
+                        schedules[fbsTeam][currWeek] = null;
                         break;
                     }
                 }
@@ -1099,10 +1106,12 @@ namespace EA_DB_Editor
 
             if (awaySchedule[week] == null && homeSchedule[week] == null)
             {
-                // var currentWeek = game.WeekIndex;
+                var currentWeek = game.WeekIndex;
                 game.SetWeek(week);
                 homeSchedule[week] = game;
                 awaySchedule[week] = game;
+                awaySchedule[currentWeek] = null;
+                homeSchedule[currentWeek] = null;
                 return true;
             }
 
