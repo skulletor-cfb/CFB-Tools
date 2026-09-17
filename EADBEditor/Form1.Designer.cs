@@ -95,6 +95,7 @@
             this.readScheduleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.igniteScheduleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fixSGINToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tVTimeSlotsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.testToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.postSeasonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lastWeekPollToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -123,7 +124,7 @@
             this.coachesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createTransferPortalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.tVTimeSlotsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.enforceScheduleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -553,7 +554,8 @@
             this.readScheduleToolStripMenuItem,
             this.igniteScheduleToolStripMenuItem,
             this.fixSGINToolStripMenuItem,
-            this.tVTimeSlotsToolStripMenuItem});
+            this.tVTimeSlotsToolStripMenuItem,
+            this.enforceScheduleToolStripMenuItem});
             this.preseasonFixToolStripMenuItem.Name = "preseasonFixToolStripMenuItem";
             this.preseasonFixToolStripMenuItem.Size = new System.Drawing.Size(134, 29);
             this.preseasonFixToolStripMenuItem.Text = "Preseason Fix";
@@ -650,6 +652,13 @@
             this.fixSGINToolStripMenuItem.Size = new System.Drawing.Size(296, 34);
             this.fixSGINToolStripMenuItem.Text = "Fix SGIN";
             this.fixSGINToolStripMenuItem.Click += new System.EventHandler(this.fixSGINToolStripMenuItem_Click);
+            // 
+            // tVTimeSlotsToolStripMenuItem
+            // 
+            this.tVTimeSlotsToolStripMenuItem.Name = "tVTimeSlotsToolStripMenuItem";
+            this.tVTimeSlotsToolStripMenuItem.Size = new System.Drawing.Size(296, 34);
+            this.tVTimeSlotsToolStripMenuItem.Text = "TV Time Slots";
+            this.tVTimeSlotsToolStripMenuItem.Click += new System.EventHandler(this.tVTimeSlotsToolStripMenuItem_Click);
             // 
             // testToolStripMenuItem
             // 
@@ -888,12 +897,14 @@
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
-            // tVTimeSlotsToolStripMenuItem
+            // enforceScheduleToolStripMenuItem
             // 
-            this.tVTimeSlotsToolStripMenuItem.Name = "tVTimeSlotsToolStripMenuItem";
-            this.tVTimeSlotsToolStripMenuItem.Size = new System.Drawing.Size(296, 34);
-            this.tVTimeSlotsToolStripMenuItem.Text = "TV Time Slots";
-            this.tVTimeSlotsToolStripMenuItem.Click += new System.EventHandler(this.tVTimeSlotsToolStripMenuItem_Click);
+            this.enforceScheduleToolStripMenuItem.Name = "enforceScheduleToolStripMenuItem";
+            this.enforceScheduleToolStripMenuItem.Size = new System.Drawing.Size(296, 34);
+            this.enforceScheduleToolStripMenuItem.Text = "Enforce Schedule";
+            this.enforceScheduleToolStripMenuItem.Click += new System.EventHandler(this.enforceScheduleToolStripMenuItem_Click);
+            this.enforceScheduleToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
+
             // 
             // Form1
             // 
@@ -1011,6 +1022,7 @@
         private System.Windows.Forms.ToolStripMenuItem igniteScheduleToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fixSGINToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem tVTimeSlotsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem enforceScheduleToolStripMenuItem;
     }
 }
 

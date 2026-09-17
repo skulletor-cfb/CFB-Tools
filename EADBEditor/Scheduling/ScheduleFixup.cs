@@ -366,10 +366,10 @@ namespace EA_DB_Editor
                 SunBeltSchedule.ProcessSunbeltSchedule(teamSchedule);
                 SECSchedule.ProcessSECSchedule(teamSchedule);
 
-                for (int i = 0; i < 25; i++)
+                for (int i = 0; i < 1; i++)
                 {
-                    (teamSchedule, scheduleTable) = FillSchedule(false, true);
-                    ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule);
+//                    (teamSchedule, scheduleTable) = FillSchedule(false, true);
+  //                  ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule);
 
                     //ConfScheduleFixer.G5FCSSwap(teamSchedule);
                     //(teamSchedule, scheduleTable) = FillSchedule(false, true);
@@ -391,18 +391,9 @@ namespace EA_DB_Editor
 
                     //ConfScheduleFixer.G5FCSSwap(teamSchedule);
                     (teamSchedule, scheduleTable) = FillSchedule(false, true);
-                    ConfScheduleFixer.SecFix(teamSchedule);
-                    ConfScheduleFixer.AccFix(teamSchedule);
-                    ConfScheduleFixer.Big10Fix(teamSchedule);
-                    ConfScheduleFixer.Big12Fix(teamSchedule);
-                    ConfScheduleFixer.Pac12Fix(teamSchedule);
-                    ConfScheduleFixer.AmericanFix(teamSchedule);
-                    ConfScheduleFixer.SunBeltFix(teamSchedule);
-                    ConfScheduleFixer.CUSAFix(teamSchedule);
-                    ConfScheduleFixer.MWCFix(teamSchedule);
-                    ConfScheduleFixer.MACFix(teamSchedule);
-
+                    ConfScheduleFixer.Fix(teamSchedule, new AllLocks());
                     (teamSchedule, scheduleTable) = FillSchedule(false, true);
+                    break;
 
 
                     /*

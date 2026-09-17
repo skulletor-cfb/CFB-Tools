@@ -1,6 +1,7 @@
 ﻿using EA_DB_Editor.Scheduling;
 using ListViewEx;
 using MC02Handler;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -4231,6 +4232,15 @@ namespace EA_DB_Editor
         {
             TelevisionScheduler.FixTelevisionSchedule();
             ScheduleFixup.ReadSchedule();
+        }
+
+        private void enforceScheduleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // one more attempt to fix
+            var (teamSchedule, scheduleTable) = ScheduleFixup.FillSchedule(false, true);
+            var result = ScheduleRuleEnforcer.Enforce(teamSchedule);
+            ScheduleFixup.ReadSchedule();
+            File.WriteAllText("sched-res.txt", JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
         }
     }
 
