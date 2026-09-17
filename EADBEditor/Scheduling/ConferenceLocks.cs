@@ -118,7 +118,7 @@ namespace EA_DB_Editor
 
     public class Big12Locks : ConferenceLocks
     {
-        static int Is10TeamBig12Modifier { get { return RecruitingFixup.Big12.Length == 10 ? 1 : 0; } }
+        static int Is10TeamBig12Modifier { get { return TableUtility.Big12.Length == 10 ? 1 : 0; } }
         private Func<PreseasonScheduledGame, int?>[] lockChecks;
         protected override Func<PreseasonScheduledGame, int?>[] LockChecks
         {
@@ -330,7 +330,7 @@ namespace EA_DB_Editor
     }
     public class MWCLocks : ConferenceLocks
     {
-        static int Is10TeamConf { get { return RecruitingFixup.MWC.Length < 12 ? 0 : -1; } }
+        static int Is10TeamConf { get { return TableUtility.MWC.Length < 12 ? 0 : -1; } }
         private Func<PreseasonScheduledGame, int?>[] lockChecks;
 
         protected override Func<PreseasonScheduledGame, int?>[] LockChecks => lockChecks ?? (lockChecks = CreateChecks());
