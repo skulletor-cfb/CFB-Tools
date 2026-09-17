@@ -757,10 +757,10 @@ namespace EA_DB_Editor
                 return true;
 
             if (count == 12 && conf == TableUtility.Pac16Id)
-                return current == 9;
+                return current == 8;
 
             if (count == 12 && conf == TableUtility.Big10Id)
-                return current == 9;
+                return current == 8;
 
             if (count == 16 && conf == TableUtility.ACCId)
                 expected = 8;
@@ -796,7 +796,7 @@ namespace EA_DB_Editor
 
             if (conf == TableUtility.Big10Id || conf == TableUtility.Pac16Id)
             {
-                return confGames == 4 || confGames == 5;
+                return confGames == 4 ;
             }
             if (conf == TableUtility.Big12Id)
             {
