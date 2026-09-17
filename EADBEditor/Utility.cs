@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization.Json;
 using System.Text;
 namespace EA_DB_Editor
@@ -10,6 +9,25 @@ namespace EA_DB_Editor
 
     public static class Utility
     {
+        /// <summary>
+        /// returns a number from 0 to range-1
+        /// RAND % range
+        /// </summary>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        public static int RAND(this int range)
+        {
+            var guid = Guid.NewGuid().ToByteArray().Take(4).ToArray();
+            var i = BitConverter.ToInt32(guid, 0);
+
+            if (i < 0)
+            {
+                i &= 0x7fffffff;
+            }
+
+            return i % range;
+        }
+
         public static int Next(int inclusive, int exclusive)
         {
             var guid = Guid.NewGuid().ToByteArray().Take(3);
