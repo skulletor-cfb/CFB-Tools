@@ -48,7 +48,7 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2584) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2574) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(12, TableUtility.Big10Id, "Big10");
             Big10ConferenceSchedule = result.BuildHashSet();
