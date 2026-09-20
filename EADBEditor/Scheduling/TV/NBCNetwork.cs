@@ -16,7 +16,10 @@ namespace EA_DB_Editor.Scheduling
         public override NetworkSchedule AssignGames()
         {
             // week 1 game goes at 8pm thursday
-            Streaming.AssignGame(this.WeeklySchedule[0].First(), 0, 8, 0, 3);
+            if (this.WeeklySchedule.TryGetValue(0, out var week1Games) && week1Games.Count > 0)
+            {
+                Streaming.AssignGame(week1Games.First(), 0, 8, 0, 3);
+            }
 
             // the rest at either 1230pm or 4pm
             var queue = this.SelectedGames.ToAssignmentQueue();

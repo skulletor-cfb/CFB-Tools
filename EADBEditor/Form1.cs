@@ -1379,7 +1379,7 @@ namespace EA_DB_Editor
 
         private void testToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            LookForSchedules();
+            SetG5Fixup(!ScheduleFixup.RanG5Fixup);
         }
 
         private static HashSet<long> foundInterConfGames = new HashSet<long>();
@@ -1827,7 +1827,7 @@ namespace EA_DB_Editor
             var sortedTable = recruitTable.lRecords.OrderBy(r => r["RCRK"].ToInt32()).Take(500).OrderByDescending(rec => RecruitOrderMetric(rec)).ToArray();
             SortTable(sortedTable);
             SortTable(recruitTable.lRecords.OrderBy(r => r["RCRK"].ToInt32()).ToArray());
-            PositionNumbers.FixSizes(recruitTable.lRecords.Where(r => r["PRSI"].ToInt32() > RecruitingFixup.DontChange).ToList());
+            PositionNumbers.FixSizes(recruitTable.lRecords.Where(r => !RecruitingFixup.DontChange.Contains(r.RecruitId())).ToList());
 
             // have less Balanced + Scrambling and more Pocket Passers
             var table = MaddenTable.FindTable(maddenDB.lTables, "RCPT");
@@ -1857,7 +1857,7 @@ namespace EA_DB_Editor
 
                 var numRecruits = recruitTable.lRecords.Count;
 
-                foreach (var recruit in recruitTable.lRecords.Where(r => r["PRSI"].ToInt32() > RecruitingFixup.DontChange))
+                foreach (var recruit in recruitTable.lRecords.Where(r => !RecruitingFixup.DontChange.Contains(r.RecruitId())))
                 {
                     var position = recruit["PPOS"].ToInt32();
 
@@ -2903,7 +2903,14 @@ namespace EA_DB_Editor
             }
 
             ScheduleFixup.ReadSchedule(true);
-            ScheduleFixup.RanG5Fixup = true;
+            SetG5Fixup(true);
+        }
+
+        private void SetG5Fixup(bool value)
+        {
+            ScheduleFixup.RanG5Fixup = value ;
+            var onOff = ScheduleFixup.RanG5Fixup ? "On" : "Off";
+            this.testToolStripMenuItem.Text = $"G5 Host P5: {onOff}";
         }
 
         private void dumpTablesToolStripMenuItem_Click(object sender, EventArgs e)

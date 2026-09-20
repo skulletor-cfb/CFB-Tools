@@ -664,7 +664,7 @@
             // 
             this.testToolStripMenuItem.Name = "testToolStripMenuItem";
             this.testToolStripMenuItem.Size = new System.Drawing.Size(134, 29);
-            this.testToolStripMenuItem.Text = "Test Schedule";
+            this.testToolStripMenuItem.Text = "G5 Host P5: Off";
             this.testToolStripMenuItem.Click += new System.EventHandler(this.testToolStripMenuItem_Click);
             // 
             // postSeasonToolStripMenuItem

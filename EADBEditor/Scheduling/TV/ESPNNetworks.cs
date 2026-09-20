@@ -530,6 +530,7 @@ namespace EA_DB_Editor.Scheduling
                 }
 
                 var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsSecConferenceGame).OrderBy(g => g.Score).ToQueue();
+                queue.Enqueue(this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsSecGame).OrderBy(g => g.Score));
                 queue.Enqueue(this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsAmericanGame));
                 queue.Enqueue(this.WeeklySchedule[i].Where(g => !g.Assigned && !g.IsMWCGame));
 
@@ -635,6 +636,8 @@ namespace EA_DB_Editor.Scheduling
                 // top sec conference game
                 var games = this.WeeklySchedule[i];
                 var secGames = games.Where(g => !g.Assigned && !g.IsSecConferenceGame && ((g.ConferenceOwner == TableUtility.SECId && g.IsP5Game) || g.IsSecAccGame)).OrderBy(g => g.Score).ToQueue();
+                secGames.Enqueue(games.Where(g => !g.Assigned && g.IsSecGame).OrderBy(g => g.Score));
+                secGames.Enqueue(games.Where(g => !g.Assigned && g.IsAccGame).OrderBy(g => g.Score));
 
                 // top one goes to 330 unless its LSU
                 var secConferenceGames = games.Where(g => !g.Assigned && g.IsSecConferenceGame).OrderBy(g => g.Score).ToQueue();

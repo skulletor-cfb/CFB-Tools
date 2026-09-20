@@ -112,6 +112,8 @@ namespace EA_DB_Editor
             return mr["SGNM"].ToInt32();
         }
 
+        public static int RecruitId(this MaddenRecord mr) => mr["PRSI"].ToInt32();
+
         public static int GameWeek(this MaddenRecord mr)
         {
             return mr["SEWN"].ToInt32();
