@@ -560,7 +560,10 @@ namespace EA_DB_Editor.Scheduling
 
                 if (games.TryDequeueGameForAssignment(out var game))
                 {
-                    ESPN.AssignGame(game, i, 12, 0);
+                    if (!ESPN.AssignGame(game, i, 12, 0))
+                    {
+                        ESPN2.AssignGame(game, i, 12, 0);
+                    }
                 }
 
                 if (games.TryDequeueGameForAssignment(out game))
@@ -738,6 +741,13 @@ namespace EA_DB_Editor.Scheduling
             {
                 var timeSlot = new TimeSlot(8, 0, game.Week, false, game.Day);
                 return !ESPNU.PreassignGame(game, timeSlot, false);
+            }
+
+            // we might hardcode a noon game on ESPN
+            if (game.GTOD == 721)
+            {
+                var timeSlot = new TimeSlot(12, 0, game.Week, false, game.Day);
+                return !ESPN.PreassignGame(game, timeSlot, false);
             }
 
             return base.PreassignGame(game);
