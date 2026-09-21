@@ -568,10 +568,16 @@ namespace RefreshRunner
                 form.SetBowlIdOverrides(dict => dict[15] = new Tuple<int, int>(7015, 194));
 
                 // Mobile Alabama Bowl became the LA BOWL in 2357
-                form.SetBowlIdOverrides(dict => dict[0] = new Tuple<int, int>(8000, 344));
+                //form.SetBowlIdOverrides(dict => dict[0] = new Tuple<int, int>(8000, 344));
 
                 // San Fran Bowl became Boca Raton Bowl in 2433
                 form.SetBowlIdOverrides(dict => dict[3] = new Tuple<int, int>(9000, 420));
+
+                // LA Bowl became Poinesttia Bowl in 2583
+                form.SetBowlIdOverrides(dict => dict[0] = new Tuple<int, int>(15, 570));
+
+                // GameAbove Sports becomes PR bowl in 2583
+                form.SetBowlIdOverrides(dict => dict[4] = new Tuple<int, int>(9100, 570));
             }
         }
 
