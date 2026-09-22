@@ -115,26 +115,23 @@ namespace EA_DB_Editor
 
             var set = new HashSet<string>(PlayerSkills);
 
-            // add a modifier to unscouted OVR of 1 to 5 because JUCOs have some game tape
-            dict["RCOV"] = (dict["RCOV"].ToInt32() + (TableUtility.Rand100() % 5) + 1).ToString();
+            // add a modifier to unscouted OVR of 1 to 3 because JUCOs have some game tape
+            dict["RCOV"] = (dict["POVR"].ToInt32() + (TableUtility.Rand100() % 3) + 1).ToString();
+            var keys = dict.Keys.ToArray();
 
-            foreach (var kvp in dict)
+            foreach (var key in keys)
             {
                 // increment the player year
-                if (kvp.Key == "PYEA")
+                if (key == "PYEA")
                 {
-                    dict[kvp.Key] = (kvp.Value.ToInt32() + 1).ToString();
+                    dict[key] = (dict[key].ToInt32() + 1).ToString();
                 }
-                else if (set.Contains(kvp.Key))
+                else if (set.Contains(key))
                 {
                     // add 1-3 points for offseason progression
                     var mod = 1 + TableUtility.Rand100() % 3;
-                    var newValue = Math.Min(99, kvp.Value.ToInt32() + mod);
-                    dict[kvp.Key] = newValue.ToString();
-                }
-                else
-                {
-                    dict[kvp.Key] = kvp.Value;
+                    var newValue = Math.Min(99, dict[key].ToInt32() + mod);
+                    dict[key] = newValue.ToString();
                 }
             }
 

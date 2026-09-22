@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -9,20 +10,69 @@ using static EA_DB_Editor.Form1;
 
 namespace EA_DB_Editor
 {
+    public class TransferData
+    {
+        [JsonIgnore]
+        public bool Prepared { get; private set; } = false;
+
+        private int? newTeamId;
+        public int PlayerId{ get; set; }
+        public int PreviousTeamId { get; set; }
+        public int NewTeamId
+        {
+            get
+            {
+                if(!newTeamId.HasValue)
+                {
+                    newTeamId = PlayerId / 70;
+                }
+
+                return newTeamId.Value;
+            }
+            set
+            {
+                newTeamId = value;
+            }
+        }
+        public string Position { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+
+        public void Prepare()
+        {
+            // just run once
+            if (Prepared) return;
+            var player = TableUtility.FindTable("PLAY").lRecords.Where(mr => mr.PlayerId() == this.PlayerId && mr.TeamId()!=1023).FirstOrDefault() ;
+            Position = player.Position().ToPositionName();
+            FirstName = player.FirstName();
+            LastName = player.LastName();
+            Prepared = true;
+        }
+    }
+
     internal class TransferPortal
     {
         private static bool transfersEligbleRun = false;
-        public static void MakeTransfersImmediatelyEligble()
+        public static List<TransferData> MakeTransfersImmediatelyEligble()
         {
-            if (transfersEligbleRun) return;
+            if (transfersEligbleRun) return null;
+
+            var result = new List<TransferData>();
 
             transfersEligbleRun = true;
             var transferTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "TRAN");
 
             foreach (var mr in transferTable.lRecords)
             {
+                if (mr["TRYR"].ToInt32() == 0)
+                {
+                    result.Add(new TransferData { PlayerId = mr.PlayerId(), PreviousTeamId = mr.RosterId() });
+                }
+
                 mr["TRYR"] = "1";
             }
+
+            return result;
         }
 
         public static Dictionary<int, TeamRosterFilled> FindOpenRosterSpots()

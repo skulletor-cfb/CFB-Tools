@@ -31,8 +31,11 @@ namespace EA_DB_Editor
 
         private static Dictionary<int, Stack<int>> availableRosterSpots;
 
-        public static void WriteTransferPortalFiles(MaddenDatabase maddenDB)
+        public static void WriteTransferPortalFiles(MaddenDatabase maddenDB, List<TransferData> transfers)
         {
+            // we have all the data we need
+            transfers.ForEach(t => t.Prepare());
+
             // we need to know states first
             if (PlayerStates.Count == 0)
             {
@@ -85,11 +88,17 @@ namespace EA_DB_Editor
                 File.WriteAllText("Roster.csv", sb.ToString());
             }
             catch { }
+
+            try
+            {
+                transfers.WriteJsonFile("transfers.txt");
+            }
+            catch { }
         }
 
-        public static void RunTransferPortal(MaddenDatabase maddenDB)
+        public static void RunTransferPortal(MaddenDatabase maddenDB, List<TransferData> transfers)
         {
-            WriteTransferPortalFiles(maddenDB);
+            WriteTransferPortalFiles(maddenDB, transfers);
 
             var entry = new PlayerEntry();
             if (entry.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -133,11 +142,14 @@ namespace EA_DB_Editor
 
                         if (player != null && !PlayersTransferred.Contains(to))
                         {
+                            var team = to / 70;
+                            var oldTeam = from / 70;
                             player["PGID"] = to.ToString();
-                            player["TGID"] = (to / 70).ToString();
+                            player["TGID"] = team.ToString();
                             PlayersTransferred.Add(to);
                             TransferPortalClass.SignPlayer(player["TGID"].ToInt32(), player["PPOS"].ToInt32());
                             TransferLog(from, to);
+                            transfers.Add(new TransferData { PlayerId = to, PreviousTeamId = oldTeam, NewTeamId = team });
                         }
                     }
                 }
@@ -147,15 +159,18 @@ namespace EA_DB_Editor
 
                     if (player != null && !PlayersTransferred.Contains(entry.To))
                     {
+                        var team = entry.To / 70;
+                        var oldTeam = entry.From / 70;
                         player["PGID"] = entry.To.ToString();
-                        player["TGID"] = (entry.To / 70).ToString();
+                        player["TGID"] = team.ToString();
                         PlayersTransferred.Add(entry.To);
                         TransferPortalClass.SignPlayer(player["TGID"].ToInt32(), player["PPOS"].ToInt32());
                         TransferLog(entry.From, entry.To);
+                        transfers.Add(new TransferData { PlayerId = entry.To, PreviousTeamId = oldTeam, NewTeamId = team });
                     }
                 }
 
-                WriteTransferPortalFiles(maddenDB);
+                WriteTransferPortalFiles(maddenDB, transfers);
                 TransferPortalClass.ResetTeamBids(); 
             }
         }
@@ -236,7 +251,8 @@ namespace EA_DB_Editor
                 var roster = new StringBuilder();
                 kvp.Value.ForEach(p => roster.AppendLine(p.ToCsvLine()));
 
-                var mod = kvp.Value.Count > 77 ? $"tx_{kvp.Value.Count}_" : string.Empty;
+                //var mod = kvp.Value.Count > 77 ? $"tx_{kvp.Value.Count}_" : string.Empty;
+                var mod = string.Empty;
                 var file = Path.Combine(dir.FullName, $"{mod}{kvp.Key}.csv");
 
                 try

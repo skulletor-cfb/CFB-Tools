@@ -2677,12 +2677,16 @@ namespace EA_DB_Editor
             }
         }
 
-
-
+        static List<TransferData> Transfers = null;
+         
         private void srTransferQBToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TransferPortal.MakeTransfersImmediatelyEligble();
-            ManualTransferPortal.RunTransferPortal(maddenDB);
+            if (Transfers == null)
+            {
+                Transfers = TransferPortal.MakeTransfersImmediatelyEligble();
+            }
+
+            ManualTransferPortal.RunTransferPortal(maddenDB, Transfers);
         }
 
         private static int StaffRating = 125;
