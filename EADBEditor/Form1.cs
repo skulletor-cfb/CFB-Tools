@@ -3018,7 +3018,15 @@ namespace EA_DB_Editor
 
             public int Loss { get; private set; }
 
-            public int WinPct => (1000 * Win) / (Win + Loss);
+            public int WinPct
+            {
+                get
+                {
+                    try { return (1000 * Win) / (Win + Loss); }
+                    catch { }
+                    return 0;
+                }
+            }
 
             public static ConferenceRecord Create(int win, int loss) => new ConferenceRecord { Win = win, Loss = loss };
 
