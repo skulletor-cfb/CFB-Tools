@@ -142,6 +142,9 @@ namespace EA_DB_Editor
         /// <returns></returns>
         public static int PYEA(this MaddenRecord mr) => mr["PYEA"].ToInt32();
 
+        public static string FirstName(this MaddenRecord mr) => mr["PFNA"];
+        public static string LastName(this MaddenRecord mr) => mr["PLNA"];
+
         public static bool PlayerHasEligility(this MaddenRecord mr) => mr.PYEA() < 3;
 
         /// <summary>

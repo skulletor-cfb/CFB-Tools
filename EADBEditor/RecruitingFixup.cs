@@ -102,8 +102,17 @@ namespace EA_DB_Editor
             DontChange.Add(id);
         }
 
-        public static void TrainJucoPlayer(this Dictionary<string, string> dict)
+        public static bool TrainJucoPlayer(this Dictionary<string, string> dict, HashSet<string> rosteredPlayers)
         {
+            // double check that the player isn't on a roster, these three dimensions should be enough to find them
+            var firstName = dict["PFNA"];
+            var lastName = dict["PLNA"];
+            var year = dict["PYEA"].ToInt32();
+            if (rosteredPlayers.Contains(CreateLookupKey(firstName, lastName, year)))
+            {
+                return false;
+            }
+
             var set = new HashSet<string>(PlayerSkills);
 
             // add a modifier to unscouted OVR of 1 to 5 because JUCOs have some game tape
@@ -128,15 +137,23 @@ namespace EA_DB_Editor
                     dict[kvp.Key] = kvp.Value;
                 }
             }
+
+            return true;
         }
+
+        private static string CreateLookupKey(string first, string last, int year) => $"{first}|{last}|{year}";
 
         private static int PosititionGroup(this Dictionary<string, string> dict) => dict["RPGP"].ToInt32();
 
         public static void RegisterJucoRecruits(JucoRecruits jucos)
         {
+            // we need to create a hashset of Player NAmes/Year for lookup
+            var playerTable = TableUtility.FindTable("PLAY");
+            var playerLookup = new HashSet<string>(playerTable.lRecords.Select(mr => CreateLookupKey(mr.FirstName(), mr.LastName(), mr.PYEA())));
+
             // we get a position group to queue dictionary
-            var recruitPitchTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPR");
-            var recruitTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPT");
+            var recruitPitchTable = TableUtility.FindTable("RCPR");
+            var recruitTable = TableUtility.FindTable("RCPT");
             var worstRecruits = recruitTable.lRecords
                 .Where(mr => mr.POVR() < 60)
                 .GroupBy(mr => mr.PositionGroup())
@@ -145,7 +162,12 @@ namespace EA_DB_Editor
             // jucos gotta train
             jucos.Recruits.ForEach(r =>
             {
-                r.TrainJucoPlayer();
+                // a player might have made it onto a roster as a walk on
+                if(!r.TrainJucoPlayer(playerLookup))
+                {
+                    return;
+                }
+
                 var group = r.PosititionGroup();
 
                 // can't find a replacement, sometimes guys just flame out
