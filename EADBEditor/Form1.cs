@@ -1923,10 +1923,17 @@ namespace EA_DB_Editor
             RefreshView();
         }
 
+        static string[] RandomNames = new string[] { "Johnny", "Mike", "Paul", "Daniel", "Robby" };
         static void Defatify(MaddenTable recruitTable)
         {
             foreach (var recruit in recruitTable.lRecords)
             {
+                // some bug where players don't have first name
+                if (recruit.FirstName().Trim().Length == 0)
+                {
+                    recruit["PFNA"] = RandomNames.Shuffle().First();
+                }
+
                 var currentFace = recruit["PGHE"].ToInt32();
 
                 // defatify the player
