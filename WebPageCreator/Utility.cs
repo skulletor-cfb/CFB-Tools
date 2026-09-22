@@ -49,6 +49,8 @@ namespace EA_DB_Editor
             return content;
         }
 
+        public static void AddBowls(this List<int> list, params int[] bowls) => list.AddRange(bowls);
+
         public static bool ToBool(this string val)
         {
             bool b;
