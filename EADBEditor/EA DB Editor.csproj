@@ -66,6 +66,7 @@
     <Compile Include="AdditionalGameProvider.cs" />
     <Compile Include="NationalSchedule.cs" />
     <Compile Include="RecruitFace.cs" />
+    <Compile Include="Recruiting\JucoRecruits.cs" />
     <Compile Include="Recruiting\ManualTransferPortal.cs" />
     <Compile Include="Recruiting\TeamRecruiter.cs" />
     <Compile Include="Recruiting\TransferCandidate.cs" />

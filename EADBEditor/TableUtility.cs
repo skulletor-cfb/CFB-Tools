@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using EA_DB_Editor.Scheduling;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,6 +22,13 @@ namespace EA_DB_Editor
 
     public static class TableUtility
     {
+        public static int Rand100()
+        {
+            var guid = Guid.NewGuid().ToByteArray().Take(4).ToArray();
+            int i = BitConverter.ToInt32(guid, 0) & 0x7fffffff;
+            return i % 100;
+        }
+
         public static MaddenTable FindTable(string name)
         {
             return MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, name);
@@ -55,6 +63,8 @@ namespace EA_DB_Editor
         {
             return mr["TLNA"];
         }
+
+        public static int State(this MaddenRecord mr) => mr["STAT"].ToInt32();
 
         public static int MediaPollRanking(this MaddenRecord mr)
         {
@@ -112,6 +122,8 @@ namespace EA_DB_Editor
             return mr["SGNM"].ToInt32();
         }
 
+        public static int RecruitRank(this MaddenRecord mr) => mr["RCRK"].ToInt32();
+
         public static int RecruitId(this MaddenRecord mr) => mr["PRSI"].ToInt32();
 
         public static int GameWeek(this MaddenRecord mr)
@@ -122,6 +134,25 @@ namespace EA_DB_Editor
         {
             return mr["GDAT"].ToInt32();
         }
+
+        /// <summary>
+        /// player year 0=frosh, 3 = senior
+        /// </summary>
+        /// <param name="mr"></param>
+        /// <returns></returns>
+        public static int PYEA(this MaddenRecord mr) => mr["PYEA"].ToInt32();
+
+        public static bool PlayerHasEligility(this MaddenRecord mr) => mr.PYEA() < 3;
+
+        /// <summary>
+        /// Player Overall Rating
+        /// </summary>
+        /// <param name="mr"></param>
+        /// <returns></returns>
+        public static int POVR(this MaddenRecord mr) => mr["POVR"].ToInt32();
+
+        public static int TeamCommittment(this MaddenRecord mr) => mr["PTCM"].ToInt32();
+        public static bool UncommittedPlayer(this MaddenRecord mr) => mr.TeamCommittment() == 1023;
 
         public static string DisplayName(this Dictionary<int, MaddenRecord> dict, int tgid)
         {
@@ -368,6 +399,137 @@ namespace EA_DB_Editor
         public const int UCFId = 18;
         public const int USFId = 144;
         public const int LSUId = 45;
+
+        public static Dictionary<int, int[]> CreateConferenceAssignmentsForJucos()
+        {
+            int[] allConf = new int[] { ACCId, Big12Id, Big10Id, Pac16Id, SECId, NotreDameId, MACId, CUSAId, MWCId, SBCId, AmericanId };
+            #region state stuff
+            var dict = new Dictionary<int, int[]>();
+            dict.Add(0, new int[] { SECId, CUSAId, SBCId, AmericanId }); //AL
+            dict.Add(1, allConf); //AK
+            dict.Add(2, new int[] { Pac16Id, BYUId, MWCId }); //AZ
+            dict.Add(3, new int[] { SECId, SBCId, AmericanId, CUSAId }); //AR
+            dict.Add(4, new int[] { Pac16Id, NotreDameId, MWCId }); //CA
+            dict.Add(5, new int[] { Big12Id, MWCId, NotreDameId }); //CO
+            dict.Add(6, new int[] { ACCId, Big10Id, MACId, AmericanId}); //CT
+            dict.Add(7, new int[] { ACCId, Big10Id, MACId, AmericanId }); //DE
+            dict.Add(8, new int[] { SECId, ACCId, Big12Id, AmericanId, CUSAId, SBCId }); //FL
+            dict.Add(9, new int[] { SECId, ACCId, AmericanId, CUSAId, SBCId }); //GA
+            dict.Add(10, new int[] { Pac16Id, NotreDameId, MWCId }); //HI
+            dict.Add(11, new int[] { Pac16Id, BYUId, MWCId }); //ID
+            dict.Add(12, new int[] { Big10Id, NotreDameId, MACId }); //IL
+            dict.Add(13, new int[] { Big10Id, NotreDameId, MACId }); //IN
+            dict.Add(14, new int[] { Big10Id, NotreDameId, Big12Id, MACId }); //IA
+            dict.Add(15, new int[] { Big12Id, MACId, MWCId }); //KS
+            dict.Add(16, new int[] { TeamAndConferences[44], SECId, CUSAId, SBCId, MACId }); //KY
+            dict.Add(17, new int[] { SECId, SBCId, CUSAId, AmericanId }); //LA
+            dict.Add(18, new int[] { ACCId, Big10Id, NotreDameId, MACId }); //ME
+            dict.Add(19, new int[] { ACCId, NotreDameId, MACId }); //MD
+            dict.Add(20, new int[] { ACCId, NotreDameId, MACId }); //MA
+            dict.Add(21, new int[] { Big10Id, NotreDameId, CincyId, MACId }); //MI
+            dict.Add(22, new int[] { Big10Id, NotreDameId, MACId }); //MN
+            dict.Add(23, new int[] { SECId, SBCId, CUSAId }); //MS
+            dict.Add(24, new int[] { SECId, Big12Id, MACId }); //MO
+            dict.Add(25, new int[] { Pac16Id, NotreDameId, MWCId }); //MT
+            dict.Add(26, allConf); //NE
+            dict.Add(27, new int[] { Pac16Id, NotreDameId, BYUId, MWCId }); //NV
+            dict.Add(28, new int[] { ACCId, Big10Id, NotreDameId,MACId, AmericanId }); //NH
+            dict.Add(29, new int[] { ACCId, Big10Id, NotreDameId, MACId, AmericanId }); //NJ
+            dict.Add(30, new int[] { Pac16Id, Big12Id, NotreDameId, MWCId }); //NM
+            dict.Add(31, new int[] { ACCId, Big10Id, NotreDameId,MACId, AmericanId }); //NY
+            dict.Add(32, new int[] { ACCId, AmericanId, SBCId }); //NC
+            dict.Add(33, new int[] { Pac16Id, NotreDameId, BYUId, MWCId }); //ND
+            dict.Add(34, new int[] { Big10Id, NotreDameId, CincyId, MACId }); //OH
+            dict.Add(35, new int[] { Big12Id, AmericanId, SBCId, CUSAId }); //OK
+            dict.Add(36, new int[] { Pac16Id, MWCId }); //OR
+            dict.Add(37, new int[] { ACCId, Big10Id, NotreDameId, CincyId, AmericanId, SBCId, MACId }); //PA
+            dict.Add(38, new int[] { ACCId, Big10Id, NotreDameId, MACId, AmericanId }); //RI
+            dict.Add(39, new int[] { ACCId, SECId, SBCId, CUSAId, AmericanId }); //SC
+            dict.Add(40, new int[] { Pac16Id, Big12Id, NotreDameId, BYUId, MWCId }); //SD
+            dict.Add(41, new int[] { SECId, SBCId, CUSAId, AmericanId }); //TN
+            dict.Add(42, new int[] { Big12Id, SECId, NotreDameId, SBCId, CUSAId, AmericanId, MWCId }); //TX
+            dict.Add(43, new int[] { Pac16Id, NotreDameId, BYUId, MWCId }); //UT
+            dict.Add(44, new int[] { ACCId, Big10Id, NotreDameId, AmericanId, MACId }); //VT
+            dict.Add(45, new int[] { ACCId, NotreDameId, SBCId, AmericanId, CUSAId }); //VA
+            dict.Add(46, new int[] { Pac16Id, MWCId }); //WA
+            dict.Add(47, new int[] { ACCId, SBCId, CUSAId, MACId, AmericanId }); //WV
+            dict.Add(49, allConf); //WY
+            dict.Add(48, new int[] { Big10Id, NotreDameId, MACId }); //WI
+            dict.Add(50, allConf); //CN
+            dict.Add(51, allConf); //DC
+            #endregion
+
+            var teams = new Dictionary<int, int[]>();
+
+            foreach (var kvp in dict)
+            {
+                List<int> allTeams = new List<int>();
+
+                foreach (var conf in kvp.Value)
+                {
+                    switch (conf)
+                    {
+                        case CUSAId:
+                            allTeams.AddRange(CUSA);
+                            break;
+                        case MWCId:
+                            allTeams.AddRange(MWC);
+                            break;
+                        case AmericanId:
+                            allTeams.AddRange(American);
+                            break;
+                        case MACId:
+                            allTeams.AddRange(MAC);
+                            break;
+                        case SBCId:
+                            allTeams.AddRange(SBC);
+                            break;
+                        case ACCId:
+                            allTeams.AddRange(ACC.Where(t => t != 68));
+                            break;
+                        case Big10Id:
+                            allTeams.AddRange(Big10);
+                            break;
+                        case Big12Id:
+                            allTeams.AddRange(Big12);
+                            break;
+                        case Pac16Id:
+                            allTeams.AddRange(Pac12);
+                            break;
+                        case SECId:
+                            allTeams.AddRange(SEC);
+                            break;
+                        case Big16Id:
+                            allTeams.AddRange(Big12);
+                            break;
+                        case NotreDameId:
+                            allTeams.AddRange(new[] { 68 });
+                            break;
+                        case BYUId:
+                            allTeams.AddRange(new[] { 16 });
+                            break;
+                        case CincyId:
+                            allTeams.AddRange(new[] { 20 });
+                            break;
+                        case UCFId:
+                            allTeams.AddRange(new[] { 18 });
+                            break;
+                        case USFId:
+                            allTeams.AddRange(new[] { 144 });
+                            break;
+                        case LSUId:
+                            allTeams.AddRange(new[] { 45 });
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                teams[kvp.Key] = allTeams.ToArray();
+            }
+
+            return teams;
+        }
 
         public static Dictionary<int, int[]> CreateConferenceAssignmentsForStates()
         {

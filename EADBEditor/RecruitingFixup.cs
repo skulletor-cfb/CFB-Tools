@@ -95,6 +95,94 @@ namespace EA_DB_Editor
     {
         // by default we make 3 CAPs
         public static HashSet<int> DontChange = new HashSet<int> { 0, 1, 2 };
+        public static string[] PlayerSkills = new[] { "PSPD", "PSTR", "PAGI", "PACC", "PAWR", "PBTK", "PTRK", "PESV", "PBCV", "PSAR", "PSMV", "PJMV", "PCAR", "PCTH", "SPCT", "TRAF", "PRTR", "PJMP", "PTHP", "PTHA", "PTAK", "PHIT", "PPMV", "PFMV", "PBSH", "PPRS", "PPRC", "PMCV", "PZCV", "PYRS", "RELS", "PPBK", "PRBK", "PIBL", "PKRT", "PSTA", "PINJ" };
+
+        public static void Register(int id)
+        {
+            DontChange.Add(id);
+        }
+
+        public static void TrainJucoPlayer(this Dictionary<string, string> dict)
+        {
+            var set = new HashSet<string>(PlayerSkills);
+
+            // add a modifier to unscouted OVR of 1 to 5 because JUCOs have some game tape
+            dict["RCOV"] = (dict["RCOV"].ToInt32() + (TableUtility.Rand100() % 5) + 1).ToString();
+
+            foreach (var kvp in dict)
+            {
+                // increment the player year
+                if (kvp.Key == "PYEA")
+                {
+                    dict[kvp.Key] = (kvp.Value.ToInt32() + 1).ToString();
+                }
+                else if (set.Contains(kvp.Key))
+                {
+                    // add 1-3 points for offseason progression
+                    var mod = 1 + TableUtility.Rand100() % 3;
+                    var newValue = Math.Min(99, kvp.Value.ToInt32() + mod);
+                    dict[kvp.Key] = newValue.ToString();
+                }
+                else
+                {
+                    dict[kvp.Key] = kvp.Value;
+                }
+            }
+        }
+
+        private static int PosititionGroup(this Dictionary<string, string> dict) => dict["RPGP"].ToInt32();
+
+        public static void RegisterJucoRecruits(JucoRecruits jucos)
+        {
+            // we get a position group to queue dictionary
+            var recruitPitchTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPR");
+            var recruitTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPT");
+            var worstRecruits = recruitTable.lRecords
+                .Where(mr => mr.POVR() < 60)
+                .GroupBy(mr => mr.PositionGroup())
+                .ToDictionary(g => g.Key, g => new Queue<MaddenRecord>(g.OrderBy(mr => mr.POVR())));
+
+            // jucos gotta train
+            jucos.Recruits.ForEach(r =>
+            {
+                r.TrainJucoPlayer();
+                var group = r.PosititionGroup();
+
+                // can't find a replacement, sometimes guys just flame out
+                if (!worstRecruits.TryGetValue(group, out var canBeReplaced) || canBeReplaced.Count ==0)
+                {
+                    worstRecruits.Remove(group);
+                    return;
+                }
+
+                var mr = canBeReplaced.Dequeue();
+
+                foreach(var kvp in r)
+                {
+                    mr[kvp.Key] = kvp.Value;
+
+                    if (mr.RecruitRank() < 400)
+                    {
+                        mr["RCRK"] = (TableUtility.Rand100() + 400).ToString();
+                    }
+                }
+
+                Register(mr.RecruitId());
+
+                // find schools for the recruit
+                var state = mr.State();
+                var schools = JucoConfStateAssignments.Value[state].CreateAndShuffle().Take(10).ToArray();
+                var recruit = TransferPortal.FindRecruit(recruitPitchTable, mr.RecruitId());
+
+                // now apply the schools to the recruit pitch table
+                // set PT01 = PT10
+                for (int i = 1; i <= schools.Length; i++)
+                {
+                    var key = i == 10 ? "PT10" : "PT0" + i.ToString();
+                    recruit[key] = schools[i - 1].ToString();
+                }
+            });
+        }
 
         const int P5Cutoff = 300;
 
@@ -287,6 +375,7 @@ namespace EA_DB_Editor
 
 
         static Lazy<Dictionary<int, int[]>> ConfStateAssignments = new Lazy<Dictionary<int, int[]>>(TableUtility.CreateConferenceAssignmentsForStates, true);
+        static Lazy<Dictionary<int, int[]>> JucoConfStateAssignments = new Lazy<Dictionary<int, int[]>>(TableUtility.CreateConferenceAssignmentsForJucos, true);
 
         static void Fixup(MaddenTable pitchTable, MaddenTable recruitTable, MaddenRecord recruitInfo, bool fixPoints)
         {

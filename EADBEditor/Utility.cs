@@ -56,6 +56,18 @@ namespace EA_DB_Editor
             return json;
         }
 
+        public static T ReadJsonFile<T>(this string file)
+        {
+            var json = File.ReadAllText(file);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
+        }
+
+        public static void WriteJsonFile<T>(this T obj, string file)
+        {
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText(file, json);
+        }
+
         public static void ToJsonFile<T>(this T obj, string file)
         {
             var json = obj.ToJson();
