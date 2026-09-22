@@ -14,21 +14,6 @@ namespace EA_DB_Editor
         public int GameNumber { get; set; }
         public MaddenRecord MaddenRecord { get; set; }
 
-        private bool mustReplace = false;
-
-        public bool MustReplace
-        {
-            get
-            {
-                return mustReplace;
-            }
-
-            set
-            {
-                mustReplace = value;
-            }
-        }
-
         public int? LockedWeek { get; private set; }
 
         public void CheckForLock(ConferenceLocks locks)
