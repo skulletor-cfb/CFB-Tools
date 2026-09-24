@@ -122,8 +122,7 @@ namespace EA_DB_Editor.Scheduling
         private void AssignFS1Games(int week, List<TelevisedGame> games)
         {
             // definitely get MWC after dark
-            var afterDark = games.Where(g => !g.Assigned && g.IsMWCGame).FirstOrDefault();
-            FS1.AssignGame(afterDark, week, 10, 30);
+            var mwcGame = games.Where(g => !g.Assigned && g.IsMWCGame).FirstOrDefault();
 
             // fs1 shows the best non p12 game at noon
             var bigNoon = games.Where(g => !g.Assigned && !g.IsPac12Game).FirstOrDefault();
@@ -131,7 +130,18 @@ namespace EA_DB_Editor.Scheduling
 
             // fs1 shows the best of the rest at primetime
             var primetime = games.Where(g => !g.Assigned).FirstOrDefault();
-            FS1.AssignGame(primetime, week, 7, 15);
+
+            // on odd weeks, the pac 12 wants to play late if it's the primetime pick
+            if (week % 2 == 0 && primetime.HomeTeam.IsPac12Team())
+            {
+                FS1.AssignGame(primetime, week, 10, 30);
+                FS1.AssignGame(mwcGame, week, 7, 15);
+            }
+            else
+            {
+                FS1.AssignGame(mwcGame, week, 10, 30);
+                FS1.AssignGame(primetime, week, 7, 15);
+            }
 
             // what's left can go to 4pm
             var afternoon = games.Where(g => !g.Assigned).FirstOrDefault();
@@ -191,7 +201,7 @@ namespace EA_DB_Editor.Scheduling
             }
 
             // fox friday , in september it's the best of the remaining big12/big 10/pac 12 games at 830pm
-            if (week > 0 && week < (TelevisionScheduler.FirstWeekOfOctober() - 1))
+            if (week > TelevisionScheduler.LaborDayWeek() && week < (TelevisionScheduler.FirstWeekOfOctober() - 1))
             {
                 var friday = games.Where(g => !g.Assigned && !g.IsBig10Game).OrderBy(g => g.Score).FirstOrDefault();
                 FOX.AssignGame(friday, week, 8, 0, day: 4);
@@ -224,6 +234,12 @@ namespace EA_DB_Editor.Scheduling
 
         public override bool PreassignGame(TelevisedGame game)
         {
+            /// fox friday for the first two weeks gets assigned at 8pm
+            if (game.Week <= 1 && (game.Day == 4 || game.Day == 6))
+            {
+                return !FOX.PreassignGame(game, new TimeSlot(game.GameTimeOfDay, game.Week, game.Day), false);
+            }
+
             // the game belongs at 12pm saturday no matter what
             if (game.CheckMatchup(51, 70))
             {

@@ -46,12 +46,12 @@ namespace EA_DB_Editor.Scheduling
             AssignP5ESPN();
             AssignPac12AfterDark();
             AssignABCNoon();
-            AssignACCFriday();
             AssignAmericanFriday();
             AssignMidMajorThursday();
             AssignACCNetwork(new Func<int, TimeSlot>[] { week => new TimeSlot(3, 30, week) });
             AssignSECNetwork(new Func<int, TimeSlot>[] { week => new TimeSlot(4, 15, week) });
             AssignP5ESPN_NoonGames();
+            AssignACCFriday();
             AssignACCNetwork(new Func<int, TimeSlot>[] { week => new TimeSlot(12, 0, week), week => new TimeSlot(7, 30, week), });
             AssignSECNetwork(new Func<int, TimeSlot>[] { week => new TimeSlot(12, 45, week), week => new TimeSlot(7, 45, week), });
             AssignESPNU();
@@ -318,7 +318,7 @@ namespace EA_DB_Editor.Scheduling
 
             for (int i = 0; i <= 13; i++)
             {
-                var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsSecGame).OrderBy(g => g.Score).ToQueue();
+                var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsSecGame).OrderByDescending(g => g.Score).ToQueue();
                 var stack = new Stack<Func<int, TimeSlot>>(slots);
 
                 while (queue.TryDequeueGameForAssignment(out var game))
@@ -342,7 +342,7 @@ namespace EA_DB_Editor.Scheduling
 
             for (int i = 0; i <= 13; i++)
             {
-                var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsAccGame).OrderBy(g => g.Score).ToQueue();
+                var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsAccGame).OrderByDescending(g => g.Score).ToQueue();
                 var stack = new Stack<Func<int, TimeSlot>>(slots);
 
                 while (queue.TryDequeueGameForAssignment(out var game))
@@ -638,7 +638,7 @@ namespace EA_DB_Editor.Scheduling
 
                 // top sec conference game
                 var games = this.WeeklySchedule[i];
-                var secGames = games.Where(g => !g.Assigned && !g.IsSecConferenceGame && ((g.ConferenceOwner == TableUtility.SECId && g.IsP5Game) || g.IsSecAccGame)).OrderBy(g => g.Score).ToQueue();
+                var secGames = games.Where(g => !g.Assigned && ((g.IsSecGame && g.IsP5Game) || g.IsSecAccGame)).OrderBy(g => g.Score).ToQueue();
                 secGames.Enqueue(games.Where(g => !g.Assigned && g.IsSecGame).OrderBy(g => g.Score));
                 secGames.Enqueue(games.Where(g => !g.Assigned && g.IsAccGame).OrderBy(g => g.Score));
 
@@ -727,6 +727,56 @@ namespace EA_DB_Editor.Scheduling
             // same with thur/fri as those are hand crafted
             if (game.Week <= 1 && game.Day != 5)
             {
+                // fox friday is 8pm
+                if (game.Day == 4 && game.GTOD == 1200)
+                {
+                    return base.PreassignGame(game);
+                }
+
+                // FOX televises Sunday games
+                if (game.Day == 6 && game.HomeTeam.IsBig10Team())
+                {
+                    return base.PreassignGame(game);
+                }
+
+                if (game.Day == 3)
+                {
+                    // 1020 = 5pm, 1230 = 830pm - thats ESPN
+                    // 1140 = 7pm, 1350 = 1030pm - ESPN2
+                    switch (game.GTOD)
+                    {
+                        case 1020:
+                            return !ESPN.PreassignGame(game, new TimeSlot(game.GameTimeOfDay, game.Week, game.Day), false);
+                        case 1230:
+                            return !ESPN.PreassignGame(game, new TimeSlot(game.GameTimeOfDay, game.Week, game.Day), false);
+                        case 1140:
+                            return !ESPN2.PreassignGame(game, new TimeSlot(game.GameTimeOfDay, game.Week, game.Day), false);
+                        case 1350:
+                            return !ESPN2.PreassignGame(game, new TimeSlot(game.GameTimeOfDay, game.Week, game.Day), false);
+                        default:
+                            break;
+                    }
+                }
+
+                if (game.Day == 4)
+                {
+                    // 1050 = 530pm, 1260 = 9pm - thats ESPN2
+                    // 1170 = 730pm, 1380 = 11pm - ESPN
+                    switch (game.GTOD)
+                    {
+                        case 1170:
+                            return !ESPN.PreassignGame(game, new TimeSlot(game.GameTimeOfDay, game.Week, game.Day), false);
+                        case 1380:
+                            return !ESPN.PreassignGame(game, new TimeSlot(game.GameTimeOfDay, game.Week, game.Day), false);
+                        case 1050:
+                            return !ESPN2.PreassignGame(game, new TimeSlot(game.GameTimeOfDay, game.Week, game.Day), false);
+                        case 1260:
+                            return !ESPN2.PreassignGame(game, new TimeSlot(game.GameTimeOfDay, game.Week, game.Day), false);
+                        default:
+                            break;
+                    }
+                }
+
                 return !ESPN.PreassignGame(game, new TimeSlot(game.GameTimeOfDay, game.Week, game.Day), false);
             }
 

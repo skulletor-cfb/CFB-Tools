@@ -92,8 +92,8 @@ namespace EA_DB_Editor.Scheduling
                 return !Primary.PreassignGame(game, new TimeSlot(3, 30, game.Week), true);
             }
 
-            // ND vs P5 goes at night
-            if (game.IsP5Game && game.IsNotreDameHomeGame)
+            // ND vs P5 top 25 goes at night
+            if (game.IsP5Game && game.IsNotreDameHomeGame && game.AwayRank <= 25)
             {
                 return !Primary.PreassignGame(game, new TimeSlot(8, 0, game.Week), true);
             }

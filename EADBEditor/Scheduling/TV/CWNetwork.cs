@@ -45,7 +45,9 @@ namespace EA_DB_Editor.Scheduling
                 // get our games
                 var games = kvp.Value.Where(g => g.IsMWCGame).ToList();
 
-                var friday = new TimeSlot(9, 0, kvp.Key, day: 4);
+                // week 1 is thursday, otherwise friday
+                var week1GameDay = kvp.Key == 0 ? 3 : 4;
+                var friday = new TimeSlot(9, 0, kvp.Key, day: week1GameDay);
                 var early = new TimeSlot(3, 30, kvp.Key);
                 var evening = new TimeSlot(7, 0, kvp.Key);
                 var late = AssignHawaiiGames(games, kvp.Key);

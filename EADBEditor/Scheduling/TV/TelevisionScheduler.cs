@@ -64,7 +64,15 @@ namespace EA_DB_Editor.Scheduling
                 .ThenBy(g => g.Score)
                 .ToArray();
 
-            var gamesNeedingAssignment = fullset.Where(g => g.GameNeedsAssignment()).ToArray();
+            // we let ND games get evaluated first
+            
+            var gamesNeedingAssignment = fullset.Where(g => g.IsNotreDameGame)
+                .Concat(fullset.Where(g => !g.IsNotreDameGame))
+                .Where(g => g.GameNeedsAssignment())
+                .OrderBy(g => g.Week)
+                .ThenBy(g => g.Score)
+                .ToArray();
+
             var assignedGames = fullset.Where(g => g.Assigned).ToArray();
             var games = AllGames = gamesNeedingAssignment.Organize();
 
@@ -281,17 +289,21 @@ namespace EA_DB_Editor.Scheduling
 
         private static int idx = 0;
 
+        private static int NextIndex => (idx++ % networks.Length);
+
         public static bool PreassignGame(TelevisedGame game)
         {
-            if (game.CheckMatchup(51, 70))
+            /// fox friday for the first two weeks gets assigned at 8pm
+            if ((game.Week <= 1 && (game.Day == 4 || game.Day == 6)) ||
+                game.CheckMatchup(51, 70))
             {
                 return FoxNetworks.Instance.PreassignGame(game);
             }
 
             // we need to be exhaustive
-            return networks[idx++ % networks.Length](game) &&
-                networks[idx++ % networks.Length](game) &&
-                networks[idx++ % networks.Length](game);
+            return networks[NextIndex](game) &&
+                networks[NextIndex](game) &&
+                networks[NextIndex](game);
         }
     }
 }

@@ -401,11 +401,12 @@ namespace EA_DB_Editor
                 {
                     var prefix = string.Empty;
                     var laborDayWeekend = TelevisionScheduler.LaborDayWeek();
+                    var laborDayMondayWeek = laborDayWeekend + 1; // monday is the start of a new week
 
                     // only a handful of teams play labor day
-                    if ((tsch.Value[laborDayWeekend] == null && tsch.Value[laborDayWeekend + 1] != null))
+                    if ((tsch.Value[laborDayWeekend] == null && tsch.Value[laborDayMondayWeek] != null))
                     {
-                        if (teamSchedule.TryGetValue(tsch.Value[1].OpponentId(tsch.Key), out var oppSch) && oppSch[0] == null)
+                        if (teamSchedule.TryGetValue(tsch.Value[laborDayMondayWeek].OpponentId(tsch.Key), out var oppSch) && oppSch[laborDayWeekend] == null)
                         {
                             prefix = "R: ";
                         }
@@ -511,7 +512,7 @@ namespace EA_DB_Editor
                         notes += ",";
                     }
 
-                    sb.AppendLine(string.Format("{0},,{1},,{2}", RecruitingFixup.TeamNames[tsch.Key], string.Join(",", tsch.Value.Take(TeamSchedule.ScheduleDisplayLimit).Select((ts, idx) => ts == null ? string.Empty : string.Format("{0}{1}", idx == 1 ? prefix : string.Empty, ts.Opponent(tsch.Key)))), notes));
+                    sb.AppendLine(string.Format("{0},,{1},,{2}", RecruitingFixup.TeamNames[tsch.Key], string.Join(",", tsch.Value.Take(TeamSchedule.ScheduleDisplayLimit).Select((ts, idx) => ts == null ? string.Empty : string.Format("{0}{1}", idx == laborDayMondayWeek ? prefix : string.Empty, ts.Opponent(tsch.Key)))), notes));
                 }
 
                 needMoreG5Games = Randomize(needMoreG5Games);
@@ -1320,538 +1321,571 @@ namespace EA_DB_Editor
 
         public static bool IsRivalryGame(int homeTeam, int awayTeam)
         {
-            var rivalries = new List<int[]>();
+            var rivalries = new List<int[]>
+            {
+                // odu - marshall
+                new[] { 234, 46 },
 
-            // odu - marshall
-            rivalries.Add(new[] { 234, 46 });
+                // odu - ecu
+                new[] { 234, 25 },
 
-            // odu - ecu
-            rivalries.Add(new[] { 234, 25 });
+                // odu - app st
+                new[] { 234, 901 },
 
-            // odu - app st
-            rivalries.Add(new[] { 234, 901 });
+                // su-temple
+                new[] { 88, 90 },
 
-            // su-temple
-            rivalries.Add(new[] { 88, 90 });
 
+                // ru-uconn
+                // rivalries.Add(new[] { 80, 100 });
 
-            // ru-uconn
-            // rivalries.Add(new[] { 80, 100 });
+                // gt-gsu
+                new[] { 31, 233 },
 
-            // gt-gsu
-            rivalries.Add(new[] { 31, 233 });
+                // ole miss-usm
+                new[] { 73, 85 },
 
-            // ole miss-usm
-            rivalries.Add(new[] { 73, 85 });
+                // miss st-usm
+                new[] { 55, 85 },
 
-            // miss st-usm
-            rivalries.Add(new[] { 55, 85 });
+                // ole miss-memphis
+                new[] { 73, 48 },
 
-            // ole miss-memphis
-            rivalries.Add(new[] { 73, 48 });
+                // Marshall-ohio
+                new[] { 46, 69 },
 
-            // Marshall-ohio
-            rivalries.Add(new[] { 46, 69 });
+                // UMD-Navy state
+                new[] { 47, 57 },
 
-            // UMD-Navy state
-            rivalries.Add(new[] { 47, 57 });
+                // Utah-Utah state
+                new[] { 103, 104 },
 
-            // Utah-Utah state
-            rivalries.Add(new[] { 103, 104 });
+                // byu-Utah state
+                new[] { 16, 104 },
 
-            // byu-Utah state
-            rivalries.Add(new[] { 16, 104 });
+                // Utah-BYU
+                new[] { 103, 16 },
 
-            // Utah-BYU
-            rivalries.Add(new[] { 103, 16 });
+                // TCU-BYU
+                new[] { 89, 16 },
 
-            // TCU-BYU
-            rivalries.Add(new[] { 89, 16 });
+                // TCU-BSU
+                new[] { 89, 12 },
 
-            // TCU-BSU
-            rivalries.Add(new[] { 89, 12 });
+                // CU-CSU
+                new[] { 23, 22 },
 
-            // CU-CSU
-            rivalries.Add(new[] { 23, 22 });
+                // WYO-CSU
+                new[] { 23, 115 },
 
-            // WYO-CSU
-            rivalries.Add(new[] { 23, 115 });
+                // Texas - TAMU
+                new[] { 92, 93 },
 
-            // Texas - TAMU
-            rivalries.Add(new[] { 92, 93 });
+                // TCU-SMU
+                new[] { 83, 89 },
 
-            // TCU-SMU
-            rivalries.Add(new[] { 83, 89 });
+                // HOU-SMU
+                new[] { 33, 89 },
 
-            // HOU-SMU
-            rivalries.Add(new[] { 33, 89 });
+                // Pitt - WVU
+                new[] { 112, 77 },
 
-            // Pitt - WVU
-            rivalries.Add(new[] { 112, 77 });
+                // Ark - Texas
+                new[] { 92, 6 },
 
-            // Ark - Texas
-            rivalries.Add(new[] { 92, 6 });
+                // Baylor - TAMU
+                new[] { 11, 93 },
 
-            // Baylor - TAMU
-            rivalries.Add(new[] { 11, 93 });
+                // Clemson -SCAR
+                new[] { 21, 84 },
 
-            // Clemson -SCAR
-            rivalries.Add(new[] { 21, 84 });
+                // Colorado - Nebraska
+                new[] { 22, 58 },
 
-            // Colorado - Nebraska
-            rivalries.Add(new[] { 22, 58 });
+                // UF-FSU
+                new[] { 27, 28 },
 
-            // UF-FSU
-            rivalries.Add(new[] { 27, 28 });
+                // UF-Miami
+                new[] { 27, 49 },
 
-            // UF-Miami
-            rivalries.Add(new[] { 27, 49 });
+                // Illinois - Mizzou
+                new[] { 35, 56 },
 
-            // Illinois - Mizzou
-            rivalries.Add(new[] { 35, 56 });
+                // Iowa - ISU
+                new[] { 37, 38 },
 
-            // Iowa - ISU
-            rivalries.Add(new[] { 37, 38 });
+                // Mizzou - ISU
+                new[] { 56, 38 },
 
-            // Mizzou - ISU
-            rivalries.Add(new[] { 56, 38 });
+                // Mizzou - Kansas
+                new[] { 56, 39 },
 
-            // Mizzou - Kansas
-            rivalries.Add(new[] { 56, 39 });
+                // UL - UK
+                new[] { 42, 44 },
 
-            // UL - UK
-            rivalries.Add(new[] { 42, 44 });
+                // UGA - GT
+                new[] { 30, 31 },
 
-            // UGA - GT
-            rivalries.Add(new[] { 30, 31 });
+                // Maryland - WVU
+                new[] { 47, 112 },
 
-            // Maryland - WVU
-            rivalries.Add(new[] { 47, 112 });
+                // Pitt - WVU
+                new[] { 77, 112 },
 
-            // Pitt - WVU
-            rivalries.Add(new[] { 77, 112 });
+                // Mizzou - Nebraska
+                new[] { 56, 58 },
 
-            // Mizzou - Nebraska
-            rivalries.Add(new[] { 56, 58 });
+                // Mizzou - OU
+                new[] { 56, 71 },
 
-            // Mizzou - OU
-            rivalries.Add(new[] { 56, 71 });
+                // PSU - Pitt
+                new[] { 77, 76 },
 
-            // PSU - Pitt
-            rivalries.Add(new[] { 77, 76 });
+                // PSU - WVU
+                new[] { 112, 76 },
 
-            // PSU - WVU
-            rivalries.Add(new[] { 112, 76 });
+                // SU - WVU
+                new[] { 112, 88 },
 
-            // SU - WVU
-            rivalries.Add(new[] { 112, 88 });
+                // TAMU  - Texas Tech
+                new[] { 94, 93 },
 
-            // TAMU  - Texas Tech
-            rivalries.Add(new[] { 94, 93 });
+                // WVU - VT
+                new[] { 108, 112 },
 
-            // WVU - VT
-            rivalries.Add(new[] { 108, 112 });
+                // WVU - Marshall            
+                new[] { 46, 112 },
 
-            // WVU - Marshall            
-            rivalries.Add(new[] { 46, 112 });
+                // army-af
+                new[] { 8, 1 },
 
-            // army-af
-            rivalries.Add(new[] { 8, 1 });
+                // army-navy
+                new[] { 8, 57 },
 
-            // army-navy
-            rivalries.Add(new[] { 8, 57 });
+                // af-navy
+                new[] { 1, 57 },
 
-            // af-navy
-            rivalries.Add(new[] { 1, 57 });
+                // usc-nd
+                new[] { 102, 68 },
 
-            // usc-nd
-            rivalries.Add(new[] { 102, 68 });
+                // stanford-nd
+                new[] { 87, 68 },
 
-            // stanford-nd
-            rivalries.Add(new[] { 87, 68 });
+                // cincy-miami u
+                new[] { 50, 20 },
 
-            // cincy-miami u
-            rivalries.Add(new[] { 50, 20 });
+                // cincy-Louisville
+                new[] { 44, 20 },
 
-            // cincy-Louisville
-            rivalries.Add(new[] { 44, 20 });
+                // cincy-wvu
+                new[] { 112, 20 },
 
-            // cincy-wvu
-            rivalries.Add(new[] { 112, 20 });
+                // houston - tulsa
+                new[] { 33, 97 },
 
-            // houston - tulsa
-            rivalries.Add(new[] { 33, 97 });
+                // houston - rice
+                new[] { 33, 79 },
 
-            // houston - rice
-            rivalries.Add(new[] { 33, 79 });
+                // USF - UCF
+                new[] { 18, 144 },
 
-            // USF - UCF
-            rivalries.Add(new[] { 18, 144 });
+                // lsu - tulane
+                new[] { 45, 96 },
 
-            // lsu - tulane
-            rivalries.Add(new[] { 45, 96 });
+                // Pitt - Marshall            
+                new[] { 46, 77 },
 
-            // Pitt - Marshall            
-            rivalries.Add(new[] { 46, 77 });
+                // Pitt - Cincy            
+                new[] { 20, 77 },
 
-            // Pitt - Cincy            
-            rivalries.Add(new[] { 20, 77 });
+                // PSU - Cincy            
+                new[] { 20, 76 },
 
-            // PSU - Cincy            
-            rivalries.Add(new[] { 20, 76 });
+                // NMSU - UNM
+                // rivalries.Add(new[] { 60, 61 });
 
-            // NMSU - UNM
-            // rivalries.Add(new[] { 60, 61 });
+                // GaSo-App St
+                new[] { 901, 902 },
 
-            // GaSo-App St
-            rivalries.Add(new[] { 901, 902 });
+                // Tulane-USM
+                new[] { 96, 85 },
 
-            // Tulane-USM
-            rivalries.Add(new[] { 96, 85 });
+                // UTEP-NMSU
+                // rivalries.Add(new[] { 61, 105 });
 
-            // UTEP-NMSU
-            // rivalries.Add(new[] { 61, 105 });
+                // SDSU-FS
+                new[] { 81, 29 },
 
-            // SDSU-FS
-            rivalries.Add(new[] { 81, 29 });
+                // SDSU-SJSU
+                new[] { 81, 82 },
 
-            // SDSU-SJSU
-            rivalries.Add(new[] { 81, 82 });
+                // ECU-MARSH
+                new[] { 25, 46 },
 
-            // ECU-MARSH
-            rivalries.Add(new[] { 25, 46 });
+                // BYU-BSU
+                new[] { 16, 12 },
 
-            // BYU-BSU
-            rivalries.Add(new[] { 16, 12 });
+                // UAB-USM
+                new[] { 85, 98 },
 
-            // UAB-USM
-            rivalries.Add(new[] { 85, 98 });
+                // LT-USM
+                new[] { 85, 43 },
 
-            // LT-USM
-            rivalries.Add(new[] { 85, 43 });
+                // tulane-USM
+                new[] { 85, 96 },
 
-            // tulane-USM
-            rivalries.Add(new[] { 85, 96 });
+                // memphis-USM
+                new[] { 85, 48 },
 
-            // memphis-USM
-            rivalries.Add(new[] { 85, 48 });
+                // Arizona-UNM
+                new[] { 4, 60 },
 
-            // Arizona-UNM
-            rivalries.Add(new[] { 4, 60 });
+                // utep-tulsa
+                new[] { 97, 105 },
 
-            // utep-tulsa
-            rivalries.Add(new[] { 97, 105 });
+                // wku-mtsu
+                new[] { 211, 53 },
 
-            // wku-mtsu
-            rivalries.Add(new[] { 211, 53 });
+                // wku-marsh
+                new[] { 46, 211 },
 
-            // wku-marsh
-            rivalries.Add(new[] { 46, 211 });
+                // utsa-tex st
+                new[] { 218, 232 },
 
-            // utsa-tex st
-            rivalries.Add(new[] { 218, 232 });
+                // troy-mtsu
+                new[] { 143, 53 },
 
-            // troy-mtsu
-            rivalries.Add(new[] { 143, 53 });
+                // nt-mtsu
+                new[] { 64, 53 },
 
-            // nt-mtsu
-            rivalries.Add(new[] { 64, 53 });
+                // af-csu
+                new[] { 1, 23 },
 
-            // af-csu
-            rivalries.Add(new[] { 1, 23 });
+                // af-wyoming
+                new[] { 1, 115 },
 
-            // af-wyoming
-            rivalries.Add(new[] { 1, 115 });
+                // af-hawaii
+                new[] { 1, 32 },
 
-            // af-hawaii
-            rivalries.Add(new[] { 1, 32 });
+                // BSU-WSU
+                new[] { 12, 111 },
 
-            // BSU-WSU
-            rivalries.Add(new[] { 12, 111 });
+                // fau-fiu
+                // rivalries.Add(new[] { 230, 229 });
 
-            // fau-fiu
-            // rivalries.Add(new[] { 230, 229 });
+                // army-ru
+                new[] { 8, 80 },
 
-            // army-ru
-            rivalries.Add(new[] { 8, 80 });
+                // navy-ru
+                new[] { 57, 80 },
 
-            // navy-ru
-            rivalries.Add(new[] { 57, 80 });
+                // tcu-bsu
+                new[] { 12, 89 },
 
-            // tcu-bsu
-            rivalries.Add(new[] { 12, 89 });
+                // buffalo-su
+                new[] { 15, 88 },
 
-            // buffalo-su
-            rivalries.Add(new[] { 15, 88 });
+                // buffalo-temple
+                new[] { 15, 90 },
 
-            // buffalo-temple
-            rivalries.Add(new[] { 15, 90 });
+                // byu-hawaai
+                new[] { 16, 32 },
 
-            // byu-hawaai
-            rivalries.Add(new[] { 16, 32 });
+                // byu-sdsu
+                new[] { 16, 81 },
 
-            // byu-sdsu
-            rivalries.Add(new[] { 16, 81 });
+                // uconn-su
+                //rivalries.Add(new[] { 100, 88 });
 
-            // uconn-su
-            //rivalries.Add(new[] { 100, 88 });
+                // uconn-buffalo
+                //rivalries.Add(new[] { 100, 15 });
 
-            // uconn-buffalo
-            //rivalries.Add(new[] { 100, 15 });
+                // uconn-bc
+                //rivalries.Add(new[] { 100, 13 });
 
-            // uconn-bc
-            //rivalries.Add(new[] { 100, 13 });
+                // uconn-psu
+                //rivalries.Add(new[] { 100, 76 });
 
-            // uconn-psu
-            //rivalries.Add(new[] { 100, 76 });
+                // uconn-temple
+                //rivalries.Add(new[] { 100, 90 });
 
-            // uconn-temple
-            //rivalries.Add(new[] { 100, 90 });
+                // uconn-wvu
+                //rivalries.Add(new[] { 100, 112 });
 
-            // uconn-wvu
-            //rivalries.Add(new[] { 100, 112 });
+                // uconn-duke
+                //rivalries.Add(new[] { 100, 24 });
 
-            // uconn-duke
-            //rivalries.Add(new[] { 100, 24 });
+                // uconn-indy
+                //rivalries.Add(new[] { 100, 36 });
 
-            // uconn-indy
-            //rivalries.Add(new[] { 100, 36 });
+                // uconn-unc
+                //rivalries.Add(new[] { 100, 62 });
 
-            // uconn-unc
-            //rivalries.Add(new[] { 100, 62 });
+                // uconn-ul
+                //rivalries.Add(new[] { 100, 44 });
 
-            // uconn-ul
-            //rivalries.Add(new[] { 100, 44 });
+                // uconn-uk
+                //rivalries.Add(new[] { 100, 42 });
 
-            // uconn-uk
-            //rivalries.Add(new[] { 100, 42 });
+                // usm-ecu
+                new[] { 25, 85 },
 
-            // usm-ecu
-            rivalries.Add(new[] { 25, 85 });
+                // marshall-ecu
+                new[] { 25, 46 },
 
-            // marshall-ecu
-            rivalries.Add(new[] { 25, 46 });
+                // fau-troy
+                new[] { 143, 229 },
 
-            // fau-troy
-            rivalries.Add(new[] { 143, 229 });
+                // fs-lt
+                new[] { 43, 29 },
 
-            // fs-lt
-            rivalries.Add(new[] { 43, 29 });
+                // ulm-lt
+                new[] { 43, 65 },
 
-            // ulm-lt
-            rivalries.Add(new[] { 43, 65 });
+                // ull-lt
+                new[] { 43, 86 },
 
-            // ull-lt
-            rivalries.Add(new[] { 43, 86 });
+                // marshall-ohio
+                new[] { 69, 46 },
 
-            // marshall-ohio
-            rivalries.Add(new[] { 69, 46 });
+                // memphis-ul
+                new[] { 48, 44 },
 
-            // memphis-ul
-            rivalries.Add(new[] { 48, 44 });
+                // nt-smu
+                new[] { 64, 83 },
 
-            // nt-smu
-            rivalries.Add(new[] { 64, 83 });
+                // odu-vt
+                new[] { 234, 108 },
 
-            // odu-vt
-            rivalries.Add(new[] { 234, 108 });
+                // odu-uva
+                new[] { 234, 107 },
 
-            // odu-uva
-            rivalries.Add(new[] { 234, 107 });
+                // sjsu-stan
+                new[] { 82, 87 },
 
-            // sjsu-stan
-            rivalries.Add(new[] { 82, 87 });
+                // temple-psu
+                new[] { 90, 76 },
 
-            // temple-psu
-            rivalries.Add(new[] { 90, 76 });
+                // temple-pitt
+                new[] { 90, 77 },
 
-            // temple-pitt
-            rivalries.Add(new[] { 90, 77 });
+                // tulsa-ok st
+                new[] { 97, 72 },
 
-            // tulsa-ok st
-            rivalries.Add(new[] { 97, 72 });
+                // memphis-uab
+                new[] { 48, 98 },
 
-            // memphis-uab
-            rivalries.Add(new[] { 48, 98 });
+                // utep-tulsa
+                new[] { 105, 97 },
 
-            // utep-tulsa
-            rivalries.Add(new[] { 105, 97 });
+                // ecu-marshall
+                new[] { 25, 46 },
 
-            // ecu-marshall
-            rivalries.Add(new[] { 25, 46 });
+                // ecu-usm
+                new[] { 25, 85 },
 
-            // ecu-usm
-            rivalries.Add(new[] { 25, 85 });
+                // ecu-ncsu
+                new[] { 25, 63 },
 
-            // ecu-ncsu
-            rivalries.Add(new[] { 25, 63 });
+                // ecu-duke
+                new[] { 25, 24 },
 
-            // ecu-duke
-            rivalries.Add(new[] { 25, 24 });
+                // ecu-unc
+                new[] { 25, 62 },
 
-            // ecu-unc
-            rivalries.Add(new[] { 25, 62 });
+                // ecu-wf
+                new[] { 25, 109 },
 
-            // ecu-wf
-            rivalries.Add(new[] { 25, 109 });
+                // odu-gs
+                new[] { 234, 901 },
 
-            // odu-gs
-            rivalries.Add(new[] { 234, 901 });
+                // app st-gs
+                new[] { 901, 902 },
 
-            // app st-gs
-            rivalries.Add(new[] { 901, 902 });
+                // gs - gsu
+                new[] { 233, 902 },
 
-            // gs - gsu
-            rivalries.Add(new[] { 233, 902 });
+                // af - army
+                new[] { 1, 8 },
 
-            // af - army
-            rivalries.Add(new[] { 1, 8 });
+                // af - csu
+                new[] { 1, 23 },
 
-            // af - csu
-            rivalries.Add(new[] { 1, 23 });
+                // af - hawaii
+                new[] { 1, 32 },
 
-            // af - hawaii
-            rivalries.Add(new[] { 1, 32 });
+                // af - navy
+                new[] { 1, 57 },
 
-            // af - navy
-            rivalries.Add(new[] { 1, 57 });
+                // akron - kent st
+                new[] { 2, 41 },
 
-            // akron - kent st
-            rivalries.Add(new[] { 2, 41 });
+                // alabama-auburn
+                new[] { 3, 9 },
 
-            // alabama-auburn
-            rivalries.Add(new[] { 3, 9 });
+                // alabama-uf
+                new[] { 9, 27 },
 
-            // alabama-uf
-            rivalries.Add(new[] { 3, 27 });
+                // alabama-gt
+                new[] { 3, 31 },
 
-            // alabama-gt
-            rivalries.Add(new[] { 3, 31 });
+                // alabama-lsu
+                new[] { 3, 45 },
 
-            // alabama-lsu
-            rivalries.Add(new[] { 3, 45 });
+                // alabama-miss st
+                new[] { 3, 55 },
 
-            // alabama-miss st
-            rivalries.Add(new[] { 3, 55 });
+                // alabama-ole miss
+                new[] { 3, 73 },
 
-            // alabama-ole miss
-            rivalries.Add(new[] { 3, 73 });
+                // alabama-tenn
+                new[] { 3, 91 },
 
-            // alabama-tenn
-            rivalries.Add(new[] { 3, 91 });
+                // au-asu
+                new[] { 4, 5 },
 
-            // au-asu
-            rivalries.Add(new[] { 4, 5 });
+                // au-unm
+                new[] { 4, 60 },
 
-            // au-unm
-            rivalries.Add(new[] { 4, 60 });
+                // ark-ark st
+                new[] { 6, 7 },
 
-            // ark-ark st
-            rivalries.Add(new[] { 6, 7 });
+                // ark-lsu
+                new[] { 6, 45 },
 
-            // ark-lsu
-            rivalries.Add(new[] { 6, 45 });
+                // ark-ole miss
+                new[] { 6, 73 },
 
-            // ark-ole miss
-            rivalries.Add(new[] { 6, 73 });
+                // ark-texas
+                new[] { 6, 92 },
 
-            // ark-texas
-            rivalries.Add(new[] { 6, 92 });
+                // ark-tamu
+                new[] { 6, 93 },
 
-            // ark-tamu
-            rivalries.Add(new[] { 6, 93 });
+                // ark st-nt
+                new[] { 7, 64 },
 
-            // ark st-nt
-            rivalries.Add(new[] { 7, 64 });
+                // ark st-ulm
+                new[] { 7, 65 },
 
-            // ark st-ulm
-            rivalries.Add(new[] { 7, 65 });
+                // army-navy
+                new[] { 8, 57 },
 
-            // army-navy
-            rivalries.Add(new[] { 8, 57 });
+                // army-ru
+                new[] { 8, 80 },
 
-            // army-ru
-            rivalries.Add(new[] { 8, 80 });
+                // auburn -uf
+                new[] { 9, 27 },
 
-            // auburn next
+                // auburn-gt
+                new[] { 9, 31 },
 
-            //baylor-smu
-            rivalries.Add(new[] { 11, 83 });
+                // auburn-lsu
+                new[] { 9, 45 },
 
-            //baylor-rice
-            rivalries.Add(new[] { 11, 79 });
+                // auburn-uga
+                new[] { 9, 30 },
 
-            //baylor-tamu
-            rivalries.Add(new[] { 11, 93 });
+                // auburn-clemson
+                new[] { 9, 21 },
 
-            // boise st - nevada
-            rivalries.Add(new[] { 12, 59 });
+                // uga-clemson
+                new[] { 30, 21 },
 
-            // boise st - fs
-            rivalries.Add(new[] { 12, 29 });
+                // uga-uf
+                new[] { 30, 27 },
 
-            // boise st - hawaii
-            rivalries.Add(new[] { 12, 32 });
+                // uga-gt
+                new[] { 30, 31 },
 
-            // smu - rice
-            rivalries.Add(new[] { 79, 83 });
+                // fsu-uf
+                new[] { 28, 27 },
 
-            // smu - houston
-            rivalries.Add(new[] { 33, 83 });
+                // miami-uf
+                new[] { 49, 27 },
 
-            // smu - nt
-            rivalries.Add(new[] { 64, 83 });
+                //baylor-smu
+                new[] { 11, 83 },
 
-            // smu - navy
-            rivalries.Add(new[] { 57, 83 });
+                //baylor-rice
+                new[] { 11, 79 },
 
-            // nd - navy
-            rivalries.Add(new[] { 57, 68 });
+                //baylor-tamu
+                new[] { 11, 93 },
 
-            // GS - GSU
-            rivalries.Add(new[] { 233, 902 });
+                // boise st - nevada
+                new[] { 12, 59 },
 
-            // GS - App St
-            rivalries.Add(new[] { 901, 902 });
+                // boise st - fs
+                new[] { 12, 29 },
 
-            // buffalo - su
-            rivalries.Add(new[] { 15, 88 });
+                // boise st - hawaii
+                new[] { 12, 32 },
 
-            // buffalo - temple
-            rivalries.Add(new[] { 15, 90 });
+                // smu - rice
+                new[] { 79, 83 },
 
-            // fs - lt
-            rivalries.Add(new[] { 29, 43 });
+                // smu - houston
+                new[] { 33, 83 },
 
-            // lt - ulm
-            rivalries.Add(new[] { 43, 65 });
+                // smu - nt
+                new[] { 64, 83 },
 
-            // lt - ull
-            rivalries.Add(new[] { 43, 86 });
+                // smu - navy
+                new[] { 57, 83 },
 
-            // marshall - ohio
-            rivalries.Add(new[] { 46, 69 });
+                // nd - navy
+                new[] { 57, 68 },
 
-            // memphis - uab
-            rivalries.Add(new[] { 48, 98 });
+                // GS - GSU
+                new[] { 233, 902 },
 
-            // mtsu - troy
-            rivalries.Add(new[] { 53, 143 });
+                // GS - App St
+                new[] { 901, 902 },
 
-            // usm - tulane
-            rivalries.Add(new[] { 85, 96 });
+                // buffalo - su
+                new[] { 15, 88 },
 
-            // unm-utep
-            rivalries.Add(new[] { 60, 105 });
+                // buffalo - temple
+                new[] { 15, 90 },
 
-            // ecu-appst
-            rivalries.Add(new[] { 25, 901 });
+                // fs - lt
+                new[] { 29, 43 },
 
-            // ul-wku
-            rivalries.Add(new[] { 44, 211 });
+                // lt - ulm
+                new[] { 43, 65 },
 
-            // uk-wku
-            rivalries.Add(new[] { 42, 211 });
+                // lt - ull
+                new[] { 43, 86 },
+
+                // marshall - ohio
+                new[] { 46, 69 },
+
+                // memphis - uab
+                new[] { 48, 98 },
+
+                // mtsu - troy
+                new[] { 53, 143 },
+
+                // usm - tulane
+                new[] { 85, 96 },
+
+                // unm-utep
+                new[] { 60, 105 },
+
+                // ecu-appst
+                new[] { 25, 901 },
+
+                // ul-wku
+                new[] { 44, 211 },
+
+                // uk-wku
+                new[] { 42, 211 },
+
+                // miami-fsu
+                new[] { 28, 49 }
+            };
+
 
             return rivalries.Where(r => (r[0] == homeTeam && r[1] == awayTeam) || (r[1] == homeTeam && r[0] == awayTeam)).Any();
         }
