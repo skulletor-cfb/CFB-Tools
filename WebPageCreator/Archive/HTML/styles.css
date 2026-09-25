@@ -77,15 +77,17 @@ table.standard {
 		padding: 2px 8px;
 		line-height: 15px;
 	}
+/* Long text (bowl/stadium names) wraps; only the small record tables stay on one
+   line so W-L values like 12-1 don't break at the hyphen */
+#annualtable td,
+#recordTable td {
+	white-space: nowrap;
+}
 
-		table.standard td.c3 {
-			white-space: nowrap;
-		}
-
-	table.standard tr:hover > td.c3,
-	table.standard tr:hover > td.c12 {
-		background-color: var(--gold-soft);
-	}
+table.standard tr:hover > td.c3,
+table.standard tr:hover > td.c12 {
+	background-color: var(--gold-soft);
+}
 
 /* Card title bar */
 td.c2 {
