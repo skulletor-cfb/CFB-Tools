@@ -15,16 +15,16 @@ namespace EA_DB_Editor
         private const int CFP12TeamRoseBowlQFOnlyStartingYear = 2584;
         private const int CFP12TeamPlayoffStartingYear = 2542;
         private const int CureBowl = 987043;
+        private const int SaluteVetsBowl = 987051;
+        private const int XboxBowl = 987052;
         private const int MyrtleBeachBowl = 987044;
         private const int ArizonaBowl = 987045;
         private const int MobileAlabamaBowl = 0;
+        private const int FGSChampionship = 987053;
         private const int CFB8v9 = 987047;
         private const int CFB7v10 = 987048;
         private const int CFB6v11 = 987049;
         private const int CFB5v12 = 987050;
-        private const int SaluteVetsBowl = 987051;
-        private const int XboxBowl = 987052;
-        private const int FGSChampionship = 987053;
         private const int SugarBowl = 27;
         private const int RoseBowl = 25;
         private const int FiestaBowl = 26;
@@ -462,7 +462,7 @@ namespace EA_DB_Editor
             }
 
             List<Bowl> bowls = new List<Bowl>();
-            var firstRnd = new[] { 987050, 987049, 987048, 987047 };
+            var firstRnd = new[] { CFB5v12, CFB6v11, CFB7v10, CFB8v9};
             var order = new List<int>() { NationalChampionship };
             var rotation = (Form1.CalendarYear - CFP12TeamRoseBowlQFOnlyStartingYear) % 5;
 
@@ -505,6 +505,18 @@ namespace EA_DB_Editor
 
             order.AddRange(firstRnd);
             bowls.AddRange(order.Select(i => Bowl.FindById(i)));
+
+            // we have expanded playoffs find teams where rank < than playoff count
+            foreach (var bowl in Bowls.Values.Where(b => b.Week > 16 && b.ScheduleGame.IsPlayoffGame(Utility.PlayoffTeamCount) && !bowls.Any(bowl => bowl.Id == b.Id)).OrderBy(b => b.ScheduleGame.HomeTeam.BCSRank))
+            {
+                bowls.Add(bowl);
+            }
+
+            foreach (var bowl in Bowls.Values.Where(b => b.Week > 16 && !bowls.Any(bowl => bowl.Id == b.Id)).OrderByDescending(b => b.Week).ThenByDescending(b => b.Game))
+            {
+                bowls.Add(bowl);
+            }
+
             return bowls;
         }
 

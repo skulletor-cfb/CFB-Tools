@@ -3406,7 +3406,10 @@ namespace EA_DB_Editor
 
             var ignoreFields = new HashSet<string>(new[] {/*"RATH", "RPGP",*/ "PRSI", "RCPR", "RCCB" });
 
+            // limit it to the top 600 recruits
             var jucoRecruits = uncommittedRecruits
+                .Where( mr => mr.POVR() >= 68)
+                .Where( mr => mr.RecruitRank() <= 600)
                 .OrderByDescending(mr => mr.POVR())
                 .Select(mr =>
                 {
