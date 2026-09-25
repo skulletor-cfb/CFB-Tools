@@ -1,176 +1,406 @@
- BODY 
+/* ==========================================================================
+   Dynasty site styles
+   Visual refresh only: every class and id used by the templates, the C#
+   generators and utility.js is kept, so no page markup or data changes.
+   ========================================================================== */
 
+@font-face {
+	font-family: 'Oswald';
+	font-weight: 600;
+	font-display: swap;
+	src: url(fonts/Oswald-SemiBold.ttf) format('truetype');
+}
+
+@font-face {
+	font-family: 'Oswald';
+	font-weight: 700;
+	font-display: swap;
+	src: url(fonts/Oswald-Bold.ttf) format('truetype');
+}
+
+:root {
+	--ink: #111418;
+	--ink-2: #1c2129;
+	--gold: #c9a04a;
+	--gold-soft: #f6efdc;
+	--paper: #f4f2ed;
+	--card: #ffffff;
+	--line: #e7e3da;
+	--text: #22262d;
+	--muted: #6b7079;
+	--link: #0f3d91;
+	--loss: #c62828;
+	--display: 'Oswald', 'Arial Narrow', Impact, sans-serif;
+	--body: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+	background: var(--paper);
+	color: var(--text);
+	font-family: var(--body);
+	font-size: 13px;
+	-webkit-font-smoothing: antialiased;
+}
+
+	/* Center the page's top-level layout tables instead of hugging the left edge */
+	body > table {
+		margin-left: auto;
+		margin-right: auto;
+	}
 
 table.main {
-	/*border-left: 1px Solid #666666; 
-	border-right: 1px Solid #666666; 
-	border-bottom: 1px Solid #666666; 
-	background-color:#FFFFFF; 
-	border-collapse:collapse; 
-	width: 770px; */
-
 }
+
+/* --------------------------------------------------------------------------
+   Data tables ("cards")
+   -------------------------------------------------------------------------- */
 
 table.standard {
-background-color:#eeeeee; 
-border:1px solid #000000;
-border-radius:7px;
-box-shadow: 4px 4px 4px #888888;
-
+	background-color: var(--card);
+	border: 1px solid var(--line);
+	border-radius: 10px;
+	border-collapse: separate;
+	border-spacing: 0;
+	overflow: hidden;
+	box-shadow: 0 1px 2px rgba(17, 20, 24, .06), 0 8px 24px rgba(17, 20, 24, .08);
+	font-variant-numeric: tabular-nums;
+	/* cards can sit inside title cells; don't inherit their headline type */
+	font-family: var(--body);
+	font-size: 13px;
+	font-weight: 400;
+	letter-spacing: normal;
+	text-transform: none;
+	text-align: left;
 }
 
+	table.standard td {
+		padding: 2px 8px;
+		line-height: 15px;
+	}
 
-td.c1 {font-family: Arial, Tahoma, Verdana; color:#232323; font-size:12px; text-align:left; background-color:#ABABAB;}
-td.c2 {font-family: Verdana, Tahoma, Arial; color:#232323; font-size:11px; text-align:center; background-color:#ABABAB; }
-td.c3 {font-family: Arial, Verdana Tahoma; color:#232323; font-size:11px; text-align:center; background-color:#FFFFFF; }
-td.c4 {font-family: Arial, Tahoma, Verdana; color:#232323; font-size:10px; text-align:left; background-color:#ABABAB; }
-td.c5 {font-family: Impact, Tahoma, Verdana; color:#232323; font-size:40px; text-align:left; background-color:#ABABAB; }
-td.c6 {font-family: Arial, Tahoma, Verdana; color:#232323; font-size:12px; text-align:left; background-color:#FFFFFF; }
-td.c7 {font-family: Arial, Verdana, Tahoma; color:#232323; font-size:11px; font-weight:bold; text-align:center; background-color:#EBEBEB; }
-td.c8 {font-family: Verdana, Tahoma, Impact; color:#232323; font-size:32px; font-weight:bold; text-align:left; background-color:#FFFFFF; }
-td.c9 {font-family: Arial, Verdana, Tahoma; color:#232323; font-size:11px; text-align:left; background-color:#EBEBEB; }
-td.c10 {font-family: Arial, Verdana, Tahoma; color:#b3b3b3; font-size:10px; text-align:center; background-color:#232323; }
-td.c11 {font-family: Arial, Verdana, Tahoma; color:#232323; font-size:10px; text-align:center; background-color:#EEEEEE; }
-td.c12 {font-family: Arial, Verdana Tahoma; color:#232323; font-size:11px; text-align:center; background-color:#F7F7F7; }
-td.c13 {font-family: Verdana, Tahoma, Impact; color:#232323; font-size:32px; font-weight:bold; text-align:right; background-color:#FFFFFF; }
-td.c14 {font-family: Arial, Verdana Tahoma; color:#d80e0e; font-size:11px; text-align:center; background-color:#FFFFFF; }
+		table.standard td.c3 {
+			white-space: nowrap;
+		}
 
-A:link {color:#4056B8; text-decoration:none}
-A:visited {color:#4056B8; text-decoration:none}
-A:hover {color:#F70202; text-decoration:underline;}
+	table.standard tr:hover > td.c3,
+	table.standard tr:hover > td.c12 {
+		background-color: var(--gold-soft);
+	}
+
+/* Card title bar */
+td.c2 {
+	font-family: var(--display);
+	font-size: 15px;
+	font-weight: 600;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+	text-align: center;
+	color: #ffffff;
+	background-color: var(--ink);
+	border-bottom: 3px solid var(--gold);
+	padding: 7px 12px !important;
+}
+
+	td.c2 a:link, td.c2 a:visited {
+		color: #ffffff;
+	}
+
+	td.c2 a:hover {
+		color: var(--gold);
+		text-decoration: none;
+	}
+
+/* Column headers */
+td.c7 {
+	font-family: var(--body);
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+	text-align: center;
+	color: var(--muted);
+	background-color: #f7f5f0;
+	border-bottom: 1px solid var(--line);
+}
+
+	td.c7 a:link, td.c7 a:visited {
+		color: var(--link);
+	}
+
+/* Dark column headers */
+td.c10 {
+	font-family: var(--body);
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+	text-align: center;
+	color: #d9d4c7;
+	background-color: var(--ink-2);
+}
+
+/* Body cells */
+td.c3 {
+	font-family: var(--body);
+	font-size: 12px;
+	text-align: center;
+	color: var(--text);
+	background-color: var(--card);
+	border-bottom: 1px solid #f0ede6;
+}
+
+td.c12 {
+	font-family: var(--body);
+	font-size: 12px;
+	text-align: center;
+	color: var(--text);
+	background-color: #faf9f6;
+	border-bottom: 1px solid #f0ede6;
+}
+
+td.c14 {
+	font-family: var(--body);
+	font-size: 13px;
+	font-weight: 600;
+	text-align: center;
+	color: var(--loss);
+	background-color: var(--card);
+	border-bottom: 1px solid #f0ede6;
+}
+
+td.c6 {
+	font-family: var(--body);
+	font-size: 13px;
+	text-align: left;
+	color: var(--text);
+	background-color: var(--card);
+}
+
+td.c9 {
+	font-family: var(--body);
+	font-size: 12px;
+	text-align: left;
+	color: var(--text);
+	background-color: #f7f5f0;
+}
+
+td.c11 {
+	font-family: var(--body);
+	font-size: 11px;
+	text-align: center;
+	color: var(--muted);
+	background-color: #f7f5f0;
+}
+
+/* Legacy gray panels, lightened */
+td.c1 {
+	font-family: var(--body);
+	font-size: 13px;
+	text-align: left;
+	color: var(--text);
+	background-color: #ebe7dd;
+}
+
+td.c4 {
+	font-family: var(--body);
+	font-size: 11px;
+	text-align: left;
+	color: var(--text);
+	background-color: #ebe7dd;
+}
+
+td.c5 {
+	font-family: var(--display);
+	font-weight: 700;
+	font-size: 40px;
+	text-transform: uppercase;
+	text-align: left;
+	color: var(--ink);
+	background-color: #ebe7dd;
+}
+
+/* Page title / hero areas */
+td.c8 {
+	font-family: var(--display);
+	font-size: 34px;
+	font-weight: 700;
+	letter-spacing: .01em;
+	text-transform: uppercase;
+	text-align: left;
+	color: var(--ink);
+	background-color: transparent;
+}
+
+td.c13 {
+	font-family: var(--display);
+	font-size: 34px;
+	font-weight: 700;
+	text-transform: uppercase;
+	text-align: right;
+	color: var(--ink);
+	background-color: transparent;
+}
+/* Team page: pin the logo and helmet to the top of the info card instead of
+   floating them in the middle of its full height */
+#topTable td.c8 {
+	vertical-align: top;
+	padding-top: 40px;
+}
+
+/* Link strips ("| Schedule | | Roster |") sit outside cards, on the page background */
+table:not(.standard) > tbody > tr > td.c3 {
+	background-color: transparent;
+	border-bottom: 0;
+	font-size: 13px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   Links
+   -------------------------------------------------------------------------- */
+
+A:link {
+	color: var(--link);
+	text-decoration: none;
+}
+
+A:visited {
+	color: var(--link);
+	text-decoration: none;
+}
+
+A:hover {
+	color: #9a7424;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Top navigation
+   -------------------------------------------------------------------------- */
+
+#cssmenu ul,
+#cssmenu li,
+#cssmenu a {
+	margin: 0;
+	padding: 0;
+}
 
 #cssmenu ul {
-  margin: 0;
-  padding: 0;
+	list-style: none;
 }
-#cssmenu li {
-  margin: 0;
-  padding: 0;
-}
+
 #cssmenu a {
-  margin: 0;
-  padding: 0;
+	text-decoration: none;
 }
-#cssmenu ul {
-  list-style: none;
-}
-#cssmenu a {
-  text-decoration: none;
-}
+
 #cssmenu {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 2;
+	height: 70px;
+	width: 100%;
+	background-color: var(--ink);
+	border-bottom: 3px solid var(--gold);
+	box-shadow: 0 2px 10px rgba(0, 0, 0, .35);
+}
 
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 2;
-  height: 70px;
-  background-color: #232323;
-  box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.4);
-  width: 100%;
-}
-#cssmenu > ul > li {
-  float: left;
-  margin-left: 15px;
-  position: relative;
-}
-#cssmenu > ul > li > a {
-  color: #b3b3b3;
-  font-family: Verdana, 'Lucida Grande';
-  font-size: 15px;
-  line-height: 70px;
-  padding: 15px 20px;
-  -webkit-transition: color .15s;
-  -moz-transition: color .15s;
-  -o-transition: color .15s;
-  transition: color .15s;
-}
-#cssmenu > ul > li > a:hover {
-  color: #ffffff;
-}
-#cssmenu > ul > li > ul {
-  opacity: 0;
-  visibility: hidden;
-  padding: 16px 0 20px 0;
-  background-color: #fafafa;
-  text-align: left;
-  position: absolute;
-  top: 55px;
-  left: 50%;
-  margin-left: -90px;
-  width: 180px;
-  -webkit-transition: all .3s .1s;
-  -moz-transition: all .3s .1s;
-  -o-transition: all .3s .1s;
-  transition: all .3s .1s;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
-  -moz-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
-  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
-}
-#cssmenu > ul > li:hover > ul {
-  opacity: 1;
-  top: 65px;
-  visibility: visible;
-}
-#cssmenu > ul > li > ul:before {
-  content: '';
-  display: block;
-  border-color: transparent transparent #fafafa transparent;
-  border-style: solid;
-  border-width: 10px;
-  position: absolute;
-  top: -20px;
-  left: 50%;
-  margin-left: -10px;
-}
-#cssmenu > ul ul > li {
-  position: relative;
-}
-#cssmenu ul ul a {
-  color: #323232;
-  font-family: Verdana, 'Lucida Grande';
-  font-size: 13px;
-  background-color: #fafafa;
-  padding: 5px 8px 7px 16px;
-  display: block;
-  -webkit-transition: background-color 0.1s;
-  -moz-transition: background-color 0.1s;
-  -o-transition: background-color 0.1s;
-  transition: background-color 0.1s;
-}
-#cssmenu ul ul a:hover {
-  background-color: #f0f0f0;
-}
-#cssmenu ul ul ul {
-  visibility: hidden;
-  opacity: 0;
-  position: absolute;
-  top: -16px;
-  left: 206px;
-  padding: 16px 0 20px 0;
-  background-color: #fafafa;
-  text-align: left;
-  width: 180px;
-  -webkit-transition: all .3s;
-  -moz-transition: all .3s;
-  -o-transition: all .3s;
-  transition: all .3s;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
-  -moz-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
-  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
-}
-#cssmenu ul ul > li:hover > ul {
-  opacity: 1;
-  left: 190px;
-  visibility: visible;
-}
-#cssmenu ul ul a:hover {
-  background-color: #000000;
-  color: #f0f0f0;
-}
+	#cssmenu > ul {
+		padding-left: 12px;
+	}
+
+		#cssmenu > ul > li {
+			float: left;
+			margin-left: 6px;
+			position: relative;
+		}
+
+			#cssmenu > ul > li > a {
+				display: block;
+				color: #d9d4c7;
+				font-family: var(--display);
+				font-weight: 600;
+				font-size: 16px;
+				letter-spacing: .08em;
+				text-transform: uppercase;
+				line-height: 70px;
+				padding: 0 16px;
+				transition: color .15s, box-shadow .15s;
+			}
+
+				#cssmenu > ul > li > a:hover,
+				#cssmenu > ul > li:hover > a {
+					color: #ffffff;
+					text-decoration: none;
+					box-shadow: inset 0 -3px 0 var(--gold);
+				}
+
+			#cssmenu > ul > li.active > a {
+				color: var(--gold);
+			}
+
+			#cssmenu > ul > li > ul {
+				opacity: 0;
+				visibility: hidden;
+				padding: 8px 0;
+				background-color: var(--ink-2);
+				text-align: left;
+				position: absolute;
+				top: 70px;
+				left: 0;
+				width: 230px;
+				transition: all .2s .05s;
+				border-top: 3px solid var(--gold);
+				border-radius: 0 0 8px 8px;
+				box-shadow: 0 12px 24px rgba(0, 0, 0, .35);
+			}
+
+			#cssmenu > ul > li:hover > ul {
+				opacity: 1;
+				top: 73px;
+				visibility: visible;
+			}
+
+		#cssmenu > ul ul > li {
+			position: relative;
+		}
+
+	#cssmenu ul ul a {
+		color: #d9d4c7;
+		font-family: var(--body);
+		font-size: 13px;
+		background-color: transparent;
+		padding: 7px 18px;
+		display: block;
+		transition: background-color .1s, color .1s;
+	}
+
+		#cssmenu ul ul a:hover {
+			background-color: rgba(201, 160, 74, .16);
+			color: #ffffff;
+			text-decoration: none;
+		}
+
+	#cssmenu ul ul ul {
+		visibility: hidden;
+		opacity: 0;
+		position: absolute;
+		top: -8px;
+		left: 240px;
+		padding: 8px 0;
+		background-color: var(--ink-2);
+		text-align: left;
+		width: 230px;
+		transition: all .2s;
+		border-radius: 8px;
+		box-shadow: 0 12px 24px rgba(0, 0, 0, .35);
+	}
+
+	#cssmenu ul ul > li:hover > ul {
+		opacity: 1;
+		left: 230px;
+		visibility: visible;
+	}
