@@ -431,8 +431,8 @@ namespace EA_DB_Editor
                     {
                         P5Matchups += p5Opp;
                         P5vsG5 += (ooc.Length - p5Opp - fcsOpp);
-                        // expectedP5GameCount = 10 - confGameCount;
-                        expectedP5GameCount = 10 - confGameCount - 1; // only require 9 games
+                         expectedP5GameCount = 10 - confGameCount;
+                        expectedP5GameCount = 10 - confGameCount;
                     }
 
                     if (tsch.Key.IsG5())
@@ -564,7 +564,7 @@ namespace EA_DB_Editor
 
         static int OutOfConferenceG5GamesGoal(this int oocGames)
         {
-            return 2;
+            return 1;
             if (oocGames >= 6)
             {
                 return 2;
