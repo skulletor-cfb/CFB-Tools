@@ -299,7 +299,12 @@ namespace EA_DB_Editor.Scheduling
             var games = Games.GetAvailableGamesByWeek();
             for (int i = 0; i <= 13; i++)
             {
-                var queue = games[i].ToQueue();
+                if (!games.TryGetValue(i, out var weeklyGames))
+                {
+                    continue;
+                }
+
+                var queue = weeklyGames.ToQueue();
                 CBSSportsNetwork.Instance.Offer(queue.Dequeue(1));
             }
 

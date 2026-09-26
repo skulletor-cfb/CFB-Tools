@@ -1,13 +1,10 @@
 ﻿using EA_DB_Editor.Scheduling;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
 
 namespace EA_DB_Editor
 {
-
     public class PreseasonScheduledGame
     {
         public int HomeTeam { get; set; }

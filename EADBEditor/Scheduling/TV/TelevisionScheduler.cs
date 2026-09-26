@@ -158,7 +158,7 @@ namespace EA_DB_Editor.Scheduling
             var html = Encoding.UTF8.GetString(Convert.FromBase64String(ScheduleHTML)).Replace(TvAllPlaceholder, json);
             File.WriteAllText(TVScheduleFile, json);
             File.WriteAllText("schedule.html", html);
-            SeasonManager.CreateNewSeason();
+            //SeasonManager.CreateNewSeason();
         }
 
         public const string TVScheduleFile = "tv-schedule.txt";

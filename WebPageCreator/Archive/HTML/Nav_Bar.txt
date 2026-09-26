@@ -11,7 +11,7 @@
 		    <li><a href='NC.html'><span>National Championships</span></a></li>
 		    <li><a href='conference.html'><span>Conference Rankings</span></a></li>
 		    <li><a href='CC.html'><span>Conf Championships</span></a></li>
-			<li><a href='BCS_Rankings.html'><span>Polls - BCS Rankings</span></a></li>
+			<li><a href='BCS_Rankings.html'><span>Polls - CFP Rankings</span></a></li>
 			<li><a href='poll.html?type=coach'><span>Polls - Coaches Poll</span></a></li>
 			<li><a href='Poll.html?type=media'><span>Polls - Media Poll</span></a></li>
 			<li><a href='nationalrecordbook.html'><span>Record Book</span></a></li>

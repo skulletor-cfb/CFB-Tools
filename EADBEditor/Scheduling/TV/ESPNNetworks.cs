@@ -530,6 +530,7 @@ namespace EA_DB_Editor.Scheduling
                 }
 
                 var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsSecConferenceGame).OrderBy(g => g.Score).ToQueue();
+                queue.Enqueue(this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsSecGame).OrderBy(g => g.Score));
                 queue.Enqueue(this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsAmericanGame));
                 queue.Enqueue(this.WeeklySchedule[i].Where(g => !g.Assigned && !g.IsMWCGame));
 
@@ -559,7 +560,10 @@ namespace EA_DB_Editor.Scheduling
 
                 if (games.TryDequeueGameForAssignment(out var game))
                 {
-                    ESPN.AssignGame(game, i, 12, 0);
+                    if (!ESPN.AssignGame(game, i, 12, 0))
+                    {
+                        ESPN2.AssignGame(game, i, 12, 0);
+                    }
                 }
 
                 if (games.TryDequeueGameForAssignment(out game))
@@ -635,6 +639,8 @@ namespace EA_DB_Editor.Scheduling
                 // top sec conference game
                 var games = this.WeeklySchedule[i];
                 var secGames = games.Where(g => !g.Assigned && !g.IsSecConferenceGame && ((g.ConferenceOwner == TableUtility.SECId && g.IsP5Game) || g.IsSecAccGame)).OrderBy(g => g.Score).ToQueue();
+                secGames.Enqueue(games.Where(g => !g.Assigned && g.IsSecGame).OrderBy(g => g.Score));
+                secGames.Enqueue(games.Where(g => !g.Assigned && g.IsAccGame).OrderBy(g => g.Score));
 
                 // top one goes to 330 unless its LSU
                 var secConferenceGames = games.Where(g => !g.Assigned && g.IsSecConferenceGame).OrderBy(g => g.Score).ToQueue();
@@ -735,6 +741,13 @@ namespace EA_DB_Editor.Scheduling
             {
                 var timeSlot = new TimeSlot(8, 0, game.Week, false, game.Day);
                 return !ESPNU.PreassignGame(game, timeSlot, false);
+            }
+
+            // we might hardcode a noon game on ESPN
+            if (game.GTOD == 721)
+            {
+                var timeSlot = new TimeSlot(12, 0, game.Week, false, game.Day);
+                return !ESPN.PreassignGame(game, timeSlot, false);
             }
 
             return base.PreassignGame(game);
