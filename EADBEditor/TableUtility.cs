@@ -80,6 +80,7 @@ namespace EA_DB_Editor
             return mr["TROV"].ToInt32();
         }
 
+        public static int PlayerFace(this MaddenRecord mr) => mr["PGHE"].ToInt32();
         public static int WinPct(this MaddenRecord mr)
         {
             var win = mr.Wins();

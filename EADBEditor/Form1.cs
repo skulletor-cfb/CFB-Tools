@@ -1910,9 +1910,9 @@ namespace EA_DB_Editor
                             35,
                             40);
                     }
-                    else if(false)
+                    else
                     {
-                        ChangeName(face, recruit, wfnDict, wlnDict, names, names.WFN, names.WLN, 20, 20);
+                        ChangeName(face, recruit, wfnDict, wlnDict, names, names.WFN, names.WLN, 15, 15);
                     }
                 }
 
@@ -4221,11 +4221,38 @@ namespace EA_DB_Editor
 
         private void enforceScheduleToolStripMenuItem_Click(object sender, EventArgs e)
         {
+#if false
             // one more attempt to fix
             var (teamSchedule, scheduleTable) = ScheduleFixup.FillSchedule(false, true);
             var result = ScheduleRuleEnforcer.Enforce(teamSchedule);
             ScheduleFixup.ReadSchedule();
             File.WriteAllText("sched-res.txt", JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
+#endif
+            var result = new
+            {
+                lfn = new List<string>(),
+                lln = new List<string>(),
+                dfn = new List<string>(),
+                dln = new List<string>(),
+            };
+            var play = TableUtility.FindTable("PLAY");
+            foreach (var mr in play.lRecords)
+            {
+                var face = mr.PlayerFace();
+
+                if (face < 100)
+                {
+                    result.lfn.Add(mr.FirstName());
+                    result.lln.Add(mr.LastName());
+                }
+                else if(face> 160)
+                {
+                    result.dfn.Add(mr.FirstName());
+                    result.dln.Add(mr.LastName());
+                }
+            }
+
+            result.WriteJsonFile("rosternames.txt");
         }
     }
 

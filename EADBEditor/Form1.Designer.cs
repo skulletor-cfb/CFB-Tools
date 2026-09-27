@@ -901,7 +901,7 @@
             // 
             this.enforceScheduleToolStripMenuItem.Name = "enforceScheduleToolStripMenuItem";
             this.enforceScheduleToolStripMenuItem.Size = new System.Drawing.Size(296, 34);
-            this.enforceScheduleToolStripMenuItem.Text = "Enforce Schedule";
+            this.enforceScheduleToolStripMenuItem.Text = "Run Work";
             this.enforceScheduleToolStripMenuItem.Click += new System.EventHandler(this.enforceScheduleToolStripMenuItem_Click);
             this.enforceScheduleToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
 

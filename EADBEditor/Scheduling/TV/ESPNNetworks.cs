@@ -506,9 +506,10 @@ namespace EA_DB_Editor.Scheduling
                 {
                     continue;
                 }
+                var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsSecConferenceGame).OrderBy(g => g.Score).ToQueue();
 
-                var queue = this.WeeklySchedule[i]
-                    .Where(g => !g.Assigned && g.IntraConferenceP5 && !g.IsPac12Game).OrderBy(g => g.Score).ToQueue();
+                queue.Enqueue(this.WeeklySchedule[i]
+                    .Where(g => !g.Assigned && g.IntraConferenceP5 && !g.IsPac12Game).OrderBy(g => g.Score));
 
                 queue.Enqueue(this.WeeklySchedule[i]
                     .Where(g => !g.Assigned && g.HomeTeamIsP5 && !g.IsPac12Game).OrderBy(g => g.Score));

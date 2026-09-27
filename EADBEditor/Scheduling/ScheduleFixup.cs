@@ -504,7 +504,10 @@ namespace EA_DB_Editor
                     }
                     else if ((p5OppForG5 < ooc.Length.OutOfConferenceG5GamesGoal()) && tsch.Key.IsG5())
                     {
-                        notes += string.Format(",G5 with not enough {0} P5 Opponents.  ", p5OppForG5);
+                        if (p5OppForG5 == 0)
+                        {
+                            notes += string.Format(",G5 with not enough {0} P5 Opponents.  ", p5OppForG5);
+                        }
 
                     }
                     else
@@ -564,7 +567,7 @@ namespace EA_DB_Editor
 
         static int OutOfConferenceG5GamesGoal(this int oocGames)
         {
-            return 1;
+            return 2;
             if (oocGames >= 6)
             {
                 return 2;

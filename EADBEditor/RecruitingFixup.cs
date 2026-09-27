@@ -842,7 +842,7 @@ namespace EA_DB_Editor
 
             if (conf == TableUtility.Pac16Id)
             {
-                return confGames == 5;
+                return confGames == 5 || confGames == 4;
             }
 
             if (conf == TableUtility.Big10Id )

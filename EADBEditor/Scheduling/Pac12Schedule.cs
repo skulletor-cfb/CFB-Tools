@@ -9,8 +9,8 @@ namespace EA_DB_Editor
 
         private static Func<Dictionary<int, int[]>>[] CorrectCreators = new Func<Dictionary<int, int[]>>[]
         {
-            CreateC, CreateC,
             CreateD, CreateD,
+            CreateC, CreateC,
             CreateB, CreateB,
             CreateA, CreateA,
         };
