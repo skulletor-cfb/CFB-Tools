@@ -56,7 +56,7 @@ namespace EA_DB_Editor.Scheduling
 
         public static void FixTelevisionSchedule()
         {
-            Reset();
+            // Reset();
             var team = TableUtility.FindTable("TEAM").lRecords.ToDictionary(mr => mr.TeamId());
             var fullset = TableUtility.FindTable("SCHD").lRecords
                 .Select(mr => new TelevisedGame(mr, team))
