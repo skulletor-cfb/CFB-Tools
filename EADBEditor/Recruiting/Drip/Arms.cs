@@ -168,11 +168,12 @@ namespace EA_DB_Editor
         {
         }
 
-        public static Arm Create(Sleeve sleeve)
+        public static Arm Create(Sleeve sleeve, ElbowGear? elbowGear)
         {
             var arm = new Arm()
             {
                 Sleeve = sleeve,
+                Elbow = (int)(elbowGear ?? ElbowGear.None),
             };
 
             return arm;
@@ -197,18 +198,29 @@ namespace EA_DB_Editor
         private readonly int team;
         private readonly int white;
         private readonly int black;
+        private readonly ElbowGear? leftElbow;
+        private readonly ElbowGear? rightElbow;
+
+        private readonly Func<(ElbowGear lElbow, ElbowGear rElbow)> elbowFunc;
+
         public ArmSet(
             SleeveKind left,
             SleeveKind? right = null,
             int teamColorPct = 50,
             int whitePct = 35,
-            int blackPct = 15)
+            int blackPct = 15,
+            ElbowGear? leftElbow = null,
+            ElbowGear? rightElbow = null,
+            Func<(ElbowGear lElbow, ElbowGear rElbow)> elbowFunc = null)
         {
             this.leftSleeveKind = left;
             this.rightSleeveKind = right ?? left;
             this.team = teamColorPct;
             this.white = whitePct;
             this.black = blackPct;
+            this.leftElbow = leftElbow;
+            this.rightElbow = rightElbow;
+            this.elbowFunc = elbowFunc;
         }
 
         public (Arm left, Arm right) Create()
@@ -220,7 +232,16 @@ namespace EA_DB_Editor
 
             var left = leftSleeveKind.CreateSleeve(color);
             var right = rightSleeveKind.CreateSleeve(color);
-            return (Arm.Create(left), Arm.Create(right));
+
+            var leftElbowToSubmit = leftElbow.MatchGear(color);
+            var rightElbowToSubmit = rightElbow.MatchGear(color);
+
+            if (this.elbowFunc != null)
+            {
+                (leftElbowToSubmit, rightElbowToSubmit) = elbowFunc();
+            }
+
+            return (Arm.Create(left, leftElbowToSubmit), Arm.Create(right, rightElbowToSubmit));
         }
     }
 }

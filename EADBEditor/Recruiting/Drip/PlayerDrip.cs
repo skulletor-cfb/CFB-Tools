@@ -76,8 +76,7 @@ namespace EA_DB_Editor
         {
             var armSet = FindArmSet();
             this.Arms = Arms.Create(armSet, IsLeftHanded, Position);
-            PlayerRecord.SetSleeves(this.Arms);
-            PlayerRecord.SetWrists(this.Arms);
+            PlayerRecord.SetArms(this.Arms);
         }
 
         /// <summary>
@@ -108,7 +107,7 @@ namespace EA_DB_Editor
 
         protected override ArmSet FindArmSet()
         {
-            return TableUtility.Choose(ArmExtensions.All);
+            return TableUtility.Choose(ArmExtensions.Skill);
         }
     }
 }

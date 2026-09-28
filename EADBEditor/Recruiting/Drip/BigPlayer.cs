@@ -75,6 +75,8 @@
         {
             PlayerRecord.SetHands(NoGloves, OLGloves, OLGloves, OLGloves, TapedFingersBlack, TapedFingersWhite, TapedFingersTeamColor, TapedHand, TapedHandMax, TapedHandCombo, TapedHand, TapedHandMax, TapedHandCombo);
         }
+
+        protected override ArmSet FindArmSet() => ArmExtensions.OL.Choose();
     }
 
     public class DLDrip : BigPlayer
@@ -89,6 +91,8 @@
                 NoGloves, NikeGloves, UAGloves, AdidasGloves, OLGloves, NikeGloves, UAGloves, AdidasGloves, OLGloves, TapedFingersBlack,
                 TapedFingersWhite, TapedFingersTeamColor, TapedHand, TapedHandMax, TapedHandCombo, TapedHand, TapedHandMax, TapedHandCombo);
         }
+
+        protected override ArmSet FindArmSet() => ArmExtensions.Front7.Choose();
     }
 
     public class LBDrip : BigPlayer
@@ -108,5 +112,7 @@
                 NoGloves, NikeGloves, UAGloves, AdidasGloves, OLGloves, NikeGloves, UAGloves, AdidasGloves, OLGloves, TapedFingersBlack,
                 TapedFingersWhite, TapedFingersTeamColor, TapedHand, TapedHandMax, TapedHandCombo, TapedHand, TapedHandMax, TapedHandCombo);
         }
+
+        protected override ArmSet FindArmSet() => ArmExtensions.Front7.Choose();
     }
 }

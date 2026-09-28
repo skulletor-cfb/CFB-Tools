@@ -128,17 +128,21 @@
         public static void SetLeftHand(this MaddenRecord mr, int value) => mr.Update("PLHA", value);
         public static void SetRightHand(this MaddenRecord mr, int value) => mr.Update("PRHA", value);
 
-        public static void SetSleeves(this MaddenRecord mr, Arms arms)
+        public static void SetArms(this MaddenRecord mr, Arms arms)
         {
+            // sleeve
             mr.Update("PLSL", arms.Left.Sleeve.Value);
             mr.Update("PLSR", arms.Right.Sleeve.Value);
-        }
 
-        public static void SetWrists(this MaddenRecord mr, Arms arms)
-        {
+            // wrist
             mr.Update("PLWR", arms.Left.Wrist);
             mr.Update("PRWR", arms.Right.Wrist);
+
+            // elbow
+            mr.Update("PLEL", arms.Left.Elbow);
+            mr.Update("PREL", arms.Right.Elbow);
         }
+
 
         #region gear and helpers
         private static int[] Visors = new int[]
