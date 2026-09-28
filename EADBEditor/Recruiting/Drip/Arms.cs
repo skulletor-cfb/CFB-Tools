@@ -26,6 +26,12 @@ namespace EA_DB_Editor
 
         public void AssignSweatbands()
         {
+            // about a third don't wear them
+            if (TableUtility.Check(30))
+            {
+                return;
+            }
+
             // get the gear we want
             var bandColor = ArmExtensions.PickColor(white: 35, black: 20, color: 45);
             var sweatBand = new[] { ElbowGear.SweatbandFullWhite, ElbowGear.SweatbandThinWhite, ElbowGear.SweatbandMediumWhite }.Choose() + (bandColor * 3);
@@ -42,10 +48,12 @@ namespace EA_DB_Editor
                 if (TableUtility.Check(50))
                 {
                     this.Right.CheckElbow(sweatBand);
+                    this.Left.CheckElbow(ElbowGear.None);
                 }
 
                 if (TableUtility.Check(50))
                 {
+                    this.Right.CheckElbow(ElbowGear.None);
                     this.Left.CheckElbow(sweatBand);
                 }
             }
@@ -184,11 +192,11 @@ namespace EA_DB_Editor
     {
 
         public Sleeve Sleeve { get; private set; }
-        public int Elbow => (int)(this.elbowGear ?? ElbowGear.None);
+        public int Elbow => (int)(this.ElbowGear ?? EA_DB_Editor.ElbowGear.None);
         public int Wrist { get; set; }
         public int Bicep { get; set; }
         public int Forearm { get; set; }
-        public ElbowGear? elbowGear { get; set; }
+        public ElbowGear? ElbowGear { get; set; }
 
         private Arm()
         {
@@ -197,14 +205,14 @@ namespace EA_DB_Editor
         public void CheckElbow(ElbowGear value)
         {
             // assigned some other way
-            if(this.elbowGear.HasValue)
+            if(this.ElbowGear.HasValue)
             {
                 return;
             }
 
-            if (!this.Sleeve.Match(SleeveKind.LongSleeve, SleeveKind.BottomSleeve, SleeveKind.TopSleeve))
+            if (!this.Sleeve.Match(SleeveKind.LongSleeve, SleeveKind.BottomSleeve, SleeveKind.TopSleeve) || value == EA_DB_Editor.ElbowGear.None)
             {
-                this.elbowGear = value;
+                this.ElbowGear = value;
             }
         }
 
@@ -213,7 +221,7 @@ namespace EA_DB_Editor
             var arm = new Arm()
             {
                 Sleeve = sleeve,
-                elbowGear = elbowGear,
+                ElbowGear = elbowGear,
             };
 
             return arm;

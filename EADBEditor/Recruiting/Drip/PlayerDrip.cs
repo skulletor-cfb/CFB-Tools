@@ -83,12 +83,12 @@ FOREARM (PLFB) L, (PRFB) R
         public void DripHimOut()
         {
             PlayerRecord.SetShoulderPadsForSkillPosition(Position);
-            //PlayerRecord.SetVisor();
+            PlayerRecord.SetVisor();
             PlayerRecord.SetJerseySleeves();
-            //PlayerRecord.SetShoes();
+            PlayerRecord.SetShoes();
             PlayerRecord.SetFlakJacket(this.FlackJacketThreshold);
             PlayerRecord.SetBackPlate(this.BackPlateThreshold);
-            //this.SetHands();
+            this.SetHands();
             this.SetKnee();
             this.SetArms();
             this.SetSplat();

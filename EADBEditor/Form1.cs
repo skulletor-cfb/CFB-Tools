@@ -4188,8 +4188,10 @@ namespace EA_DB_Editor
                     mr["PLSO"] = value.ToString();
                 }
 
+#if false
                 var drip = mr.Create();
                 drip.DripHimOut();
+#endif
             }
         }
 
@@ -4231,6 +4233,17 @@ namespace EA_DB_Editor
 
         private void enforceScheduleToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            var recruitTable = TableUtility.FindTable("RCPT");
+            foreach (var recruit in recruitTable.lRecords)
+            {
+                // hand crafted recruits are all set
+                if (!RecruitingFixup.DontChange.Contains(recruit.RecruitId()))
+                {
+                    var drip = RecruitExtensions.Create(recruit);
+                    drip.DripHimOut();
+                }
+            }
+
 #if false
             // one more attempt to fix
             var (teamSchedule, scheduleTable) = ScheduleFixup.FillSchedule(false, true);
