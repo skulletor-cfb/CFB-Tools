@@ -66,8 +66,15 @@
     <Compile Include="AdditionalGameProvider.cs" />
     <Compile Include="NationalSchedule.cs" />
     <Compile Include="RecruitFace.cs" />
+    <Compile Include="Recruiting\Drip\ArmExtensions.cs" />
+    <Compile Include="Recruiting\Drip\Arms.cs" />
+    <Compile Include="Recruiting\Drip\BigPlayer.cs" />
+    <Compile Include="Recruiting\Drip\DripExtensions.cs" />
+    <Compile Include="Recruiting\Drip\SkillPlayer.cs" />
+    <Compile Include="Recruiting\Drip\Sleeve.cs" />
     <Compile Include="Recruiting\JucoRecruits.cs" />
     <Compile Include="Recruiting\ManualTransferPortal.cs" />
+    <Compile Include="Recruiting\Drip\PlayerDrip.cs" />
     <Compile Include="Recruiting\TeamRecruiter.cs" />
     <Compile Include="Recruiting\TransferCandidate.cs" />
     <Compile Include="Recruiting\TransferPortal.cs" />

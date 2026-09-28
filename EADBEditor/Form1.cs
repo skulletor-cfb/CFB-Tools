@@ -1942,6 +1942,13 @@ namespace EA_DB_Editor
                     // find new face
                     recruit["PGHE"] = RecruitFace.FindNewFace(currentFace).ToString();
                 }
+
+                // hand crafted recruits are all set
+                if (!RecruitingFixup.DontChange.Contains(recruit.RecruitId()))
+                {
+                    var drip = RecruitExtensions.Create(recruit);
+                    drip.DripHimOut();
+                }
             }
         }
 
@@ -4180,6 +4187,9 @@ namespace EA_DB_Editor
                     var value = 3.RAND();
                     mr["PLSO"] = value.ToString();
                 }
+
+                var drip = mr.Create();
+                drip.DripHimOut();
             }
         }
 
@@ -4227,7 +4237,7 @@ namespace EA_DB_Editor
             var result = ScheduleRuleEnforcer.Enforce(teamSchedule);
             ScheduleFixup.ReadSchedule();
             File.WriteAllText("sched-res.txt", JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
-#endif
+
             var result = new
             {
                 lfn = new List<string>(),
@@ -4253,6 +4263,7 @@ namespace EA_DB_Editor
             }
 
             result.WriteJsonFile("rosternames.txt");
+#endif
         }
     }
 

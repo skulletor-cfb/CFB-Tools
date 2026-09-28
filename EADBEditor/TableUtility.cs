@@ -20,6 +20,43 @@ namespace EA_DB_Editor
 
     public static class TableUtility
     {
+        /// <summary>
+        /// Returns true if a check passes the threshold
+        /// </summary>
+        /// <param name="threshold">% success, so if we pass in 10, there's a 10% chance this check passes</param>
+        /// <returns></returns>
+        public static bool Check(int threshold)
+        {
+            return Rand100() < threshold;
+        }
+
+        public static T Check<T>( int[] pct, params T[] values)
+        {
+            var val = Rand100();
+
+            for (int i = 0; i < pct.Length; i++)
+            {
+                if (val < pct.Take(1 + i).Sum())
+                {
+                    return values[i];
+                }
+            }
+
+            return values.Last();
+        }
+
+        /// <summary>
+        /// randomly returns a choice from a set
+        /// </summary>
+        /// <param name="choices"></param>
+        /// <returns></returns>
+        public static T Choose<T>(this T[] choices)
+        {
+            var guid = Guid.NewGuid().ToByteArray().Take(4).ToArray();
+            int i = BitConverter.ToInt32(guid, 0) & 0x7fffffff;
+            return choices[i % choices.Length];
+        }
+
         public static int Rand100()
         {
             var guid = Guid.NewGuid().ToByteArray().Take(4).ToArray();
