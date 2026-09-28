@@ -96,6 +96,8 @@
         {
         }
 
+        protected override ArmSet FindArmSet() => ArmExtensions.QB.Choose();
+
         public override void SetKnee()
         {
             // small percentage has a brace for stability

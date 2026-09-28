@@ -98,7 +98,7 @@ namespace EA_DB_Editor
         /// <summary>
         /// one bottom, one short, but we define the gear on the off arm
         /// </summary>
-        public static readonly ArmSet ScudMissile = new ArmSet(SleeveKind.ShortSleeve, SleeveKind.BottomSleeve, leftElbow: ElbowGear.SweatbandFullWhite);
+        public static readonly ArmSet ScudMissile = new ArmSet(SleeveKind.ShortSleeve, SleeveKind.BottomSleeve, rightElbow: ElbowGear.None, leftElbow: ElbowGear.SweatbandFullWhite);
 
         /// <summary>
         /// long sleeve, top sleeve
@@ -112,7 +112,7 @@ namespace EA_DB_Editor
         /// <summary>
         /// one bottom, one short
         /// </summary>
-        public static readonly ArmSet ReverseScudMissile = new ArmSet(SleeveKind.BottomSleeve, SleeveKind.ShortSleeve, rightElbow: ElbowGear.SweatbandFullWhite);
+        public static readonly ArmSet ReverseScudMissile = new ArmSet(SleeveKind.BottomSleeve, SleeveKind.ShortSleeve, rightElbow: ElbowGear.SweatbandFullWhite, leftElbow: ElbowGear.None);
 
         /// <summary>
         /// one long, one short
@@ -155,8 +155,100 @@ namespace EA_DB_Editor
             [SleeveKind.ThreeQtrSleeve] = c => new ThreeQtrSleeve(c),
         };
 
+        public static readonly ArmSet[] QB = new ArmSet[]
+        {           
+            ShortSleeves,
+            LongSleeve,
+            TopSleeve,
+            BottomSleeve,
+            ThreeQtrSleeve,
+            ShortSleeves,
+            LongSleeve,
+            TopSleeve,
+            BottomSleeve,
+            ThreeQtrSleeve,
+            ShortSleeves,
+            LongSleeve,
+            TopSleeve,
+            BottomSleeve,
+            ThreeQtrSleeve,
+            ShortSleeves,
+            LongSleeve,
+            TopSleeve,
+            BottomSleeve,
+            ThreeQtrSleeve,
+            ShortSleeves,
+            LongSleeve,
+            TopSleeve,
+            BottomSleeve,
+            ThreeQtrSleeve,
+            ShortSleeves,
+            LongSleeve,
+            TopSleeve,
+            BottomSleeve,
+            ThreeQtrSleeve,
+            SingleSleeve,
+            WarmShoulder,
+            ColdShoulder,
+            Shooter,
+            Sailor,
+            ScudMissile,
+            ReverseSingleSleeve,
+            ReverseWarmShoulder,
+            ReverseColdShoulder,
+            ReverseShooter,
+            ReverseSailor,
+            ReverseScudMissile,
+            ReverseOneSleeve,
+            OneSleeve,
+        };
+
         public static readonly ArmSet[] Skill = new ArmSet[]
         {
+            ShortSleeves,
+            LongSleeve,
+            TopSleeve,
+            BottomSleeve,
+            ThreeQtrSleeve,
+            ShortSleeves,
+            LongSleeve,
+            TopSleeve,
+            BottomSleeve,
+            ThreeQtrSleeve,
+            ShortSleeves,
+            LongSleeve,
+            TopSleeve,
+            BottomSleeve,
+            ThreeQtrSleeve,
+            ShortSleeves,
+            LongSleeve,
+            TopSleeve,
+            BottomSleeve,
+            ThreeQtrSleeve,
+            ShortSleeves,
+            LongSleeve,
+            TopSleeve,
+            BottomSleeve,
+            ThreeQtrSleeve,
+            ShortSleeves,
+            LongSleeve,
+            TopSleeve,
+            BottomSleeve,
+            ThreeQtrSleeve,
+            SingleSleeve,
+            WarmShoulder,
+            ColdShoulder,
+            Shooter,
+            Sailor,
+            ScudMissile,
+            ReverseSingleSleeve,
+            ReverseWarmShoulder,
+            ReverseColdShoulder,
+            ReverseShooter,
+            ReverseSailor,
+            ReverseScudMissile,
+            ReverseOneSleeve,
+            OneSleeve,
             ShortSleeves,
             LongSleeve,
             TopSleeve,
@@ -187,22 +279,47 @@ namespace EA_DB_Editor
             TopSleeve,
             BottomSleeve,
             ThreeQtrSleeve,
+            ShortSleeves,
+            LongSleeve,
+            TopSleeve,
+            BottomSleeve,
+            ThreeQtrSleeve,
+            ShortSleeves,
+            LongSleeve,
+            TopSleeve,
+            BottomSleeve,
+            ThreeQtrSleeve,
+            ShortSleeves,
+            LongSleeve,
+            TopSleeve,
+            BottomSleeve,
+            ThreeQtrSleeve,
+            ShortSleeves,
+            LongSleeve,
+            TopSleeve,
+            BottomSleeve,
+            ThreeQtrSleeve,
             RubberThreeQtr,
             RubberPadShort,
             ElbowPadShortSleeve,
             ElbowPadThreeQtr,
         };
 
-        public static readonly ArmSet[] Front7 = Skill.Concat(OL).Distinct().ToArray();
+        public static readonly ArmSet[] Front7 = Skill.Concat(OL).ToArray();
 
         public static Sleeve CreateSleeve(this SleeveKind kind, ColorKind color)
         {
             return SleeveCreators[kind](color);
         }
 
-        public static ElbowGear MatchGear(this ElbowGear? gear, ColorKind color)
+        public static ElbowGear? MatchGear(this ElbowGear? gear, ColorKind color)
         {
-            var elbowGear = gear ?? ElbowGear.None;
+            if(gear.HasValue==false)
+            {
+                return null;
+            }
+
+            var elbowGear = gear.Value;
 
             if (elbowGear < ElbowGear.SweatbandFullWhite || elbowGear > ElbowGear.SweatbandThinTeamColor)
             {
