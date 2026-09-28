@@ -2,7 +2,29 @@
 
 namespace EA_DB_Editor
 {
+    /*
+     * 
 
+you might think about the bands
+
+***************
+BICEP (PLBB) L, (PRBB) R
+
+0 = NONE
+1 = WHITE 
+2 = BLACK
+3 = TEAM COLOR
+
+***************
+FOREARM (PLFB) L, (PRFB) R
+
+0 = NONE
+1 = WHITE 
+2 = BLACK
+3 = TEAM COLOR
+
+     * 
+     * */
     public abstract class PlayerDrip
     {
         #region constants

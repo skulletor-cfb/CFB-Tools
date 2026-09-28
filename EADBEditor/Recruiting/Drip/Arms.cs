@@ -1,7 +1,4 @@
-﻿using EA_DB_Editor.CAPGen;
-using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+﻿using System;
 
 namespace EA_DB_Editor
 {
@@ -24,6 +21,23 @@ namespace EA_DB_Editor
             arms.AssignSkillWrist(position);
             arms.AssignBigWrist(position);
             return arms;
+        }
+
+        public void AssignSweatbands()
+        {
+            // get the gear we want
+            var bandColor = ArmExtensions.PickColor(white: 35, black: 20, color: 45);
+            var sweatBand = new[] { ElbowGear.SweatbandFullWhite, ElbowGear.SweatbandThinWhite, ElbowGear.SweatbandMediumWhite }.Choose() + (bandColor * 3);
+
+            if(TableUtility.Check(60))
+            {
+                this.Left.CheckElbow(sweatBand);
+            }
+
+            if (TableUtility.Check(60))
+            {
+                this.Right.CheckElbow(sweatBand);
+            }
         }
 
         public void AssignBigWrist(int position)
@@ -166,6 +180,20 @@ namespace EA_DB_Editor
 
         private Arm()
         {
+        }
+
+        public void CheckElbow(ElbowGear value)
+        {
+            // assigned some other way
+            if(Elbow != 0)
+            {
+                return;
+            }
+
+            if (!this.Sleeve.Match(SleeveKind.LongSleeve, SleeveKind.BottomSleeve, SleeveKind.TopSleeve))
+            {
+                this.Elbow = (int)value;
+            }
         }
 
         public static Arm Create(Sleeve sleeve, ElbowGear? elbowGear)
