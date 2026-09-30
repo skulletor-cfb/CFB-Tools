@@ -431,8 +431,7 @@ namespace EA_DB_Editor
                     {
                         P5Matchups += p5Opp;
                         P5vsG5 += (ooc.Length - p5Opp - fcsOpp);
-                        // expectedP5GameCount = 10 - confGameCount;
-                        expectedP5GameCount = 10 - confGameCount - 1; // only require 9 games
+                        expectedP5GameCount = 10 - confGameCount;
                     }
 
                     if (tsch.Key.IsG5())
@@ -504,7 +503,11 @@ namespace EA_DB_Editor
                     }
                     else if ((p5OppForG5 < ooc.Length.OutOfConferenceG5GamesGoal()) && tsch.Key.IsG5())
                     {
-                        notes += string.Format(",G5 with not enough {0} P5 Opponents.  ", p5OppForG5);
+                        if (p5OppForG5 == 0)
+                        {
+                            notes += string.Format(",G5 with not enough {0} P5 Opponents.  ", p5OppForG5);
+                        }
+
                     }
                     else
                     {
