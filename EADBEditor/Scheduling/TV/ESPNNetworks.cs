@@ -500,7 +500,7 @@ namespace EA_DB_Editor.Scheduling
         private void AssignABCNoon()
         {
             // first 5 weeks is the best game left over
-            for (int i = 0; i < 5; i++)
+            for (int i = 50; i < 5; i++)
             {
                 if (i == RedRiverWeek)
                 {
@@ -523,7 +523,7 @@ namespace EA_DB_Editor.Scheduling
             }
 
             // sec games first
-            for (int i = 5; i <= 12; i++)
+            for (int i = 0; i <= 12; i++)
             {
                 if (i == RedRiverWeek)
                 {
@@ -531,7 +531,12 @@ namespace EA_DB_Editor.Scheduling
                 }
 
                 var queue = this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsSecConferenceGame).OrderBy(g => g.Score).ToQueue();
-                queue.Enqueue(this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsSecGame).OrderBy(g => g.Score));
+                queue.Enqueue(this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsSecGame && g.IntraConferenceP5).OrderBy(g => g.Score));
+                queue.Enqueue(this.WeeklySchedule[i]
+                    .Where(g => !g.Assigned && g.IntraConferenceP5 && !g.IsPac12Game).OrderBy(g => g.Score));
+
+                queue.Enqueue(this.WeeklySchedule[i]
+                    .Where(g => !g.Assigned && g.HomeTeamIsP5 && !g.IsPac12Game).OrderBy(g => g.Score));
                 queue.Enqueue(this.WeeklySchedule[i].Where(g => !g.Assigned && g.IsAmericanGame));
                 queue.Enqueue(this.WeeklySchedule[i].Where(g => !g.Assigned && !g.IsMWCGame));
 

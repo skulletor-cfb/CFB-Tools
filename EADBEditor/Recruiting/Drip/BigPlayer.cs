@@ -19,13 +19,6 @@
                 var knees = new int[] { NoKneeBrace, KneeBrace };
                 var left = knees.Choose();
                 var right = knees.Choose();
-
-                while ((left + right) == 0)
-                {
-                    left = knees.Choose();
-                    right = knees.Choose();
-                }
-
                 PlayerRecord.SetKneeBraces(left, right);
             }
             else

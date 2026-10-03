@@ -446,7 +446,7 @@ namespace EA_DB_Editor
             var htmlFile = isPreseason ? "PreSeasonTeam.html" : "team.html";
             using (tw = new StreamWriter("./Archive/Reports/" + htmlFile, false))
             {
-                Utility.WriteNavBarAndHeader(tw, "title", "loadTeamMainData", isPreseason.ToString().ToLower());
+                Utility.WriteNavBarAndHeader(tw, "title", "loadTeamMainData", isPreseason.ToString().ToLower(), teamHeaderModification);
 
                 tw.Write(@"<table><tr><td class=c8 colspan=9 width=40 height=40></td></tr></table>");
                 tw.Write("<table id=\"topTable\" cellpadding=20 cellspacing=0 width=780>");
@@ -456,6 +456,72 @@ namespace EA_DB_Editor
                 tw.Write(@"</body>");
             }
         }
+
+        private const string teamHeaderModification = @"
+<style>
+  body.teambg > table > tbody > tr > td.c3 > center,
+  body.teambg > table > tbody > tr > td.c3 > center a {
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,.7);
+    text-decoration: none;
+  }
+  body.teambg > table > tbody > tr > td.c3 > center a:hover {
+    text-decoration: underline;
+  }
+  body.teambg {
+    background-color: #1a1a1a;
+    background-image: var(--teambg);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
+  body.teambg > table > tbody > tr > td.c8,
+  body.teambg > table > tbody > tr > td.c13,
+  body.teambg > table > tbody > tr > td.c3 {
+    background: transparent;
+  }
+  body.teambg > a span {
+    color: #f0f0f0;
+    text-shadow: 0 1px 3px rgba(0,0,0,.6);
+  }
+  @media (orientation: portrait) {
+    body.teambg {
+      background-image: none;
+      background-color: transparent;
+    }
+    html:has(body.teambg) {
+      background-color: #111;
+    }
+    body.teambg::before,
+    body.teambg::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-image: var(--teambg);
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    body.teambg::before {             /* blurred fill behind */
+      background-size: cover;
+      filter: blur(18px) brightness(.55);
+      transform: scale(1.15);
+    }
+    body.teambg::after {              /* full image, edges intact */
+      background-size: contain;
+    }
+  }
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var id = new URLSearchParams(location.search).get('id');
+    if (!id) return;
+    document.body.style.setProperty('--teambg', 'url(""/HTML/teambg/utb_' + id + '.webp"")');
+    document.body.classList.add('teambg');
+  });
+</script>
+";
 
         public static void WritePolls()
         {

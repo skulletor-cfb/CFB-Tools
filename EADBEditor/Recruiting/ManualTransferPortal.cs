@@ -116,7 +116,7 @@ namespace EA_DB_Editor
                     {
                         var set = new HashSet<string>();
 
-                        foreach (var line in lines)
+                        foreach (var line in linesToCheck)
                         {
                             if (!set.Add(line))
                             {

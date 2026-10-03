@@ -2116,15 +2116,23 @@ namespace EA_DB_Editor
 
         static void ChangeName(int face, MaddenRecord recruit, Dictionary<string, int> firstDict, Dictionary<string, int> lastDict, NamesFile names, List<string> firstList, List<string> lastList, int ftune = 60, int ltune = 60)
         {
+            var currentFirstName = recruit.FirstName();
+            var currentLastName = recruit.LastName();
             // 20% of guys get a name change until we max out
             if (IsMatch(ftune) ||
-            string.Equals(recruit["PFNA"], recruit["PLNA"]))
+            string.Equals(currentFirstName , currentLastName, StringComparison.Ordinal))
             {
                 string first = null;
 
                 while (true)
                 {
-                    first = names.GetName(firstList);
+                    first = names.GetName(firstList, currentFirstName);
+
+                    if (string.Equals(first, currentFirstName, StringComparison.Ordinal))
+                    {
+                        break;
+                    }
+
                     if (firstDict.TryGetValue(first, out var count))
                     {
                         if (count >= 1)// || (count == 1 && firstDict.Values.Any(v => v == 0)))
@@ -2150,7 +2158,12 @@ namespace EA_DB_Editor
 
                     while (true)
                     {
-                        lastName = names.GetName(lastList);
+                        lastName = names.GetName(lastList, currentLastName);
+
+                        if (string.Equals(lastName, currentLastName, StringComparison.Ordinal))
+                        {
+                            break;
+                        }
 
                         if (lastDict.TryGetValue(lastName, out var count))
                         {
@@ -2196,20 +2209,20 @@ namespace EA_DB_Editor
                 // medium
                 face = (105 + NamesFile.GetInt(45)).ToString();
 
-                if (IsMatch(90)) ln = names.GetName(names.HILN);
-                else ln = recruit["PLNA"];
+                if (IsMatch(90)) ln = names.GetName(names.HILN, recruit.LastName());
+                else ln = recruit.LastName();
 
                 if (IsMatch(90))
                 {
-                    fn = names.GetName(names.HIFN);
+                    fn = names.GetName(names.HIFN, recruit.FirstName());
                 }
                 else if (IsMatch(50))
                 {
-                    fn = recruit["PFNA"];
+                    fn = recruit.FirstName();
                 }
                 else
                 {
-                    fn = names.GetName(names.First);
+                    fn = names.GetName(names.First, recruit.FirstName());
                 }
             }
             else if (IsMatch(50))
@@ -2221,15 +2234,15 @@ namespace EA_DB_Editor
             {
                 // dark
                 face = (160 + NamesFile.GetInt(85)).ToString();
-                fn = names.GetName(names.First);
+                fn = names.GetName(names.First, recruit.FirstName());
 
                 if (IsMatch(75))
                 {
-                    ln = names.GetName(names.Last);
+                    ln = names.GetName(names.Last, recruit.LastName());
                 }
                 else
                 {
-                    ln = names.GetName(names.HILN);
+                    ln = names.GetName(names.HILN, recruit.LastName());
                 }
             }
 
@@ -2309,14 +2322,13 @@ namespace EA_DB_Editor
             public string[] MDLN { get; set; }
 
 
-            public string GetName(string[] names)
+            public string GetName(List<string> names, string current)
             {
-                var idx = GetInt() % names.Length;
-                return names[idx];
-            }
+                if( names.Count == 0)
+                {
+                    return current;
+                }
 
-            public string GetName(List<string> names)
-            {
                 var idx = GetInt() % names.Count;
                 var result = names[idx];
                 names.RemoveAt(idx);

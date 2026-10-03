@@ -407,10 +407,10 @@ namespace EA_DB_Editor
             WriteNavBarAndHeader(tw, title, loadFunc, string.Empty);
         }
 
-        public static void WriteNavBarAndHeader(TextWriter tw, string title, string loadFunc, string arg)
+        public static void WriteNavBarAndHeader(TextWriter tw, string title, string loadFunc, string arg, string headerModification = "")
         {
             arg = arg == null ? string.Empty : arg;
-            tw.Write(string.Format("<html><head><title>{0}</title><link rel=stylesheet type=text/css href=../HTML/styles.css>", title));
+            tw.Write(string.Format("<html><head>{0}<title>{1}</title><link rel=stylesheet type=text/css href=../HTML/styles.css>", headerModification, title));
             Utility.AddJs(tw);
             tw.Write("</head>");
             loadFunc = string.IsNullOrEmpty(loadFunc) ? string.Empty : "onload=\"" + loadFunc + "(" + arg + ")\"";

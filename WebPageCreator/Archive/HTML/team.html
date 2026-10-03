@@ -1,4 +1,36 @@
-﻿<html><head><title>South Carolina Gamecocks</title><link rel=stylesheet type=text/css href=../HTML/styles.css></head><body topmargin=0 leftmargin=0 marginheight=70 marginwidth=0>
+﻿<html><head>
+    <style>
+        body.teambg {
+            background-color: #1a1a1a; /* shows while the image loads, or if one is missing */
+            background-image: var(--teambg);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+            /* clear only the outer layout cells; the stats tables keep their white cells */
+            body.teambg > table > tbody > tr > td.c8,
+            body.teambg > table > tbody > tr > td.c13,
+            body.teambg > table > tbody > tr > td.c3 {
+                background: transparent;
+            }
+            /* "Season Archives" link is light grey and gets lost on dark backgrounds */
+            body.teambg > a span {
+                color: #f0f0f0;
+                text-shadow: 0 1px 3px rgba(0,0,0,.6);
+            }
+    </style>
+    <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var id = new URLSearchParams(location.search).get('id');
+    if (!id) return;
+    document.body.style.setProperty('--teambg', 'url("/HTML/teambg/utb_' + id + '.webp")');
+    document.body.classList.add('teambg');
+  });
+    </script>
+    <title>South Carolina Gamecocks</title>
+    <link rel=stylesheet type=text/css href=../HTML/styles.css>
+</head>
+<body topmargin=0 leftmargin=0 marginheight=70 marginwidth=0>
 
 <div id='cssmenu'>
 <ul>
