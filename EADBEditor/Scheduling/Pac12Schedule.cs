@@ -48,7 +48,7 @@ namespace EA_DB_Editor
         const int WSU = 111;
         const int OSU = 75;
         const int UO = 74;
-        const int BYU = 16;
+        const int CU = 22;
         const int Utah = 103;
         const int Stanford = 87;
         const int Cal = 17;
@@ -61,18 +61,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                USC.Create(UCLA, Stanford, Wash, OSU, BYU),
+                USC.Create(UCLA, Stanford, Wash, OSU, CU),
                 UCLA.Create(Cal, WSU, UO, Utah),
-                Cal.Create(USC, Wash, OSU, Arizona, BYU),
+                Cal.Create(USC, Wash, OSU, Arizona, CU),
                 Stanford.Create(UCLA, Cal, WSU, ASU),
                 WSU.Create(Cal, UO, Arizona, Utah),
-                Wash.Create(Stanford, WSU, OSU, ASU, BYU),
+                Wash.Create(Stanford, WSU, OSU, ASU, CU),
                 UO.Create(USC, Stanford, Wash,ASU),
                 OSU.Create(UCLA, WSU, UO, Arizona, Utah),
                 ASU.Create(UCLA, Cal, OSU, Arizona, Utah),
-                Arizona.Create(USC, Stanford, UO, BYU),
+                Arizona.Create(USC, Stanford, UO, CU),
                 Utah.Create(USC, Stanford, Wash, Arizona),
-                BYU.Create(UCLA, WSU, UO, ASU, Utah),
+                CU.Create(UCLA, WSU, UO, ASU, Utah),
             }.Create();
         }
 
@@ -81,35 +81,35 @@ namespace EA_DB_Editor
             return new List<KeyValuePair<int, int[]>>
             {
                 USC.Create(UCLA, Stanford, UO, ASU, Utah),
-                UCLA.Create(Cal, WSU, OSU, Arizona, BYU),
+                UCLA.Create(Cal, WSU, OSU, Arizona, CU),
                 Cal.Create(USC, Wash, UO, ASU),
                 Stanford.Create(UCLA, Cal, OSU, Utah),
-                WSU.Create(USC, Cal, UO, ASU, BYU),
+                WSU.Create(USC, Cal, UO, ASU, CU),
                 Wash.Create(UCLA, Stanford, WSU, OSU, Arizona),
                 UO.Create(Stanford, Wash, ASU, Utah),
-                OSU.Create(USC, WSU, UO, Arizona, BYU),
+                OSU.Create(USC, WSU, UO, Arizona, CU),
                 ASU.Create(UCLA, Wash, Arizona, Utah),
-                Arizona.Create(Cal, Stanford, UO, BYU),
+                Arizona.Create(Cal, Stanford, UO, CU),
                 Utah.Create(Cal, WSU, OSU, Arizona),
-                BYU.Create(USC, Stanford, Wash, ASU, Utah),
+                CU.Create(USC, Stanford, Wash, ASU, Utah),
             }.Create();
         }
         public static Dictionary<int, int[]> CreateC()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                USC.Create(UCLA, Stanford, Wash, ASU, BYU),
+                USC.Create(UCLA, Stanford, Wash, ASU, CU),
                 UCLA.Create(Cal, WSU, UO, Arizona),
-                Cal.Create(USC, Wash, OSU, BYU),
+                Cal.Create(USC, Wash, OSU, CU),
                 Stanford.Create(UCLA, Cal, OSU, Utah),
                 WSU.Create(USC, Stanford, UO, ASU),
                 Wash.Create(UCLA, WSU, OSU, Arizona, Utah),
-                UO.Create(Cal, Stanford, Wash, Arizona, BYU),
+                UO.Create(Cal, Stanford, Wash, Arizona, CU),
                 OSU.Create(USC, WSU, UO, ASU, Utah),
                 ASU.Create(UCLA, Stanford, Wash, Arizona, Utah),
-                Arizona.Create(USC, Cal, WSU, BYU),
+                Arizona.Create(USC, Cal, WSU, CU),
                 Utah.Create(UCLA, Cal, UO, Arizona),
-                BYU.Create(Stanford, WSU, OSU, ASU, Utah),
+                CU.Create(Stanford, WSU, OSU, ASU, Utah),
             }.Create();
         }
 
@@ -128,7 +128,7 @@ namespace EA_DB_Editor
                 ASU.Create(),
                 Arizona.Create(),
                 Utah.Create(),
-                BYU.Create(),
+                CU.Create(),
             }.Create();
         }
     }
