@@ -446,7 +446,7 @@ namespace EA_DB_Editor
             var htmlFile = isPreseason ? "PreSeasonTeam.html" : "team.html";
             using (tw = new StreamWriter("./Archive/Reports/" + htmlFile, false))
             {
-                Utility.WriteNavBarAndHeader(tw, "title", "loadTeamMainData", isPreseason.ToString().ToLower(), teamHeaderModification);
+                Utility.WriteNavBarAndHeader(tw, "title", "loadTeamMainData", isPreseason.ToString().ToLower(), TeamHeaderModification);
 
                 tw.Write(@"<table><tr><td class=c8 colspan=9 width=40 height=40></td></tr></table>");
                 tw.Write("<table id=\"topTable\" cellpadding=20 cellspacing=0 width=780>");
@@ -457,7 +457,7 @@ namespace EA_DB_Editor
             }
         }
 
-        private const string teamHeaderModification = @"
+        public const string TeamHeaderModification = @"
 <style>
   body.teambg > table > tbody > tr > td.c3 > center,
   body.teambg > table > tbody > tr > td.c3 > center a {

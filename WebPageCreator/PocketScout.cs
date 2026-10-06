@@ -254,7 +254,7 @@ namespace EA_DB_Editor
             var file = isPreseason ? "PreseasonTeamRoster.html" : "teamroster.html";
             using (var tw = new StreamWriter("./Archive/Reports/"+file, false))
             {
-                Utility.WriteNavBarAndHeader(tw, "title", "loadTeamRosterData",isPreseason.ToString().ToLower());
+                Utility.WriteNavBarAndHeader(tw, "title", "loadTeamRosterData",isPreseason.ToString().ToLower(), headerModification: Team.TeamHeaderModification);
                 tw.Write(Utility.LoadTeamTemplate("teampagetemplate", isPreseason));
                 tw.Write("<tr><td width=900 align=center colspan=8><table id=\"rosterTable\" cellspacing=1 cellpadding=2 width=80% class=standard><tr><td id=\"schoolNameHeader\" class=c2 colspan=13></td></tr>");
                 tw.Write("</table><br></td></tr>");
@@ -326,7 +326,7 @@ namespace EA_DB_Editor
             var file = isPreseason ? "PreseasonTeamFrosh.html" : "teamfrosh.html";
             using (var tw = new StreamWriter("./Archive/Reports/" + file, false))
             {
-                Utility.WriteNavBarAndHeader(tw, "title", "loadTeamFroshData",isPreseason.ToString().ToLower());
+                Utility.WriteNavBarAndHeader(tw, "title", "loadTeamFroshData",isPreseason.ToString().ToLower(), headerModification: Team.TeamHeaderModification);
                 tw.Write(Utility.LoadTeamTemplate("teampagetemplate", isPreseason));
                 tw.Write("<tr><td width=900 align=center colspan=8><table id=\"froshTable\" cellspacing=1 cellpadding=2 width=80% class=standard><tr><td id=\"schoolNameHeader\" class=c2 colspan=13></td></tr>");
                 tw.Write("<tr><td class=C10 width=3%>#</td><td class=C10 width=17%>Name</td><td class=C10 width=8%>Year</td><td class=C10 width=8%>Pos</td><td class=C10 width=5%>Hgt</td><td class=C10 width=5%>Lbs</td><td class=C10 width=5%>Ovr</td><td class=C10 width=5%>Spd</td><td class=C10 width=5%>Acc</td><td class=C10 width=5%>Agl</td><td class=C10 width=5%>Str</td><td class=C10 width=5%>Awr</td><td class=C10 width=22%>Home Town</td></tr>");
@@ -367,7 +367,7 @@ namespace EA_DB_Editor
             var file = isPreseason ? "PreSeasonTeamRecords.html" : "teamrecords.html";
             using (var tw = new StreamWriter("./Archive/Reports/"+file, false))
             {
-                Utility.WriteNavBarAndHeader(tw, "title", "loadTeamRecordData",isPreseason.ToString().ToLower());
+                Utility.WriteNavBarAndHeader(tw, "title", "loadTeamRecordData",isPreseason.ToString().ToLower(), headerModification: Team.TeamHeaderModification);
                 tw.Write(Utility.LoadTeamTemplate("teampagetemplate", isPreseason));
                 tw.Write("<tr><td width=900 align=center colspan=8><table id=\"recordTable\" cellspacing=1 cellpadding=2 width=80% class=standard><tr><td id=\"schoolNameHeader\" class=c2 colspan=13></td></tr>");
                 tw.Write("<tr><td class=C10 width=20%>Type</td>");
@@ -602,7 +602,7 @@ namespace EA_DB_Editor
 
             using (tw = new StreamWriter("./Archive/Reports/teampstat.html", false))
             {
-                Utility.WriteNavBarAndHeader(tw, "title", "loadTeamStatsData", string.Format("{0},{1}", (PlayerDB.CurrentYear + Utility.StartingYear).ToString(), Utility.StartingYear));
+                Utility.WriteNavBarAndHeader(tw, "title", "loadTeamStatsData", string.Format("{0},{1}", (PlayerDB.CurrentYear + Utility.StartingYear).ToString(), Utility.StartingYear), headerModification: Team.TeamHeaderModification);
                 
                 // no stats in preseason
                 tw.Write(Utility.LoadTeamTemplate("teampagetemplate", false));
