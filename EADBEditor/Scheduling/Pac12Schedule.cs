@@ -117,18 +117,18 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                USC.Create(),
-                UCLA.Create(),
-                Cal.Create(),
-                Stanford.Create(),
-                WSU.Create(),
-                Wash.Create(),
-                UO.Create(),
-                OSU.Create(),
-                ASU.Create(),
-                Arizona.Create(),
-                Utah.Create(),
-                CU.Create(),
+                USC.Create(UCLA, Stanford, Wash, ASU, Utah),
+                UCLA.Create(Cal, Wash, UO, Arizona),
+                Cal.Create(USC, WSU, OSU, Utah, CU),
+                Stanford.Create(UCLA, Cal, Wash, ASU),
+                WSU.Create(USC, Stanford, UO, Arizona),
+                Wash.Create(WSU, OSU, Utah, CU),
+                UO.Create(USC, Cal, Wash, CU),
+                OSU.Create(UCLA, Stanford, WSU, UO, ASU),
+                ASU.Create(Cal, WSU, UO, Arizona, Utah),
+                Arizona.Create(USC, Stanford, Wash, OSU, CU),
+                Utah.Create(UCLA, WSU, UO, Arizona),
+                CU.Create(UCLA, Stanford, OSU, ASU, Utah),
             }.Create();
         }
     }
