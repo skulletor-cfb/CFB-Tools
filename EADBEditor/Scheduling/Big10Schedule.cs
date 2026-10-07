@@ -7,26 +7,27 @@ namespace EA_DB_Editor
     {
         const int Michigan = 51;
         const int Northwestern = 67;
-        const int MichSt = 52;
+        const int MichiganState = 52;
         const int Iowa = 37;
         const int Minnesota = 54;
         const int Wisconsin = 114;
-        const int OhioSt = 70;
+        const int OhioState = 70;
         const int Illinois = 35;
         const int Indiana = 36;
         const int Purdue = 78;
         const int PennState = 76;
         const int Rutgers = 80;
+        const int Maryland = 47;
+        const int Nebraska = 58;
 
 
         private static bool initRun = false;
         public static Func<Dictionary<int, int[]>>[] Creators = new Func<Dictionary<int, int[]>>[] {
             CreateA, CreateB,
-            CreateC, CreateA,
+            CreateC, CreateD,
+            CreateE, CreateA,
             CreateB, CreateC,
-            CreateX, CreateY,
-            CreateZ, CreateX,
-            CreateY, CreateZ,
+            CreateD, CreateE,
         };
 
         public static Dictionary<int, HashSet<int>> Big10ConferenceSchedule = null;
@@ -48,106 +49,53 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2574) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2587) % Creators.Length;
             var result = Creators[idx]();
-            result = result.Verify(12, TableUtility.Big10Id, "Big10");
+            result = result.Verify(14, TableUtility.Big10Id, "Big10");
             Big10ConferenceSchedule = result.BuildHashSet();
             return result;
         }
 
         // no divisions
-        public static Dictionary<int, int[]> CreateX()
+        public static Dictionary<int, int[]> CreateE()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Rutgers.Create(Michigan, Northwestern, Minnesota, Iowa),
-                PennState.Create(Rutgers, OhioSt, Illinois, Iowa),
-                OhioSt.Create(Rutgers, Michigan, Indiana, Wisconsin),
-                Michigan.Create(MichSt, Indiana, Illinois, Minnesota),
-                MichSt.Create(Rutgers, PennState, Purdue, Iowa),
-                Indiana.Create(Rutgers, MichSt, Purdue, Wisconsin),
-                Purdue.Create(PennState, OhioSt, Illinois, Minnesota),
-                Illinois.Create(MichSt, Indiana, Northwestern, Wisconsin),
-                Northwestern.Create(PennState, OhioSt, Michigan, Purdue),
-                Wisconsin.Create(PennState, MichSt, Northwestern, Iowa),
-                Minnesota.Create(OhioSt, Indiana, Northwestern, Wisconsin),
-                Iowa.Create(Michigan, Purdue, Illinois, Minnesota),
+Rutgers.Create(Michigan, Iowa, Nebraska, Maryland),
+PennState.Create(Rutgers, OhioState, Wisconsin, Iowa, Northwestern),
+OhioState.Create(Rutgers, Michigan, Indiana, Northwestern),
+Michigan.Create(MichiganState, Minnesota, Illinois, Nebraska, Maryland),
+MichiganState.Create(PennState, Indiana, Minnesota, Northwestern),
+Wisconsin.Create(Rutgers, Purdue, Iowa, Illinois, Nebraska),
+Indiana.Create(Michigan, Wisconsin, Purdue, Northwestern),
+Purdue.Create(OhioState, MichiganState, Minnesota, Illinois, Maryland),
+Minnesota.Create(Rutgers, PennState, Wisconsin, Indiana),
+Iowa.Create(Michigan, Minnesota, Northwestern, Nebraska, Maryland),
+Northwestern.Create(Rutgers, Purdue, Illinois, Nebraska),
+Illinois.Create(PennState, OhioState, MichiganState, Indiana, Iowa),
+Nebraska.Create(OhioState, MichiganState, Purdue, Minnesota),
+Maryland.Create(PennState, OhioState, MichiganState, Wisconsin, Indiana),
             }.Create();
         }
 
-        public static Dictionary<int, int[]> CreateY()
+        public static Dictionary<int, int[]> CreateD()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Rutgers.Create(OhioSt, Indiana, Northwestern, Iowa),
-                PennState.Create(Rutgers, OhioSt, Indiana, Wisconsin),
-                OhioSt.Create(Michigan, Purdue, Illinois, Minnesota),
-                Michigan.Create(PennState, MichSt, Indiana, Illinois),
-                MichSt.Create(PennState, OhioSt, Northwestern, Wisconsin),
-                Indiana.Create(MichSt, Purdue, Northwestern, Iowa),
-                Purdue.Create(Rutgers, Michigan, Illinois, Wisconsin),
-                Illinois.Create(Rutgers, MichSt, Northwestern, Minnesota),
-                Northwestern.Create(PennState, Purdue, Minnesota, Iowa),
-                Wisconsin.Create(Rutgers, Michigan, Illinois, Iowa),
-                Minnesota.Create(PennState, MichSt, Indiana, Wisconsin),
-                Iowa.Create(OhioSt, Michigan, Purdue, Minnesota),
-            }.Create();
-        }
-
-        public static Dictionary<int, int[]> CreateZ()
-        {
-            return new List<KeyValuePair<int, int[]>>
-            {
-                Rutgers.Create(Michigan, Purdue, Northwestern, Wisconsin),
-                PennState.Create(Rutgers, OhioSt, Indiana, Illinois),
-                OhioSt.Create(Michigan, Indiana, Illinois, Iowa),
-                Michigan.Create(PennState, MichSt, Northwestern, Minnesota),
-                MichSt.Create(Rutgers, OhioSt, Purdue, Minnesota),
-                Indiana.Create(MichSt, Purdue, Northwestern, Iowa),
-                Purdue.Create(PennState, Michigan, Illinois, Wisconsin),
-                Illinois.Create(Rutgers, Indiana, Northwestern, Minnesota),
-                Northwestern.Create(OhioSt, MichSt, Wisconsin, Iowa),
-                Wisconsin.Create(OhioSt, Michigan, Indiana, Iowa),
-                Minnesota.Create(Rutgers, PennState, Purdue, Wisconsin),
-                Iowa.Create(PennState, MichSt, Illinois, Minnesota),
-            }.Create();
-        }
-
-        public static Dictionary<int, int[]> CreateA()
-        {
-            return new List<KeyValuePair<int, int[]>>
-            {
-                Rutgers.Create(Michigan, Indiana, Wisconsin, Iowa),
-                PennState.Create(Rutgers, OhioSt, Purdue, Wisconsin),
-                MichSt.Create(Rutgers, PennState, Illinois, Minnesota),
-                Michigan.Create(PennState, MichSt, Indiana, Iowa),
-                OhioSt.Create(Rutgers, Michigan, Illinois, Minnesota),
-                Illinois.Create(PennState, Northwestern, Indiana, Iowa),
-                Northwestern.Create(Rutgers, Michigan, OhioSt, Purdue),
-                Purdue.Create(MichSt, OhioSt, Illinois, Wisconsin),
-                Indiana.Create(MichSt, Northwestern, Purdue, Minnesota),
-                Wisconsin.Create(Michigan, OhioSt, Northwestern, Iowa),
-                Minnesota.Create(PennState, Illinois, Purdue, Wisconsin),
-                Iowa.Create(MichSt, Northwestern, Indiana, Minnesota),
-            }.Create();
-        }
-
-        public static Dictionary<int, int[]> CreateB()
-        {
-            return new List<KeyValuePair<int, int[]>>
-            {
-                Rutgers.Create(Michigan, Illinois, Indiana , Iowa),
-                PennState.Create(Rutgers, OhioSt, Indiana, Wisconsin),
-                MichSt.Create(PennState, OhioSt, Illinois, Minnesota),
-                Michigan.Create(MichSt, Northwestern, Minnesota, Iowa),
-                OhioSt.Create(Rutgers, Michigan, Illinois, Indiana),
-                Illinois.Create(Michigan, Northwestern, Wisconsin, Minnesota),
-                Northwestern.Create(PennState, MichSt, Purdue, Iowa),
-                Purdue.Create(Rutgers, PennState, Michigan, Illinois),
-                Indiana.Create(MichSt, Northwestern, Purdue, Wisconsin),
-                Wisconsin.Create(MichSt, OhioSt, Purdue, Iowa),
-                Minnesota.Create(Rutgers, Northwestern, Indiana, Wisconsin),
-                Iowa.Create(PennState, OhioSt, Purdue, Minnesota),
+Rutgers.Create(OhioState, MichiganState, Northwestern, Maryland),
+PennState.Create(Rutgers, Michigan, Purdue, Iowa, Nebraska),
+OhioState.Create(Michigan, Wisconsin, Minnesota, Maryland),
+Michigan.Create(Rutgers, MichiganState, Indiana, Minnesota, Northwestern),
+MichiganState.Create(PennState, OhioState, Wisconsin, Indiana),
+Wisconsin.Create(Michigan, Purdue, Iowa, Northwestern, Maryland),
+Indiana.Create(Rutgers, PennState, Purdue, Iowa),
+Purdue.Create(Rutgers, Michigan, Iowa, Illinois, Nebraska),
+Minnesota.Create(PennState, MichiganState, Wisconsin, Illinois),
+Iowa.Create(OhioState, MichiganState, Minnesota, Northwestern, Nebraska),
+Northwestern.Create(Purdue, Minnesota, Illinois, Nebraska),
+Illinois.Create(Rutgers, OhioState, MichiganState, Indiana, Maryland),
+Nebraska.Create(OhioState, Wisconsin, Indiana, Illinois),
+Maryland.Create(PennState, Indiana, Minnesota, Northwestern, Nebraska),
             }.Create();
         }
 
@@ -155,19 +103,64 @@ namespace EA_DB_Editor
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Rutgers.Create(MichSt, Illinois, Indiana, Wisconsin),
-                PennState.Create(Rutgers, Michigan, Northwestern, Iowa),
-                MichSt.Create(PennState, OhioSt, Wisconsin, Iowa),
-                Michigan.Create(MichSt, Illinois, Purdue, Minnesota),
-                OhioSt.Create(Michigan, Illinois, Indiana, Minnesota),
-                Illinois.Create(PennState, Northwestern, Indiana, Wisconsin),
-                Northwestern.Create(Rutgers, MichSt, OhioSt, Purdue),
-                Purdue.Create(Rutgers, MichSt, OhioSt, Minnesota),
-                Indiana.Create(PennState, Michigan, Purdue, Iowa),
-                Wisconsin.Create(Michigan, Northwestern, Indiana, Iowa),
-                Minnesota.Create(Rutgers, PennState, Northwestern, Wisconsin),
-                Iowa.Create(OhioSt, Illinois, Purdue, Minnesota),
+Rutgers.Create(MichiganState, Wisconsin, Nebraska, Maryland),
+PennState.Create(Rutgers, OhioState, Wisconsin, Indiana, Illinois),
+OhioState.Create(Rutgers, Michigan, Indiana, Northwestern),
+Michigan.Create(PennState, MichiganState, Purdue, Minnesota, Iowa),
+MichiganState.Create(PennState, Indiana, Nebraska, Maryland),
+Wisconsin.Create(OhioState, Indiana, Iowa, Northwestern, Nebraska),
+Indiana.Create(Purdue, Northwestern, Nebraska, Maryland),
+Purdue.Create(OhioState, MichiganState, Minnesota, Iowa, Illinois),
+Minnesota.Create(Rutgers, OhioState, Wisconsin, Indiana),
+Iowa.Create(Rutgers, MichiganState, Minnesota, Illinois, Nebraska),
+Northwestern.Create(PennState, MichiganState, Purdue, Illinois),
+Illinois.Create(Rutgers, OhioState, Michigan, Wisconsin, Minnesota),
+Nebraska.Create(Michigan, Minnesota, Northwestern, Maryland),
+Maryland.Create(PennState, Michigan, Purdue, Iowa, Northwestern),
             }.Create();
         }
+
+        public static Dictionary<int, int[]> CreateA()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+Rutgers.Create(OhioState, Purdue, Minnesota, Maryland),
+PennState.Create(Rutgers, OhioState, Indiana, Illinois, Nebraska),
+OhioState.Create(Michigan, MichiganState, Minnesota, Iowa),
+Michigan.Create(MichiganState, Purdue, Minnesota, Northwestern, Maryland),
+MichiganState.Create(PennState, Wisconsin, Indiana, Iowa),
+Wisconsin.Create(PennState, Michigan, Indiana, Iowa, Northwestern),
+Indiana.Create(Rutgers, OhioState, Purdue, Northwestern),
+Purdue.Create(PennState, MichiganState, Iowa, Illinois, Maryland),
+Minnesota.Create(Wisconsin, Northwestern, Nebraska, Maryland),
+Iowa.Create(Rutgers, Michigan, Indiana, Minnesota, Nebraska),
+Northwestern.Create(OhioState, MichiganState, Purdue, Illinois),
+Illinois.Create(Rutgers, OhioState, Wisconsin, Minnesota, Nebraska),
+Nebraska.Create(Rutgers, Michigan, Wisconsin, Northwestern),
+Maryland.Create(PennState, MichiganState, Indiana, Illinois, Nebraska),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateB()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+Rutgers.Create(Michigan, Indiana, Northwestern, Maryland),
+PennState.Create(Rutgers, Purdue, Iowa, Northwestern, Nebraska),
+OhioState.Create(Rutgers, Michigan, Purdue, Maryland),
+Michigan.Create(PennState, MichiganState, Wisconsin, Minnesota, Illinois),
+MichiganState.Create(Rutgers, PennState, OhioState, Indiana),
+Wisconsin.Create(Rutgers, OhioState, MichiganState, Iowa, Nebraska),
+Indiana.Create(Michigan, Purdue, Minnesota, Maryland),
+Purdue.Create(Rutgers, Wisconsin, Minnesota, Illinois, Nebraska),
+Minnesota.Create(PennState, MichiganState, Wisconsin, Northwestern),
+Iowa.Create(OhioState, Indiana, Minnesota, Illinois, Nebraska),
+Northwestern.Create(Michigan, Purdue, Iowa, Illinois),
+Illinois.Create(OhioState, MichiganState, Indiana, Nebraska, Maryland),
+Nebraska.Create(OhioState, MichiganState, Indiana, Northwestern),
+Maryland.Create(PennState, Wisconsin, Minnesota, Iowa, Northwestern),
+            }.Create();
+        }
+
     }
 }
