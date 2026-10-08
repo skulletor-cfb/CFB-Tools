@@ -111,18 +111,43 @@ namespace EditorTest
         [TestMethod]
         public void Big12ScheduleA()
         {
-            Big12Schedule.Create15A().Verify(15, TableUtility.Big12Id, "Big12", false);
-            var hash = Big12Schedule.Create15A().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+            Big12Schedule.CreateA().Verify(12, TableUtility.Big12Id, "Big12", false);
+            var hash = Big12Schedule.CreateA().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
         }
 
         [TestMethod]
         public void Big12ScheduleB()
         {
-            Big12Schedule.Create15B().Verify(15, TableUtility.Big12Id, "Big12", false);
-            var hash = Big12Schedule.Create15B().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+            Big12Schedule.CreateB().Verify(12, TableUtility.Big12Id, "Big12", false);
+            var hash = Big12Schedule.CreateB().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
         }
+
+        [TestMethod]
+        public void Big12ScheduleC()
+        {
+            Big12Schedule.CreateC().Verify(12, TableUtility.Big12Id, "Big12", false);
+            var hash = Big12Schedule.CreateC().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
+
+        [TestMethod]
+        public void Big12ScheduleD()
+        {
+            Big12Schedule.CreateD().Verify(12, TableUtility.Big12Id, "Big12", false);
+            var hash = Big12Schedule.CreateD().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
+
+        [TestMethod]
+        public void Big12ScheduleE()
+        {
+            Big12Schedule.CreateE().Verify(12, TableUtility.Big12Id, "Big12", false);
+            var hash = Big12Schedule.CreateE().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
+
 
 
         [TestMethod]
