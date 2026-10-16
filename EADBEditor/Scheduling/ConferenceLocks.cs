@@ -207,17 +207,11 @@ namespace EA_DB_Editor
                         IsOSUOU,
                         IsNUCU,
                         IsNUOU,
-                        // IsBSUCU,
-                        // IsBSUTCU,
                         IsISUKSU,
                         IsTexasOU,
-    //                    g => MatchTeams(13, g, 20, 38), // ISU-Cincy end the season when they play
+                        g => MatchTeams(13, g, 20, 38), // ISU-Cincy end the season when they play
                         g => MatchTeams(7,g,11,94), //BU-TT in week 7
-  //                      g => MatchTeams(12, g, 39, 58), // neb-ku week 12
-                        g => MatchTeams(4, g, 83, 89), //TCU-SMU week 4
-//                        g => MatchTeams(13, g, 33, 83), // smu-hou week 13
                         g => MatchTeams(12, g, 22, 72), // cu-ok st week 13
-                        g => MatchTeams(2, g, 18, 144), // usf-ucf to week 2
                         g => MatchTeams(0,g, 22,23), //csu-cu week 0
                     };
                 }
@@ -299,7 +293,9 @@ namespace EA_DB_Editor
                 {
                     lockChecks = new Func<PreseasonScheduledGame, int?>[]
                     {
-                        g=>MatchTeams(13, g, 8, 57), // army-navy
+                        g=>MatchTeams(13, g, 18, 144), // usf-ucf
+                        g=>MatchTeams(13, g, 33, 83), // hou-smu
+                        g=>MatchTeams(7, g, 33, 79), // rice-hou
                         g=>MatchTeams(featuredRivalryWeek[0], g, 64, 232), // nt-utsa
                         g=>MatchTeams(featuredRivalryWeek[1], g, 79, 97), // rice-tulsa
                         g=>MatchTeams(featuredRivalryWeek[2], g, 25, 100), // charlotte-ecu
@@ -478,29 +474,6 @@ namespace EA_DB_Editor
                 game => MatchTeams(13, game, 53, 211), //wku-mtsu
                 game=> MatchTeams(13,game,8,57), //army-navy
                 game => MatchTeams(12, game, 64, 232), //nt-UTSA
-                game => MatchTeams(13, game, 218, 232), //nt-UTSA
-                //game=> MatchTeams(13,game,85,98), //usm-uab
-                //game => MatchTeams(6, game, 43, 85), //lt-usm
-
-#if false
-                game => MatchTeams(6, game, 53, 143), //mtsu-troy
-                game => MatchTeams(7, game, 143, 229), //fau-troy
-                game => MatchTeams(8, game , 46, 211), // marsh-wku
-                game => MatchTeams(6, game, 143 ,233), //fau-gsu
-                game => MatchTeams(7, game, 143 ,233), //fau-gsu
-                game => MatchTeams(6, game, 143 ,229), //fau-troy
-                game => MatchTeams(8, game, 46, 211), //wku-marsh
-                game => MatchTeams( 8, game, 34,181), //gaso-app st
-                game => MatchTeams(7, game , 34, 46), // marsh-app st
-                game => MatchTeams(7, game, 61, 181), // coastal- gaso
-                game => MatchTeams(6, game, 34, 234), // app st - odu
-                game=> MatchTeams(7,game,53,143), //mtsu-troy
-                game => MatchTeams(13, game, 143, 235), //usa-troy
-                game => MatchTeams(13, game, 229, 230), //fau-fiu
-                game=> MatchTeams(13,game,34,61), //ccu-app st
-                game=> MatchTeams(13, game, 181, 233), // gsu-gaso
-                game=> MatchTeams(13, game, 46, 234), // odu - marshall
-#endif
             };
         }
     }
