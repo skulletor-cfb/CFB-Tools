@@ -43,7 +43,7 @@ namespace EditorTest
         [TestMethod]
         public void AmericanScheduleA()
         {
-            AmericanSchedule.CreateA().Verify(14, TableUtility.AmericanId, "American", false);
+            AmericanSchedule.CreateA().Verify(12, TableUtility.AmericanId, "American", false);
             var hash = AmericanSchedule.CreateA().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
@@ -51,63 +51,18 @@ namespace EditorTest
         [TestMethod]
         public void AmericanScheduleB()
         {
-            AmericanSchedule.CreateB().Verify(14, TableUtility.AmericanId, "American", false);
+            AmericanSchedule.CreateB().Verify(12, TableUtility.AmericanId, "American", false);
             var hash = AmericanSchedule.CreateB().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
-        /*
         [TestMethod]
-        public void AmericanScheduleD()
+        public void AmericanScheduleC()
         {
-            AmericanSchedule.CreateD().Verify(11, TableUtility.AmericanId, "American", false);
-            var hash = AmericanSchedule.CreateD().BuildHashSet();
+            AmericanSchedule.CreateC().Verify(12, TableUtility.AmericanId, "American", false);
+            var hash = AmericanSchedule.CreateC().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
-
-        [TestMethod]
-        public void AmericanScheduleE()
-        {
-            AmericanSchedule.CreateE().Verify(11, TableUtility.AmericanId, "American", false);
-            var hash = AmericanSchedule.CreateE().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void AmericanScheduleF()
-        {
-            AmericanSchedule.CreateF().Verify(14, TableUtility.AmericanId, "American", false);
-            var hash = AmericanSchedule.CreateF().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-
-        [TestMethod]
-        public void AmericanScheduleG()
-        {
-            AmericanSchedule.CreateG().Verify(14, TableUtility.AmericanId, "American", false);
-            var hash = AmericanSchedule.CreateG().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }*/
-
-#if false
-        [TestMethod]
-        public void AmericanScheduleF()
-        {
-            AmericanSchedule.CreateF().Verify(14, TableUtility.AmericanId, "American", false);
-            var hash = AmericanSchedule.CreateF().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void AmericanScheduleG()
-        {
-            AmericanSchedule.CreateG().Verify(14, TableUtility.AmericanId, "American", false);
-            var hash = AmericanSchedule.CreateG().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-#endif
-
 
         [TestMethod]
         public void Big12ScheduleNDA()
