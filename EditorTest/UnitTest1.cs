@@ -146,7 +146,7 @@ namespace EditorTest
         {
             Pac12Schedule.CreateA().Verify(12, TableUtility.Pac16Id, "Pac12  ", false);
             var hash = Pac12Schedule.CreateA().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
         [TestMethod]
@@ -154,23 +154,23 @@ namespace EditorTest
         {
             Pac12Schedule.CreateB().Verify(12, TableUtility.Pac16Id, "Pac12  ", false);
             var hash = Pac12Schedule.CreateB().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
         [TestMethod]
-        public void Pac12ScheduleD()
+        public void Pac12ScheduleX()
         {
-            Pac12Schedule.CreateD().Verify(12, TableUtility.Pac16Id, "Pac12  ", false);
-            var hash = Pac12Schedule.CreateD().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+            Pac12Schedule.CreateX().Verify(12, TableUtility.Pac16Id, "Pac12  ", false);
+            var hash = Pac12Schedule.CreateX().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
         [TestMethod]
-        public void Pac12ScheduleC()
+        public void Pac12ScheduleY()
         {
-            Pac12Schedule.CreateC().Verify(12, TableUtility.Pac16Id, "Pac12  ", false);
-            var hash = Pac12Schedule.CreateC().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+            Pac12Schedule.CreateY().Verify(12, TableUtility.Pac16Id, "Pac12  ", false);
+            var hash = Pac12Schedule.CreateY().BuildHashSet();
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
         [TestMethod]
