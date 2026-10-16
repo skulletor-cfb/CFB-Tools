@@ -234,6 +234,12 @@ namespace EA_DB_Editor.Scheduling
 
         public override bool PreassignGame(TelevisedGame game)
         {
+            // iron skillet battle is great for friday!
+            if (game.CheckMatchup(83, 89))
+            {
+                return !FS1.PreassignGame(game, new TimeSlot(8, 30, week: game.Week, day: 4), true);
+            }
+
             /// fox friday for the first two weeks gets assigned at 8pm
             if (game.Week <= 1 && (game.Day == 4 || game.Day == 6))
             {

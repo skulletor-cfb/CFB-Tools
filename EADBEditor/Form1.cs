@@ -3373,7 +3373,7 @@ namespace EA_DB_Editor
             {
                 var schd = MaddenTable.FindTable(maddenDB.lTables, "SCHD");
                 var currentSeason = schd.lRecords.Where(r => r["SEYR"].ToInt32() == 0).First()["SESI"];
-                var gamesToAdd = Math.Max(entry.TeamId, 23); // we need at least 23 games added to clean up acc/b12 schedules
+                var gamesToAdd = Math.Max(entry.TeamId, 0); // we need at least 23 games added to clean up acc/b12 schedules
 
                 for (int i = 0; i < gamesToAdd; i++)
                 {

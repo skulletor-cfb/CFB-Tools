@@ -703,6 +703,12 @@ namespace EA_DB_Editor.Scheduling
                 return !ABC.PreassignGame(game, new TimeSlot(12, 30, week: game.Week), true);
             }
 
+            // bayou bucket is a perfect thursday night game
+            if (game.CheckMatchup(33, 79))
+            {
+                return !ESPN.PreassignGame(game, new TimeSlot(7, 30, week: game.Week, day: 3), true);
+            }
+
             // ABC buys navy-nd when it's in midseason and Navy is at home
             if(game.CheckMatchup(57, 68) && game.Week > 2 && game.HomeTeam == 57)
             {

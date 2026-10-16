@@ -423,7 +423,7 @@ namespace EA_DB_Editor
                     var p5Opp = ooc.Count(g => g.IsP5Game());
                     var fcsOpp = ooc.Count(g => g.AwayTeam.IsFcsTeam());
                     var g5Opp = ooc.Count(g => g.IsG5Game());
-                    var expectedP5GameCount = 0;
+                    var expectedP5GameCount = 1;
 
                     FCSGames += fcsOpp;
 
@@ -431,7 +431,6 @@ namespace EA_DB_Editor
                     {
                         P5Matchups += p5Opp;
                         P5vsG5 += (ooc.Length - p5Opp - fcsOpp);
-                        expectedP5GameCount = 10 - confGameCount;
                     }
 
                     if (tsch.Key.IsG5())
@@ -455,10 +454,6 @@ namespace EA_DB_Editor
                         {
                             notes += p5Opp + " P5 Opponents.  ";
                         }
-                    }
-                    else if (g5Opp > 0)
-                    {
-                        // notes += g5Opp + " G5 Opponents.  ";
                     }
 
                     if (ooc.Length != ooc.Select(g => g.OpponentId(tsch.Key)).Distinct().Count())
@@ -1313,6 +1308,23 @@ namespace EA_DB_Editor
                 else if (MatchTeams(homeTeam, awayTeam, new[] { 6, 93 }))
                 {
                     gameRecord["SGID"] = "278";
+                    query["TGID"] = awayTeam.ToString();
+                    teamScheduleRecord = MaddenTable.Query(teamSchedules, query).Single();
+                    teamScheduleRecord["THOA"] = "1";
+                }
+                // smu-tcu play at 279 when smu is in big 12 on friday night
+                else if (MatchTeams(homeTeam, awayTeam, new[] { 83, 89 }))
+                {
+                    gameRecord["SGID"] = "257";
+                    query["TGID"] = awayTeam.ToString();
+                    teamScheduleRecord = MaddenTable.Query(teamSchedules, query).Single();
+                    teamScheduleRecord["THOA"] = "1";
+                }
+
+                // houston-rice play at 272 on friday night
+                else if (MatchTeams(homeTeam, awayTeam, new[] { 33, 79 }))
+                {
+                    gameRecord["SGID"] = "272";
                     query["TGID"] = awayTeam.ToString();
                     teamScheduleRecord = MaddenTable.Query(teamSchedules, query).Single();
                     teamScheduleRecord["THOA"] = "1";

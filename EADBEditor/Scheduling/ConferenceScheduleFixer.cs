@@ -75,7 +75,7 @@ namespace EA_DB_Editor
 
         private static List<PreseasonScheduledGame> FindExtraBig12Games(Dictionary<int, TeamSchedule> schedules)
         {
-#if true
+#if false
             var result = new List<PreseasonScheduledGame>();
             var normalized = new Dictionary<int, int>();
 
