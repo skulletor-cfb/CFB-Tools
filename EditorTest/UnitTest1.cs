@@ -364,59 +364,17 @@ namespace EditorTest
             var hash = SunBeltSchedule.CreateG().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
-#if false
-        [TestMethod]
-        public void SBCScheduleA()
-        {
-            SunBeltSchedule.CreateA().Verify(11, TableUtility.SBCId, "SunBelt  ", false);
-            var hash = SunBeltSchedule.CreateA().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void SBCScheduleB()
-        {
-            SunBeltSchedule.CreateB().Verify(11, TableUtility.SBCId, "SunBelt  ", false);
-            var hash = SunBeltSchedule.CreateB().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void SBCScheduleC()
-        {
-            SunBeltSchedule.CreateC().Verify(11, TableUtility.SBCId, "SunBelt  ", false);
-            var hash = SunBeltSchedule.CreateC().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void SBCScheduleD()
-        {
-            SunBeltSchedule.CreateD().Verify(11, TableUtility.SBCId, "SunBelt  ", false);
-            var hash = SunBeltSchedule.CreateD().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-#endif
 
 
         [TestMethod]
         public void CUSAScheduleA()
         {
-            CUSASchedule.CreateA().Verify(4, TableUtility.CUSAId, "CUSA  ", false, expectedGames: 2, ifNotExpectedThen: 1);
+            CUSASchedule.CreateA().Verify(9, TableUtility.CUSAId, "CUSA  ", false);
             var hash = CUSASchedule.CreateA().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 3));
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
 
-        /*
-        [TestMethod]
-        public void CUSAScheduleB()
-        {
-            CUSASchedule.CreateB().Verify(12, TableUtility.CUSAId, "CUSA  ", false);
-            var hash = CUSASchedule.CreateB().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }*/
 
 
         [TestMethod]
