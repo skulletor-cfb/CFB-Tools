@@ -406,3 +406,20 @@ A:hover {
 		left: 230px;
 		visibility: visible;
 	}
+
+#headlineContent { color: #ffffff; }
+
+/* Cap the big team logo on team pages at 256px */
+#teamLogoImg {
+  max-width: 256px;
+  max-height: 256px;
+  width: auto;
+  height: auto;
+}
+
+#logoTable img {
+    max-width: 256px;
+    max-height: 256px;
+    width: auto;
+    height: auto;
+}
