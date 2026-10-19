@@ -498,7 +498,7 @@ namespace EA_DB_Editor
                     }
                     else if ((p5OppForG5 < ooc.Length.OutOfConferenceG5GamesGoal()) && tsch.Key.IsG5())
                     {
-                        if (p5OppForG5 == 0)
+                        if (p5OppForG5 <= 1)
                         {
                             notes += string.Format(",G5 with not enough {0} P5 Opponents.  ", p5OppForG5);
                         }
