@@ -1,6 +1,8 @@
 ﻿using EA_DB_Editor.Scheduling;
+using NCAA14Utility;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -377,183 +379,151 @@ namespace EA_DB_Editor
             }
 
             RanReorder = true;
-            bool fix = runG5Fix;
-            var sb = new StringBuilder();
-            FCSGames = 0;
+            var FCSGames = 0;
             var G5Matchups = 0;
             var P5Matchups = 0;
             var P5vsG5 = 0;
             var allGames = scheduleTable.Length;
+            var laborDayWeekend = TelevisionScheduler.LaborDayWeek();
+            var laborDayMondayWeek = laborDayWeekend + 1; // monday is the start of a new week
 
-            for (int j = 0; j < 5; j++)
+            var scheduleModel = new ScheduleModel();
+
+            foreach (var tsch in teamSchedule.Where(kvp=>kvp.Key.IsFcsTeam()==false).OrderBy(kvp => TableUtility.TeamAndConferences[kvp.Key]).ThenBy(kvp => RecruitingFixup.TeamNames[kvp.Key]))
             {
-                List<int> needMorePower5GAmes = new List<int>();
-                List<int> needMoreG5Games = new List<int>();
-
-                if (j == 4) fix = false;
-
-                sb = new StringBuilder();
-                sb.AppendLine("Name,,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,,Notes");
-                sb.AppendLine(",,,,,,,,,,,,,,,,,,");
-
-
-                foreach (var tsch in teamSchedule.OrderBy(kvp => TableUtility.TeamAndConferences[kvp.Key]).ThenBy(kvp => RecruitingFixup.TeamNames[kvp.Key]))
+                var teamSeasonSchedule = new TeamSeasonSchedule()
                 {
-                    var prefix = string.Empty;
-                    var laborDayWeekend = TelevisionScheduler.LaborDayWeek();
-                    var laborDayMondayWeek = laborDayWeekend + 1; // monday is the start of a new week
+                    TeamId = tsch.Key,
+                    TeamName = RecruitingFixup.TeamNames[tsch.Key],
+                    ConferenceId = TableUtility.TeamAndConferences[tsch.Key],
+                    TeamAbbreviation = RecruitingFixup.TeamAbbreviations[tsch.Key],
+                };
 
-                    // only a handful of teams play labor day
-                    if ((tsch.Value[laborDayWeekend] == null && tsch.Value[laborDayMondayWeek] != null))
-                    {
-                        if (teamSchedule.TryGetValue(tsch.Value[laborDayMondayWeek].OpponentId(tsch.Key), out var oppSch) && oppSch[laborDayWeekend] == null)
-                        {
-                            prefix = "R: ";
-                        }
-                    }
+                var homeGames = tsch.Value.Where(g => g != null && g.HomeTeam == tsch.Key).Count();
+                var confGameCount = tsch.Value.Where(g => g != null && g.IsConferenceGame()).Count();
+                var ooc = tsch.Value.Where(g => g != null && !g.IsConferenceGame()).ToArray();
+                var p5Opp = ooc.Count(g => g.IsP5Game());
+                var fcsOpp = ooc.Count(g => g.AwayTeam.IsFcsTeam());
+                var g5Opp = ooc.Count(g => g.IsG5Game());
+                var expectedP5GameCount = 1;
 
-                    if (tsch.Key.IsFcsTeam())
-                        continue;
+                FCSGames += fcsOpp;
 
-                    string notes = string.Empty;
-
-                    var homeGames = tsch.Value.Where(g => g != null && g.HomeTeam == tsch.Key).Count();
-                    var confGameCount = tsch.Value.Where(g => g != null && g.IsConferenceGame()).Count();
-                    var ooc = tsch.Value.Where(g => g != null && !g.IsConferenceGame()).ToArray();
-                    var p5Opp = ooc.Count(g => g.IsP5Game());
-                    var fcsOpp = ooc.Count(g => g.AwayTeam.IsFcsTeam());
-                    var g5Opp = ooc.Count(g => g.IsG5Game());
-                    var expectedP5GameCount = 1;
-
-                    FCSGames += fcsOpp;
-
-                    if (tsch.Key.IsP5())
-                    {
-                        P5Matchups += p5Opp;
-                        P5vsG5 += (ooc.Length - p5Opp - fcsOpp);
-                    }
-
-                    if (tsch.Key.IsG5())
-                    {
-                        G5Matchups += g5Opp;
-                        //P5vsG5 += (ooc.Length - g5Opp);
-                    }
-
-                    if (homeGames < 5)
-                    {
-                        //notes += $"{homeGames} home games.  ";
-                    }
-
-                    if (tsch.Value.Count(g => g != null) != 12)
-                        notes += "Wrong game count.  ";
-
-                    // in the play 10 era, we need to play 10 P5 opps
-                    if (tsch.Key.IsP5())
-                    {
-                        if (p5Opp != expectedP5GameCount)
-                        {
-                            notes += p5Opp + " P5 Opponents.  ";
-                        }
-                    }
-
-                    if (ooc.Length != ooc.Select(g => g.OpponentId(tsch.Key)).Distinct().Count())
-                    {
-                        if (ooc.Count(g => g.OpponentId(tsch.Key).IsFcsTeam()) <= 1)
-                        {
-                            notes += "Duplicate opponents.   ";
-                        }
-                    }
-
-                    if (tsch.Key.TooManyFcsGameCheck(fcsOpp))
-                    {
-                        notes += "Multiple FCS opponents.  ";
-                    }
-                    else if (fcsOpp == 0 && tsch.Key.IsP5())
-                    {
-                        notes += "No FCS.  ";
-                    }
-
-                    if (fcsOpp >= 1 && tsch.Key.IsG5() && TableUtility.TeamAndConferences[tsch.Key] != TableUtility.AmericanId && !RanG5Fixup)
-                    {
-                        notes += "G5-FCS MATCHUP.  ";
-                    }
-
-                    if (!tsch.Key.ConferenceGameCountCheck(tsch.Value.Count(g => g != null && g.IsConferenceGame())))
-                    {
-                        notes += "Wrong conference game count ";
-                    }
-
-                    if (!tsch.Value.ConferenceHomeGameCount(tsch.Key))
-                    {
-                        notes += "Wrong conference home game count ";
-                    }
-
-                    // let AAC be
-                    var p5OppForG5 = ooc.Count(g => g.IsP5GameAnyOpponent());
-
-                    if ((p5OppForG5 > ooc.Length.OutOfConferenceG5GamesGoal()) && tsch.Key.IsG5())
-                    {
-                        notes += string.Format(",G5 with {0} P5 Opponents.  ", p5OppForG5);
-                        needMoreG5Games.Add(tsch.Key);
-                    }
-                    else if ((p5OppForG5 < ooc.Length.OutOfConferenceG5GamesGoal()) && tsch.Key.IsG5())
-                    {
-                        if (p5OppForG5 <= 1)
-                        {
-                            notes += string.Format(",G5 with not enough {0} P5 Opponents.  ", p5OppForG5);
-                        }
-
-                    }
-                    else
-                    {
-                        notes += ",";
-                    }
-
-                    sb.AppendLine(string.Format("{0},,{1},,{2}", RecruitingFixup.TeamNames[tsch.Key], string.Join(",", tsch.Value.Take(TeamSchedule.ScheduleDisplayLimit).Select((ts, idx) => ts == null ? string.Empty : string.Format("{0}{1}", idx == laborDayMondayWeek ? prefix : string.Empty, ts.Opponent(tsch.Key)))), notes));
+                if (tsch.Key.IsP5())
+                {
+                    P5Matchups += p5Opp;
+                    P5vsG5 += (ooc.Length - p5Opp - fcsOpp);
                 }
 
-                needMoreG5Games = Randomize(needMoreG5Games);
-
-                if (fix)
+                if (tsch.Key.IsG5())
                 {
-                    // try to trade teams with too many p5 with not enough
-                    foreach (var needP5 in needMorePower5GAmes)
+                    G5Matchups += g5Opp;
+                }
+
+                if (homeGames < 5 && tsch.Key.IsP5OrND())
+                {
+                    teamSeasonSchedule.Notes.Add($"{homeGames} home games.");
+
+                }
+
+                if (tsch.Value.Count(g => g != null) != 12)
+                {
+                    teamSeasonSchedule.Notes.Add("Wrong game count.");
+
+                }
+
+                // in the play 10 era, we need to play 10 P5 opps
+                if (tsch.Key.IsP5())
+                {
+                    if (p5Opp != expectedP5GameCount)
                     {
-                        var tsch = teamSchedule[needP5];
-                        var ooc = tsch.Where(g => g != null && !g.IsConferenceGame() && g.IsG5Game() && !g.IsRivalryGame()).ToArray();
-                        var p5OppForG5 = ooc.Count(g => g.IsP5GameAnyOpponent());
-                        AttemptFix(needP5, teamSchedule, ooc, needMoreG5Games, ooc.Length.OutOfConferenceG5GamesGoal() - p5OppForG5);
+                        teamSeasonSchedule.Notes.Add($"{p5Opp} P5 Opponents.");
                     }
                 }
 
-                if (!fix)
-                    break;
+                if (ooc.Length != ooc.Select(g => g.OpponentId(tsch.Key)).Distinct().Count())
+                {
+                    if (ooc.Count(g => g.OpponentId(tsch.Key).IsFcsTeam()) <= 1)
+                    {
+                        teamSeasonSchedule.Notes.Add("Duplicate opponents.");
+                    }
+                }
+
+                if (tsch.Key.TooManyFcsGameCheck(fcsOpp))
+                {
+                    teamSeasonSchedule.Notes.Add("Multiple FCS opponents.");
+                }
+                else if (fcsOpp == 0 && tsch.Key.IsP5())
+                {
+                    teamSeasonSchedule.Notes.Add("No FCS.");
+                }
+
+                if (fcsOpp >= 1 && tsch.Key.IsG5() && TableUtility.TeamAndConferences[tsch.Key] != TableUtility.AmericanId && !RanG5Fixup)
+                {
+                    teamSeasonSchedule.Notes.Add("G5-FCS MATCHUP.");
+                }
+
+                if (!tsch.Key.ConferenceGameCountCheck(tsch.Value.Count(g => g != null && g.IsConferenceGame())))
+                {
+                    teamSeasonSchedule.Notes.Add("Wrong conference game count.");
+                }
+
+                if (!tsch.Value.ConferenceHomeGameCount(tsch.Key))
+                {
+                    teamSeasonSchedule.Notes.Add("Wrong conference home game count.");
+                }
+
+                // let AAC be
+                var p5OppForG5 = ooc.Count(g => g.IsP5GameAnyOpponent());
+
+                if ((p5OppForG5 > ooc.Length.OutOfConferenceG5GamesGoal()) && tsch.Key.IsG5())
+                {
+                    teamSeasonSchedule.G5Note = string.Format("G5 with {0} P5 Opponents.", p5OppForG5);
+                }
+                else if ((p5OppForG5 < ooc.Length.OutOfConferenceG5GamesGoal()) && tsch.Key.IsG5())
+                {
+                    if (p5OppForG5 <= 1)
+                    {
+                        teamSeasonSchedule.G5Note = string.Format("G5 with not enough {0} P5 Opponents.", p5OppForG5);
+                    }
+
+                }
+
+                teamSeasonSchedule.ScheduleNodes.AddRange(tsch.Value.Select((ts, idx) =>
+                {
+                    if (ts == null)
+                        return null;
+
+                    var day = ts.MaddenRecord.GameDay();
+                    var isLaborDay = day == 0 && idx == laborDayMondayWeek;
+                    var node = new ScheduleNode
+                    {
+                        Week = idx + 1,
+                        Day = day,
+                        OpponentId = ts.OpponentId(tsch.Key),
+                        Opponent = ts.Opponent(tsch.Key),
+                        IsConferenceGame = ts.IsConferenceGame(),
+                        IsP5Game = ts.IsP5NonConferenceGame() || ts.IsP5ConferenceGame(),
+                        IsG5Game = ts.IsG5Game(),
+                        IsLaborDayGame = isLaborDay,
+                        IsHomeGame = ts.HomeTeam == tsch.Key,
+                    };
+                    return node;
+                }).Where(n => n != null));  
+                scheduleModel.TeamSchedules.Add(teamSeasonSchedule);
             }
 
-            sb.AppendLine(FCSGames + " FCS GAMES");
-            sb.AppendLine(G5Matchups / 2 + " Group 5 GAMES");
-            sb.AppendLine(P5Matchups / 2 + " Power 5 GAMES");
-            sb.AppendLine(P5vsG5 + " P5 vs G5 GAMES");
-            sb.Append(allGames + " total games");
+            scheduleModel.FCSGames = $"{FCSGames} FCS GAMES";   
+            scheduleModel.G5Games = $"{G5Matchups / 2} G5 GAMES";
+            scheduleModel.P5Games = $"{P5Matchups / 2} P5 GAMES";
+            scheduleModel.P5G5Games = $"{P5vsG5} P5 vs G5 GAMES";
+            scheduleModel.TotalGames = $"{allGames} total games";
 
             try
             {
-                File.WriteAllText(@"schedule.csv", sb.ToString());
+                scheduleModel.WriteJsonFile("schedulemodel.txt");
             }
             catch { }
-
-            /*
-            var groups = scheduleTable.GroupBy(mr => mr["SEWN"].ToInt32()).ToDictionary(g => g.Key, g => g.ToArray().OrderBy(r => r["GTOD"].ToInt32()).ToArray());
-            foreach (var week in groups)
-            {
-                int gameNum = 0;
-                foreach (var g in week.Value)
-                {
-                    g["SGNM"] = gameNum.ToString();
-                    gameNum++;
-                }
-            }
-            */
 
             return teamSchedule;
         }
@@ -638,7 +608,6 @@ namespace EA_DB_Editor
             return TableUtility.TeamAndConferences[a] == TableUtility.TeamAndConferences[b];
         }
 
-        static int FCSGames = 0;
 
         private static bool? _ranReorder = null;
         private static bool RanReorder

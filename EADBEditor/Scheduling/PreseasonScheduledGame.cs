@@ -91,6 +91,17 @@ namespace EA_DB_Editor
             return !IsConferenceGame() && (AwayTeam.IsP5() || HomeTeam.IsP5());
         }
 
+        public bool IsP5NonConferenceGame()
+        {
+            return !IsConferenceGame() && (AwayTeam.IsP5OrND() && HomeTeam.IsP5OrND());
+        }
+
+        public bool IsP5ConferenceGame()
+        {
+            return IsConferenceGame() && (AwayTeam.IsP5() && HomeTeam.IsP5());
+        }
+
+
         public bool IsRivalryGame()
         {
             return ScheduleFixup.IsRivalryGame(HomeTeam, AwayTeam);

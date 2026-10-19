@@ -2,10 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 using static EA_DB_Editor.Form1;
 
 namespace EA_DB_Editor

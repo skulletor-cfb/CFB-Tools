@@ -1,16 +1,12 @@
-﻿using EA_DB_Editor.CAPGen;
-using EA_DB_Editor.Recruiting;
+﻿using EA_DB_Editor.Recruiting;
+using NCAA14Utility;
 using System;
 using System.Collections.Generic;
-using System.Drawing.Text;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml.Linq;
 using static EA_DB_Editor.Form1;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace EA_DB_Editor
 {
