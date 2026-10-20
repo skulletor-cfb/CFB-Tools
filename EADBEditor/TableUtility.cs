@@ -66,7 +66,7 @@ namespace EA_DB_Editor
 
         public static MaddenTable FindTable(string name)
         {
-            return MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, name);
+            return MaddenTable.FindMaddenTable(Form1.MainForm.MaddenDB.lTables, name);
         }
 
         public static HashSet<int> FindUserTeams()
@@ -428,7 +428,7 @@ namespace EA_DB_Editor
                 {
                     try
                     {
-                        teamAndConferences = Form1.MainForm.maddenDB.lTables[167].lRecords
+                        teamAndConferences = Form1.MainForm.MaddenDB.lTables[167].lRecords
                             .Where(mr => mr.lEntries[40].Data.ToInt32() != 611 && mr.lEntries[40].Data.ToInt32() != 300)
                             .ToDictionary(mr => mr.lEntries[40].Data.ToInt32(), record => record.lEntries[36].Data.ToInt32());
                     }
