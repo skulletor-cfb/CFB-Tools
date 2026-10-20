@@ -16,7 +16,10 @@ namespace EA_DB_Editor.Scheduling
         public override NetworkSchedule AssignGames()
         {
             // week 1 game goes at 8pm thursday
-            Streaming.AssignGame(this.WeeklySchedule[0].First(), 0, 8, 0, 3);
+            if (this.WeeklySchedule.TryGetValue(0, out var week1Games) && week1Games.Count > 0)
+            {
+                Streaming.AssignGame(week1Games.First(), 0, 8, 0, 3);
+            }
 
             // the rest at either 1230pm or 4pm
             var queue = this.SelectedGames.ToAssignmentQueue();
@@ -89,8 +92,8 @@ namespace EA_DB_Editor.Scheduling
                 return !Primary.PreassignGame(game, new TimeSlot(3, 30, game.Week), true);
             }
 
-            // ND vs P5 goes at night
-            if (game.IsP5Game && game.IsNotreDameHomeGame)
+            // ND vs P5 top 25 goes at night
+            if (game.IsP5Game && game.IsNotreDameHomeGame && game.AwayRank <= 25)
             {
                 return !Primary.PreassignGame(game, new TimeSlot(8, 0, game.Week), true);
             }

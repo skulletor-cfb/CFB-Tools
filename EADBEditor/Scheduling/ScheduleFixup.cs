@@ -1,5 +1,8 @@
-﻿using System;
+﻿using EA_DB_Editor.Scheduling;
+using NCAA14Utility;
+using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -48,11 +51,11 @@ namespace EA_DB_Editor
             if (game.AwayId == 0)
                 game.AwayId = RecruitingFixup.TeamNames.Where(kvp => kvp.Value == game.Away).First().Key;
 
-            if( game.HomeId ==0)
+            if (game.HomeId == 0)
                 game.HomeId = RecruitingFixup.TeamNames.Where(kvp => kvp.Value == game.Home).First().Key;
 
 
-            return game; 
+            return game;
         }
 
         public XElement ToXml()
@@ -191,7 +194,7 @@ namespace EA_DB_Editor
                 {
                     game.SwapHomeAwayTeam(mr);
                 }
-                else if (false && game.IsConferenceGame() && TableUtility.TeamAndConferences[homeTeam] == TableUtility .AmericanId && game.ShouldFixSunBeltGame())
+                else if (false && game.IsConferenceGame() && TableUtility.TeamAndConferences[homeTeam] == TableUtility.AmericanId && game.ShouldFixSunBeltGame())
                 {
                     game.SwapHomeAwayTeam(mr);
                 }
@@ -276,7 +279,7 @@ namespace EA_DB_Editor
                 // home team
                 if (teamSchedule.TryGetValue(homeTeam, out var homeSchedule) == false)
                 {
-                    homeSchedule = new TeamSchedule(hasWeek14Games:homeTeam.HasWeek14Games());
+                    homeSchedule = new TeamSchedule(hasWeek14Games: homeTeam.HasWeek14Games());
                     teamSchedule[homeTeam] = homeSchedule;
                 }
 
@@ -366,265 +369,162 @@ namespace EA_DB_Editor
                 SunBeltSchedule.ProcessSunbeltSchedule(teamSchedule);
                 SECSchedule.ProcessSECSchedule(teamSchedule);
 
-                for (int i = 0; i < 25; i++)
+                for (int i = 0; i < 1; i++)
                 {
                     (teamSchedule, scheduleTable) = FillSchedule(false, true);
-                    ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule);
-
-                    //ConfScheduleFixer.G5FCSSwap(teamSchedule);
-                    //(teamSchedule, scheduleTable) = FillSchedule(false, true);
-
-
-                    // move aerlier in the year to ensure more chance of replacement
-                    // ConfScheduleFixer.MoveReplaceableGames(teamSchedule, g => true);
-
-                    /*
-                    // do power conf first
-                    ConfScheduleFixer.ExtraConfGameSwap(teamSchedule, g => true, g => !g.IsAmericanGame());
-
-                    // now do american
-                    ConfScheduleFixer.ExtraConfGameSwap(teamSchedule, g => !g.IsAmericanGame(), g => g.IsAmericanGame());
-
-                    // now cross cut 
-                    ConfScheduleFixer.ExtraConfGameSwap(teamSchedule);
-                    */
-
-                    //ConfScheduleFixer.G5FCSSwap(teamSchedule);
+                    ConfScheduleFixer.Fix(teamSchedule, new AllLocks());
                     (teamSchedule, scheduleTable) = FillSchedule(false, true);
-                    ConfScheduleFixer.SecFix(teamSchedule);
-                    ConfScheduleFixer.AccFix(teamSchedule);
-                    ConfScheduleFixer.Big10Fix(teamSchedule);
-                    ConfScheduleFixer.Big12Fix(teamSchedule);
-                    ConfScheduleFixer.Pac12Fix(teamSchedule);
-                    ConfScheduleFixer.AmericanFix(teamSchedule);
-                    ConfScheduleFixer.SunBeltFix(teamSchedule);
-                    ConfScheduleFixer.CUSAFix(teamSchedule);
-                    ConfScheduleFixer.MWCFix(teamSchedule);
-                    ConfScheduleFixer.MACFix(teamSchedule);
-
-                    (teamSchedule, scheduleTable) = FillSchedule(false, true);
-
-
-                    /*
-                    // move aerlier in the year to ensure more chance of replacement
-                    for (int i = 0; i < 5; i++)
-                    {
-                        ConfScheduleFixer.MoveReplaceableGames(teamSchedule, g => true);
-                        (teamSchedule, scheduleTable) = FillSchedule(false, true);
-                    }*/
-
-                    // try to put non conference games earlier in the season
-                    //ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule, 4);
-                    //(teamSchedule, scheduleTable) = FillSchedule(false, true);
-
-                    ConfScheduleFixer.SwapG5ForP5HomeTeam(teamSchedule);
-                    (teamSchedule, scheduleTable) = FillSchedule(false, true);
-
-                    //ConfScheduleFixer.MoveNonConfGamesEarly(teamSchedule, 4);
-                    //(teamSchedule, scheduleTable) = FillSchedule(false, true);
-
-                    ConfScheduleFixer.TryMoveNonConfGamesEarly(teamSchedule);
-                    (teamSchedule, scheduleTable) = FillSchedule(false, true);
-
-                    ConfScheduleFixer.FcsGamesEarly(teamSchedule);
-                    (teamSchedule, scheduleTable) = FillSchedule(false, true);
+                    break;
                 }
             }
 
             RanReorder = true;
-            bool fix = runG5Fix;
-            var sb = new StringBuilder();
-            FCSGames = 0;
+            var FCSGames = 0;
             var G5Matchups = 0;
             var P5Matchups = 0;
             var P5vsG5 = 0;
             var allGames = scheduleTable.Length;
+            var laborDayWeekend = TelevisionScheduler.LaborDayWeek();
+            var laborDayMondayWeek = laborDayWeekend + 1; // monday is the start of a new week
 
-            for (int j = 0; j < 5; j++)
+            var scheduleModel = new ScheduleModel();
+
+            foreach (var tsch in teamSchedule.Where(kvp=>kvp.Key.IsFcsTeam()==false).OrderBy(kvp => TableUtility.TeamAndConferences[kvp.Key]).ThenBy(kvp => RecruitingFixup.TeamNames[kvp.Key]))
             {
-                List<int> needMorePower5GAmes = new List<int>();
-                List<int> needMoreG5Games = new List<int>();
-
-                if (j == 4) fix = false;
-
-                sb = new StringBuilder();
-                sb.AppendLine("Name,,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,,Notes");
-                sb.AppendLine(",,,,,,,,,,,,,,,,,,");
-
-
-                foreach (var tsch in teamSchedule.OrderBy(kvp => TableUtility.TeamAndConferences[kvp.Key]).ThenBy(kvp => RecruitingFixup.TeamNames[kvp.Key]))
+                var teamSeasonSchedule = new TeamSeasonSchedule()
                 {
-                    var prefix = string.Empty;
+                    TeamId = tsch.Key,
+                    TeamName = RecruitingFixup.TeamNames[tsch.Key],
+                    ConferenceId = TableUtility.TeamAndConferences[tsch.Key],
+                    TeamAbbreviation = RecruitingFixup.TeamAbbreviations[tsch.Key],
+                };
 
-                    if (tsch.Value[0] == null)
-                    {
-                        if (tsch.Value[1] != null)
-                        {
-                            if (teamSchedule.TryGetValue(tsch.Value[1].OpponentId(tsch.Key), out var oppSch) && oppSch[0] == null)
-                            {
-                                prefix = "R: ";
-                            }
-                        }
-                    }
+                var homeGames = tsch.Value.Where(g => g != null && g.HomeTeam == tsch.Key).Count();
+                var confGameCount = tsch.Value.Where(g => g != null && g.IsConferenceGame()).Count();
+                var ooc = tsch.Value.Where(g => g != null && !g.IsConferenceGame()).ToArray();
+                var p5Opp = ooc.Count(g => g.IsP5Game());
+                var fcsOpp = ooc.Count(g => g.AwayTeam.IsFcsTeam());
+                var g5Opp = ooc.Count(g => g.IsG5Game());
+                var expectedP5GameCount = 1;
 
-                    if (tsch.Key.IsFcsTeam())
-                        continue;
+                FCSGames += fcsOpp;
 
-                    string notes = string.Empty;
-
-                    var homeGames = tsch.Value.Where(g => g != null && g.HomeTeam == tsch.Key).Count();
-                    var ooc = tsch.Value.Where(g => g != null && !g.IsConferenceGame()).ToArray();
-                    var p5Opp = ooc.Count(g => g.IsP5Game());
-                    var fcsOpp = ooc.Count(g => g.AwayTeam.IsFcsTeam());
-                    var g5Opp = ooc.Count(g => g.IsG5Game());
-                    FCSGames += fcsOpp;
-
-                    if (tsch.Key.IsP5())
-                    {
-                        P5Matchups += p5Opp;
-                        P5vsG5 += (ooc.Length - p5Opp -fcsOpp);
-                    }
-
-                    if (tsch.Key.IsG5())
-                    {
-                        G5Matchups += g5Opp;
-                        //P5vsG5 += (ooc.Length - g5Opp);
-                    }
-
-                    if(homeGames < 5)
-                    {
-                        //notes += $"{homeGames} home games.  ";
-                    }
-
-                    if (tsch.Value.Count(g => g != null) != 12)
-                        notes += "Wrong game count.  ";
-
-                    if (p5Opp == 0 && tsch.Key.IsP5())
-                    {
-                        notes += "No P5 Opponents.  ";
-                    }
-                    else if (p5Opp > 1 && tsch.Key.IsP5())
-                    {
-                        notes += p5Opp + " P5 Opponents.  ";
-                    }
-                    else if (g5Opp > 0 && tsch.Key.IsP5() == false)
-                    {
-                        // notes += g5Opp + " G5 Opponents.  ";
-                    }
-
-                    if (ooc.Length != ooc.Select(g => g.OpponentId(tsch.Key)).Distinct().Count())
-                    {
-                        if (ooc.Count(g => g.OpponentId(tsch.Key).IsFcsTeam()) <= 1)
-                        {
-                            notes += "Duplicate opponents.   ";
-                        }
-                    }
-
-                    if (tsch.Key.TooManyFcsGameCheck(fcsOpp))
-                    {
-                        notes += "Multiple FCS opponents.  ";
-                    }
-                    else if(fcsOpp==0 && tsch.Key.IsP5())
-                    {
-                        notes += "No FCS.  ";
-                    }
-
-                    if (fcsOpp >= 1 && tsch.Key.IsG5() && TableUtility.TeamAndConferences[tsch.Key] != TableUtility.AmericanId && !RanG5Fixup)
-                    {
-                        notes += "G5-FCS MATCHUP.  ";
-                    }
-
-                    if (!tsch.Key.ConferenceGameCountCheck(tsch.Value.Count(g => g != null && g.IsConferenceGame())))
-                    {
-                        notes += "Wrong conference game count ";
-                    }
-
-                    if (!tsch.Value.ConferenceHomeGameCount(tsch.Key))
-                    {
-                        notes += "Wrong conference home game count ";
-                    }
-
-                    for (int i = 0; i < tsch.Value.Length; i++)
-                    {
-                        if (tsch.Value[i] != null && tsch.Value[i].MustReplace)
-                        {
-                            notes += string.Format("Must Replace week={0} ", i);
-                        }
-                    }
-
-                    // let AAC be
-                    var p5OppForG5 = ooc.Count(g => g.IsP5GameAnyOpponent());
-
-                    if ((p5OppForG5 > ooc.Length.OutOfConferenceG5GamesGoal()) && tsch.Key.IsG5())
-                    {
-                        notes += string.Format(",G5 with {0} P5 Opponents.  ", p5OppForG5);
-                        needMoreG5Games.Add(tsch.Key);
-                    }
-                    else if ((p5OppForG5 < ooc.Length.OutOfConferenceG5GamesGoal()) && tsch.Key.IsG5())
-                    {
-                        if (tsch.Key.IsIndependentG5())
-                        {
-                            //     needMorePower5GAmes.Add(tsch.Key);
-                        }
-
-                        notes += string.Format(",G5 with not enough {0} P5 Opponents.  ", p5OppForG5);
-
-                        if (!tsch.Key.IsAmericanTeam())
-                        {
-                            needMorePower5GAmes.Add(tsch.Key);
-                        }
-                    }
-                    else
-                    {
-                        notes += ",";
-                    }
-
-                    sb.AppendLine(string.Format("{0},,{1},,{2}", RecruitingFixup.TeamNames[tsch.Key], string.Join(",", tsch.Value.Take(TeamSchedule.ScheduleLimit).Select((ts, idx) => ts == null ? string.Empty : string.Format("{0}{1}", idx == 1 ? prefix : string.Empty, ts.Opponent(tsch.Key)))), notes));
+                if (tsch.Key.IsP5())
+                {
+                    P5Matchups += p5Opp;
+                    P5vsG5 += (ooc.Length - p5Opp - fcsOpp);
                 }
 
-                needMoreG5Games = Randomize(needMoreG5Games);
-
-                if (fix)
+                if (tsch.Key.IsG5())
                 {
-                    // try to trade teams with too many p5 with not enough
-                    foreach (var needP5 in needMorePower5GAmes)
+                    G5Matchups += g5Opp;
+                }
+
+                if (homeGames < 5 && tsch.Key.IsP5OrND())
+                {
+                    teamSeasonSchedule.Notes.Add($"{homeGames} home games.");
+
+                }
+
+                if (tsch.Value.Count(g => g != null) != 12)
+                {
+                    teamSeasonSchedule.Notes.Add("Wrong game count.");
+
+                }
+
+                // in the play 10 era, we need to play 10 P5 opps
+                if (tsch.Key.IsP5())
+                {
+                    if (p5Opp != expectedP5GameCount)
                     {
-                        var tsch = teamSchedule[needP5];
-                        var ooc = tsch.Where(g => g != null && !g.IsConferenceGame() && g.IsG5Game() && !g.IsRivalryGame()).ToArray();
-                        var p5OppForG5 = ooc.Count(g => g.IsP5GameAnyOpponent());
-                        AttemptFix(needP5, teamSchedule, ooc, needMoreG5Games, ooc.Length.OutOfConferenceG5GamesGoal() - p5OppForG5);
+                        teamSeasonSchedule.Notes.Add($"{p5Opp} P5 Opponents.");
                     }
                 }
 
-                if (!fix)
-                    break;
+                if (ooc.Length != ooc.Select(g => g.OpponentId(tsch.Key)).Distinct().Count())
+                {
+                    if (ooc.Count(g => g.OpponentId(tsch.Key).IsFcsTeam()) <= 1)
+                    {
+                        teamSeasonSchedule.Notes.Add("Duplicate opponents.");
+                    }
+                }
+
+                if (tsch.Key.TooManyFcsGameCheck(fcsOpp))
+                {
+                    teamSeasonSchedule.Notes.Add("Multiple FCS opponents.");
+                }
+                else if (fcsOpp == 0 && tsch.Key.IsP5())
+                {
+                    teamSeasonSchedule.Notes.Add("No FCS.");
+                }
+
+                if (fcsOpp >= 1 && tsch.Key.IsG5() && TableUtility.TeamAndConferences[tsch.Key] != TableUtility.AmericanId && !RanG5Fixup)
+                {
+                    teamSeasonSchedule.Notes.Add("G5-FCS MATCHUP.");
+                }
+
+                if (!tsch.Key.ConferenceGameCountCheck(tsch.Value.Count(g => g != null && g.IsConferenceGame())))
+                {
+                    teamSeasonSchedule.Notes.Add("Wrong conference game count.");
+                }
+
+                if (!tsch.Value.ConferenceHomeGameCount(tsch.Key))
+                {
+                    teamSeasonSchedule.Notes.Add("Wrong conference home game count.");
+                }
+
+                // let AAC be
+                var p5OppForG5 = ooc.Count(g => g.IsP5GameAnyOpponent());
+
+                if ((p5OppForG5 > ooc.Length.OutOfConferenceG5GamesGoal()) && tsch.Key.IsG5())
+                {
+                    teamSeasonSchedule.G5Note = string.Format("G5 with {0} P5 Opponents.", p5OppForG5);
+                }
+                else if ((p5OppForG5 < ooc.Length.OutOfConferenceG5GamesGoal()) && tsch.Key.IsG5())
+                {
+                    if (p5OppForG5 <= 1)
+                    {
+                        teamSeasonSchedule.G5Note = string.Format("G5 with not enough {0} P5 Opponents.", p5OppForG5);
+                    }
+
+                }
+
+                teamSeasonSchedule.ScheduleNodes.AddRange(tsch.Value.Select((ts, idx) =>
+                {
+                    if (ts == null)
+                        return null;
+
+                    var day = ts.MaddenRecord.GameDay();
+                    var isLaborDay = day == 0 && idx == laborDayMondayWeek;
+                    var node = new ScheduleNode
+                    {
+                        Week = idx + 1,
+                        Day = day,
+                        OpponentId = ts.OpponentId(tsch.Key),
+                        Opponent = ts.Opponent(tsch.Key),
+                        IsConferenceGame = ts.IsConferenceGame(),
+                        IsP5Game = ts.IsP5NonConferenceGame() || ts.IsP5ConferenceGame(),
+                        IsG5Game = ts.IsG5Game(),
+                        IsLaborDayGame = isLaborDay,
+                        IsHomeGame = ts.HomeTeam == tsch.Key,
+                    };
+                    return node;
+                }).Where(n => n != null));  
+                scheduleModel.TeamSchedules.Add(teamSeasonSchedule);
             }
 
-            sb.AppendLine(FCSGames + " FCS GAMES");
-            sb.AppendLine(G5Matchups / 2 + " Group 5 GAMES");
-            sb.AppendLine(P5Matchups / 2 + " Power 5 GAMES");
-            sb.AppendLine(P5vsG5 + " P5 vs G5 GAMES");
-            sb.Append(allGames + " total games");
+            scheduleModel.FCSGames = $"{FCSGames} FCS GAMES";   
+            scheduleModel.G5Games = $"{G5Matchups / 2} G5 GAMES";
+            scheduleModel.P5Games = $"{P5Matchups / 2} P5 GAMES";
+            scheduleModel.P5G5Games = $"{P5vsG5} P5 vs G5 GAMES";
+            scheduleModel.TotalGames = $"{allGames} total games";
 
             try
             {
-                File.WriteAllText(@"schedule.csv", sb.ToString());
+                scheduleModel.WriteJsonFile("schedulemodel.txt");
             }
             catch { }
 
-            /*
-            var groups = scheduleTable.GroupBy(mr => mr["SEWN"].ToInt32()).ToDictionary(g => g.Key, g => g.ToArray().OrderBy(r => r["GTOD"].ToInt32()).ToArray());
-            foreach (var week in groups)
-            {
-                int gameNum = 0;
-                foreach (var g in week.Value)
-                {
-                    g["SGNM"] = gameNum.ToString();
-                    gameNum++;
-                }
-            }
-            */
-                                   
             return teamSchedule;
         }
 
@@ -644,7 +544,7 @@ namespace EA_DB_Editor
             // goal is to not exceed 10 G5 games
             return oocGames / 2;
         }
-    
+
 
         static List<int> Randomize(List<int> list)
         {
@@ -662,7 +562,7 @@ namespace EA_DB_Editor
 
         static void AttemptFix(int teamId, Dictionary<int, TeamSchedule> teamSchedule, PreseasonScheduledGame[] ooc, List<int> potentialFixees, int gamesNeeded)
         {
-            if (ooc.Any(g =>  RecruitingFixup.OnTheirOwn.Contains(g.HomeTeam) || RecruitingFixup.OnTheirOwn.Contains(g.AwayTeam))) return;
+            if (ooc.Any(g => RecruitingFixup.OnTheirOwn.Contains(g.HomeTeam) || RecruitingFixup.OnTheirOwn.Contains(g.AwayTeam))) return;
 
             foreach (var potentialMatch in potentialFixees)
             {
@@ -677,7 +577,7 @@ namespace EA_DB_Editor
 
                 if (intersect.Length > 0)
                 {
-                    var g1 = intersect.OrderBy( g => g.Week).First();
+                    var g1 = intersect.OrderBy(g => g.Week).First();
                     var g2 = ooc.Where(g => g.Week == g1.Week).First();
                     if (SwapForP5(g1, g2, teamId))
                     {
@@ -708,7 +608,6 @@ namespace EA_DB_Editor
             return TableUtility.TeamAndConferences[a] == TableUtility.TeamAndConferences[b];
         }
 
-        static int FCSGames = 0;
 
         private static bool? _ranReorder = null;
         private static bool RanReorder
@@ -735,12 +634,12 @@ namespace EA_DB_Editor
             {
                 var sttm = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "STTM");
 
-                if(sttm == null)
+                if (sttm == null)
                 {
                     return new List<int>();
                 }
 
-                var list =  sttm.lRecords.Where(mr => mr["CFUC"].ToInt32() == 1).Select(mr => mr["TGID"].ToInt32()).ToList();
+                var list = sttm.lRecords.Where(mr => mr["CFUC"].ToInt32() == 1).Select(mr => mr["TGID"].ToInt32()).ToList();
 
                 if (remove)
                 {
@@ -764,13 +663,13 @@ namespace EA_DB_Editor
 
             bool NotConferenceGame(PreseasonScheduledGame game)
             {
-                return !game.IsConferenceGame() || game.IsExtraConferenceGame(); 
+                return !game.IsConferenceGame() || game.IsExtraConferenceGame();
             }
 
             // Pitt-WVU , OU-NEB are week 14
             var schedules = ReadSchedule();
 
-            var gamesThatCanBeReplaced = 
+            var gamesThatCanBeReplaced =
                 schedules
                 .Where(kvp => kvp.Value.Where(v => !kvp.Key.IsP5OrND() && v != null)
                 .Select(v => G5GameThatCanBeReplace(v)).Count() > 0)
@@ -845,7 +744,7 @@ namespace EA_DB_Editor
 
             // now teams with no FCS games
             var noFCS = teams.Where(t => t != 68 && t.IsP5() && schedules[t].Count(g => g != null && !g.IsConferenceGame() && g.IsFCSGame()) == 0).ToList();
-            eligbleGames = schedules.Where(kvp =>!kvp.Key.IsFcsTeam()&& !noFCS.Contains(kvp.Key)).SelectMany(kvp => kvp.Value.Where(g => g != null && !g.IsP5FCSGame()&& g.IsFCSGame()&& !g.IsNotreDameGame())).ToList();
+            eligbleGames = schedules.Where(kvp => !kvp.Key.IsFcsTeam() && !noFCS.Contains(kvp.Key)).SelectMany(kvp => kvp.Value.Where(g => g != null && !g.IsP5FCSGame() && g.IsFCSGame() && !g.IsNotreDameGame())).ToList();
             foreach (var team in noFCS)
             {
                 foreach (var game in schedules[team].Where(g => g != null && !g.IsConferenceGame() && !g.IsRivalryGame() && !g.IsP5Game()))
@@ -865,14 +764,6 @@ namespace EA_DB_Editor
             }
 
             schedules = ReadSchedule();
-
-            /*
-            ConfScheduleFixer.AccFix(schedules);
-            ConfScheduleFixer.Big10Fix(schedules);
-            ConfScheduleFixer.Big12Fix(schedules);
-            schedules = ReadSchedule();
-            */
-
             MessageBox.Show("Scheduling finished");
         }
 
@@ -889,7 +780,7 @@ namespace EA_DB_Editor
         {
             var n = new[] { awayId, homeId }.OrderBy(i => i).ToArray();
             var hash = (n[0] << 16) | n[1];
-            return lockedTeamSchedules.Contains(awayId)||lockedTeamSchedules.Contains(homeId)|| lockedGames.Contains(hash);
+            return lockedTeamSchedules.Contains(awayId) || lockedTeamSchedules.Contains(homeId) || lockedGames.Contains(hash);
         }
 
         static List<FutureGame> CleanSchedule(int team, Dictionary<int, TeamSchedule> schedules, List<FutureGame> futureGames, List<PreseasonScheduledGame> replacements)
@@ -909,7 +800,7 @@ namespace EA_DB_Editor
             foreach (var futureScheduledGame in futureScheduledGames)
             {
                 if (p5GamesAllowed == 0)
-                    break; 
+                    break;
 
                 foreach (var game in games.Where(g => !IsGameLocked(g.AwayTeam, g.HomeTeam)))
                 {
@@ -946,7 +837,7 @@ namespace EA_DB_Editor
             }
 
             // clean up just that extrac acc game
-            foreach (var extraAcc in schedule.Where(g => g != null && (g.IsExtraConferenceGame() || g.MustReplace)))
+            foreach (var extraAcc in schedule.Where(g => g != null && (g.IsExtraConferenceGame())))
             {
                 var replacement = replacements.Pop(extraAcc, true);
 
@@ -957,7 +848,7 @@ namespace EA_DB_Editor
             }
 
             // finally these are the games I need to replace
-            foreach (var oocGame in games.Where(g => !IsGameLocked(g.AwayTeam,g.HomeTeam) ))
+            foreach (var oocGame in games.Where(g => !IsGameLocked(g.AwayTeam, g.HomeTeam)))
             {
                 if (p5GamesAllowed > 0 && oocGame.IsP5Game())
                 {
@@ -972,7 +863,7 @@ namespace EA_DB_Editor
 
                     LockGame(oocGame.AwayTeam, oocGame.HomeTeam);
                 }
-                else if( oocGame.IsP5Game())
+                else if (oocGame.IsP5Game())
                 {
                     var replacement = replacements.Pop(oocGame, true);
 
@@ -1024,7 +915,7 @@ namespace EA_DB_Editor
         static int FindGamesAllowed(PreseasonScheduledGame[] games)
         {
             // number of P5 games are ND/Rivalry
-            var rivalOrND = games.Where(g => g.IsNotreDameGame() || g.IsRivalryGame() ).ToArray();
+            var rivalOrND = games.Where(g => g.IsNotreDameGame() || g.IsRivalryGame()).ToArray();
 
             // Lock rivalry games
             games.Where(g => g.IsRivalryGame()).ToList().ForEach(g => LockGame(g.AwayTeam, g.HomeTeam));
@@ -1054,38 +945,6 @@ namespace EA_DB_Editor
             return Math.Max(p5GamesAllowed, 0);
         }
 
-#if false
-        static void CleanSchedule(Dictionary<int, TeamSchedule> schedules)
-        {
-            // get all OOC games needed to be replaced, skip the first one
-            var gamesInNeedOfReplacement = schedules.Where(kvp => kvp.Value.Where(v => v != null).Select(v => v.IsP5Game()).Count() > 1).SelectMany(kvp => kvp.Value.Where(v => v != null && !v.IsRivalryGame() && v.IsP5Game() && !v.IsConferenceGame() && !v.IsNotreDameGame()).Skip(1)).OrderBy(g => g.Week).Distinct().ToList();
-            var gamesThatCanBeReplaced = schedules.Where(kvp => kvp.Value.Where(v => !kvp.Key.IsP5OrND() && v != null).Select(v => v.IsG5Game()).Count() > 0).SelectMany(kvp => kvp.Value.Where(v => v != null && v.IsG5Game() && !v.IsConferenceGame())).OrderBy(g => g.Week).Distinct().ToList();
-            //var p5NoOOC = schedules.Where(kvp => kvp.Key.IsP5() && kvp.Value.Count(g => g != null && g.IsP5Game()) == 0).SelectMany(kvp => kvp.Value.Where(sg => sg != null && !sg.IsConferenceGame())).Distinct().ToList();
-            //gamesThatCanBeReplaced.InsertRange(0, p5NoOOC);
-
-            foreach (var game in gamesInNeedOfReplacement)
-            {
-                if (IsRivalryGame(game.HomeTeam, game.AwayTeam))
-                {
-                    continue;
-                }
-
-                var swap = gamesThatCanBeReplaced.Pop(game);
-
-                if (swap == null)
-                    continue;
-
-                if (!BothTeamsNeedReplacement(schedules, game))
-                {
-                    gamesThatCanBeReplaced.Insert(0, swap);
-                    continue;
-                }
-
-                SwapTeams(schedules, game, swap);
-            }
-        }
-#endif
-
         static bool SwapTeams(PreseasonScheduledGame g1, PreseasonScheduledGame g2, List<int> teamsThatNeedG5)
         {
             // likely 3 P5 teams, 1 G5
@@ -1109,10 +968,10 @@ namespace EA_DB_Editor
             g2.MaddenRecord["GATG"] = a.ToString();
             g2.HomeTeam = h;
             g2.AwayTeam = a;
-            return true; 
+            return true;
         }
 
-    public    static bool SwapTeams(PreseasonScheduledGame g1, PreseasonScheduledGame g2)
+        public static bool SwapTeams(PreseasonScheduledGame g1, PreseasonScheduledGame g2)
         {
             if (RecruitingFixup.TeamsInSameConference(g1.HomeTeam, g2.AwayTeam) || RecruitingFixup.TeamsInSameConference(g2.HomeTeam, g1.AwayTeam))
                 return false;
@@ -1123,7 +982,7 @@ namespace EA_DB_Editor
             g2.MaddenRecord["GATG"] = a1.ToString();
             g1.AwayTeam = a2;
             g2.AwayTeam = a1;
-            return true; 
+            return true;
         }
 
         public static bool SwapForP5(PreseasonScheduledGame g1, PreseasonScheduledGame g2, int teamInNeedOfP5)
@@ -1184,7 +1043,7 @@ namespace EA_DB_Editor
 
         static bool SwapTeams(PreseasonScheduledGame g1, PreseasonScheduledGame g2, FutureGame fg)
         {
-            var teams = new[] { g2.HomeTeam, g1.HomeTeam, g2.AwayTeam, g1.AwayTeam }.ToList();    
+            var teams = new[] { g2.HomeTeam, g1.HomeTeam, g2.AwayTeam, g1.AwayTeam }.ToList();
 
 
             int g1H = 0, g2H = 0, g1A = 0, g2A = 0;
@@ -1209,7 +1068,7 @@ namespace EA_DB_Editor
                 g1H = teams.First();
             }
 
-            if( g1H.IsFcsTeam())
+            if (g1H.IsFcsTeam())
             {
                 var temp = g1H;
                 g1H = g1A;
@@ -1223,38 +1082,20 @@ namespace EA_DB_Editor
                 g2A = temp;
             }
 
-            if (RecruitingFixup.TeamsInSameConference(teams[0],teams[1]))
+            if (RecruitingFixup.TeamsInSameConference(teams[0], teams[1]))
                 return false;
 
 
             g1.MaddenRecord["GATG"] = g1A.ToString();
             g1.MaddenRecord["GHTG"] = g1H.ToString();
-            g1.AwayTeam =g1A;
+            g1.AwayTeam = g1A;
             g1.HomeTeam = g1H;
 
             g2.MaddenRecord["GATG"] = g2A.ToString();
             g2.MaddenRecord["GHTG"] = g2H.ToString();
             g2.AwayTeam = g2A;
             g2.HomeTeam = g2H;
-            return true ; 
-        }
-
-        static void SwapTeams(Dictionary<int, TeamSchedule> schedules, PreseasonScheduledGame g1, PreseasonScheduledGame g2)
-        {
-            var a1 = g1.AwayTeam;
-            var a2 = g2.AwayTeam;
-
-            SwapTeams(g1, g2);
-
-            if (schedules.ContainsKey(a1))
-            {
-                schedules[a1][g2.WeekIndex] = g2;
-            }
-
-            if (schedules.ContainsKey(a2))
-            {
-                schedules[a2][g1.WeekIndex] = g1;
-            }
+            return true;
         }
 
         public static Dictionary<int, string> StadiumsForTeams()
@@ -1285,16 +1126,16 @@ namespace EA_DB_Editor
                 [273] = (95, 5),
             };
 
-            foreach(var mr in nesg.lRecords)
+            foreach (var mr in nesg.lRecords)
             {
                 var sgid = mr["SGID"].ToInt32();
                 var sewn = mr["SEWN"].ToInt32();
 
-                if(dict.ContainsKey(sgid))
+                if (dict.ContainsKey(sgid))
                 {
                     var (logo, beforeWeek) = dict[sgid];
 
-                    if(sewn < beforeWeek)
+                    if (sewn < beforeWeek)
                     {
                         mr["RLID"] = logo.ToString();
                     }
@@ -1440,639 +1281,596 @@ namespace EA_DB_Editor
                     teamScheduleRecord = MaddenTable.Query(teamSchedules, query).Single();
                     teamScheduleRecord["THOA"] = "1";
                 }
+                // smu-tcu play at 279 when smu is in big 12 on friday night
+                else if (MatchTeams(homeTeam, awayTeam, new[] { 83, 89 }))
+                {
+                    gameRecord["SGID"] = "257";
+                    query["TGID"] = awayTeam.ToString();
+                    teamScheduleRecord = MaddenTable.Query(teamSchedules, query).Single();
+                    teamScheduleRecord["THOA"] = "1";
+                }
+
+                // houston-rice play at 272 on friday night
+                else if (MatchTeams(homeTeam, awayTeam, new[] { 33, 79 }))
+                {
+                    gameRecord["SGID"] = "272";
+                    query["TGID"] = awayTeam.ToString();
+                    teamScheduleRecord = MaddenTable.Query(teamSchedules, query).Single();
+                    teamScheduleRecord["THOA"] = "1";
+                }
             }
         }
 
-        static bool IsGame(int a, int b)
-        {
-            return a != 1023 && b != 1023;
-        }
-
-        static MaddenRecord FindGame(MaddenTable table, int game, int week)
-        {
-            var query = new Dictionary<string, string>();
-            query["SGNM"] = game.ToString();
-            query["SEWN"] = week.ToString();
-            return MaddenTable.Query(table, query).SingleOrDefault();
-        }
-
-        static void SwapHomeTeams(MaddenRecord p5Game, MaddenRecord fcsGame, int fcsHost, int fcsTeam)
-        {
-            var teamQuery = new Dictionary<string, string>();
-            teamQuery["TGID"] = fcsHost.ToString();
-
-            // get the Team record of fcs host
-            var teamHostingFcsTeam = MaddenTable.Query(Form1.MainForm.maddenDB.lTables, "TEAM", teamQuery).SingleOrDefault();
-
-            // get the record of the game to replace host
-            teamQuery["TGID"] = p5Game["GHTG"];
-            var p5Host = MaddenTable.Query(Form1.MainForm.maddenDB.lTables, "TEAM", teamQuery).SingleOrDefault();
-
-            // swap home teams and stadiums
-            p5Game["GHTG"] = fcsHost.ToString();
-            p5Game["SGID"] = teamHostingFcsTeam["SGID"];
-            fcsGame["GHTG"] = p5Host["TGID"].ToString();
-            fcsGame["SGID"] = p5Host["SGID"];
-
-            // get the team schedule for 3 teams involved
-            var teamScheduleTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "TSCH");
-
-            // get the game # and week #
-            var gameNum = p5Game["SGNM"];
-            var weekNum = p5Game["SEWN"];
-
-            var p5Away = teamScheduleTable.lRecords.Where(mr => mr["SGNM"] == gameNum && mr["SEWN"] == weekNum && mr["TGID"] == p5Game["GATG"]).SingleOrDefault();
-            var p5Home = teamScheduleTable.lRecords.Where(mr => mr["SGNM"] == gameNum && mr["SEWN"] == weekNum && mr["TGID"] == p5Host["TGID"]).SingleOrDefault();
-            var fcsHostHome = teamScheduleTable.lRecords.Where(mr => mr["SGNM"] == fcsGame["SGNM"] && mr["SEWN"] == fcsGame["SEWN"] && mr["TGID"] == fcsHost.ToString()).SingleOrDefault();
-
-            // new home team gets the fcs game opp and number
-            p5Home["OGID"] = fcsTeam.ToString();
-            p5Home["SGNM"] = fcsGame["SGNM"];
-
-            // gcshost gets the p5 game opp and number
-            p5Away["OGID"] = fcsHost.ToString();
-            fcsHostHome["OGID"] = p5Away["TGID"];
-            fcsHostHome["SGNM"] = p5Away["SGNM"];
-        }
-
-        static void ModifyTeamSchedule(MaddenRecord mr, int previousValue, int newValue)
-        {
-            // get the team schedule
-            var teamScheduleTable = MaddenTable.FindTable(Form1.MainForm.maddenDB.lTables, "TSCH");
-            mr["GATG"] = newValue.ToString();
-
-            // get the game # and week #
-            var gameNum = mr["SGNM"];
-            var weekNum = mr["SEWN"];
-
-            var query = new Dictionary<string, string>();
-            query["SGNM"] = gameNum;
-            query["SEWN"] = weekNum;
-            query["TGID"] = previousValue.ToString();
-
-            var teamScheduleRecord = MaddenTable.Query(teamScheduleTable, query).SingleOrDefault();
-            query.Remove("TGID");
-            query["OGID"] = previousValue.ToString();
-            var oppRecord = MaddenTable.Query(teamScheduleTable, query).SingleOrDefault();
-            teamScheduleRecord["TGID"] = newValue.ToString();
-            oppRecord["OGID"] = newValue.ToString(); ;
-        }
-
-        static bool IsNeutralSiteGame(MaddenRecord gameRecord, MaddenTable teamSchedules, int home, int away)
-        {
-            var gameNum = gameRecord.lEntries[11].Data.ToInt32();
-            var week = gameRecord.lEntries[12].Data.ToInt32();
-            var query = new Dictionary<string, string>();
-            query["SGNM"] = gameNum.ToString();
-            query["SEWN"] = week.ToString();
-
-            // find home team record
-            query["TGID"] = home.ToString();
-            var htGame = MaddenTable.Query(teamSchedules, query).Single();
-
-            // set the away team to home
-            query["TGID"] = away.ToString();
-            var atGame = MaddenTable.Query(teamSchedules, query).Single();
-
-            return atGame["THOA"] == "1" && htGame["THOA"] == "1";
-        }
 
         public static bool IsRivalryGame(int homeTeam, int awayTeam)
         {
-            var rivalries = new List<int[]>();
+            var rivalries = new List<int[]>
+            {
+                // odu - marshall
+                new[] { 234, 46 },
 
-            // odu - marshall
-            rivalries.Add(new[] { 234, 46 });
+                // odu - ecu
+                new[] { 234, 25 },
 
-            // odu - ecu
-            rivalries.Add(new[] { 234, 25 });
+                // odu - app st
+                new[] { 234, 901 },
 
-            // odu - app st
-            rivalries.Add(new[] { 234, 901 });
+                // su-temple
+                new[] { 88, 90 },
 
-            // su-temple
-            rivalries.Add(new[] { 88, 90 });
 
+                // ru-uconn
+                // rivalries.Add(new[] { 80, 100 });
 
-            // ru-uconn
-            // rivalries.Add(new[] { 80, 100 });
+                // gt-gsu
+                new[] { 31, 233 },
 
-            // gt-gsu
-            rivalries.Add(new[] {31, 233 });
+                // ole miss-usm
+                new[] { 73, 85 },
 
-            // ole miss-usm
-            rivalries.Add(new[] { 73, 85 });
+                // miss st-usm
+                new[] { 55, 85 },
 
-            // miss st-usm
-            rivalries.Add(new[] { 55, 85 });
+                // ole miss-memphis
+                new[] { 73, 48 },
 
-            // ole miss-memphis
-            rivalries.Add(new[] { 73, 48 });
+                // Marshall-ohio
+                new[] { 46, 69 },
 
-            // Marshall-ohio
-            rivalries.Add(new[] { 46, 69 });
+                // UMD-Navy state
+                new[] { 47, 57 },
 
-            // UMD-Navy state
-            rivalries.Add(new[] { 47, 57 });
+                // Utah-Utah state
+                new[] { 103, 104 },
 
-            // Utah-Utah state
-            rivalries.Add(new[] { 103, 104 });
+                // byu-Utah state
+                new[] { 16, 104 },
 
-            // byu-Utah state
-            rivalries.Add(new[] { 16, 104 });
+                // Utah-BYU
+                new[] { 103, 16 },
 
-            // Utah-BYU
-            rivalries.Add(new[] { 103, 16 });
+                // TCU-BYU
+                new[] { 89, 16 },
 
-            // TCU-BYU
-            rivalries.Add(new[] { 89, 16 });
+                // TCU-BSU
+                new[] { 89, 12 },
 
-            // TCU-BSU
-            rivalries.Add(new[] { 89, 12 });
+                // CU-CSU
+                new[] { 23, 22 },
 
-            // CU-CSU
-            rivalries.Add(new[] { 23, 22 });
+                // WYO-CSU
+                new[] { 23, 115 },
 
-            // WYO-CSU
-            rivalries.Add(new[] { 23, 115 });
+                // Texas - TAMU
+                new[] { 92, 93 },
 
-            // Texas - TAMU
-            rivalries.Add(new[] { 92, 93 });
+                // TCU-SMU
+                new[] { 83, 89 },
 
-            // TCU-SMU
-            rivalries.Add(new[] { 83, 89 });
+                // HOU-SMU
+                new[] { 33, 89 },
 
-            // HOU-SMU
-            rivalries.Add(new[] { 33, 89 });
+                // Pitt - WVU
+                new[] { 112, 77 },
 
-            // Pitt - WVU
-            rivalries.Add(new[] { 112, 77 });
+                // Ark - Texas
+                new[] { 92, 6 },
 
-            // Ark - Texas
-            rivalries.Add(new[] { 92, 6 });
+                // Baylor - TAMU
+                new[] { 11, 93 },
 
-            // Baylor - TAMU
-            rivalries.Add(new[] { 11, 93 });
+                // Clemson -SCAR
+                new[] { 21, 84 },
 
-            // Clemson -SCAR
-            rivalries.Add(new[] { 21, 84 });
+                // Colorado - Nebraska
+                new[] { 22, 58 },
 
-            // Colorado - Nebraska
-            rivalries.Add(new[] { 22, 58 });
+                // UF-FSU
+                new[] { 27, 28 },
 
-            // UF-FSU
-            rivalries.Add(new[] { 27, 28 });
+                // UF-Miami
+                new[] { 27, 49 },
 
-            // UF-Miami
-            rivalries.Add(new[] { 27, 49 });
+                // Illinois - Mizzou
+                new[] { 35, 56 },
 
-            // Illinois - Mizzou
-            rivalries.Add(new[] { 35, 56 });
+                // Iowa - ISU
+                new[] { 37, 38 },
 
-            // Iowa - ISU
-            rivalries.Add(new[] { 37, 38 });
+                // Mizzou - ISU
+                new[] { 56, 38 },
 
-            // Mizzou - ISU
-            rivalries.Add(new[] { 56, 38 });
+                // Mizzou - Kansas
+                new[] { 56, 39 },
 
-            // Mizzou - Kansas
-            rivalries.Add(new[] { 56, 39 });
+                // UL - UK
+                new[] { 42, 44 },
 
-            // UL - UK
-            rivalries.Add(new[] { 42, 44 });
+                // UGA - GT
+                new[] { 30, 31 },
 
-            // UGA - GT
-            rivalries.Add(new[] { 30, 31 });
+                // Maryland - WVU
+                new[] { 47, 112 },
 
-            // Maryland - WVU
-            rivalries.Add(new[] { 47, 112 });
+                // Pitt - WVU
+                new[] { 77, 112 },
 
-            // Pitt - WVU
-            rivalries.Add(new[] { 77, 112 });
+                // Mizzou - Nebraska
+                new[] { 56, 58 },
 
-            // Mizzou - Nebraska
-            rivalries.Add(new[] { 56, 58 });
+                // Mizzou - OU
+                new[] { 56, 71 },
 
-            // Mizzou - OU
-            rivalries.Add(new[] { 56, 71 });
+                // PSU - Pitt
+                new[] { 77, 76 },
 
-            // PSU - Pitt
-            rivalries.Add(new[] { 77, 76 });
+                // PSU - WVU
+                new[] { 112, 76 },
 
-            // PSU - WVU
-            rivalries.Add(new[] { 112, 76 });
+                // SU - WVU
+                new[] { 112, 88 },
 
-            // SU - WVU
-            rivalries.Add(new[] { 112, 88 });
+                // TAMU  - Texas Tech
+                new[] { 94, 93 },
 
-            // TAMU  - Texas Tech
-            rivalries.Add(new[] { 94, 93 });
+                // WVU - VT
+                new[] { 108, 112 },
 
-            // WVU - VT
-            rivalries.Add(new[] { 108, 112 });
+                // WVU - Marshall            
+                new[] { 46, 112 },
 
-            // WVU - Marshall            
-            rivalries.Add(new[] { 46, 112 });
+                // army-af
+                new[] { 8, 1 },
 
-            // army-af
-            rivalries.Add(new[] { 8, 1 });
+                // army-navy
+                new[] { 8, 57 },
 
-            // army-navy
-            rivalries.Add(new[] { 8, 57 });
+                // af-navy
+                new[] { 1, 57 },
 
-            // af-navy
-            rivalries.Add(new[] { 1, 57 });
+                // usc-nd
+                new[] { 102, 68 },
 
-            // usc-nd
-            rivalries.Add(new[] { 102, 68 });
+                // stanford-nd
+                new[] { 87, 68 },
 
-            // stanford-nd
-            rivalries.Add(new[] { 87, 68 });
+                // cincy-miami u
+                new[] { 50, 20 },
 
-            // cincy-miami u
-            rivalries.Add(new[] { 50, 20 });
+                // cincy-Louisville
+                new[] { 44, 20 },
 
-            // cincy-Louisville
-            rivalries.Add(new[] { 44, 20 });
+                // cincy-wvu
+                new[] { 112, 20 },
 
-            // cincy-wvu
-            rivalries.Add(new[] { 112, 20 });
+                // houston - tulsa
+                new[] { 33, 97 },
 
-            // houston - tulsa
-            rivalries.Add(new[] { 33, 97 });
+                // houston - rice
+                new[] { 33, 79 },
 
-            // houston - rice
-            rivalries.Add(new[] { 33, 79 });
+                // USF - UCF
+                new[] { 18, 144 },
 
-            // USF - UCF
-            rivalries.Add(new[] { 18, 144 });
+                // lsu - tulane
+                new[] { 45, 96 },
 
-            // lsu - tulane
-            rivalries.Add(new[] { 45, 96 });
+                // Pitt - Marshall            
+                new[] { 46, 77 },
 
-            // Pitt - Marshall            
-            rivalries.Add(new[] { 46, 77 });
+                // Pitt - Cincy            
+                new[] { 20, 77 },
 
-            // Pitt - Cincy            
-            rivalries.Add(new[] { 20, 77 });
+                // PSU - Cincy            
+                new[] { 20, 76 },
 
-            // PSU - Cincy            
-            rivalries.Add(new[] { 20, 76 });
+                // NMSU - UNM
+                // rivalries.Add(new[] { 60, 61 });
 
-            // NMSU - UNM
-            // rivalries.Add(new[] { 60, 61 });
+                // GaSo-App St
+                new[] { 901, 902 },
 
-            // GaSo-App St
-            rivalries.Add(new[] { 901, 902 });
+                // Tulane-USM
+                new[] { 96, 85 },
 
-            // Tulane-USM
-            rivalries.Add(new[] { 96, 85 });
+                // UTEP-NMSU
+                // rivalries.Add(new[] { 61, 105 });
 
-            // UTEP-NMSU
-            // rivalries.Add(new[] { 61, 105 });
+                // SDSU-FS
+                new[] { 81, 29 },
 
-            // SDSU-FS
-            rivalries.Add(new[] { 81, 29 });
+                // SDSU-SJSU
+                new[] { 81, 82 },
 
-            // SDSU-SJSU
-            rivalries.Add(new[] { 81, 82 });
+                // ECU-MARSH
+                new[] { 25, 46 },
 
-            // ECU-MARSH
-            rivalries.Add(new[] { 25, 46 });
+                // BYU-BSU
+                new[] { 16, 12 },
 
-            // BYU-BSU
-            rivalries.Add(new[] { 16, 12 });
+                // UAB-USM
+                new[] { 85, 98 },
 
-            // UAB-USM
-            rivalries.Add(new[] { 85, 98 });
+                // LT-USM
+                new[] { 85, 43 },
 
-            // LT-USM
-            rivalries.Add(new[] { 85, 43 });
+                // tulane-USM
+                new[] { 85, 96 },
 
-            // tulane-USM
-            rivalries.Add(new[] { 85, 96 });
+                // memphis-USM
+                new[] { 85, 48 },
 
-            // memphis-USM
-            rivalries.Add(new[] { 85, 48 });
+                // Arizona-UNM
+                new[] { 4, 60 },
 
-            // Arizona-UNM
-            rivalries.Add(new[] { 4, 60 });
+                // utep-tulsa
+                new[] { 97, 105 },
 
-            // utep-tulsa
-            rivalries.Add(new[] { 97, 105 });
+                // wku-mtsu
+                new[] { 211, 53 },
 
-            // wku-mtsu
-            rivalries.Add(new[] { 211, 53 });
+                // wku-marsh
+                new[] { 46, 211 },
 
-            // wku-marsh
-            rivalries.Add(new[] { 46, 211 });
+                // utsa-tex st
+                new[] { 218, 232 },
 
-            // utsa-tex st
-            rivalries.Add(new[] { 218, 232 });
+                // troy-mtsu
+                new[] { 143, 53 },
 
-            // troy-mtsu
-            rivalries.Add(new[] { 143, 53 });
+                // nt-mtsu
+                new[] { 64, 53 },
 
-            // nt-mtsu
-            rivalries.Add(new[] { 64, 53 });
+                // af-csu
+                new[] { 1, 23 },
 
-            // af-csu
-            rivalries.Add(new[] { 1, 23 });
+                // af-wyoming
+                new[] { 1, 115 },
 
-            // af-wyoming
-            rivalries.Add(new[] { 1, 115 });
+                // af-hawaii
+                new[] { 1, 32 },
 
-            // af-hawaii
-            rivalries.Add(new[] { 1, 32 });
+                // BSU-WSU
+                new[] { 12, 111 },
 
-            // BSU-WSU
-            rivalries.Add(new[] { 12, 111 });
+                // fau-fiu
+                // rivalries.Add(new[] { 230, 229 });
 
-            // fau-fiu
-            // rivalries.Add(new[] { 230, 229 });
+                // army-ru
+                new[] { 8, 80 },
 
-            // army-ru
-            rivalries.Add(new[] { 8, 80 });
+                // navy-ru
+                new[] { 57, 80 },
 
-            // navy-ru
-            rivalries.Add(new[] { 57, 80 });
+                // tcu-bsu
+                new[] { 12, 89 },
 
-            // tcu-bsu
-            rivalries.Add(new[] { 12, 89 });
+                // buffalo-su
+                new[] { 15, 88 },
 
-            // buffalo-su
-            rivalries.Add(new[] { 15, 88 });
+                // buffalo-temple
+                new[] { 15, 90 },
 
-            // buffalo-temple
-            rivalries.Add(new[] { 15, 90 });
+                // byu-hawaai
+                new[] { 16, 32 },
 
-            // byu-hawaai
-            rivalries.Add(new[] { 16, 32 });
+                // byu-sdsu
+                new[] { 16, 81 },
 
-            // byu-sdsu
-            rivalries.Add(new[] { 16, 81 });
+                // uconn-su
+                //rivalries.Add(new[] { 100, 88 });
 
-            // uconn-su
-            //rivalries.Add(new[] { 100, 88 });
+                // uconn-buffalo
+                //rivalries.Add(new[] { 100, 15 });
 
-            // uconn-buffalo
-            //rivalries.Add(new[] { 100, 15 });
+                // uconn-bc
+                //rivalries.Add(new[] { 100, 13 });
 
-            // uconn-bc
-            //rivalries.Add(new[] { 100, 13 });
+                // uconn-psu
+                //rivalries.Add(new[] { 100, 76 });
 
-            // uconn-psu
-            //rivalries.Add(new[] { 100, 76 });
+                // uconn-temple
+                //rivalries.Add(new[] { 100, 90 });
 
-            // uconn-temple
-            //rivalries.Add(new[] { 100, 90 });
+                // uconn-wvu
+                //rivalries.Add(new[] { 100, 112 });
 
-            // uconn-wvu
-            //rivalries.Add(new[] { 100, 112 });
+                // uconn-duke
+                //rivalries.Add(new[] { 100, 24 });
 
-            // uconn-duke
-            //rivalries.Add(new[] { 100, 24 });
+                // uconn-indy
+                //rivalries.Add(new[] { 100, 36 });
 
-            // uconn-indy
-            //rivalries.Add(new[] { 100, 36 });
+                // uconn-unc
+                //rivalries.Add(new[] { 100, 62 });
 
-            // uconn-unc
-            //rivalries.Add(new[] { 100, 62 });
+                // uconn-ul
+                //rivalries.Add(new[] { 100, 44 });
 
-            // uconn-ul
-            //rivalries.Add(new[] { 100, 44 });
+                // uconn-uk
+                //rivalries.Add(new[] { 100, 42 });
 
-            // uconn-uk
-            //rivalries.Add(new[] { 100, 42 });
+                // usm-ecu
+                new[] { 25, 85 },
 
-            // usm-ecu
-            rivalries.Add(new[] { 25, 85 });
+                // marshall-ecu
+                new[] { 25, 46 },
 
-            // marshall-ecu
-            rivalries.Add(new[] { 25, 46 });
+                // fau-troy
+                new[] { 143, 229 },
 
-            // fau-troy
-            rivalries.Add(new[] { 143, 229 });
+                // fs-lt
+                new[] { 43, 29 },
 
-            // fs-lt
-            rivalries.Add(new[] { 43, 29 });
+                // ulm-lt
+                new[] { 43, 65 },
 
-            // ulm-lt
-            rivalries.Add(new[] { 43, 65 });
+                // ull-lt
+                new[] { 43, 86 },
 
-            // ull-lt
-            rivalries.Add(new[] { 43, 86 });
+                // marshall-ohio
+                new[] { 69, 46 },
 
-            // marshall-ohio
-            rivalries.Add(new[] { 69, 46 });
+                // memphis-ul
+                new[] { 48, 44 },
 
-            // memphis-ul
-            rivalries.Add(new[] { 48, 44 });
+                // nt-smu
+                new[] { 64, 83 },
 
-            // nt-smu
-            rivalries.Add(new[] { 64, 83 });
+                // odu-vt
+                new[] { 234, 108 },
 
-            // odu-vt
-            rivalries.Add(new[] { 234, 108 });
+                // odu-uva
+                new[] { 234, 107 },
 
-            // odu-uva
-            rivalries.Add(new[] { 234, 107 });
+                // sjsu-stan
+                new[] { 82, 87 },
 
-            // sjsu-stan
-            rivalries.Add(new[] { 82, 87 });
+                // temple-psu
+                new[] { 90, 76 },
 
-            // temple-psu
-            rivalries.Add(new[] { 90, 76 });
+                // temple-pitt
+                new[] { 90, 77 },
 
-            // temple-pitt
-            rivalries.Add(new[] { 90, 77 });
+                // tulsa-ok st
+                new[] { 97, 72 },
 
-            // tulsa-ok st
-            rivalries.Add(new[] { 97, 72 });
+                // memphis-uab
+                new[] { 48, 98 },
 
-            // memphis-uab
-            rivalries.Add(new[] { 48, 98 });
+                // utep-tulsa
+                new[] { 105, 97 },
 
-            // utep-tulsa
-            rivalries.Add(new[] { 105, 97 });
+                // ecu-marshall
+                new[] { 25, 46 },
 
-            // ecu-marshall
-            rivalries.Add(new[] { 25, 46 });
+                // ecu-usm
+                new[] { 25, 85 },
 
-            // ecu-usm
-            rivalries.Add(new[] { 25, 85 });
+                // ecu-ncsu
+                new[] { 25, 63 },
 
-            // ecu-ncsu
-            rivalries.Add(new[] { 25, 63 });
+                // ecu-duke
+                new[] { 25, 24 },
 
-            // ecu-duke
-            rivalries.Add(new[] { 25, 24 });
+                // ecu-unc
+                new[] { 25, 62 },
 
-            // ecu-unc
-            rivalries.Add(new[] { 25, 62 });
+                // ecu-wf
+                new[] { 25, 109 },
 
-            // ecu-wf
-            rivalries.Add(new[] { 25, 109 });
+                // odu-gs
+                new[] { 234, 901 },
 
-            // odu-gs
-            rivalries.Add(new[] { 234,901 });
+                // app st-gs
+                new[] { 901, 902 },
 
-            // app st-gs
-            rivalries.Add(new[] { 901, 902 });
+                // gs - gsu
+                new[] { 233, 902 },
 
-            // gs - gsu
-            rivalries.Add(new[] { 233, 902 });
+                // af - army
+                new[] { 1, 8 },
 
-            // af - army
-            rivalries.Add(new[] { 1, 8 });
+                // af - csu
+                new[] { 1, 23 },
 
-            // af - csu
-            rivalries.Add(new[] { 1, 23 });
+                // af - hawaii
+                new[] { 1, 32 },
 
-            // af - hawaii
-            rivalries.Add(new[] { 1, 32 });
+                // af - navy
+                new[] { 1, 57 },
 
-            // af - navy
-            rivalries.Add(new[] { 1, 57 });
+                // akron - kent st
+                new[] { 2, 41 },
 
-            // akron - kent st
-            rivalries.Add(new[] { 2, 41 });
+                // alabama-auburn
+                new[] { 3, 9 },
 
-            // alabama-auburn
-            rivalries.Add(new[] { 3, 9 });
+                // alabama-uf
+                new[] { 9, 27 },
 
-            // alabama-uf
-            rivalries.Add(new[] { 3, 27 });
+                // alabama-gt
+                new[] { 3, 31 },
 
-            // alabama-gt
-            rivalries.Add(new[] { 3, 31 });
+                // alabama-lsu
+                new[] { 3, 45 },
 
-            // alabama-lsu
-            rivalries.Add(new[] { 3, 45 });
+                // alabama-miss st
+                new[] { 3, 55 },
 
-            // alabama-miss st
-            rivalries.Add(new[] { 3, 55 });
+                // alabama-ole miss
+                new[] { 3, 73 },
 
-            // alabama-ole miss
-            rivalries.Add(new[] { 3, 73 });
+                // alabama-tenn
+                new[] { 3, 91 },
 
-            // alabama-tenn
-            rivalries.Add(new[] { 3, 91 });
+                // au-asu
+                new[] { 4, 5 },
 
-            // au-asu
-            rivalries.Add(new[] { 4, 5 });
+                // au-unm
+                new[] { 4, 60 },
 
-            // au-unm
-            rivalries.Add(new[] { 4, 60 });
+                // ark-ark st
+                new[] { 6, 7 },
 
-            // ark-ark st
-            rivalries.Add(new[] { 6, 7 });
+                // ark-lsu
+                new[] { 6, 45 },
 
-            // ark-lsu
-            rivalries.Add(new[] { 6, 45 });
+                // ark-ole miss
+                new[] { 6, 73 },
 
-            // ark-ole miss
-            rivalries.Add(new[] { 6, 73 });
+                // ark-texas
+                new[] { 6, 92 },
 
-            // ark-texas
-            rivalries.Add(new[] { 6, 92 });
+                // ark-tamu
+                new[] { 6, 93 },
 
-            // ark-tamu
-            rivalries.Add(new[] { 6, 93 });
+                // ark st-nt
+                new[] { 7, 64 },
 
-            // ark st-nt
-            rivalries.Add(new[] { 7, 64 });
+                // ark st-ulm
+                new[] { 7, 65 },
 
-            // ark st-ulm
-            rivalries.Add(new[] { 7, 65 });
+                // army-navy
+                new[] { 8, 57 },
 
-            // army-navy
-            rivalries.Add(new[] { 8, 57 });
+                // army-ru
+                new[] { 8, 80 },
 
-            // army-ru
-            rivalries.Add(new[] { 8, 80 });
+                // auburn -uf
+                new[] { 9, 27 },
 
-            // auburn next
+                // auburn-gt
+                new[] { 9, 31 },
 
-            //baylor-smu
-            rivalries.Add(new[] { 11, 83 });
+                // auburn-lsu
+                new[] { 9, 45 },
 
-            //baylor-rice
-            rivalries.Add(new[] { 11, 79 });
+                // auburn-uga
+                new[] { 9, 30 },
 
-            //baylor-tamu
-            rivalries.Add(new[] { 11, 93 });
+                // auburn-clemson
+                new[] { 9, 21 },
 
-            // boise st - nevada
-            rivalries.Add(new[] { 12, 59 });
+                // uga-clemson
+                new[] { 30, 21 },
 
-            // boise st - fs
-            rivalries.Add(new[] { 12, 29 });
+                // uga-uf
+                new[] { 30, 27 },
 
-            // boise st - hawaii
-            rivalries.Add(new[] { 12, 32 });
+                // uga-gt
+                new[] { 30, 31 },
 
-            // smu - rice
-            rivalries.Add(new[] { 79, 83 });
+                // fsu-uf
+                new[] { 28, 27 },
 
-            // smu - houston
-            rivalries.Add(new[] { 33, 83 });
+                // miami-uf
+                new[] { 49, 27 },
 
-            // smu - nt
-            rivalries.Add(new[] { 64, 83 });
+                //baylor-smu
+                new[] { 11, 83 },
 
-            // smu - navy
-            rivalries.Add(new[] { 57, 83 });
+                //baylor-rice
+                new[] { 11, 79 },
 
-            // nd - navy
-            rivalries.Add(new[] { 57, 68 });
+                //baylor-tamu
+                new[] { 11, 93 },
 
-            // GS - GSU
-            rivalries.Add(new[] { 233, 902 });
+                // boise st - nevada
+                new[] { 12, 59 },
 
-            // GS - App St
-            rivalries.Add(new[] { 901, 902 });
+                // boise st - fs
+                new[] { 12, 29 },
 
-            // buffalo - su
-            rivalries.Add(new[] { 15, 88 });
+                // boise st - hawaii
+                new[] { 12, 32 },
 
-            // buffalo - temple
-            rivalries.Add(new[] { 15, 90 });
+                // smu - rice
+                new[] { 79, 83 },
 
-            // fs - lt
-            rivalries.Add(new[] { 29, 43 });
+                // smu - houston
+                new[] { 33, 83 },
 
-            // lt - ulm
-            rivalries.Add(new[] { 43, 65 });
+                // smu - nt
+                new[] { 64, 83 },
 
-            // lt - ull
-            rivalries.Add(new[] { 43, 86 });
+                // smu - navy
+                new[] { 57, 83 },
 
-            // marshall - ohio
-            rivalries.Add(new[] { 46, 69 });
+                // nd - navy
+                new[] { 57, 68 },
 
-            // memphis - uab
-            rivalries.Add(new[] { 48, 98 });
+                // GS - GSU
+                new[] { 233, 902 },
 
-            // mtsu - troy
-            rivalries.Add(new[] { 53, 143 });
+                // GS - App St
+                new[] { 901, 902 },
 
-            // usm - tulane
-            rivalries.Add(new[] { 85, 96 });
+                // buffalo - su
+                new[] { 15, 88 },
 
-            // unm-utep
-            rivalries.Add(new[] { 60, 105 });
+                // buffalo - temple
+                new[] { 15, 90 },
 
-            // ecu-appst
-            rivalries.Add(new[] { 25, 901 });
+                // fs - lt
+                new[] { 29, 43 },
 
-            // ul-wku
-            rivalries.Add(new[] { 44, 211 });
+                // lt - ulm
+                new[] { 43, 65 },
 
-            // uk-wku
-            rivalries.Add(new[] { 42, 211 });
+                // lt - ull
+                new[] { 43, 86 },
 
-            return rivalries.Where(r => (r[0]==homeTeam && r[1]==awayTeam)||(r[1] == homeTeam && r[0] == awayTeam)).Any();
+                // marshall - ohio
+                new[] { 46, 69 },
+
+                // memphis - uab
+                new[] { 48, 98 },
+
+                // mtsu - troy
+                new[] { 53, 143 },
+
+                // usm - tulane
+                new[] { 85, 96 },
+
+                // unm-utep
+                new[] { 60, 105 },
+
+                // ecu-appst
+                new[] { 25, 901 },
+
+                // ul-wku
+                new[] { 44, 211 },
+
+                // uk-wku
+                new[] { 42, 211 },
+
+                // miami-fsu
+                new[] { 28, 49 }
+            };
+
+
+            return rivalries.Where(r => (r[0] == homeTeam && r[1] == awayTeam) || (r[1] == homeTeam && r[0] == awayTeam)).Any();
         }
 
         public static bool IsNotreDameGame(int homeTeam, int awayTeam)
@@ -2105,7 +1903,7 @@ namespace EA_DB_Editor
 
         public static PreseasonScheduledGame Pop(this List<PreseasonScheduledGame> list, PreseasonScheduledGame game, bool lookForExtraConfGame)
         {
-            if(lookForExtraConfGame)
+            if (lookForExtraConfGame)
             {
                 var weekIndex = game.WeekIndex;
 
@@ -2131,25 +1929,6 @@ namespace EA_DB_Editor
                 list.Remove(first);
 
             return first;
-        }
-
-        static bool InNeedofReplaceAndContains(this Dictionary<int, KeyValuePair<int, TeamOOC>> dict, int key)
-        {
-            if (dict.ContainsKey(key))
-            {
-                return dict[key].Value.CurrentPower5 > 1;
-            }
-
-            return false;
-        }
-
-        static void AdjustOOCValue(this Dictionary<int, KeyValuePair<int, TeamOOC>> dict, int key, int removeTeamId)
-        {
-            if (dict.ContainsKey(key))
-            {
-                dict[key].Value.CurrentPower5--;
-                dict[key].Value.Opponents.Remove(removeTeamId);
-            }
         }
     }
 

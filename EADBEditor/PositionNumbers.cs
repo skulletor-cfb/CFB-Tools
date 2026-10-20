@@ -41,6 +41,13 @@ namespace EA_DB_Editor
             return mr["PPOS"].ToInt32();
         }
 
+        /// <summary>
+        /// recruit position group
+        /// </summary>
+        /// <param name="mr"></param>
+        /// <returns></returns>
+        public static int PositionGroup(this MaddenRecord mr) => mr["RPGP"].ToInt32();
+
         public static int Overall(this MaddenRecord mr)
         {
             return mr["POVR"].ToInt32();

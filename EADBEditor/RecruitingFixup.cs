@@ -2,9 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Windows.Forms;
 
 /*
 Recruit Id = PRSI
@@ -93,14 +90,121 @@ namespace EA_DB_Editor
 
     public static class RecruitingFixup
     {
-        // should be -1 if we haven't added any CAPs
-        public static int DontChange = 5;
+        // by default we make 3 CAPs
+        public static HashSet<int> DontChange = new HashSet<int> { 0, 1, 2 };
+        public static string[] PlayerSkills = new[] { "PSPD", "PSTR", "PAGI", "PACC", "PAWR", "PBTK", "PTRK", "PESV", "PBCV", "PSAR", "PSMV", "PJMV", "PCAR", "PCTH", "SPCT", "TRAF", "PRTR", "PJMP", "PTHP", "PTHA", "PTAK", "PHIT", "PPMV", "PFMV", "PBSH", "PPRS", "PPRC", "PMCV", "PZCV", "PYRS", "RELS", "PPBK", "PRBK", "PIBL", "PKRT", "PSTA", "PINJ" };
+
+        public static void Register(int id)
+        {
+            DontChange.Add(id);
+        }
+
+        public static bool TrainJucoPlayer(this Dictionary<string, string> dict, HashSet<string> rosteredPlayers)
+        {
+            // double check that the player isn't on a roster, these three dimensions should be enough to find them
+            var firstName = dict["PFNA"];
+            var lastName = dict["PLNA"];
+            var year = dict["PYEA"].ToInt32();
+            if (rosteredPlayers.Contains(CreateLookupKey(firstName, lastName, year)))
+            {
+                return false;
+            }
+
+            var set = new HashSet<string>(PlayerSkills);
+
+            // add a modifier to unscouted OVR of 1 to 3 because JUCOs have some game tape
+            dict["RCOV"] = (dict["POVR"].ToInt32() + (TableUtility.Rand100() % 3) + 1).ToString();
+            var keys = dict.Keys.ToArray();
+
+            foreach (var key in keys)
+            {
+                // increment the player year
+                if (key == "PYEA")
+                {
+                    dict[key] = (dict[key].ToInt32() + 1).ToString();
+                }
+                else if (set.Contains(key))
+                {
+                    // add 1-3 points for offseason progression
+                    var mod = 1 + TableUtility.Rand100() % 3;
+                    var newValue = Math.Min(99, dict[key].ToInt32() + mod);
+                    dict[key] = newValue.ToString();
+                }
+            }
+
+            return true;
+        }
+
+        private static string CreateLookupKey(string first, string last, int year) => $"{first}|{last}|{year}";
+
+        private static int PosititionGroup(this Dictionary<string, string> dict) => dict["RPGP"].ToInt32();
+
+        public static void RegisterJucoRecruits(JucoRecruits jucos)
+        {
+            // we need to create a hashset of Player NAmes/Year for lookup
+            var playerTable = TableUtility.FindTable("PLAY");
+            var playerLookup = new HashSet<string>(playerTable.lRecords.Select(mr => CreateLookupKey(mr.FirstName(), mr.LastName(), mr.PYEA())));
+
+            // we get a position group to queue dictionary
+            var recruitPitchTable = TableUtility.FindTable("RCPR");
+            var recruitTable = TableUtility.FindTable("RCPT");
+            var worstRecruits = recruitTable.lRecords
+                .Where(mr => mr.POVR() < 60)
+                .GroupBy(mr => mr.PositionGroup())
+                .ToDictionary(g => g.Key, g => new Queue<MaddenRecord>(g.OrderBy(mr => mr.POVR())));
+
+            // jucos gotta train
+            jucos.Recruits.ForEach(r =>
+            {
+                // a player might have made it onto a roster as a walk on
+                if(!r.TrainJucoPlayer(playerLookup))
+                {
+                    return;
+                }
+
+                var group = r.PosititionGroup();
+
+                // can't find a replacement, sometimes guys just flame out
+                if (!worstRecruits.TryGetValue(group, out var canBeReplaced) || canBeReplaced.Count ==0)
+                {
+                    worstRecruits.Remove(group);
+                    return;
+                }
+
+                var mr = canBeReplaced.Dequeue();
+
+                foreach(var kvp in r)
+                {
+                    mr[kvp.Key] = kvp.Value;
+
+                    if (mr.RecruitRank() < 400)
+                    {
+                        mr["RCRK"] = (TableUtility.Rand100() + 400).ToString();
+                    }
+                }
+
+                Register(mr.RecruitId());
+
+                // find schools for the recruit
+                var state = mr.State();
+                var schools = JucoConfStateAssignments.Value[state].CreateAndShuffle().Take(10).ToArray();
+                var recruit = TransferPortal.FindRecruit(recruitPitchTable, mr.RecruitId());
+
+                // now apply the schools to the recruit pitch table
+                // set PT01 = PT10
+                for (int i = 1; i <= schools.Length; i++)
+                {
+                    var key = i == 10 ? "PT10" : "PT0" + i.ToString();
+                    recruit[key] = schools[i - 1].ToString();
+                }
+            });
+        }
+
         const int P5Cutoff = 300;
 
         public static Random RAND = new Random(BitConverter.ToInt32(Guid.NewGuid().ToByteArray().Take(4).ToArray(), 0));
         public static void Fix(bool fixPoints)
         {
-            Check();
             var recruitTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPT");
             var recruitPitchTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPR");
 
@@ -287,68 +391,7 @@ namespace EA_DB_Editor
 
 
         static Lazy<Dictionary<int, int[]>> ConfStateAssignments = new Lazy<Dictionary<int, int[]>>(TableUtility.CreateConferenceAssignmentsForStates, true);
-
-#if false
-        static Dictionary<int, int[]> CreateStateAssignments()
-        {
-        #region state stuff
-            var dict = new Dictionary<int, int[]>();
-            dict.Add(0, new int[] { 3, 3, 3, 3, 3, 8, 8, 8, 45, 30, 27 }); //AL
-            dict.Add(1, new int[] { 110, 111, 75, 75, 12 }); //AK
-            dict.Add(2, new int[] { 4, 4, 4, 4, 5, 5, 5, 5, 92, 102, 99, 87, 17 }); //AZ
-            dict.Add(3, new int[] { 6, 6, 6, 6, 45, 45, 92, 71, 56, 6 }); //AR
-            dict.Add(4, new int[] { 102, 99, 87, 17, 102, 99, 87, 17, 102, 99, 22, 87, 17, 102, 99, 22, 87, 17, 12, 4, 5, 58, 58, 58, 68, 68, 74, 75, 111, 110 }); //CA
-            dict.Add(5, new int[] { 22,22,22, 22, 22, 22,22,22,22,16,39,40,38,72,71,58,  103 }); //CO
-            dict.Add(6, new int[] { 68, 68, 68, 76, 77, 70 }); //CT
-            dict.Add(7, new int[] { 68, 76, 77, 70, 80 }); //DE
-            dict.Add(8, new int[] { 27, 28, 49, 27, 28, 49, 27, 28, 49, 3, 30, 91, 9, 44 }); //FL
-            dict.Add(9, new int[] { 30, 30, 30, 30, 30, 30, 91, 44, 27, 28, 49, 31 }); //GA
-            dict.Add(10, new int[] { 102, 102, 102, 87, 16, 99 }); //HI
-            dict.Add(11, new int[] { 12, 110, 111, 74, 75, 103, 104 }); //ID
-            dict.Add(12, new int[] { 68, 35, 37, 114, 68, 58 }); //IL
-            dict.Add(13, new int[] { 68, 68, 68, 51, 52, 70, 35 }); //IN
-            dict.Add(14, new int[] { 37, 38, 58, 39, 40 }); //IA
-            dict.Add(15, new int[] { 39, 40, 58, 71, 72, 22, }); //KS
-            dict.Add(16, new int[] { 44, 44, 44, 42, 112, 70, 91 ,48,42}); //KY
-            dict.Add(17, new int[] { 45, 45, 45, 45, 45, 45, 45, 55, 73, 6, 56, 92, 3, 8 }); //LA
-            dict.Add(18, new int[] { 13, 80, 76, 77, 68 }); //ME
-            dict.Add(19, new int[] { 47, 76, 77, 80, 68, 112, 107, 108 }); //MD
-            dict.Add(20, new int[] { 13, 77, 76, 68, 68, 77, 76 ,80}); //MA
-            dict.Add(21, new int[] { 51, 51, 52, 70, 68, 76 }); //MI
-            dict.Add(22, new int[] { 54, 114, 70, 35, 37, 51, 52, 58 }); //MN
-            dict.Add(23, new int[] { 91, 73, 55, 3, 9, 45, 6 }); //MS
-            dict.Add(24, new int[] { 6, 56, 45, 3, 84, 27, 58, 92, 93, 91 }); //MO
-            dict.Add(25, new int[] { 12, 16, 110, 111, 103, 54 }); //MT
-            dict.Add(26, new int[] { 58 }); //NE
-            dict.Add(27, new int[] { 59, 101, 4, 5, 102, 87, 99, 17, 103, 104, 16, 74, 75, 110, 111, 22, 23 }); //NV
-            dict.Add(28, new int[] { 68, 76, 77, 80, 88 }); //NH
-            dict.Add(29, new int[] { 68, 76, 77, 80, 88 }); //NJ
-            dict.Add(30, new int[] { 92, 93, 4, 5, 22, 23, 103, 104 }); //NM
-            dict.Add(31, new int[] { 80, 88, 76, 77, 68 }); //NY
-            dict.Add(32, new int[] { 84, 30, 62, 63, 45, 30, 108, 44, 91, 112, 3, 9 }); //NC
-            dict.Add(33, new int[] { 54, 58, 37, 22, 12 }); //ND
-            dict.Add(34, new int[] { 70, 70, 70, 70, 70, 70, 70, 70, 70, 51, 51, 51, 52, 76, 44,  68 }); //OH
-            dict.Add(35, new int[] { 71, 71, 71, 71, 71, 71, 92, 92, 93, 72, 72, 58, 58 }); //OK
-            dict.Add(36, new int[] { 75, 74, 102, 87, 17, 99, 110, 111, 12 }); //OR
-            dict.Add(37, new int[] { 76, 77, 68, 70, 76, 77, 68, 70, 112, 80, 88, 47 }); //PA
-            dict.Add(38, new int[] { 68, 13, 80, 88, 76, 77 }); //RI
-            dict.Add(39, new int[] { 84, 84, 84, 84, 84, 84, 84, 84, 84, 84, 91, 3, 30, 31, 27, 28, 49, 21, 21, 21 }); //SC
-            dict.Add(40, new int[] { 54, 58, 37, 22, 12 }); //SD
-            dict.Add(41, new int[] { 91, 91, 91, 91, 91, 91, 91, 28, 91, 49, 91, 91, 6, 91, 42, 44, 3, 3, 3, 9, 84, 27 }); //TN
-            dict.Add(42, new int[] { 92, 92, 92, 92, 92, 92, 71, 71, 71, 71, 71, 71, 45, 45, 93, 93, 93, 6, 6, 72, 58, 58, 58, 58, 11, 89, 94, 33}); //TX
-            dict.Add(43, new int[] { 103, 104, 22, 102, 74, 75, 16, 99, 87, 17 }); //UT
-            dict.Add(44, new int[] { 68, 76, 77, 47, 80, 88 }); //VT
-            dict.Add(45, new int[] { 108, 108, 108, 108, 107, 112, 47, 42, 44, 70, 76, 77, 62, 63, 84, 91 }); //VA
-            dict.Add(46, new int[] { 110, 111, 12, 74, 75, 16, 102, 87, 17, 99, 22 }); //WA
-            dict.Add(47, new int[] { 112, 112, 112, 108, 107, 76, 70, 42, 44, 77 }); //WV
-            dict.Add(49, new int[] { 12, 22, 23, 103, 104, 110, 111, 74, 75, 58 }); //WY
-            dict.Add(48, new int[] { 114, 114, 114, 68, 35, 54, 37 }); //WI
-            dict.Add(50, new int[] { 3, 9, 70, 51, 27, 28, 49, 45, 92, 71, 84, 30, 91, 76 }); //CN
-            dict.Add(51, new int[] { 47, 108, 107, 76, 77, 112, 27, 28, 49, 30, 91, 3, 9, 51, 68 }); //DC
-            return dict;
-        #endregion
-        }
-#endif
+        static Lazy<Dictionary<int, int[]>> JucoConfStateAssignments = new Lazy<Dictionary<int, int[]>>(TableUtility.CreateConferenceAssignmentsForJucos, true);
 
         static void Fixup(MaddenTable pitchTable, MaddenTable recruitTable, MaddenRecord recruitInfo, bool fixPoints)
         {
@@ -368,7 +411,7 @@ namespace EA_DB_Editor
                 }
             }
 
-            if (recruitId < DontChange) { return; }
+            if (DontChange.Contains(recruitId)) { return; }
 
             List<int> teams = new List<int>();
             List<int> subs = new List<int>();
@@ -380,7 +423,7 @@ namespace EA_DB_Editor
                 // PTCM is the committed team
                 var recruit = TransferPortal.FindRecruit(pitchTable, recruitId);
 
-                if (recruitId > DontChange)
+                if (!DontChange.Contains(recruitId))
                 {
                     ChangeRecruitFace(recruitTable, recruitId);
                 }
@@ -465,7 +508,7 @@ namespace EA_DB_Editor
         {
             if (!changedFaces.Add(recruitId)) return;
 
-            foreach (var recruit in recruitTable.lRecords.Where(r => r["PRSI"].ToInt32() > RecruitingFixup.DontChange))
+            foreach (var recruit in recruitTable.lRecords.Where(r => !RecruitingFixup.DontChange.Contains(r.RecruitId())))
             {
                 foreach (var entry in recruit.lEntries)
                 {
@@ -633,6 +676,21 @@ namespace EA_DB_Editor
             return teams[b] == teams[a];
         }
 
+        private static Dictionary<int, int> prestigeMap;
+        public static Dictionary<int, int> PrestigeMap
+        {
+            get
+            {
+                if (prestigeMap == null)
+                {
+                    var table = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "TEAM");
+                    prestigeMap = table.lRecords.ToDictionary(mr => mr["TGID"].ToInt32(), mr => mr["TPRX"].ToInt32());
+                }
+
+                return prestigeMap;
+            }
+        }
+
         public static bool TeamsEligbleForReplacement(this Dictionary<int, int> teams, int home, int away)
         {
             if (ScheduleFixup.IsNotreDameGame(home, away) || OnTheirOwn.Contains(home) || OnTheirOwn.Contains(away))
@@ -725,6 +783,16 @@ namespace EA_DB_Editor
 
             if (conf == TableUtility.IndId) return true;
 
+            if (conf == TableUtility.Big12Id)
+            {
+                return current == 8;
+            }
+
+            if (conf == TableUtility.CUSAId && count == 4)
+            {
+                return current == 6;
+            }
+
             if (conf == TableUtility.Big12Id && count == 16)
                 expected = 9;
 
@@ -732,6 +800,9 @@ namespace EA_DB_Editor
                 return true;
 
             if (count == 12 && conf == TableUtility.Pac16Id)
+                return current == 8;
+
+            if (count == 12 && conf == TableUtility.Big10Id)
                 return current == 8;
 
             if (count == 16 && conf == TableUtility.ACCId)
@@ -759,6 +830,26 @@ namespace EA_DB_Editor
         public static bool ConferenceHomeGameCount(this TeamSchedule schedule, int teamId)
         {
             var conf = TableUtility.TeamAndConferences[teamId];
+            var confGames = schedule.Count(g => g != null && g.HomeTeam == teamId && TableUtility.TeamAndConferences[g.AwayTeam] == conf);
+
+            if (conf == TableUtility.CUSAId)
+            {
+                return confGames == 4;
+            }
+
+            if (conf == TableUtility.Pac16Id)
+            {
+                return confGames == 5 || confGames == 4;
+            }
+
+            if (conf == TableUtility.Big10Id )
+            {
+                return confGames == 4;
+            }
+            if (conf == TableUtility.Big12Id)
+            {
+                return confGames == 4;
+            }
 
             if (conf == TableUtility.Pac16Id) return true;
             if (conf == TableUtility.Big12Id && (TableUtility.Big12.Length == 16 || TableUtility.Big12.Length == 10)) return true;
@@ -771,7 +862,6 @@ namespace EA_DB_Editor
             //if (conf == ACCId && AccTeams > 14)
             //    return true;
 
-            var confGames = schedule.Count(g => g != null && g.HomeTeam == teamId && TableUtility.TeamAndConferences[g.AwayTeam] == conf);
 
             if (conf == TableUtility.CUSAId && TableUtility.CUSA.Length == 5 && confGames == 2) return true;
 
@@ -787,23 +877,6 @@ namespace EA_DB_Editor
         public static bool TeamsInSameConference(int t1, int t2)
         {
             return TableUtility.TeamAndConferences[t1] == TableUtility.TeamAndConferences[t2];
-        }
-
-
-        static int SelectFromConferences(List<int> first, List<int> second, int recruitRating)
-        {
-            var a = recruitRating > 3 ? first : first.Distinct().ToList();
-            var b = recruitRating > 3 ? second : second.Distinct().ToList();
-            var idx = RAND.Next(0, a.Count + b.Count);
-            return idx < a.Count ? a[idx] : b[idx - a.Count];
-        }
-
-        static int SelectFromConferences(List<int> first, List<int> second, List<int> third, int recruitRating)
-        {
-            var all = first.Concat(second).Concat(third).ToList();
-            all = recruitRating > 3 ? all : all.Distinct().ToList();
-            var idx = RAND.Next(0, all.Count);
-            return all[idx];
         }
 
         static int GetReplacement(int teamId, List<int> teams, int recruitRating, int state)
@@ -823,103 +896,6 @@ namespace EA_DB_Editor
             }
 
             return result;
-        }
-
-#if false
-        static int GetReplacement(int teamId, List<int> teams, int recruitRating)
-        {
-            SetWeightedArrays();
-
-            int result = 0;
-
-#if true
-            int conf = teamId == 1023 ? RAND.Next(0, 5) : -1;
-
-            if (American.Contains(teamId) || conf == 0)
-            {
-                result = SelectFromConferences(WeightedACC, WeightedBig12, recruitRating);
-            }
-            else if (MAC.Contains(teamId) || conf == 1)
-            {
-                result = SelectFromConferences(WeightedPac16, WeightedBig10,WeightedACC, recruitRating);
-            }
-            else if (CUSA.Contains(teamId) || conf == 2)
-            {
-                result = SelectFromConferences(WeightedSEC, WeightedBig12, recruitRating);
-            }
-            else if (SBC.Contains(teamId) || conf == 3)
-            {
-                result = SelectFromConferences(WeightedSEC,WeightedACC, recruitRating);
-            }
-            else if (MWC.Contains(teamId) || conf == 4)
-            {
-                result = SelectFromConferences(WeightedPac16, WeightedBig10, WeightedBig12, recruitRating);
-            }
-#else
-            int conf = (teamId == 1023||teamId==57||teamId==8) ? RAND.Next(1, 5) : -1;
-            // each G4 conference has a 3 part weight.  Each P6 conf gets 2 parts
-            
-            if (MAC.Contains(teamId) || conf == 1)
-            {
-                // MAC shares with Big 10, ACC, American
-                result = SelectFromConferences(WeightedACC, WeightedBig10,WeightAmerican, recruitRating);
-            }
-            else if (CUSA.Contains(teamId) || conf == 2)
-            {
-                // Big 12 gets 2 parts CUSA, SEC 1
-                result = SelectFromConferences(WeightedBig12,WeightedSEC, WeightedBig12, recruitRating);
-            }
-            else if (SBC.Contains(teamId) || conf == 3)
-            {
-                // Sunbelt shares with SEC, ACC, Big 10
-                result = SelectFromConferences(WeightedSEC, WeightedACC, WeightedBig10, recruitRating);
-            }
-            else if (MWC.Contains(teamId) || conf == 4)
-            {
-                // Pac gets 2 parts MWC, American 1
-                result = SelectFromConferences(WeightAmerican, WeightedPac16, WeightedPac16, recruitRating);
-            }
-#endif
-            if (result == 0)
-                throw new Exception("bad data");
-
-            // if it already is in the list, get another
-            if (teams.Contains(result))
-            {
-                return GetReplacement(teamId, teams, recruitRating);
-            }
-
-            return result;
-        }
-#endif
-
-        static void Check()
-        {
-            /*
-            if (ACC.Length != 16)
-            {
-                throw new Exception("ACC");
-            }
-            if (SEC.Length != 14)
-            {
-                throw new Exception("SEC");
-            }
-            if (Pac12.Length != 14)
-            {
-                throw new Exception("Pac16");
-            }
-            if (Big12.Length != 12)
-            {
-                throw new Exception("Big16");
-            }
-            if (Big10.Length != 13)
-            {
-                throw new Exception("Big10");
-            }
-            if ((ACC.Length + Big10.Length + Big12.Length + Pac12.Length + SEC.Length + American.Length + MAC.Length + CUSA.Length + SBC.Length + MWC.Length + OnTheirOwn.Length) != 126)
-            {
-                throw new Exception("bad data");
-            }*/
         }
     }
 }

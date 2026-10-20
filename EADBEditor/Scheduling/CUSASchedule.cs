@@ -46,7 +46,7 @@ namespace EA_DB_Editor
 
         public static Dictionary<int, int[]> CreateScenarioForSeason()
         {
-            var idx = (Form1.DynastyYear - 2550) % Creators.Length;
+            var idx = (Form1.DynastyYear - 2576) % Creators.Length;
             var result = Creators[idx]();
             result = result.Verify(9, TableUtility.CUSAId, "CUSA");
             CUSAConferenceSchedule = result.BuildHashSet();
@@ -58,7 +58,7 @@ namespace EA_DB_Editor
         const int MTSU = 53;
         const int FAU = 229;
         const int Army = 8;
-        const int Navy=  57;
+        const int Navy = 57;
         const int UTEP = 105;
         const int NT = 64;
         const int UTSA = 232;

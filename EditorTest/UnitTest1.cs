@@ -64,130 +64,6 @@ namespace EditorTest
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
-        /*
-        [TestMethod]
-        public void AmericanScheduleD()
-        {
-            AmericanSchedule.CreateD().Verify(11, TableUtility.AmericanId, "American", false);
-            var hash = AmericanSchedule.CreateD().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void AmericanScheduleE()
-        {
-            AmericanSchedule.CreateE().Verify(11, TableUtility.AmericanId, "American", false);
-            var hash = AmericanSchedule.CreateE().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void AmericanScheduleF()
-        {
-            AmericanSchedule.CreateF().Verify(14, TableUtility.AmericanId, "American", false);
-            var hash = AmericanSchedule.CreateF().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-
-        [TestMethod]
-        public void AmericanScheduleG()
-        {
-            AmericanSchedule.CreateG().Verify(14, TableUtility.AmericanId, "American", false);
-            var hash = AmericanSchedule.CreateG().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }*/
-
-#if false
-        [TestMethod]
-        public void AmericanScheduleF()
-        {
-            AmericanSchedule.CreateF().Verify(14, TableUtility.AmericanId, "American", false);
-            var hash = AmericanSchedule.CreateF().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void AmericanScheduleG()
-        {
-            AmericanSchedule.CreateG().Verify(14, TableUtility.AmericanId, "American", false);
-            var hash = AmericanSchedule.CreateG().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-#endif
-
-#if false // big 12 no divisions with ucf/cincy
-        [TestMethod]
-        public void Big12ScheduleA()
-        {
-            Big12Schedule.CreateA().Verify(14, TableUtility.Big12Id, "Big12", false);
-            var hash = Big12Schedule.CreateA().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void Big12ScheduleB()
-        {
-            Big12Schedule.CreateB().Verify(14, TableUtility.Big12Id, "Big12", false);
-            var hash = Big12Schedule.CreateB().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void Big12ScheduleX()
-        {
-            Big12Schedule.CreateX().Verify(14, TableUtility.Big12Id, "Big12", false);
-            var hash = Big12Schedule.CreateX().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void Big12ScheduleY()
-        {
-            Big12Schedule.CreateY().Verify(14, TableUtility.Big12Id, "Big12", false);
-            var hash = Big12Schedule.CreateY().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-        [TestMethod]
-        public void Big12ScheduleA()
-        {
-            Big12Schedule.CreateA().Verify(12, TableUtility.Big12Id, "Big12", false);
-            var hash = Big12Schedule.CreateA().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void Big12ScheduleB()
-        {
-            Big12Schedule.CreateB().Verify(12, TableUtility.Big12Id, "Big12", false);
-            var hash = Big12Schedule.CreateB().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void Big12ScheduleX()
-        {
-            Big12Schedule.CreateX().Verify(12, TableUtility.Big12Id, "Big12", false);
-            var hash = Big12Schedule.CreateX().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-#elif false
-        [TestMethod]
-        public void Big12ScheduleA()
-        {
-            Big12Schedule.Create16A().Verify(16, TableUtility.Big12Id, "Big12", false);
-            var hash = Big12Schedule.Create16A().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
-        }
-
-        [TestMethod]
-        public void Big12ScheduleB()
-        {
-            Big12Schedule.Create16B().Verify(16, TableUtility.Big12Id, "Big12", false);
-            var hash = Big12Schedule.Create16B().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
-        }
-#elif true
         [TestMethod]
         public void Big12ScheduleNDA()
         {
@@ -219,24 +95,6 @@ namespace EditorTest
             var hash = Big12Schedule.CreateNDZ().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
-        /*
-        [TestMethod]
-        public void Big12ScheduleD()
-        {
-            Big12Schedule.CreateD().Verify(12, TableUtility.Big12Id, "Big12", false);
-            var hash = Big12Schedule.CreateD().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void Big12ScheduleE()
-        {
-            Big12Schedule.CreateE().Verify(12, TableUtility.Big12Id, "Big12", false);
-            var hash = Big12Schedule.CreateE().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }*/
-#endif
-
 
         [TestMethod]
         public void Pac12ScheduleA()
@@ -250,7 +108,7 @@ namespace EditorTest
         public void Pac12ScheduleB()
         {
             Pac12Schedule.CreateB().Verify(12, TableUtility.Pac16Id, "Pac12  ", false);
-            var hash = Pac12Schedule.CreateA().BuildHashSet();
+            var hash = Pac12Schedule.CreateB().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
@@ -346,67 +204,6 @@ namespace EditorTest
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
 
-#if false
-        [TestMethod]
-        public void Big10ScheduleE()
-        {
-            Big10Schedule.CreateE().Verify(12, TableUtility.Big10Id, "Big10 ", false);
-            var hash = Big10Schedule.CreateE().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void Big10ScheduleD()
-        {
-            Big10Schedule.CreateD().Verify(12, TableUtility.Big10Id, "Big10 ", false);
-            var hash = Big10Schedule.CreateD().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-
-        [TestMethod]
-        public void Big10ScheduleG()
-        {
-            Big10Schedule.CreateG().Verify(12, TableUtility.Big10Id, "Big10 ", false);
-            var hash = Big10Schedule.CreateG().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-
-        [TestMethod]
-        public void Big10ScheduleF()
-        {
-            Big10Schedule.CreateF().Verify(12, TableUtility.Big10Id, "Big10 ", false);
-            var hash = Big10Schedule.CreateF().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-
-        [TestMethod]
-        public void Big10ScheduleI()
-        {
-            Big10Schedule.CreateI().Verify(12, TableUtility.Big10Id, "Big10 ", false);
-            var hash = Big10Schedule.CreateI().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void Big10ScheduleH()
-        {
-            Big10Schedule.CreateH().Verify(12, TableUtility.Big10Id, "Big10 ", false);
-            var hash = Big10Schedule.CreateH().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-
-        [TestMethod]
-        public void Big10ScheduleJ()
-        {
-            Big10Schedule.CreateJ().Verify(12, TableUtility.Big10Id, "Big10 ", false);
-            var hash = Big10Schedule.CreateJ().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-#endif
 
 
         [TestMethod]
@@ -522,40 +319,6 @@ namespace EditorTest
             var hash = SunBeltSchedule.CreateG().BuildHashSet();
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
         }
-#if false
-        [TestMethod]
-        public void SBCScheduleA()
-        {
-            SunBeltSchedule.CreateA().Verify(11, TableUtility.SBCId, "SunBelt  ", false);
-            var hash = SunBeltSchedule.CreateA().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void SBCScheduleB()
-        {
-            SunBeltSchedule.CreateB().Verify(11, TableUtility.SBCId, "SunBelt  ", false);
-            var hash = SunBeltSchedule.CreateB().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void SBCScheduleC()
-        {
-            SunBeltSchedule.CreateC().Verify(11, TableUtility.SBCId, "SunBelt  ", false);
-            var hash = SunBeltSchedule.CreateC().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-        [TestMethod]
-        public void SBCScheduleD()
-        {
-            SunBeltSchedule.CreateD().Verify(11, TableUtility.SBCId, "SunBelt  ", false);
-            var hash = SunBeltSchedule.CreateD().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }
-
-#endif
 
 
         [TestMethod]
@@ -567,14 +330,6 @@ namespace EditorTest
         }
 
 
-        /*
-        [TestMethod]
-        public void CUSAScheduleB()
-        {
-            CUSASchedule.CreateB().Verify(12, TableUtility.CUSAId, "CUSA  ", false);
-            var hash = CUSASchedule.CreateB().BuildHashSet();
-            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
-        }*/
 
 
         [TestMethod]

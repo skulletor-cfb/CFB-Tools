@@ -66,11 +66,18 @@
     <Compile Include="AdditionalGameProvider.cs" />
     <Compile Include="NationalSchedule.cs" />
     <Compile Include="RecruitFace.cs" />
+    <Compile Include="Recruiting\Drip\ArmExtensions.cs" />
+    <Compile Include="Recruiting\Drip\Arms.cs" />
+    <Compile Include="Recruiting\Drip\BigPlayer.cs" />
+    <Compile Include="Recruiting\Drip\DripExtensions.cs" />
+    <Compile Include="Recruiting\Drip\SkillPlayer.cs" />
+    <Compile Include="Recruiting\Drip\Sleeve.cs" />
+    <Compile Include="Recruiting\JucoRecruits.cs" />
     <Compile Include="Recruiting\ManualTransferPortal.cs" />
+    <Compile Include="Recruiting\Drip\PlayerDrip.cs" />
     <Compile Include="Recruiting\TeamRecruiter.cs" />
     <Compile Include="Recruiting\TransferCandidate.cs" />
     <Compile Include="Recruiting\TransferPortal.cs" />
-    <Compile Include="Scheduling\AmericanPodSchedule.cs" />
     <Compile Include="RecruitAllAmericans.cs" />
     <Compile Include="Recruiting\TransferPortalClass.cs" />
     <Compile Include="Scheduling\ACCPodSchedule.cs" />
@@ -95,6 +102,7 @@
     </Compile>
     <Compile Include="Scheduling\ConferenceLocks.cs" />
     <Compile Include="Scheduling\ConferenceScheduleFixer.cs" />
+    <Compile Include="Scheduling\ScheduleRuleEnforcer.cs" />
     <Compile Include="Scheduling\SECSchedule.cs" />
     <Compile Include="Scheduling\TeamSchedule.cs" />
     <Compile Include="Scheduling\CUSASchedule.cs" />
@@ -252,6 +260,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NCAA14Utility\NCAA14Utility.csproj">
+      <Project>{2eea8c26-0b85-48e8-b85c-5ad17980c922}</Project>
+      <Name>NCAA14Utility</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

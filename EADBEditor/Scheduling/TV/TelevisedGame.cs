@@ -85,6 +85,7 @@ namespace EA_DB_Editor.Scheduling
         public bool IsCUSAGame => ConferenceOwner == TableUtility.CUSAId;
         public bool IsNotreDameHomeGame => HomeTeam.IsIndependentND();
         public bool IsNotreDameAtNavy => (HomeTeam == 57 && AwayTeam == TableUtility.NotreDameId);
+        public bool IsNotreDameGame => HomeTeam == 68 || AwayTeam == 68;
         public bool BothTeamsRanked { get; }
         public bool IsArizonaGame => HomeTeam == 4 || HomeTeam == 5;
         public bool IsASUvAU => IsArizonaGame && (AwayTeam == 4 || AwayTeam == 5);
@@ -107,6 +108,7 @@ namespace EA_DB_Editor.Scheduling
         public int HomeRank { get; }
         public string HomeConference { get; }
         public string AwayConference { get; }
+        public bool IsP5G5Game => (HomeTeam.IsP5OrND() && AwayTeam.IsG5()) || (AwayTeam.IsP5OrND() && HomeTeam.IsG5());
         public TelevisedGame(MaddenRecord mr, Dictionary<int, MaddenRecord> teams)
         {
             Record = mr;
@@ -122,8 +124,8 @@ namespace EA_DB_Editor.Scheduling
             score /= 2;
             score += ScheduleFixup.IsRivalryGame(AwayTeam, HomeTeam) ? -10 : 0;
             score += TableUtility.TeamAndConferences.TeamsInSameConference(AwayTeam, HomeTeam) ? -5 : 0;
-            score -= (home.Prestige() + away.Prestige()) / 2; // more prestigious game should rank higher
-            Score = score;
+            score -= ((home.Prestige() + away.Prestige()) * 10) / 15; // more prestigious game should rank higher
+
             ConferenceOwner = (IsNotreDameHomeGame || IsNotreDameAtNavy) ? TableUtility.NotreDameId : TableUtility.GameConferenceOwner(HomeTeam);
             AwayConference = AwayTeam.IsFcsTeam() ? "FCS" : RecruitingFixup.ConferenceNames[TableUtility.GameConferenceOwner(AwayTeam)];
             HomeConference = RecruitingFixup.ConferenceNames[TableUtility.GameConferenceOwner(HomeTeam)];
@@ -135,14 +137,12 @@ namespace EA_DB_Editor.Scheduling
             IsSecAccGame = (AwayTeam.IsSECTeam() && HomeTeam.IsAccTeam()) || (HomeTeam.IsSECTeam() && AwayTeam.IsAccTeam());
             IsP5Game = AwayTeam.IsP5OrND() && HomeTeam.IsP5OrND();
             HomeTeamIsP5 = HomeTeam.IsP5OrND();
-            Score += IsP5Game ? -5 : 0;
             IsFCSGame = AwayTeam.IsFcsTeam();
-            Score += IsFCSGame ? 1000 : 0;
 
-            if (CheckMatchup(51, 70) || CheckMatchup(3, 9))
-            {
-                Score += -100000;
-            }
+            score += IsP5G5Game ? 3 : 0;
+            score += IsFCSGame ? 1000 : 0;
+            score += IsP5Game ? -5 : 0;
+            Score = score;
 
             BothTeamsRanked = (home.CoachPollRanking() <= 25 || home.MediaPollRanking() <= 25) && (away.CoachPollRanking() <= 25 || away.MediaPollRanking() <= 25);
         }

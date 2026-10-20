@@ -57,7 +57,7 @@ namespace EA_DB_Editor
                 teamsToLookAt = PlayerRecruiters;
             }
 
-            var result = teamsToLookAt[Form1.RAND(teamsToLookAt.Length)].TeamId;
+            var result = teamsToLookAt[teamsToLookAt.Length.RAND()].TeamId;
 
             if (desiredTeam == TeamFilter.P5 && !result.IsP5OrND())
             {

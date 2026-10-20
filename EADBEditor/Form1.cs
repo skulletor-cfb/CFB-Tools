@@ -1,6 +1,7 @@
 ﻿using EA_DB_Editor.Scheduling;
 using ListViewEx;
 using MC02Handler;
+using NCAA14Utility;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -1378,7 +1379,7 @@ namespace EA_DB_Editor
 
         private void testToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            LookForSchedules();
+            SetG5Fixup(!ScheduleFixup.RanG5Fixup);
         }
 
         private static HashSet<long> foundInterConfGames = new HashSet<long>();
@@ -1826,7 +1827,7 @@ namespace EA_DB_Editor
             var sortedTable = recruitTable.lRecords.OrderBy(r => r["RCRK"].ToInt32()).Take(500).OrderByDescending(rec => RecruitOrderMetric(rec)).ToArray();
             SortTable(sortedTable);
             SortTable(recruitTable.lRecords.OrderBy(r => r["RCRK"].ToInt32()).ToArray());
-            PositionNumbers.FixSizes(recruitTable.lRecords.Where(r => r["PRSI"].ToInt32() > RecruitingFixup.DontChange).ToList());
+            PositionNumbers.FixSizes(recruitTable.lRecords.Where(r => !RecruitingFixup.DontChange.Contains(r.RecruitId())).ToList());
 
             // have less Balanced + Scrambling and more Pocket Passers
             var table = MaddenTable.FindTable(maddenDB.lTables, "RCPT");
@@ -1856,7 +1857,7 @@ namespace EA_DB_Editor
 
                 var numRecruits = recruitTable.lRecords.Count;
 
-                foreach (var recruit in recruitTable.lRecords.Where(r => r["PRSI"].ToInt32() > RecruitingFixup.DontChange))
+                foreach (var recruit in recruitTable.lRecords.Where(r => !RecruitingFixup.DontChange.Contains(r.RecruitId())))
                 {
                     var position = recruit["PPOS"].ToInt32();
 
@@ -1911,7 +1912,7 @@ namespace EA_DB_Editor
                     }
                     else
                     {
-                        ChangeName(face, recruit, wfnDict, wlnDict, names, names.WFN, names.WLN, 30, 30);
+                        ChangeName(face, recruit, wfnDict, wlnDict, names, names.WFN, names.WLN, 15, 15);
                     }
                 }
 
@@ -1922,10 +1923,17 @@ namespace EA_DB_Editor
             RefreshView();
         }
 
+        static string[] RandomNames = new string[] { "Johnny", "Mike", "Paul", "Daniel", "Robby" };
         static void Defatify(MaddenTable recruitTable)
         {
             foreach (var recruit in recruitTable.lRecords)
             {
+                // some bug where players don't have first name
+                if (recruit.FirstName().Trim().Length == 0)
+                {
+                    recruit["PFNA"] = RandomNames.Shuffle().First();
+                }
+
                 var currentFace = recruit["PGHE"].ToInt32();
 
                 // defatify the player
@@ -1933,6 +1941,13 @@ namespace EA_DB_Editor
                 {
                     // find new face
                     recruit["PGHE"] = RecruitFace.FindNewFace(currentFace).ToString();
+                }
+
+                // hand crafted recruits are all set
+                if (!RecruitingFixup.DontChange.Contains(recruit.RecruitId()))
+                {
+                    var drip = RecruitExtensions.Create(recruit);
+                    drip.DripHimOut();
                 }
             }
         }
@@ -2075,14 +2090,14 @@ namespace EA_DB_Editor
 
         static void DoHelmetChange(MaddenRecord recruit, int helmet, int[] facemasks)
         {
-            var mask = facemasks[Rand100() % facemasks.Length];
+            var mask = facemasks[TableUtility.Rand100() % facemasks.Length];
             recruit["PHLM"] = helmet.ToString();
             recruit["PFMK"] = mask.ToString();
         }
 
         static int RandomHelmetType()
         {
-            var value = Rand100();
+            var value = TableUtility.Rand100();
 
             if (value < 20)
                 return 3;
@@ -2096,52 +2111,28 @@ namespace EA_DB_Editor
             return 6;
         }
 
-        static int Rand100()
-        {
-            var guid = Guid.NewGuid().ToByteArray().Take(4).ToArray();
-            var i = BitConverter.ToInt32(guid, 0);
-
-            if (i < 0)
-            {
-                i &= 0x7fffffff;
-            }
-
-            return i % 100;
-        }
-
-        /// <summary>
-        /// returns a number from 0 to range-1
-        /// RAND % range
-        /// </summary>
-        /// <param name="range"></param>
-        /// <returns></returns>
-        public static int RAND(int range)
-        {
-            var guid = Guid.NewGuid().ToByteArray().Take(4).ToArray();
-            var i = BitConverter.ToInt32(guid, 0);
-
-            if (i < 0)
-            {
-                i &= 0x7fffffff;
-            }
-
-            return i % range;
-        }
-
 
 
 
         static void ChangeName(int face, MaddenRecord recruit, Dictionary<string, int> firstDict, Dictionary<string, int> lastDict, NamesFile names, List<string> firstList, List<string> lastList, int ftune = 60, int ltune = 60)
         {
+            var currentFirstName = recruit.FirstName();
+            var currentLastName = recruit.LastName();
             // 20% of guys get a name change until we max out
             if (IsMatch(ftune) ||
-            string.Equals(recruit["PFNA"], recruit["PLNA"]))
+            string.Equals(currentFirstName , currentLastName, StringComparison.Ordinal))
             {
                 string first = null;
 
                 while (true)
                 {
-                    first = names.GetName(firstList);
+                    first = names.GetName(firstList, currentFirstName);
+
+                    if (string.Equals(first, currentFirstName, StringComparison.Ordinal))
+                    {
+                        break;
+                    }
+
                     if (firstDict.TryGetValue(first, out var count))
                     {
                         if (count >= 1)// || (count == 1 && firstDict.Values.Any(v => v == 0)))
@@ -2167,7 +2158,12 @@ namespace EA_DB_Editor
 
                     while (true)
                     {
-                        lastName = names.GetName(lastList);
+                        lastName = names.GetName(lastList, currentLastName);
+
+                        if (string.Equals(lastName, currentLastName, StringComparison.Ordinal))
+                        {
+                            break;
+                        }
 
                         if (lastDict.TryGetValue(lastName, out var count))
                         {
@@ -2213,20 +2209,20 @@ namespace EA_DB_Editor
                 // medium
                 face = (105 + NamesFile.GetInt(45)).ToString();
 
-                if (IsMatch(90)) ln = names.GetName(names.HILN);
-                else ln = recruit["PLNA"];
+                if (IsMatch(90)) ln = names.GetName(names.HILN, recruit.LastName());
+                else ln = recruit.LastName();
 
                 if (IsMatch(90))
                 {
-                    fn = names.GetName(names.HIFN);
+                    fn = names.GetName(names.HIFN, recruit.FirstName());
                 }
                 else if (IsMatch(50))
                 {
-                    fn = recruit["PFNA"];
+                    fn = recruit.FirstName();
                 }
                 else
                 {
-                    fn = names.GetName(names.First);
+                    fn = names.GetName(names.First, recruit.FirstName());
                 }
             }
             else if (IsMatch(50))
@@ -2238,15 +2234,15 @@ namespace EA_DB_Editor
             {
                 // dark
                 face = (160 + NamesFile.GetInt(85)).ToString();
-                fn = names.GetName(names.First);
+                fn = names.GetName(names.First, recruit.FirstName());
 
                 if (IsMatch(75))
                 {
-                    ln = names.GetName(names.Last);
+                    ln = names.GetName(names.Last, recruit.LastName());
                 }
                 else
                 {
-                    ln = names.GetName(names.HILN);
+                    ln = names.GetName(names.HILN, recruit.LastName());
                 }
             }
 
@@ -2276,7 +2272,7 @@ namespace EA_DB_Editor
 
         public static bool IsMatch(int pct)
         {
-            return pct > Rand100();
+            return pct > TableUtility.Rand100();
         }
 
         public class NamesFile
@@ -2326,14 +2322,13 @@ namespace EA_DB_Editor
             public string[] MDLN { get; set; }
 
 
-            public string GetName(string[] names)
+            public string GetName(List<string> names, string current)
             {
-                var idx = GetInt() % names.Length;
-                return names[idx];
-            }
+                if( names.Count == 0)
+                {
+                    return current;
+                }
 
-            public string GetName(List<string> names)
-            {
                 var idx = GetInt() % names.Count;
                 var result = names[idx];
                 names.RemoveAt(idx);
@@ -2538,13 +2533,13 @@ namespace EA_DB_Editor
                 if (RarePlaybooks.Contains(playbook) && isNewCoach)
                 {
                     // only 10% chance of getting a rare playbook
-                    if (playbook == 119 || Rand100() >= 10)
+                    if (playbook == 119 || TableUtility.Rand100() >= 10)
                     {
                         var choices = AllPlaybooks
                             .Where(pb => !RarePlaybooks.Contains(pb))
                             .ToArray();
 
-                        playbook = choices[RAND(choices.Length)];
+                        playbook = choices[choices.Length.RAND()];
                         record["CPID"] = playbook.ToString();
                     }
                 }
@@ -2701,12 +2696,16 @@ namespace EA_DB_Editor
             }
         }
 
-
-
+        static List<TransferData> Transfers = null;
+         
         private void srTransferQBToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TransferPortal.MakeTransfersImmediatelyEligble();
-            ManualTransferPortal.RunTransferPortal(maddenDB);
+            if (Transfers == null)
+            {
+                Transfers = TransferPortal.MakeTransfersImmediatelyEligble();
+            }
+
+            ManualTransferPortal.RunTransferPortal(maddenDB, Transfers);
         }
 
         private static int StaffRating = 125;
@@ -2921,7 +2920,14 @@ namespace EA_DB_Editor
             }
 
             ScheduleFixup.ReadSchedule(true);
-            ScheduleFixup.RanG5Fixup = true;
+            SetG5Fixup(true);
+        }
+
+        private void SetG5Fixup(bool value)
+        {
+            ScheduleFixup.RanG5Fixup = value ;
+            var onOff = ScheduleFixup.RanG5Fixup ? "On" : "Off";
+            this.testToolStripMenuItem.Text = $"G5 Host P5: {onOff}";
         }
 
         private void dumpTablesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -3031,7 +3037,15 @@ namespace EA_DB_Editor
 
             public int Loss { get; private set; }
 
-            public int WinPct => (1000 * Win) / (Win + Loss);
+            public int WinPct
+            {
+                get
+                {
+                    try { return (1000 * Win) / (Win + Loss); }
+                    catch { }
+                    return 0;
+                }
+            }
 
             public static ConferenceRecord Create(int win, int loss) => new ConferenceRecord { Win = win, Loss = loss };
 
@@ -3359,8 +3373,9 @@ namespace EA_DB_Editor
             {
                 var schd = MaddenTable.FindTable(maddenDB.lTables, "SCHD");
                 var currentSeason = schd.lRecords.Where(r => r["SEYR"].ToInt32() == 0).First()["SESI"];
+                var gamesToAdd = Math.Max(entry.TeamId, 0); // we need at least 23 games added to clean up acc/b12 schedules
 
-                for (int i = 0; i < entry.TeamId; i++)
+                for (int i = 0; i < gamesToAdd; i++)
                 {
                     var week = i % 13;
 
@@ -3400,34 +3415,41 @@ namespace EA_DB_Editor
 
         private void copyRecruitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TeamEntry entry = new TeamEntry();
-            if (entry.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            // get all uncommitted recruits
+            var uncommittedRecruitIds = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPR")
+                .lRecords.Where(mr => mr.UncommittedPlayer()).Select(mr => mr.RecruitId()).ToHashSet();
+
+            var recruitTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPT");
+            var uncommittedRecruits = recruitTable
+                .lRecords.Where(mr => uncommittedRecruitIds.Contains(mr.RecruitId()) && mr.POVR() >= 60 && mr.PlayerHasEligility()).ToList();
+
+            var ignoreFields = new HashSet<string>(new[] {/*"RATH", "RPGP",*/ "PRSI", "RCPR", "RCCB" });
+
+            // limit it to the top 600 recruits
+            var jucoRecruits = uncommittedRecruits
+                .Where( mr => mr.POVR() >= 68)
+                .Where( mr => mr.RecruitRank() <= 600)
+                .OrderByDescending(mr => mr.POVR())
+                .Select(mr =>
+                {
+                    var dict = new Dictionary<string, string>();
+
+                    foreach (var f in recruitTable.lFields.Where(f => !ignoreFields.Contains(f.Abbreviation)))
+                    {
+                        dict[f.Abbreviation] = mr[f.Abbreviation];
+                    }
+
+                    return dict;
+                }).ToList();
+
+            new JucoRecruits
             {
-                // for a given recruit, read all his data
-                var recruitTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPT");
-                var recruit = recruitTable.lRecords.Where(r => r["RCRK"].ToInt32() == entry.TeamId).Single();
-
-                if (recruit["PYEA"].ToInt32() == 3)
-                {
-                    MessageBox.Show("Eligbility exhausted");
-                    return;
-                }
-
-                var ignoreFields = new HashSet<string>(new[] {/*"RATH", "RPGP",*/ "PRSI", "RCRK", "RCPR", "RCCB" });
-                var dict = new Dictionary<string, string>();
-
-                foreach (var f in recruitTable.lFields.Where(f => !ignoreFields.Contains(f.Abbreviation)))
-                {
-                    dict[f.Abbreviation] = recruit[f.Abbreviation];
-                    dict["RCRK"] = "500";
-                }
-
-                dict.ToJsonFile("R" + entry.TeamId + ".txt");
-            }
+                Count = jucoRecruits.Count,
+                Recruits = jucoRecruits,
+            }.WriteJsonFile("jucos.txt");
         }
 
 
-        private static string[] PlayerSkills = new[] { "PSPD", "PSTR", "PAGI", "PACC", "PAWR", "PBTK", "PTRK", "PESV", "PBCV", "PSAR", "PSMV", "PJMV", "PCAR", "PCTH", "SPCT", "TRAF", "PRTR", "PJMP", "PTHP", "PTHA", "PTAK", "PHIT", "PPMV", "PFMV", "PBSH", "PPRS", "PPRC", "PMCV", "PZCV", "PYRS", "RELS", "PPBK", "PRBK", "PIBL", "PKRT", "PSTA", "PINJ" };
 
         private void randomizeNamesToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -3449,8 +3471,8 @@ namespace EA_DB_Editor
             {
                 var player = players.lRecords.Where(r => r["PGID"].ToInt32() == i).Single();
 
-                var fidx = RAND(fn.Length);
-                var lidx = RAND(ln.Length);
+                var fidx = fn.Length.RAND();
+                var lidx = ln.Length.RAND();
 
                 player["PFNA"] = fn[fidx];
                 player["PLNA"] = ln[lidx];
@@ -3459,7 +3481,7 @@ namespace EA_DB_Editor
 
         private void applyRosterStatsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var set = new HashSet<string>(PlayerSkills);
+            var set = new HashSet<string>(RecruitingFixup.PlayerSkills);
 
 
             TeamEntry entry = new TeamEntry();
@@ -3492,48 +3514,13 @@ namespace EA_DB_Editor
 
         private void applyRecruitFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var set = new HashSet<string>(PlayerSkills);
+            // pick the file
+            FileDialog fd = new OpenFileDialog();
 
-            TeamEntry entry = new TeamEntry();
-
-            // pick the recruit id
-            if (entry.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            if (fd.ShowDialog() == DialogResult.OK)
             {
-                // pick the file
-                FileDialog fd = new OpenFileDialog();
-
-                if (fd.ShowDialog() == DialogResult.OK)
-                {
-                    var dict = fd.FileName.FromJsonFile<Dictionary<string, string>>();
-
-                    // find the recruit
-                    var recruitTable = MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, "RCPT");
-                    var recruit = recruitTable.lRecords.Where(r => r["PRSI"].ToInt32() == entry.TeamId).Single();
-                    recruit["RCRK"] = (Rand100() + 500).ToString();
-
-                    // add a modifier to unscouted OVR of 1 to 5 because JUCOs have some game tape
-                    dict["RCOV"] = (dict["POVR"].ToInt32() + (Rand100() % 5) + 1).ToString();
-
-                    foreach (var kvp in dict)
-                    {
-                        // increment the player year
-                        if (kvp.Key == "PYEA")
-                        {
-                            recruit[kvp.Key] = (kvp.Value.ToInt32() + 1).ToString();
-                        }
-                        else if (set.Contains(kvp.Key))
-                        {
-                            // add 1-3 points for offseason progression
-                            var mod = 1 + Rand100() % 3;
-                            var newValue = Math.Min(99, kvp.Value.ToInt32() + mod);
-                            recruit[kvp.Key] = newValue.ToString();
-                        }
-                        else
-                        {
-                            recruit[kvp.Key] = kvp.Value;
-                        }
-                    }
-                }
+                var jucoRecruits = fd.FileName.ReadJsonFile<JucoRecruits>();
+                RecruitingFixup.RegisterJucoRecruits(jucoRecruits);
             }
         }
 
@@ -4209,9 +4196,14 @@ namespace EA_DB_Editor
 
                 if (!TeamsToExclude.Contains(teamId))
                 {
-                    var value = RAND(3);
+                    var value = 3.RAND();
                     mr["PLSO"] = value.ToString();
                 }
+
+#if false
+                var drip = mr.Create();
+                drip.DripHimOut();
+#endif
             }
         }
 
@@ -4249,6 +4241,54 @@ namespace EA_DB_Editor
         {
             TelevisionScheduler.FixTelevisionSchedule();
             ScheduleFixup.ReadSchedule();
+        }
+
+        private void enforceScheduleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var recruitTable = TableUtility.FindTable("RCPT");
+            foreach (var recruit in recruitTable.lRecords)
+            {
+                // hand crafted recruits are all set
+                if (!RecruitingFixup.DontChange.Contains(recruit.RecruitId()))
+                {
+                    var drip = RecruitExtensions.Create(recruit);
+                    drip.DripHimOut();
+                }
+            }
+
+#if false
+            // one more attempt to fix
+            var (teamSchedule, scheduleTable) = ScheduleFixup.FillSchedule(false, true);
+            var result = ScheduleRuleEnforcer.Enforce(teamSchedule);
+            ScheduleFixup.ReadSchedule();
+            File.WriteAllText("sched-res.txt", JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
+
+            var result = new
+            {
+                lfn = new List<string>(),
+                lln = new List<string>(),
+                dfn = new List<string>(),
+                dln = new List<string>(),
+            };
+            var play = TableUtility.FindTable("PLAY");
+            foreach (var mr in play.lRecords)
+            {
+                var face = mr.PlayerFace();
+
+                if (face < 100)
+                {
+                    result.lfn.Add(mr.FirstName());
+                    result.lln.Add(mr.LastName());
+                }
+                else if(face> 160)
+                {
+                    result.dfn.Add(mr.FirstName());
+                    result.dln.Add(mr.LastName());
+                }
+            }
+
+            result.WriteJsonFile("rosternames.txt");
+#endif
         }
     }
 

@@ -627,9 +627,9 @@ namespace EA_DB_Editor
                 // non neutral site games 
                 if (!game.IsClassicGame)
                 {
-                    if (game.Week > 0)
+                    if (game.Week > 1)
                     {
-                        if ((game.Week == 1 && game.GameDay != 0) || game.Week > 1)
+                        if ((game.Week == 2 && game.GameDay != 0) || game.Week > 2)
                         {
                             continue;
                         }

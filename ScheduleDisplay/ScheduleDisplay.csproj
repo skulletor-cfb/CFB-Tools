@@ -88,6 +88,12 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NCAA14Utility\NCAA14Utility.csproj">
+      <Project>{2eea8c26-0b85-48e8-b85c-5ad17980c922}</Project>
+      <Name>NCAA14Utility</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

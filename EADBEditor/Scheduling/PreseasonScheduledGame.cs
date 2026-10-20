@@ -1,13 +1,10 @@
 ﻿using EA_DB_Editor.Scheduling;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
 
 namespace EA_DB_Editor
 {
-
     public class PreseasonScheduledGame
     {
         public int HomeTeam { get; set; }
@@ -16,21 +13,6 @@ namespace EA_DB_Editor
         public int WeekIndex { get; set; }
         public int GameNumber { get; set; }
         public MaddenRecord MaddenRecord { get; set; }
-
-        private bool mustReplace = false;
-
-        public bool MustReplace
-        {
-            get
-            {
-                return mustReplace;
-            }
-
-            set
-            {
-                mustReplace = value;
-            }
-        }
 
         public int? LockedWeek { get; private set; }
 
@@ -108,6 +90,17 @@ namespace EA_DB_Editor
         {
             return !IsConferenceGame() && (AwayTeam.IsP5() || HomeTeam.IsP5());
         }
+
+        public bool IsP5NonConferenceGame()
+        {
+            return !IsConferenceGame() && (AwayTeam.IsP5OrND() && HomeTeam.IsP5OrND());
+        }
+
+        public bool IsP5ConferenceGame()
+        {
+            return IsConferenceGame() && (AwayTeam.IsP5() && HomeTeam.IsP5());
+        }
+
 
         public bool IsRivalryGame()
         {

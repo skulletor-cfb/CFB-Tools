@@ -186,7 +186,7 @@ namespace EA_DB_Editor
                     GamesPlayed = record.GetInt(148),
                     Position = record.GetInt(114),
                     City = record.GetInt(33),
-                    Face = record["PGHE"].ToInt32(),
+                    Face = record["PGHE"].ToInt32()-1, // the images are zero indexed, but the value in the db is 1 indexed
                 };
 
                 // add player to the rosters
