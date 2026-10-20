@@ -1,4 +1,5 @@
 ﻿using CFB27.Data.Model;
+using MaddenFranchise;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -10,9 +11,8 @@ namespace EA_DB_Editor
 
     public class CFB27DataEngine : IDataEngine
     {
-        private readonly string directory;
-        private readonly DirectoryInfo directoryInfo;
         private const string TeamFile = "Team";
+        private FranchiseFile dynasty;
         public CFBTable<CFBTeam> Teams { get; private set; }
         public Dictionary<int, CFBTable<CFBTeamHistoricalData>> TeamHistoricalData { get; private set; }
         public CFBTable<CFBBowl> Bowls { get; private set; }
@@ -22,10 +22,9 @@ namespace EA_DB_Editor
 
         public Dictionary<int, string> TeamNames => this.Teams.Records.ToDictionary(t => t.Row, t => t.DisplayName);
 
-        public CFB27DataEngine(string rootDirectory)
+        public CFB27DataEngine(FranchiseFile dynasty)
         {
-            this.directory = Path.Combine(rootDirectory, "JSON");
-            this.directoryInfo = new DirectoryInfo(this.directory);
+            this.dynasty = dynasty;
             this.Teams = this.GetFile(TeamFile).ReadJson<CFBTeam>();
             this.TeamHistoricalData = this.GetTeamHistoricalData();
             this.SeasonGames = this.GetFile("SeasonGame").ReadJson<CFBSeasonGame>();
@@ -275,23 +274,13 @@ namespace EA_DB_Editor
             throw new NotImplementedException();
         }
 
-        private string GetFile(string fileName)
-        {
-            var file = directoryInfo.GetFiles($"*_{fileName}.json").OrderByDescending(f => f.Length).First();
-            return file.FullName;
-        }
-
-        private string[] GetFiles(string fileName)
-        {
-            var files = directoryInfo.GetFiles($"*_{fileName}.json").Select(f => f.FullName).ToArray();
-            return files;
-        }
-
+    
         private Dictionary<int, CFBTable<CFBTeamHistoricalData>> GetTeamHistoricalData()
         {
-            var files = this.GetFiles("TeamHistoricalData");
-            var data = files.Select(f => f.ReadJson<CFBTeamHistoricalData>()).ToArray();
-            var result = data.ToDictionary(t => t.Header.tableId);
+            var table = this.dynasty.GetTableByName("TeamHistoricalData");
+            var data = table.Records.Select(r => r.Transform<CFBTeamHistoricalData>());
+//            var data = files.Select(f => f.ReadJson<CFBTeamHistoricalData>()).ToArray();
+  //          var result = data.ToDictionary(t => t.Table t.Header.tableId);
 
             //match historical data to teams
             foreach (var team in Teams.Records)

@@ -1,4 +1,13 @@
+using Newtonsoft.Json;
+
 namespace MaddenFranchise;
+
+public static class FranchiseFileUtility
+{
+    public static string Serialize(this object obj) => JsonConvert.SerializeObject(obj);
+
+    public static T Deserialize<T>(this string json ) => JsonConvert.DeserializeObject<T>(json);
+}
 
 /// <summary>
 /// Port of FranchiseFileRecord.js. JS uses a Proxy for `record.FieldName` dynamic property access;
@@ -23,6 +32,11 @@ public sealed class FranchiseFileRecord
     public byte[] TableDataArray { get; }
     public int ByteOffset { get; }
     public int ByteLength { get; }
+
+    public T Transform<T>()
+    {
+        return this._fields.ToDictionary(kvp => kvp.Key, kvp => kvp.Value).Serialize().Deserialize<T>();
+    }
 
     public FranchiseFileRecord(byte[] tableDataArray, int byteOffset, int byteLength, int index,
         List<OffsetTableEntry> offsetTable, FranchiseFileTable parent)

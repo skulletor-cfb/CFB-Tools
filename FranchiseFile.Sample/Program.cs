@@ -4,7 +4,6 @@ string path = args.Length > 0
     ? args[0]
     : @"D:\OneDrive\Documents\EA SPORTS College Football 27\saves\DYNASTY-Y26P";
 
-var schemaFile = @"D:\OneDrive\Documents\EA SPORTS College Football 27\saves\C27_486_6.gz";
 
 Console.WriteLine($"Loading: {path}");
 var franchise = FranchiseFile.Load(path);
