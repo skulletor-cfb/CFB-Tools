@@ -24,7 +24,8 @@ namespace EA_DB_Editor
         public List<Field> lMappedFields = new List<Field>();
         public List<MaddenTable> lMappedTables = new List<MaddenTable>();
         public List<View> lMappedViews = new List<View>();
-        public MaddenDatabase MaddenDB = null;
+        public MaddenDatabase MaddenDB => this.maddenDB;
+        public MaddenDatabase maddenDB = null;
         public bool bConfigRead = false;
         public View currentView = null;
         static public bool mc02Recalc = false;
