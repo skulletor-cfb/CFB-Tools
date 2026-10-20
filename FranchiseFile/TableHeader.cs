@@ -3,7 +3,7 @@ namespace MaddenFranchise;
 /// <summary>Mutable port of the FranchiseFileTableHeader shape produced by the header strategies.</summary>
 public sealed class TableHeader
 {
-    public required string Name { get; set; }
+    public string Name { get; set; } = "";
     public bool IsArray { get; set; }
     public int TableId { get; set; }
     public int TablePad1 { get; set; }

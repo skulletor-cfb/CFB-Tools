@@ -39,7 +39,7 @@ public sealed class EmptyRecordMap
         {
             return null;
         }
-        int k = _order[^1];
+        int k = _order[_order.Count - 1];
         return (k, _map[k]);
     }
 }

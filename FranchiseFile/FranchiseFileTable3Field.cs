@@ -99,8 +99,8 @@ public sealed class FranchiseFileTable3Field : IPatchUnit
 
     private byte[] PopulateOverflowRecord(byte[] newUnformattedValue)
     {
-        var mainFieldData = newUnformattedValue[..(MaxLength + 2)];
-        var overflowData = newUnformattedValue[(MaxLength + 2)..];
+        var mainFieldData = newUnformattedValue.CopyRange(0, MaxLength + 2);
+        var overflowData = newUnformattedValue.CopyRange(MaxLength + 2);
 
         var field = FieldReference!;
         var record = field.Parent;

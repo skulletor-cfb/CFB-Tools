@@ -42,7 +42,7 @@ public sealed class RawTable3FieldStrategy : ITable3FieldStrategy
             return null;
         }
         int length = unformattedValue[0] | (unformattedValue[1] << 8);
-        length = Math.Clamp(length, 0, unformattedValue.Length - 2);
+        length = Net48Compat.Clamp(length, 0, unformattedValue.Length - 2);
         return unformattedValue.AsSpan(2, length).ToArray();
     }
 
@@ -72,6 +72,6 @@ public sealed class RawTable3FieldStrategy : ITable3FieldStrategy
             return Array.Empty<byte>();
         }
         int end = Math.Min(start + length, data.Length);
-        return data[start..end];
+        return data.CopyRange(start, end);
     }
 }

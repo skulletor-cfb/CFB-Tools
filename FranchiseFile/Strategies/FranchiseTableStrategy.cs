@@ -31,7 +31,7 @@ public static class FranchiseTableStrategy
             }
             if (recordOffset > currentOffset)
             {
-                var preData = fullTable2Buffer[currentOffset..recordOffset];
+                var preData = fullTable2Buffer.CopyRange(currentOffset, recordOffset);
                 if (preData.Length > 0)
                 {
                     table2Data.Add(preData);
@@ -44,7 +44,7 @@ public static class FranchiseTableStrategy
 
         if (table2Records.Count > 0)
         {
-            table2Data.Add(currentOffset <= fullTable2Buffer.Length ? fullTable2Buffer[currentOffset..] : Array.Empty<byte>());
+            table2Data.Add(currentOffset <= fullTable2Buffer.Length ? fullTable2Buffer.CopyRange(currentOffset) : Array.Empty<byte>());
         }
         else
         {

@@ -15,7 +15,7 @@ public static class FranchiseFileStrategy
 
     public static byte[] PostPackFile(byte[] originalData, byte[] newData)
     {
-        byte[] header = originalData[..CompressedDataOffset];
+        byte[] header = originalData.CopyRange(0, CompressedDataOffset);
         string endOfData = newData.Length.ToString("x");
 
         header[0x4a] = ParseHexByte(JsSubstr(endOfData, 4, null));
@@ -24,7 +24,7 @@ public static class FranchiseFileStrategy
 
         int trailerStart = newData.Length + CompressedDataOffset;
         byte[] trailer = trailerStart < originalData.Length
-            ? originalData[trailerStart..]
+            ? originalData.CopyRange(trailerStart)
             : Array.Empty<byte>();
 
         return CommonAlgorithms.Concat(new[] { header, newData, trailer });

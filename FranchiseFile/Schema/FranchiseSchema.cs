@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using System.Reflection;
-using System.Text.Json;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MaddenFranchise.Schema;
 
@@ -46,22 +47,20 @@ public sealed class FranchiseSchema
         using var resourceStream = assembly.GetManifestResourceStream(resourceName)
             ?? throw new InvalidOperationException($"Embedded schema resource not found: {resourceName}");
         using var gzip = new GZipStream(resourceStream, CompressionMode.Decompress);
-        using var memory = new MemoryStream();
-        gzip.CopyTo(memory);
-        memory.Position = 0;
+        using var reader = new StreamReader(gzip);
+        using var jsonReader = new JsonTextReader(reader);
 
-        var dto = JsonSerializer.Deserialize<SchemaFileDto>(memory)
+        var dto = JsonSerializer.CreateDefault().Deserialize<SchemaFileDto>(jsonReader)
             ?? throw new InvalidOperationException($"Failed to parse schema resource: {resourceName}");
 
         var tableSchemas = new List<TableSchema>(dto.Schemas.Count);
-        // Enums are denormalized inline in V1 schemas (which is the only format the bundled
-        // .gz resources use), so we build a fresh FranchiseEnum per attribute occurrence.
+        var enumsByName = new Dictionary<string, FranchiseEnum>();
         foreach (var schemaDto in dto.Schemas)
         {
             var attributes = new List<SchemaAttribute>(schemaDto.Attributes.Count);
             foreach (var attrDto in schemaDto.Attributes)
             {
-                FranchiseEnum? franchiseEnum = attrDto.Enum is SchemaEnumDto attrDtoEnum ? FranchiseEnum.FromDto(attrDtoEnum) : null;
+                FranchiseEnum? franchiseEnum = ResolveEnum(attrDto.Enum, dto.EnumMap, enumsByName);
                 attributes.Add(new SchemaAttribute
                 {
                     Index = ParseNullableInt(attrDto.Index),
@@ -87,6 +86,33 @@ public sealed class FranchiseSchema
         }
 
         return new FranchiseSchema(dto.Meta?.Major ?? 0, dto.Meta?.Minor ?? 0, dto.Meta?.GameYear, tableSchemas);
+    }
+
+    private static FranchiseEnum? ResolveEnum(
+        JToken? enumToken, Dictionary<string, SchemaEnumDto>? enumMap, Dictionary<string, FranchiseEnum> enumsByName)
+    {
+        switch (enumToken?.Type)
+        {
+            case JTokenType.Object:
+                // V1: enum denormalized inline on the attribute.
+                return FranchiseEnum.FromDto(enumToken.ToObject<SchemaEnumDto>()!);
+            case JTokenType.String:
+                // V2: name of an entry in the top-level enumMap.
+                string name = enumToken.Value<string>()!;
+                if (enumsByName.TryGetValue(name, out var cached))
+                {
+                    return cached;
+                }
+                if (enumMap is null || !enumMap.TryGetValue(name, out var enumDto))
+                {
+                    return null;
+                }
+                var resolved = FranchiseEnum.FromDto(enumDto);
+                enumsByName[name] = resolved;
+                return resolved;
+            default:
+                return null;
+        }
     }
 
     private static int? ParseNullableInt(string? value) =>

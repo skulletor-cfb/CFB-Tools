@@ -101,13 +101,13 @@ public sealed class FranchiseFileTable : IPatchUnit
         int table2EndIndex = Header.HasThirdTable ? Header.Table3StartIndex : Data.Length;
         var table2Data = Strategy.GetTable2BinaryData(
             Table2Records.Cast<IPatchUnit>().ToList(),
-            Data[Header.Table2StartIndex..table2EndIndex],
+            Data.CopyRange(Header.Table2StartIndex, table2EndIndex),
             Header.HasCompactTable2);
 
         List<byte[]> table3Data = new();
         if (Header.HasThirdTable)
         {
-            table3Data = Strategy.GetTable3BinaryData(Table3Records.Cast<IPatchUnit>().ToList(), Data[Header.Table3StartIndex..]);
+            table3Data = Strategy.GetTable3BinaryData(Table3Records.Cast<IPatchUnit>().ToList(), Data.CopyRange(Header.Table3StartIndex));
         }
 
         if (RecordsRead)
@@ -139,7 +139,7 @@ public sealed class FranchiseFileTable : IPatchUnit
 
         if (IsArray && changedRecords.Count > 0)
         {
-            bufferArrays.Add(Data[currentOffset..Header.HeaderSize]);
+            bufferArrays.Add(Data.CopyRange(currentOffset, Header.HeaderSize));
             var arraySizeBuffer = new byte[Header.Data1RecordCount * 4];
             for (int i = 0; i < ArraySizes.Count; i++)
             {
@@ -153,23 +153,23 @@ public sealed class FranchiseFileTable : IPatchUnit
         {
             record.IsChanged = false;
             int recordOffset = Header.Table1StartIndex + record.Index * Header.Record1Size;
-            bufferArrays.Add(Data[currentOffset..recordOffset]);
+            bufferArrays.Add(Data.CopyRange(currentOffset, recordOffset));
             var recordHexData = record.HexData;
             bufferArrays.Add(recordHexData);
             currentOffset = recordOffset + recordHexData.Length;
         }
 
-        bufferArrays.Add(Data[currentOffset..Header.Table2StartIndex]);
+        bufferArrays.Add(Data.CopyRange(currentOffset, Header.Table2StartIndex));
 
         if (!RecordsRead && Header.HasSecondTable && table2Data.Count == 0)
         {
-            table2Data = new List<byte[]> { Data[Header.Table2StartIndex..table2EndIndex] };
+            table2Data = new List<byte[]> { Data.CopyRange(Header.Table2StartIndex, table2EndIndex) };
         }
         bufferArrays.AddRange(table2Data);
 
         if (!RecordsRead && Header.HasThirdTable && table3Data.Count == 0)
         {
-            table3Data = new List<byte[]> { Data[Header.Table3StartIndex..] };
+            table3Data = new List<byte[]> { Data.CopyRange(Header.Table3StartIndex) };
         }
         bufferArrays.AddRange(table3Data);
 
@@ -274,7 +274,7 @@ public sealed class FranchiseFileTable : IPatchUnit
         {
             int numberOfFields = Header.Record1Size / 4;
             var offsetTable = new List<OffsetTableEntry>(numberOfFields);
-            string baseType = Name.Length >= 2 ? Name[..^2] : Name;
+            string baseType = Name.Length >= 2 ? Name.Substring(0, Name.Length - 2) : Name;
             for (int i = 0; i < numberOfFields; i++)
             {
                 bool isReference = baseType.Length > 0 &&
@@ -399,7 +399,7 @@ public sealed class FranchiseFileTable : IPatchUnit
 
     private void ParseTable2Values(List<FranchiseFileRecord> records)
     {
-        var secondTableData = Data[Header.Table2StartIndex..];
+        var secondTableData = Data.CopyRange(Header.Table2StartIndex);
         foreach (var record in records)
         {
             foreach (var field in record.FieldsArray.Where(f => f.SecondTableField is not null))
@@ -414,7 +414,7 @@ public sealed class FranchiseFileTable : IPatchUnit
 
     private void ParseTable3Values(List<FranchiseFileRecord> records)
     {
-        var thirdTableData = Data[Header.Table3StartIndex..];
+        var thirdTableData = Data.CopyRange(Header.Table3StartIndex);
         foreach (var record in records)
         {
             var overflowRecord = BinaryUtil.GetTable3OverflowRecord(record);
@@ -645,7 +645,7 @@ public sealed class FranchiseFileTable : IPatchUnit
             if (offsetArray.Count > 0)
             {
                 int currentOffsetValue = offsetArray[0].IndexOffset;
-                offsetArray[^1].Offset = currentOffsetValue;
+                offsetArray[offsetArray.Count - 1].Offset = currentOffsetValue;
                 for (int i = offsetArray.Count - 2; i >= 0; i--)
                 {
                     var previousOffset = offsetArray[i + 1];

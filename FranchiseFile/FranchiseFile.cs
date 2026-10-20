@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using System.IO.Compression;
 using MaddenFranchise.Schema;
 using MaddenFranchise.Strategies;
 using MaddenFranchise.Util;
@@ -8,7 +7,7 @@ namespace MaddenFranchise;
 
 public sealed class FranchiseFileType
 {
-    public required string Format { get; init; }
+    public string Format { get; init; } = "";
     public bool Compressed { get; init; }
     public int? Year { get; set; }
     public string? GameType { get; set; }
@@ -133,7 +132,7 @@ public sealed class FranchiseFile
         {
             int currentTable = tableIndicies[i];
             int nextTable = tableIndicies.Count > i + 1 ? tableIndicies[i + 1] : data.Length - 8;
-            var tableData = data[currentTable..nextTable];
+            var tableData = data.CopyRange(currentTable, nextTable);
 
             var table = new FranchiseFileTable(tableData, currentTable, Type.Year!.Value, _strategy, Settings, GameType)
             {
@@ -182,7 +181,7 @@ public sealed class FranchiseFile
             Tables.Cast<IPatchUnit>().ToList(), UnpackedFileContents);
 
         string destination = outputFilePath ?? FilePath;
-        byte[] deflated = Deflate(UnpackedFileContents);
+        byte[] deflated = Net48Compat.ZlibDeflate(UnpackedFileContents);
         byte[] dataToSave = _strategy.PostPackFile(PackedFileContents ?? RawContents, deflated);
 
         File.WriteAllBytes(destination, dataToSave);
@@ -248,12 +247,12 @@ public sealed class FranchiseFile
                 }
                 if (table.IsArray && referencedTable.Schema is not null)
                 {
-                    string baseName = table.Name.Length >= 2 ? table.Name[..^2] : table.Name;
+                    string baseName = table.Name.Length >= 2 ? table.Name.Substring(0, table.Name.Length - 2) : table.Name;
                     return baseName == referencedTable.Name || baseName == referencedTable.Schema.Base;
                 }
                 if (table.IsArray)
                 {
-                    string baseName = table.Name.Length >= 2 ? table.Name[..^2] : table.Name;
+                    string baseName = table.Name.Length >= 2 ? table.Name.Substring(0, table.Name.Length - 2) : table.Name;
                     return baseName == referencedTable.Name;
                 }
                 return false;
@@ -293,26 +292,7 @@ public sealed class FranchiseFile
     private static byte[] Unpack(byte[] data, FranchiseFileType type)
     {
         int offset = type.Format == MaddenFranchise.FileFormat.Franchise ? CompressedDataOffset : 0;
-        return Inflate(data.AsSpan(offset).ToArray());
-    }
-
-    private static byte[] Inflate(byte[] data)
-    {
-        using var input = new MemoryStream(data);
-        using var zlib = new ZLibStream(input, CompressionMode.Decompress);
-        using var output = new MemoryStream();
-        zlib.CopyTo(output);
-        return output.ToArray();
-    }
-
-    private static byte[] Deflate(byte[] data)
-    {
-        using var output = new MemoryStream();
-        using (var zlib = new ZLibStream(output, CompressionLevel.Optimal, leaveOpen: true))
-        {
-            zlib.Write(data, 0, data.Length);
-        }
-        return output.ToArray();
+        return Net48Compat.ZlibInflate(data.CopyRange(offset));
     }
 
     // --- File type / schema-version detection (ported from FranchiseFile.js) ---

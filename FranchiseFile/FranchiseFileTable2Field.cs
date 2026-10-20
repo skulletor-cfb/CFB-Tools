@@ -52,7 +52,7 @@ public sealed class FranchiseFileTable2Field : IPatchUnit
             {
                 string decoded = Encoding.UTF8.GetString(_unformattedValue);
                 int nullIndex = decoded.IndexOf('\0');
-                _value = nullIndex >= 0 ? decoded[..nullIndex] : decoded;
+                _value = nullIndex >= 0 ? decoded.Substring(0, nullIndex) : decoded;
             }
             return _value;
         }
@@ -62,7 +62,7 @@ public sealed class FranchiseFileTable2Field : IPatchUnit
             string toWrite = value ?? "";
             if (toWrite.Length > MaxLength)
             {
-                toWrite = toWrite[..MaxLength];
+                toWrite = toWrite.Substring(0, MaxLength);
             }
             _unformattedValue = Strategy!.SetUnformattedValueFromFormatted(toWrite, MaxLength);
             LengthAtLastSaveNullable ??= _unformattedValue.Length;

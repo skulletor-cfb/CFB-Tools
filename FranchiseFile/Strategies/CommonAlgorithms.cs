@@ -39,7 +39,7 @@ public static class CommonAlgorithms
             unit.Offset += offsetDifference;
             if (unit.IsChanged)
             {
-                var unchangedSinceLastChange = oldData[oldOffsetCounter..(unit.Offset - offsetDifference)];
+                var unchangedSinceLastChange = oldData.CopyRange(oldOffsetCounter, unit.Offset - offsetDifference);
                 var newHexData = unit.HexData;
                 bufferArrays.Add(unchangedSinceLastChange);
                 bufferArrays.Add(newHexData);
@@ -51,7 +51,7 @@ public static class CommonAlgorithms
             }
         }
 
-        bufferArrays.Add(oldData[oldOffsetCounter..]);
+        bufferArrays.Add(oldData.CopyRange(oldOffsetCounter));
         return Concat(bufferArrays);
     }
 

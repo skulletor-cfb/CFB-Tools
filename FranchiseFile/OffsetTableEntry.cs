@@ -5,10 +5,10 @@ namespace MaddenFranchise;
 /// <summary>Port of the OffsetTableEntry shape built by FranchiseFileTable.js's readOffsetTable.</summary>
 public sealed class OffsetTableEntry
 {
-    public required int Index { get; init; }
+    public int Index { get; init; }
     public int OriginalIndex { get; init; }
-    public required string Name { get; init; }
-    public required string Type { get; set; }
+    public string Name { get; init; } = "";
+    public string Type { get; set; } = "";
     public bool IsReference { get; init; }
     public bool ValueInSecondTable { get; init; }
     public bool ValueInThirdTable { get; init; }

@@ -99,12 +99,12 @@ public sealed class BitView
     public float GetFloat32(int offset)
     {
         uint bits = (uint)GetBits(offset, 32, signed: false);
-        return BitConverter.Int32BitsToSingle(unchecked((int)bits));
+        return Net48Compat.Int32BitsToSingle(unchecked((int)bits));
     }
 
     public void SetFloat32(int offset, float value)
     {
-        uint bits = unchecked((uint)BitConverter.SingleToInt32Bits(value));
+        uint bits = unchecked((uint)Net48Compat.SingleToInt32Bits(value));
         SetBits(offset, bits, 32);
     }
 }

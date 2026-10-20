@@ -5,7 +5,7 @@ namespace MaddenFranchise.Schema;
 
 public sealed class SchemaResourceInfo
 {
-    public required string ResourceName { get; init; }
+    public string ResourceName { get; init; } = "";
     public string? GameType { get; init; }
     public int? GameYear { get; init; }
     public long? Major { get; init; }

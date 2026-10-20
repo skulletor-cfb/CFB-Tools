@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MaddenFranchise.Schema;
 
@@ -8,6 +9,8 @@ public sealed class SchemaFileDto
 {
     [JsonProperty(PropertyName="meta")] public SchemaMetaDto? Meta { get; set; }
     [JsonProperty(PropertyName="schemas")] public List<TableSchemaDto> Schemas { get; set; } = new();
+    /// <summary>V2 schemas only: enums keyed by name, referenced from attributes by that name.</summary>
+    [JsonProperty(PropertyName="enumMap")] public Dictionary<string, SchemaEnumDto>? EnumMap { get; set; }
 }
 
 public sealed class SchemaMetaDto
@@ -37,7 +40,8 @@ public sealed class SchemaAttributeDto
     [JsonProperty(PropertyName="default")] public string? Default { get; set; }
     [JsonProperty(PropertyName="final")] public string? Final { get; set; }
     [JsonProperty(PropertyName="const")] public string? Const { get; set; }
-    [JsonProperty(PropertyName="enum")] public object? Enum { get; set; }
+    /// <summary>V1 schemas inline the enum as an object; V2 schemas give the name of an enumMap entry.</summary>
+    [JsonProperty(PropertyName="enum")] public JToken? Enum { get; set; }
 }
 
 public sealed class SchemaEnumDto
@@ -63,17 +67,17 @@ public sealed class SchemaEnumMemberDto
 
 public sealed class TableSchema
 {
-    public required string Name { get; set; }
+    public string Name { get; set; } = "";
     public int NumMembers { get; set; }
     public string? Base { get; set; }
-    public required List<SchemaAttribute> Attributes { get; set; }
+    public List<SchemaAttribute> Attributes { get; set; } = new();
 }
 
 public sealed class SchemaAttribute
 {
     public int? Index { get; set; }
-    public required string Name { get; set; }
-    public required string Type { get; set; }
+    public string Name { get; set; } = "";
+    public string Type { get; set; } = "";
     public long? MinValue { get; set; }
     public long? MaxValue { get; set; }
     public int? MaxLength { get; set; }
