@@ -28,7 +28,7 @@ namespace EA_DB_Editor
         public static readonly string CFB27Exporter = ConfigurationManager.AppSettings["CFB27Exporter"];
         public static readonly int CFB27StartingYear = ConfigurationManager.AppSettings["CFB27StartingYear"].ToInt32();
 
-        private MaddenDatabase MaddenDB { get; set; }
+        public MaddenDatabase MaddenDB { get; set; }
         public IDataEngine DataEngine { get ; private set; }
 
         public string CookCoaches()

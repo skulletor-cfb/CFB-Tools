@@ -12,26 +12,26 @@ namespace EA_DB_Editor
         /// <summary>
         /// starting with 2584 the Rose Bowl is only a quarterfinal
         /// </summary>
-        private const int CFP12TeamRoseBowlQFOnlyStartingYear = 2584;
-        private const int CFP12TeamPlayoffStartingYear = 2542;
-        private const int CureBowl = 987043;
-        private const int SaluteVetsBowl = 987051;
-        private const int XboxBowl = 987052;
-        private const int MyrtleBeachBowl = 987044;
-        private const int ArizonaBowl = 987045;
-        private const int MobileAlabamaBowl = 0;
-        private const int FGSChampionship = 987053;
-        private const int CFB8v9 = 987047;
-        private const int CFB7v10 = 987048;
-        private const int CFB6v11 = 987049;
-        private const int CFB5v12 = 987050;
-        private const int SugarBowl = 27;
-        private const int RoseBowl = 25;
-        private const int FiestaBowl = 26;
-        private const int PeachBowl = 12;
-        private const int OrangeBowl = 28;
-        private const int CottonBowl = 17;
-        private const int NationalChampionship = 39;
+        public const int CFP12TeamRoseBowlQFOnlyStartingYear = 2584;
+        public const int CFP12TeamPlayoffStartingYear = 2542;
+        public const int CureBowl = 987043;
+        public const int SaluteVetsBowl = 987051;
+        public const int XboxBowl = 987052;
+        public const int MyrtleBeachBowl = 987044;
+        public const int ArizonaBowl = 987045;
+        public const int MobileAlabamaBowl = 0;
+        public const int FGSChampionship = 987053;
+        public const int CFB8v9 = 987047;
+        public const int CFB7v10 = 987048;
+        public const int CFB6v11 = 987049;
+        public const int CFB5v12 = 987050;
+        public const int SugarBowl = 27;
+        public const int RoseBowl = 25;
+        public const int FiestaBowl = 26;
+        public const int PeachBowl = 12;
+        public const int OrangeBowl = 28;
+        public const int CottonBowl = 17;
+        public const int NationalChampionship = 39;
 
         private static HashSet<int> AugmentedBowls = new HashSet<int>()
         {
