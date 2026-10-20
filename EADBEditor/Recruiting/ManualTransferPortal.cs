@@ -1,16 +1,12 @@
-﻿using EA_DB_Editor.CAPGen;
-using EA_DB_Editor.Recruiting;
+﻿using EA_DB_Editor.Recruiting;
+using NCAA14Utility;
 using System;
 using System.Collections.Generic;
-using System.Drawing.Text;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml.Linq;
 using static EA_DB_Editor.Form1;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace EA_DB_Editor
 {
@@ -31,8 +27,11 @@ namespace EA_DB_Editor
 
         private static Dictionary<int, Stack<int>> availableRosterSpots;
 
-        public static void WriteTransferPortalFiles(MaddenDatabase maddenDB)
+        public static void WriteTransferPortalFiles(MaddenDatabase maddenDB, List<TransferData> transfers)
         {
+            // we have all the data we need
+            transfers.ForEach(t => t.Prepare());
+
             // we need to know states first
             if (PlayerStates.Count == 0)
             {
@@ -85,11 +84,17 @@ namespace EA_DB_Editor
                 File.WriteAllText("Roster.csv", sb.ToString());
             }
             catch { }
+
+            try
+            {
+                transfers.WriteJsonFile("transfers.txt");
+            }
+            catch { }
         }
 
-        public static void RunTransferPortal(MaddenDatabase maddenDB)
+        public static void RunTransferPortal(MaddenDatabase maddenDB, List<TransferData> transfers)
         {
-            WriteTransferPortalFiles(maddenDB);
+            WriteTransferPortalFiles(maddenDB, transfers);
 
             var entry = new PlayerEntry();
             if (entry.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -107,7 +112,7 @@ namespace EA_DB_Editor
                     {
                         var set = new HashSet<string>();
 
-                        foreach (var line in lines)
+                        foreach (var line in linesToCheck)
                         {
                             if (!set.Add(line))
                             {
@@ -133,11 +138,14 @@ namespace EA_DB_Editor
 
                         if (player != null && !PlayersTransferred.Contains(to))
                         {
+                            var team = to / 70;
+                            var oldTeam = from / 70;
                             player["PGID"] = to.ToString();
-                            player["TGID"] = (to / 70).ToString();
+                            player["TGID"] = team.ToString();
                             PlayersTransferred.Add(to);
                             TransferPortalClass.SignPlayer(player["TGID"].ToInt32(), player["PPOS"].ToInt32());
                             TransferLog(from, to);
+                            transfers.Add(new TransferData { PlayerId = to, PreviousTeamId = oldTeam, NewTeamId = team });
                         }
                     }
                 }
@@ -147,15 +155,18 @@ namespace EA_DB_Editor
 
                     if (player != null && !PlayersTransferred.Contains(entry.To))
                     {
+                        var team = entry.To / 70;
+                        var oldTeam = entry.From / 70;
                         player["PGID"] = entry.To.ToString();
-                        player["TGID"] = (entry.To / 70).ToString();
+                        player["TGID"] = team.ToString();
                         PlayersTransferred.Add(entry.To);
                         TransferPortalClass.SignPlayer(player["TGID"].ToInt32(), player["PPOS"].ToInt32());
                         TransferLog(entry.From, entry.To);
+                        transfers.Add(new TransferData { PlayerId = entry.To, PreviousTeamId = oldTeam, NewTeamId = team });
                     }
                 }
 
-                WriteTransferPortalFiles(maddenDB);
+                WriteTransferPortalFiles(maddenDB, transfers);
                 TransferPortalClass.ResetTeamBids(); 
             }
         }
@@ -178,7 +189,7 @@ namespace EA_DB_Editor
         {
             Dictionary<int, List<TransferCandidate>> GetRosters()
             {
-                return MaddenTable.FindTable(maddenDB.lTables, "PLAY").lRecords.Where(mr => mr["TGID"].ToInt32() != 1023)
+                var currentPlayers = MaddenTable.FindTable(maddenDB.lTables, "PLAY").lRecords.Where(mr => mr["TGID"].ToInt32() != 1023)
                     .GroupBy(
                         mr => mr["TGID"].ToInt32(),
                         mr => new TransferCandidate
@@ -195,17 +206,50 @@ namespace EA_DB_Editor
                             Position = mr["PPOS"].ToInt32().ToPositionName(),
                             PositionNumber = mr["PPOS"].ToInt32(),
                         })
-                    .ToDictionary(g => g.Key, g => g.OrderBy(p => p.PositionNumber).ThenByDescending(p => p.OVR).ThenByDescending(p => p.Year).ToList());
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                var recruits = RecruitReader.OrganizeRecruits();
+                foreach (var kvp in recruits)
+                {
+                    var recruitPlayers = kvp.Value.Select(mr =>
+                    {
+                        return new TransferCandidate
+                        {
+                            Id = -1,
+                            Year = -1,
+                            OVR = mr["POVR"].ToInt32(),
+                            First = mr["PFNA"],
+                            Last = mr["PLNA"],
+                            TeamId = kvp.Key,
+                            Position = mr["PPOS"].ToInt32().ToPositionName(),
+                            PositionNumber = mr["PPOS"].ToInt32(),
+                        };
+                    });
+
+                    currentPlayers[kvp.Key].AddRange(recruitPlayers);
+                }
+
+                var result = new Dictionary<int, List<TransferCandidate>>();
+
+                foreach (var kvp in currentPlayers)
+                {
+                    result[kvp.Key] = kvp.Value.OrderBy(p => p.PositionNumber).ThenByDescending(p => p.OVR).ThenByDescending(p => p.Year).ToList();
+                }
+
+                return result; 
             }
 
             var allRosters = GetRosters();
+
             var dir = Directory.CreateDirectory("rosters");
             foreach (var kvp in allRosters)
             {
                 var roster = new StringBuilder();
                 kvp.Value.ForEach(p => roster.AppendLine(p.ToCsvLine()));
 
-                var file = Path.Combine(dir.FullName, $"{kvp.Key}.csv");
+                //var mod = kvp.Value.Count > 77 ? $"tx_{kvp.Value.Count}_" : string.Empty;
+                var mod = string.Empty;
+                var file = Path.Combine(dir.FullName, $"{mod}{kvp.Key}.csv");
 
                 try
                 {
@@ -284,8 +328,8 @@ namespace EA_DB_Editor
             // QBs
             var players = GetPlayers(pos => pos == 0);
             var candidates = players.Values.SelectMany(GetBackupQB).Where(p => p.OVR >= 85 && (p.Year == 3 || (p.Year == 2 && p.Redshirted))).OrderByDescending(p => p.OVR).ToList();
-            var inNeed = players.Where(kvp => kvp.Key.IsP5OrND() && kvp.Value.First().OVR < 90).Select(kvp => kvp.Value.First().Team).ToList();
-            var g5InNeed = players.Where(kvp => !kvp.Key.IsFcsTeam() && !kvp.Key.IsP5OrND() && kvp.Value.First().OVR < 85).Select(kvp => kvp.Value.First().Team).ToList();
+            var inNeed = players.Where(kvp => kvp.Key.IsP5OrND() && kvp.Value.Count > 0 && kvp.Value[0].OVR < 90).Select(kvp => kvp.Value[0].Team).ToList();
+            var g5InNeed = players.Where(kvp => !kvp.Key.IsFcsTeam() && !kvp.Key.IsP5OrND() && kvp.Value.Count > 0 && kvp.Value.First().OVR < 85).Select(kvp => kvp.Value.First().Team).ToList();
             inNeed.AddRange(g5InNeed);
 
             StringBuilder sb = new StringBuilder();
@@ -295,7 +339,7 @@ namespace EA_DB_Editor
             sb.AppendLine();
 
             // each teams QB depth chart
-            foreach (var dc in players.Values.Where(tc => inNeed.Contains(tc.First().Team)).OrderBy(tc => tc.First().P5).ThenBy(tc => tc.First().OVR).ThenBy(tc => tc.First().Team))
+            foreach (var dc in players.Values.Where(tc => tc.Count > 0 && inNeed.Contains(tc.First().Team)).OrderBy(tc => tc.First().P5).ThenBy(tc => tc.First().OVR).ThenBy(tc => tc.First().Team))
             {
                 sb.AppendLine(string.Empty);
                 sb.AppendLine(string.Empty);
@@ -321,7 +365,7 @@ namespace EA_DB_Editor
 
             for (int i = 6; i >= 1; i--)
             {
-                var teams = RecruitingFixup.PrestigeMap.Where(kvp => kvp.Value == i).Select(kvp => kvp.Key).ToArray();
+                var teams = TableUtility.PrestigeMap.Where(kvp => kvp.Value == i).Select(kvp => kvp.Key).ToArray();
                 teams.Shuffle();
                 result.AddRange(teams);
             }

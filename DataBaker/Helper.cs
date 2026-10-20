@@ -238,6 +238,7 @@ namespace DataBaker
         }
 
         const int cfp12Start = 2542;
+        const int cfp12RoseBowlQFStart = 2584;
 
         public static bool IsPlayoffBowl(this PlayedGame game)
         {
@@ -250,7 +251,12 @@ namespace DataBaker
             var year = game.Year;
             int[] games = null;
 
-            if (game.Year >= cfp12Start)
+            if (game.Year >= cfp12RoseBowlQFStart)
+            {
+                var mod = (game.Year - cfp12RoseBowlQFStart) % 5;
+                games = Spots[mod + cfp12RoseBowlQFStart];
+            }
+            else if (game.Year >= cfp12Start)
             {
                 var mod = (game.Year - cfp12Start) % 3;
                 games = Spots[mod + cfp12Start];
@@ -277,7 +283,12 @@ namespace DataBaker
                     return false;
             }
 
-            if (year >= cfp12Start)
+            if (year >= cfp12RoseBowlQFStart)
+            {
+                var mod = (year - cfp12RoseBowlQFStart) % 5;
+                games = Spots[mod + cfp12RoseBowlQFStart];
+            }
+            else if (year >= cfp12Start)
             {
                 var mod = (year - cfp12Start) % 3;
                 games = Spots[mod + cfp12Start];
@@ -325,6 +336,11 @@ namespace DataBaker
         {1994,new[] {28 } },
         {1993,new[] {28 } },
         {1992,new[] {27 } },
+            { 2584, new[]{ NationalChampionship, SugarBowl, OrangeBowl, RoseBowl, CottonBowl, PeachBowl, FiestaBowl, CFB5v12, CFB6v11, CFB7v10, CFB8v9 } },
+            { 2585, new[]{ NationalChampionship, CottonBowl, PeachBowl, RoseBowl, SugarBowl, OrangeBowl, FiestaBowl, CFB5v12, CFB6v11, CFB7v10, CFB8v9 } },
+            { 2586, new[]{ NationalChampionship, SugarBowl, FiestaBowl, RoseBowl, OrangeBowl, CottonBowl, PeachBowl, CFB5v12, CFB6v11, CFB7v10, CFB8v9 } },
+            { 2587, new[]{ NationalChampionship, OrangeBowl, CottonBowl, RoseBowl, SugarBowl, PeachBowl, FiestaBowl, CFB5v12, CFB6v11, CFB7v10, CFB8v9 } },
+            { 2588, new[]{ NationalChampionship, PeachBowl, FiestaBowl, RoseBowl, SugarBowl, OrangeBowl, CottonBowl, CFB5v12, CFB6v11, CFB7v10, CFB8v9 } },
     };
 
         public static void ReadFromPlayoffHistory()
@@ -335,6 +351,18 @@ namespace DataBaker
             var arr = xml.Elements("Year").Select(node => PastPlayoffHistory.ParseYear(node)).ToArray();
             PastPlayoffHistory.Years = PastPlayoffHistory.years.OrderByDescending(kvp => kvp.Key).Select(kvp => kvp.Key).ToArray();
         }
+
+        private const int CFB8v9 = 987047;
+        private const int CFB7v10 = 987048;
+        private const int CFB6v11 = 987049;
+        private const int CFB5v12 = 987050;
+        private const int SugarBowl = 27;
+        private const int RoseBowl = 25;
+        private const int FiestaBowl = 26;
+        private const int PeachBowl = 12;
+        private const int OrangeBowl = 28;
+        private const int CottonBowl = 17;
+        private const int NationalChampionship = 39;
 
     }
 }

@@ -12,7 +12,7 @@ namespace EA_DB_Editor.Recruiting
         private const int BidLimit = 3;
 
         // durable state we keep for a portal offseason
-        private static Dictionary<int, TransferPortalClass> transferPortalSignings = RecruitingFixup.PrestigeMap.ToDictionary(kvp => kvp.Key, kvp => new TransferPortalClass(kvp.Key));
+        private static Dictionary<int, TransferPortalClass> transferPortalSignings = TableUtility.PrestigeMap.ToDictionary(kvp => kvp.Key, kvp => new TransferPortalClass(kvp.Key));
 
         private bool[] positionsSigned = new bool[21];
 

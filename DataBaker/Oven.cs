@@ -1521,7 +1521,7 @@ namespace DataBaker
 
         static string createTrophyCaseConferenceLogo(int id)
         {
-            return "<img src='./HTML/Logos/conferences/65/" + id + ".jpg' />";
+            return "<img src='./HTML/Logos/conferences/65/" + id + ".png' />";
         }
         static string CreateH2HLink(Season s, int oppId, string opp)
         {

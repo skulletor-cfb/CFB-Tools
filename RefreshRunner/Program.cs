@@ -1,5 +1,7 @@
 ﻿using EA_DB_Editor;
+using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -116,6 +118,18 @@ namespace RefreshRunner
         [STAThread]
         static void Main(string[] args)
         {
+            if (args.Length == 2 && args[0] == "cal")
+            {
+                Calendar(Int32.Parse(args[1]));
+                return;
+            }
+
+            if (args.Length == 1 && args[0] == "eval")
+            {
+                Eval();
+                return;
+            }
+
             if (args.Length == 1 && args[0] == "dump")
             {
                 Dump();
@@ -320,19 +334,10 @@ namespace RefreshRunner
 
         // dont check this in
         static string accessKey = "no";
+        const string outputDirectory = @"d:\dynastyTables";
 
-        static void Dump()
+        static FileInfo NewestSave()
         {
-            const string saveFiles = @"c:\rpcs3\dev_hdd0\home\00000001\savedata";
-            const string outputDirectory = @"d:\dynastyTables";
-            const string teamFile = outputDirectory + @"\team.csv";
-            const string schdFile = outputDirectory + @"\schd.csv";
-
-            // get the latest file
-            var dir = new DirectoryInfo(saveFiles);
-            var files = dir.GetFiles("USR-DATA", SearchOption.AllDirectories);
-            var newest = files.OrderByDescending(f => f.LastWriteTime).First();
-
             // setup output
             if (Directory.Exists(outputDirectory))
             {
@@ -340,6 +345,72 @@ namespace RefreshRunner
             }
 
             Directory.CreateDirectory(outputDirectory);
+
+            const string saveFiles = @"c:\rpcs3\dev_hdd0\home\00000001\savedata";
+            // get the latest file
+            var dir = new DirectoryInfo(saveFiles);
+            var files = dir.GetFiles("USR-DATA", SearchOption.AllDirectories);
+            var newest = files.OrderByDescending(f => f.LastWriteTime).First();
+            return newest;
+        }
+
+        static void Calendar(int year)
+        {
+            var cal = new SeasonCalendar(year);
+            Console.WriteLine($"Labor Day is on {cal.LaborDay.ToShortDateString()}");
+            Console.WriteLine($"Texas State Fair starts on {cal.TexasStateFairStartDate.ToShortDateString()}");
+            Console.WriteLine($"Red River Showdown is on {cal.RedRiverShowdown.ToShortDateString()}");
+            Console.WriteLine($"Third Saturday in October is on {cal.ThirdSaturdayInOctober.ToShortDateString()}");
+            Console.WriteLine($"Thanksgiving is on {cal.Thanksgiving.ToShortDateString()}");
+            var ldweek = cal.IsLaborDayWeekendFirstWeek ? 1 : 2;
+            Console.WriteLine($"Labor Day Weekend is week {ldweek}");
+
+            for (int i = 0; i < cal.Weeks.Length; i++)
+            {
+                Console.WriteLine($"Week {i+1}: {cal.Weeks[i].ToShortDateString()}");
+            }
+        }
+
+        static void Eval()
+        {
+            const string upsetsFile = outputDirectory + @"\upsets.json";
+            const string allFile = outputDirectory + @"\results.json";
+            // setup file reading
+            var newest = NewestSave();
+            var appDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString());
+            var form = CreateForm(appDomain);
+            form.OpenDynastyFile(newest.FullName);
+            var list = form.ReadUpsets();
+            WriteFile(list, upsetsFile, true);
+            WriteFile(list, allFile, false);
+        }
+
+        static void WriteFile( List<UpsetAlert> alerts, string file, bool upsets)
+        {
+            var sb = new StringBuilder();
+            foreach (var alert in alerts)
+            {
+                if (alert.Upset == upsets)
+                {
+                    sb.AppendLine(alert.Headline);
+                }
+            }
+
+            if (upsets)
+            {
+                Console.WriteLine(sb);
+            }
+
+            var json = JsonConvert.SerializeObject(alerts.Where(a => a.Upset == upsets).ToArray(), Formatting.Indented);
+            File.WriteAllText(file, json);
+            Console.WriteLine(file);
+        }
+
+        static void Dump()
+        {
+            const string teamFile = outputDirectory + @"\team.csv";
+            const string schdFile = outputDirectory + @"\schd.csv";
+            var newest = NewestSave();
 
             // setup file reading
             var appDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString());
@@ -497,10 +568,16 @@ namespace RefreshRunner
                 form.SetBowlIdOverrides(dict => dict[15] = new Tuple<int, int>(7015, 194));
 
                 // Mobile Alabama Bowl became the LA BOWL in 2357
-                form.SetBowlIdOverrides(dict => dict[0] = new Tuple<int, int>(8000, 344));
+                //form.SetBowlIdOverrides(dict => dict[0] = new Tuple<int, int>(8000, 344));
 
                 // San Fran Bowl became Boca Raton Bowl in 2433
                 form.SetBowlIdOverrides(dict => dict[3] = new Tuple<int, int>(9000, 420));
+
+                // LA Bowl became Poinesttia Bowl in 2583
+                form.SetBowlIdOverrides(dict => dict[0] = new Tuple<int, int>(15, 570));
+
+                // GameAbove Sports becomes PR bowl in 2583
+                form.SetBowlIdOverrides(dict => dict[4] = new Tuple<int, int>(9100, 570));
             }
         }
 

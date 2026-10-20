@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NCAA14Utility;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
@@ -34,33 +35,49 @@ namespace ScheduleDisplay
 
                     this.Invoke(new Action(() =>
                     {
-                        //                        this.dataGridView1.Rows.Clear();
+                        var scheduleModel = this.file.ReadJsonFile<ScheduleModel>();
 
                         try
                         {
-                            var lines = File.ReadAllLines(this.file);
                             bool addRows = this.dataGridView1.Rows.Count <= 1;
 
                             int idx = 0;
-                            foreach (var line in lines.Skip(2))
+                            const int mod = 1; // how many elements in the list we have
+                            foreach (var teamSchedule in scheduleModel.TeamSchedules)
                             {
-                                var split = line.Split(',').ToList();
-
-                                if (line.EndsWith(","))
+                                var list = new List<string>()
                                 {
-                                    split.Add(string.Empty);
+                                    teamSchedule.TeamName,
+                                    string.Empty,
+                                };
+
+                                for (int i = 1; i <= 15; i++)
+                                {
+                                    if (teamSchedule.ScheduleNodesByWeek.TryGetValue(i, out var node))
+                                    {
+                                        var prefix = node.IsLaborDayGame ? "R: " : string.Empty;
+                                        list.Insert(mod + i, prefix + node.Opponent);
+                                    }
+                                    else
+                                    {
+                                        list.Insert(mod + i, string.Empty);
+                                    }
                                 }
+
+                                list.Insert(mod + 16, string.Empty);
+                                list.Insert(mod + 17, string.Join("  ", teamSchedule.Notes));
+                                list.Insert(mod + 18, teamSchedule.G5Note);
 
                                 if (addRows)
                                 {
-                                    this.dataGridView1.Rows.Add(split.ToArray());
+                                    this.dataGridView1.Rows.Add(list.ToArray());
                                 }
                                 else
                                 {
                                     var row = this.dataGridView1.Rows[idx++];
                                     for (int i = 0; i < row.Cells.Count; i++)
                                     {
-                                        var desc = i >= split.Count ? string.Empty : split[i];
+                                        var desc = i >= list.Count ? string.Empty : list[i];
 
                                         if (desc.StartsWith("R: "))
                                         {
@@ -74,6 +91,34 @@ namespace ScheduleDisplay
 
                                         row.Cells[i].Value = desc;
                                     }
+                                }
+                            }
+
+                            if (addRows)
+                            {
+                                this.dataGridView1.Rows.Add(string.Empty);
+                                this.dataGridView1.Rows.Add(scheduleModel.FCSGames);
+                                this.dataGridView1.Rows.Add(scheduleModel.G5Games);
+                                this.dataGridView1.Rows.Add(scheduleModel.P5Games);
+                                this.dataGridView1.Rows.Add(scheduleModel.P5G5Games);
+                                this.dataGridView1.Rows.Add(scheduleModel.TotalGames);
+                            }
+                            else
+                            {
+                                var values = new List<string>()
+                                {
+                                    string.Empty,
+                                    scheduleModel.FCSGames,
+                                    scheduleModel.G5Games,
+                                    scheduleModel.P5Games,
+                                    scheduleModel.P5G5Games,
+                                    scheduleModel.TotalGames
+                                };
+
+                                foreach (var value in values)
+                                {
+                                    var row = this.dataGridView1.Rows[idx++];
+                                    row.Cells[0].Value = value;
                                 }
                             }
                         }
@@ -100,18 +145,6 @@ namespace ScheduleDisplay
 
 
         private void dataGridView1_CellLeave(object sender, DataGridViewCellEventArgs e)
-        {
-        }
-
-        private void openDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            FolderBrowserDialog dialog = new FolderBrowserDialog();
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-            }
-        }
-
-        private static Dictionary<int, Team> LoadTeams()
         {
         }
     }

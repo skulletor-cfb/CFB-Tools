@@ -22,12 +22,12 @@ namespace EA_DB_Editor
 
         public int Prestige { get; }
 
-        private static Dictionary<int, TeamRecruiter> teamRecruiters = RecruitingFixup.PrestigeMap.Where(kvp => !kvp.Key.IsFcsTeam()).ToDictionary(kvp => kvp.Key, kvp => new TeamRecruiter(kvp.Key, kvp.Value));
+        private static Dictionary<int, TeamRecruiter> teamRecruiters = TableUtility.PrestigeMap.Where(kvp => !kvp.Key.IsFcsTeam()).ToDictionary(kvp => kvp.Key, kvp => new TeamRecruiter(kvp.Key, kvp.Value));
         private static TeamRecruiter[] PowerRecruiters = teamRecruiters.Where(kvp => kvp.Key.IsP5OrND()).Select(kvp => kvp.Value).ToArray();
         private static TeamRecruiter[] G5Recruiters = teamRecruiters.Where(kvp => kvp.Key.IsG5()).Select(kvp => kvp.Value).ToArray();
-        private static TeamRecruiter[] EliteRecruiters = teamRecruiters.Values.Where( tr => RecruitingFixup.PrestigeMap[tr.TeamId] >= 5).ToArray();
-        private static TeamRecruiter[] SelectRecruiters = teamRecruiters.Values.Where(tr => RecruitingFixup.PrestigeMap[tr.TeamId] >= 3).ToArray();
-        private static TeamRecruiter[] PlayerRecruiters = teamRecruiters.Values.Where(tr => RecruitingFixup.PrestigeMap[tr.TeamId] >= 1).ToArray();
+        private static TeamRecruiter[] EliteRecruiters = teamRecruiters.Values.Where( tr => TableUtility.PrestigeMap[tr.TeamId] >= 5).ToArray();
+        private static TeamRecruiter[] SelectRecruiters = teamRecruiters.Values.Where(tr => TableUtility.PrestigeMap[tr.TeamId] >= 3).ToArray();
+        private static TeamRecruiter[] PlayerRecruiters = teamRecruiters.Values.Where(tr => TableUtility.PrestigeMap[tr.TeamId] >= 1).ToArray();
 
         public TeamRecruiter(int teamId, int prestige)
         {
@@ -57,7 +57,7 @@ namespace EA_DB_Editor
                 teamsToLookAt = PlayerRecruiters;
             }
 
-            var result = teamsToLookAt[Form1.RAND(teamsToLookAt.Length)].TeamId;
+            var result = teamsToLookAt[teamsToLookAt.Length.RAND()].TeamId;
 
             if (desiredTeam == TeamFilter.P5 && !result.IsP5OrND())
             {

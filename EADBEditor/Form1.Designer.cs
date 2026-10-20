@@ -93,6 +93,9 @@
             this.queryToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.preseasonScheduleFixToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.readScheduleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.igniteScheduleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fixSGINToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tVTimeSlotsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.testToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.postSeasonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lastWeekPollToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -119,8 +122,9 @@
             this.cFPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.coachesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.createTransferPortalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.enforceScheduleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -547,7 +551,11 @@
             this.playerNumbersToolStripMenuItem,
             this.queryToolStripMenuItem1,
             this.preseasonScheduleFixToolStripMenuItem,
-            this.readScheduleToolStripMenuItem});
+            this.readScheduleToolStripMenuItem,
+            this.igniteScheduleToolStripMenuItem,
+            this.fixSGINToolStripMenuItem,
+            this.tVTimeSlotsToolStripMenuItem,
+            this.enforceScheduleToolStripMenuItem});
             this.preseasonFixToolStripMenuItem.Name = "preseasonFixToolStripMenuItem";
             this.preseasonFixToolStripMenuItem.Size = new System.Drawing.Size(134, 29);
             this.preseasonFixToolStripMenuItem.Text = "Preseason Fix";
@@ -631,11 +639,32 @@
             this.readScheduleToolStripMenuItem.Text = "Read Schedule";
             this.readScheduleToolStripMenuItem.Click += new System.EventHandler(this.readScheduleToolStripMenuItem_Click);
             // 
+            // igniteScheduleToolStripMenuItem
+            // 
+            this.igniteScheduleToolStripMenuItem.Name = "igniteScheduleToolStripMenuItem";
+            this.igniteScheduleToolStripMenuItem.Size = new System.Drawing.Size(296, 34);
+            this.igniteScheduleToolStripMenuItem.Text = "Ignite Schedule";
+            this.igniteScheduleToolStripMenuItem.Click += new System.EventHandler(this.igniteScheduleToolStripMenuItem_Click);
+            // 
+            // fixSGINToolStripMenuItem
+            // 
+            this.fixSGINToolStripMenuItem.Name = "fixSGINToolStripMenuItem";
+            this.fixSGINToolStripMenuItem.Size = new System.Drawing.Size(296, 34);
+            this.fixSGINToolStripMenuItem.Text = "Fix SGIN";
+            this.fixSGINToolStripMenuItem.Click += new System.EventHandler(this.fixSGINToolStripMenuItem_Click);
+            // 
+            // tVTimeSlotsToolStripMenuItem
+            // 
+            this.tVTimeSlotsToolStripMenuItem.Name = "tVTimeSlotsToolStripMenuItem";
+            this.tVTimeSlotsToolStripMenuItem.Size = new System.Drawing.Size(296, 34);
+            this.tVTimeSlotsToolStripMenuItem.Text = "TV Time Slots";
+            this.tVTimeSlotsToolStripMenuItem.Click += new System.EventHandler(this.tVTimeSlotsToolStripMenuItem_Click);
+            // 
             // testToolStripMenuItem
             // 
             this.testToolStripMenuItem.Name = "testToolStripMenuItem";
             this.testToolStripMenuItem.Size = new System.Drawing.Size(134, 29);
-            this.testToolStripMenuItem.Text = "Test Schedule";
+            this.testToolStripMenuItem.Text = "G5 Host P5: Off";
             this.testToolStripMenuItem.Click += new System.EventHandler(this.testToolStripMenuItem_Click);
             // 
             // postSeasonToolStripMenuItem
@@ -838,6 +867,13 @@
             this.coachesToolStripMenuItem.Text = "Coaches";
             this.coachesToolStripMenuItem.Click += new System.EventHandler(this.coachesToolStripMenuItem_Click);
             // 
+            // createTransferPortalToolStripMenuItem
+            // 
+            this.createTransferPortalToolStripMenuItem.Name = "createTransferPortalToolStripMenuItem";
+            this.createTransferPortalToolStripMenuItem.Size = new System.Drawing.Size(280, 34);
+            this.createTransferPortalToolStripMenuItem.Text = "Create Transfer Portal";
+            this.createTransferPortalToolStripMenuItem.Click += new System.EventHandler(this.createTransferPortalToolStripMenuItem_Click);
+            // 
             // menuStrip1
             // 
             this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
@@ -857,16 +893,18 @@
             this.postSeasonToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1224, 35);
+            this.menuStrip1.Size = new System.Drawing.Size(1224, 33);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
-            // createTransferPortalToolStripMenuItem
+            // enforceScheduleToolStripMenuItem
             // 
-            this.createTransferPortalToolStripMenuItem.Name = "createTransferPortalToolStripMenuItem";
-            this.createTransferPortalToolStripMenuItem.Size = new System.Drawing.Size(280, 34);
-            this.createTransferPortalToolStripMenuItem.Text = "Create Transfer Portal";
-            this.createTransferPortalToolStripMenuItem.Click += new System.EventHandler(this.createTransferPortalToolStripMenuItem_Click);
+            this.enforceScheduleToolStripMenuItem.Name = "enforceScheduleToolStripMenuItem";
+            this.enforceScheduleToolStripMenuItem.Size = new System.Drawing.Size(296, 34);
+            this.enforceScheduleToolStripMenuItem.Text = "Run Work";
+            this.enforceScheduleToolStripMenuItem.Click += new System.EventHandler(this.enforceScheduleToolStripMenuItem_Click);
+            this.enforceScheduleToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
+
             // 
             // Form1
             // 
@@ -981,6 +1019,10 @@
         private System.Windows.Forms.ToolStripMenuItem xboxBowlToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fGSChampionshipToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem createTransferPortalToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem igniteScheduleToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fixSGINToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem tVTimeSlotsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem enforceScheduleToolStripMenuItem;
     }
 }
 

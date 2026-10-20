@@ -29,10 +29,10 @@ namespace EA_DB_Editor
 
         public static void Init()
         {
-            if (RecruitingFixup.ACC.Length < 16)
+            if (TableUtility.ACC.Length < 16)
                 return;
 
-            if(RecruitingFixup.ACCConfTeams.Length==14)
+            if(TableUtility.ACCConfTeams.Length==14)
             {
                 // todo if acc is 14 games fix something
             }
@@ -55,8 +55,8 @@ namespace EA_DB_Editor
             schedule.ProcessSchedule(
                 ScenarioForSeason,
                 ACCConferenceSchedule,
-                RecruitingFixup.ACCId,
-                RecruitingFixup.ACC,
+                TableUtility.ACCId,
+                TableUtility.ACC,
                 68);
         }
 
@@ -77,7 +77,7 @@ namespace EA_DB_Editor
             var idx = (Form1.DynastyYear - 2487) % Creators.Length;
             result = Creators[idx]();
 #endif
-            var dict = result.Verify(16, RecruitingFixup.ACCId, "ACC");
+            var dict = result.Verify(16, TableUtility.ACCId, "ACC");
 
             ACCConferenceSchedule = dict.BuildHashSet();
             return dict;

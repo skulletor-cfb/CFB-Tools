@@ -1,0 +1,199 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace EA_DB_Editor.Scheduling
+{
+    public class GameTimeOfDay
+    {
+        public int Hour { get; }
+        public int Minute { get; }
+        public bool AM { get; }
+        public GameTimeOfDay(int gtod)
+        {
+            Hour = gtod / 60;
+            Minute = gtod % 60;
+            AM = Hour < 12;
+
+            if (Hour > 12)
+            {
+                Hour -= 12;
+            }
+        }
+
+        public GameTimeOfDay(DateTime time)
+        {
+            Hour = time.Hour;
+            Minute = time.Minute;
+            AM = Hour < 12;
+
+            if (Hour > 12)
+            {
+                Hour -= 12;
+            }
+        }
+
+        public int Value => Hour * 60 + Minute;
+
+        public bool Equals(int gtod) => this.Value == gtod;
+    }
+
+    public class TelevisedGame
+    {
+        public DateTime Date => this.GetDate();
+
+        public int Score { get; }
+
+        public int ConferenceOwner { get; }
+
+        public int Week { get; }
+
+        public int Day { get; }
+
+        public int GTOD { get; }
+        public GameTimeOfDay GameTimeOfDay { get; }
+        public int AwayTeam { get; }
+        public int HomeTeam { get; }
+        public bool IsConferenceGame { get; }
+        [JsonIgnore]
+        public MaddenRecord Record { get; }
+        public bool IsSecAccGame { get; }
+        public bool IsSecConferenceGame => IsConferenceGame && IsSecGame;
+        public bool IsP5Game { get; }
+        public bool HomeTeamIsP5 { get; }
+        public bool IsFCSGame { get; }
+        /// <summary>
+        /// selected means a network has taken it
+        /// </summary>
+        public bool Selected { get; private set; }
+        /// <summary>
+        /// assigned means it's in a network/timeslot
+        /// </summary>
+        public bool Assigned { get; private set; }
+        public bool IsSecGame => ConferenceOwner == TableUtility.SECId;
+        public bool IsAccGame => ConferenceOwner == TableUtility.ACCId;
+        public bool IsHawaiiGame => HomeTeam == 32;
+        public bool IsArmyGame => HomeTeam == 8;
+        public bool IsNavyGame => HomeTeam == 57;
+        public bool IsBig10Game => ConferenceOwner == TableUtility.Big10Id;
+        public bool IsBig12Game => ConferenceOwner == TableUtility.Big12Id;
+        public bool IsPac12Game => ConferenceOwner == TableUtility.Pac16Id;
+        public bool IsMACGame => ConferenceOwner == TableUtility.MACId;
+        public bool IsCUSAGame => ConferenceOwner == TableUtility.CUSAId;
+        public bool IsNotreDameHomeGame => HomeTeam.IsIndependentND();
+        public bool IsNotreDameAtNavy => (HomeTeam == 57 && AwayTeam == TableUtility.NotreDameId);
+        public bool IsNotreDameGame => HomeTeam == 68 || AwayTeam == 68;
+        public bool BothTeamsRanked { get; }
+        public bool IsArizonaGame => HomeTeam == 4 || HomeTeam == 5;
+        public bool IsASUvAU => IsArizonaGame && (AwayTeam == 4 || AwayTeam == 5);
+        public bool IsAirForce => HomeTeam == 1;
+        public bool IsMilitaryHomeGame => IsAirForce || HomeTeam == 8 || HomeTeam == 57;
+        public bool AwayTeamIsP5 => AwayTeam.IsP5OrND();
+        public bool IntraConferenceP5 => AwayTeamIsP5 && HomeTeamIsP5 && TableUtility.TeamAndConferences[AwayTeam] != TableUtility.TeamAndConferences[HomeTeam];
+        public bool IsMWCGame => ConferenceOwner == TableUtility.MWCId;
+        public bool IsAmericanGame => ConferenceOwner == TableUtility.AmericanId;
+        public bool IsSunBeltGame => ConferenceOwner == TableUtility.SBCId;
+        public bool IsEggBowl => CheckMatchup(55, 73);
+        public bool IsTexasShowDown => CheckMatchup(92, 93);
+        public bool IsCivilWar => CheckMatchup(39, 56);
+        public bool IsTexasTechGame => CheckMatchup(92, 94);
+        public bool IsTCUBU => CheckMatchup(11, 89);
+        public bool IsSMUHOU => CheckMatchup(33, 83);
+        public string HomeName { get; }
+        public string AwayName { get; }
+        public int AwayRank { get; }
+        public int HomeRank { get; }
+        public string HomeConference { get; }
+        public string AwayConference { get; }
+        public bool IsP5G5Game => (HomeTeam.IsP5OrND() && AwayTeam.IsG5()) || (AwayTeam.IsP5OrND() && HomeTeam.IsG5());
+        public TelevisedGame(MaddenRecord mr, Dictionary<int, MaddenRecord> teams)
+        {
+            Record = mr;
+            HomeTeam = mr.GetHomeTeam();
+            AwayTeam = mr.GetAwayTeam();
+            var away = teams[AwayTeam];
+            var home = teams[HomeTeam];
+            AwayName = away.TeamName();
+            HomeName = home.TeamName();
+            AwayRank = away.MediaPollRanking();
+            HomeRank = home.MediaPollRanking();
+            var score = home.CoachPollRanking() + HomeRank + away.CoachPollRanking() + AwayRank;
+            score /= 2;
+            score += ScheduleFixup.IsRivalryGame(AwayTeam, HomeTeam) ? -10 : 0;
+            score += TableUtility.TeamAndConferences.TeamsInSameConference(AwayTeam, HomeTeam) ? -5 : 0;
+            score -= ((home.Prestige() + away.Prestige()) * 10) / 15; // more prestigious game should rank higher
+
+            ConferenceOwner = (IsNotreDameHomeGame || IsNotreDameAtNavy) ? TableUtility.NotreDameId : TableUtility.GameConferenceOwner(HomeTeam);
+            AwayConference = AwayTeam.IsFcsTeam() ? "FCS" : RecruitingFixup.ConferenceNames[TableUtility.GameConferenceOwner(AwayTeam)];
+            HomeConference = RecruitingFixup.ConferenceNames[TableUtility.GameConferenceOwner(HomeTeam)];
+            Week = mr.GameWeek();
+            Day = mr.GameDay();
+            GTOD = mr.GTOD();
+            GameTimeOfDay = new GameTimeOfDay(GTOD);
+            IsConferenceGame = ConferenceOwner == TableUtility.GameConferenceOwner(AwayTeam);
+            IsSecAccGame = (AwayTeam.IsSECTeam() && HomeTeam.IsAccTeam()) || (HomeTeam.IsSECTeam() && AwayTeam.IsAccTeam());
+            IsP5Game = AwayTeam.IsP5OrND() && HomeTeam.IsP5OrND();
+            HomeTeamIsP5 = HomeTeam.IsP5OrND();
+            IsFCSGame = AwayTeam.IsFcsTeam();
+
+            score += IsP5G5Game ? 3 : 0;
+            score += IsFCSGame ? 1000 : 0;
+            score += IsP5Game ? -5 : 0;
+            Score = score;
+
+            BothTeamsRanked = (home.CoachPollRanking() <= 25 || home.MediaPollRanking() <= 25) && (away.CoachPollRanking() <= 25 || away.MediaPollRanking() <= 25);
+        }
+
+        public override string ToString() => $"{Week}: {AwayName} at {HomeName}";
+        public override bool Equals(object obj)
+        {
+            return obj is TelevisedGame other &&
+                Week == other.Week &&
+                AwayTeam == other.AwayTeam &&
+                HomeTeam == other.HomeTeam;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public TelevisedGame Select()
+        {
+            Selected = true;
+            return this;
+        }
+
+        public TelevisedGame Assign(TimeSlot time)
+        {
+            return PreAssign(time);
+        }
+
+        public TelevisedGame PreAssign(TimeSlot time = null)
+        {
+            if (time != null)
+            {
+                this.Record["GTOD"] = time.ToGTOD();
+                this.Record["GDAT"] = time.Day.ToString();
+            }
+
+            Assigned = true;
+            Selected = true;
+            return this;
+        }
+
+        public TelevisedGame Deselect()
+        {
+            Selected = false;
+            return this;
+        }
+
+        public bool CheckMatchup(int a, int b)
+        {
+            return (HomeTeam == a && AwayTeam == b) || (HomeTeam == b && AwayTeam == a);
+        }
+    }
+}

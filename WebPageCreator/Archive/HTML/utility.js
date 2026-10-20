@@ -3,7 +3,8 @@
 //			ADJUSTABLE VARIABLES
 //****************************************************************************************
 //****************************************************************************************
-var usingGZip = false; 
+var shouldLoadFromServer = true;
+var usingGZip = false;
 
 // This is the start year of the Dynasty. If you adjust the starting year
 // in the NCAA2014_Webpage_Maker.exe.config you need to do so here as well.
@@ -13,8 +14,16 @@ var startingYear = 2013;
 var topPlayers = 15;
 
 function getPlayoffGames(year) {
-    // 0 == rose/sugar, 1 = orange/cotton, 2 = peach/fiesta
+    // 1 == rose/sugar, 2 = orange/cotton, 0 = peach/fiesta
     var rotationSpot = year % 3;
+
+    // in my dynasty 2067 had the playoffs in Cotton/Peach and 2069 had it in Orange/Fiesta
+    if (year == 2067) {
+        return [39, 17, 12];
+    }
+    else if (year == 2069) {
+        return [39, 28, 26];
+    }
 
     if (rotationSpot == 0) {
         return [39, 12, 26];
@@ -63,6 +72,12 @@ function evalJson(str) {
     return eval("(" + json + ")");
 }
 
+function decompJson(str) {
+    var json = str;
+    json = JXG.decompress(json);
+    return JSON.parse(json);
+}
+
 function loadHSAAData() {
     $.ajax({
         url: "hsaa-east",
@@ -108,7 +123,7 @@ function parseAllAmericanData() {
         teams[2] = [];
     }
 
-    for (var jj = 0 ; jj < currentData.length ; jj++) {
+    for (var jj = 0; jj < currentData.length; jj++) {
         if (Number(currentData[jj].ConfId) == currentConferenceId) {
             var currentTeam = teams[currentData[jj].TeamNum];
             currentTeam[currentTeam.length] = currentData[jj];
@@ -128,15 +143,15 @@ function loadAllAmericanTable(roster, table, headerType) {
     var rosterTable = document.getElementById(table);
 
     var rows = rosterTable.rows.length;
-    for (var i = rows - 1 ; rosterTable.rows.length > 2 ; i--) {
+    for (var i = rows - 1; rosterTable.rows.length > 2; i--) {
         rosterTable.deleteRow(i);
     }
 
-    for (ridx = 0 ; ridx < roster.length ; ridx++) {
+    for (ridx = 0; ridx < roster.length; ridx++) {
         var player = roster[ridx];
         var cells = [player.DisplayPosition, player.PlayerName,
-            createTeamLinkTableCell(player.TeamId, player.PlayerTeam),
-            player.Height, player.Weight, player.PlayerYear, player.PositionName, player.Ovr];
+        createTeamLinkTableCell(player.TeamId, player.PlayerTeam),
+        player.Height, player.Weight, player.PlayerYear, player.PositionName, player.Ovr];
 
         if (player.Committed == true) {
             cells[3] = createTeamLinkTableCell(player.TopTeamId, "<b><i>" + player.TopTeam + "</i></b>");
@@ -150,7 +165,7 @@ function loadAllAmericanTable(roster, table, headerType) {
 function loadHSAARosterTable(roster, table) {
     var rosterTable = document.getElementById(table);
 
-    for (ridx = 0 ; ridx < roster.length ; ridx++) {
+    for (ridx = 0; ridx < roster.length; ridx++) {
         var player = roster[ridx];
         var cells = [player.PositionRank, player.PositionName, player.FirstName + " " + player.LastName, createTeamLinkTableCell(player.TopTeamId, player.TopTeam), player.Hometown];
 
@@ -164,13 +179,14 @@ function loadHSAARosterTable(roster, table) {
 }
 
 function addServerRowsToTable(table, rows) {
-    for (var w = 0 ; w < rows.length; w++) {
+    for (var w = 0; w < rows.length; w++) {
         addBasicRowsToTable(table, rows[w].Cells, "c3");
     }
 }
 
 function loadAwardsFromServer(yr, teamId) {
-    var uri = "ncaa.svc/awards?yr=" + yr + "&id=" + teamId;
+    var uri = `../baked/awards.${teamId}.txt`;
+
 
     $.ajax({
         url: uri,
@@ -190,7 +206,8 @@ function loadAwardsFromServer(yr, teamId) {
             cells = [["10%", "Year"], ["30%", "Trophy"], ["30%", "Conference"], ["30%", "Team"]];
             addCellsWithWidth(table, cells, "c7");
             addServerRowsToTable(table, data.ConferenceChampionships.Rows);
-        }
+        },
+        dataType: "json"
     });
 }
 
@@ -204,7 +221,7 @@ function loadAwardsHistory() {
     var cells = [["10%", "Year"], ["30%", "Trophy"], ["20%", "Award"], ["10%", "Year"], ["10%", "Pos"], ["20%", "Name"]];
     addCellsWithWidth(table, cells, "c7");
 
-    if (usingGZip) {
+    if (shouldLoadFromServer) {
         loadAwardsFromServer(currentYear, teamId);
         return;
     }
@@ -222,7 +239,7 @@ function parseAwardsFile(data, status, jqXHR) {
     var awards = csvJSON(data);
     var teamName = "";
 
-    for (var currAward = 0; currAward < awards.length ; currAward++) {
+    for (var currAward = 0; currAward < awards.length; currAward++) {
         if (awards[currAward].AwardName != "" && Number(awards[currAward].TeamId) == teamId) {
 
             var season = getSeasonForYear(jqXHR.Year);
@@ -264,7 +281,7 @@ function parseAllAmericanFile(data, status, jqXHR) {
     var aas = csvJSON(data);
     var teamName = "";
 
-    for (var currPlayer = 0; currPlayer < aas.length ; currPlayer++) {
+    for (var currPlayer = 0; currPlayer < aas.length; currPlayer++) {
         if (aas[currPlayer].ConfId == 14 && Number(aas[currPlayer].TeamId) == teamId) {
 
             var season = getSeasonForYear(jqXHR.Year);
@@ -313,7 +330,7 @@ function awardTeamLoaded() {
         return a.Year - b.Year;
     });
 
-    for (var hh = seasons.Season.length - 1 ; hh >= 0 ; hh--) {
+    for (var hh = seasons.Season.length - 1; hh >= 0; hh--) {
         var currYearDir = seasons.Season[hh];
 
         if (currentYear == currYearDir.Year) {
@@ -322,7 +339,7 @@ function awardTeamLoaded() {
         }
     }
 
-    for (var ii = teamawards.length - 1 ; ii >= 0 ; ii--) {
+    for (var ii = teamawards.length - 1; ii >= 0; ii--) {
         var currSeason = teamawards[ii];
 
         if (currSeason.AwardName == null || currSeason.AwardName == undefined)
@@ -340,7 +357,7 @@ function awardTeamLoaded() {
 
     table = document.getElementById("aaDataTable");
 
-    for (var iii = allamericans.length - 1 ; iii >= 0 ; iii--) {
+    for (var iii = allamericans.length - 1; iii >= 0; iii--) {
         var currSeason = allamericans[iii];
 
         if (currSeason.AATeam == null || currSeason.AATeam == undefined)
@@ -377,7 +394,7 @@ function awardTeamLoaded() {
             var cells = [["10%", "Year"], ["30%", "Trophy"], ["30%", "Bowl"], ["30%", "Team"]];
             addCellsWithWidth(table, cells, "c7");
 
-            for (var i = 0 ; i < bc.length ; i++) {
+            for (var i = 0; i < bc.length; i++) {
                 var champ = bc[i];
 
                 var cells = [Number(startingYear) + Number(bc[i].Year), createTrophyCaseBowlTrophyLink(champ.BowlId), createTrophyCaseBowlLogoLink(champ.BowlId), createTeamLogoLink(champ.TeamId, 65)];
@@ -404,7 +421,7 @@ function awardTeamLoaded() {
             var cells = [["10%", "Year"], ["30%", "Trophy"], ["30%", "Conference"], ["30%", "Team"]];
             addCellsWithWidth(table, cells, "c7");
 
-            for (var i = 0 ; i < bc.length ; i++) {
+            for (var i = 0; i < bc.length; i++) {
                 var champ = bc[i];
 
                 var cells = [Number(startingYear) + Number(bc[i].Year), createTrophyCaseConfTrophyLink(champ.ConferenceId), createTrophyCaseConferenceLogo(champ.ConferenceId), createTeamLogoLink(champ.TeamId, 65)];
@@ -424,7 +441,7 @@ function loadPreSeasonReviewData(year) {
             var teams = evalJson(data);
             var table = document.getElementById("preseasonTop25");
 
-            for (var i = 0 ; i < 25 ; i++) {
+            for (var i = 0; i < 25; i++) {
 
                 var team = teams[i];
                 var record = team.PriorSeasonWin + "-" + team.PriorSeasonLoss;
@@ -447,17 +464,17 @@ function loadCCPredictions(year) {
             var row = table.insertRow(-1);
             var cells = [["10%", "Year"], ["30%", "Conference"], ["30%", "Team"], ["30%", "Team"]];
 
-            for (var j = 0 ; j < cells.length ; j++) {
+            for (var j = 0; j < cells.length; j++) {
                 var cell = row.insertCell(-1);
                 cell.className = "c7";
                 cell.width = cells[j][0];
                 cell.innerHTML = cells[j][1];
             }
 
-            for (var ii = 0 ; ii < predictedCC.length ; ii++) {
+            for (var ii = 0; ii < predictedCC.length; ii++) {
                 var team = predictedCC[ii];
 
-                var cells = [year, '<a href="CC.html?id=' + team.ConferenceId + '"><img src="../HTML/Logos/conferences/65/' + team.ConferenceId + '.jpg" /></a>', createTeamLogoLink(team.TeamId, 65), createTeamLinkTableCell(team.TeamId, team.TeamName, true)];
+                var cells = [year, '<a href="CC.html?id=' + team.ConferenceId + '"><img src="../HTML/Logos/conferences/65/' + team.ConferenceId + '.png" /></a>', createTeamLogoLink(team.TeamId, 65), createTeamLinkTableCell(team.TeamId, team.TeamName, true)];
 
                 addBasicRowsToTable(table, cells, "c3");
             }
@@ -473,10 +490,10 @@ function loadSeasonReviewData(year) {
             var teams = csvJSON(data);
             var table = document.getElementById("bcsTable");
 
-            for (var i = 0 ; i < 25 ; i++) {
+            for (var i = 0; i < 25; i++) {
 
                 var team = teams[i];
-                var cells = [1 + i, createTeamLinkTableCell(team.TeamId, team.Team), team.Record, team.Media, team.Coaches, team.BCSPrevious];
+                var cells = [1 + i, createTeamLinkTableCell(team.TeamId, team.Team), team.Record, team.Coaches, team.Media, team.BCSPrevious];
 
                 if (i < 10) {
                     cells[1] = createTeamLogoLinkToTeams(team.TeamId, 55);
@@ -513,17 +530,17 @@ function loadSeasonReviewData(year) {
             var row = table.insertRow(-1);
             var cells = [["10%", "Year"], ["30%", "Conference"], ["30%", "Team"], ["30%", "Team"]];
 
-            for (var j = 0 ; j < cells.length ; j++) {
+            for (var j = 0; j < cells.length; j++) {
                 var cell = row.insertCell(-1);
                 cell.className = "c7";
                 cell.width = cells[j][0];
                 cell.innerHTML = cells[j][1];
             }
 
-            for (var i = 0 ; i < teams.length ; i++) {
+            for (var i = 0; i < teams.length; i++) {
                 var team = teams[i];
 
-                var cells = [startingYear, '<a href="CC.html?id=' + team.ConferenceId + '"><img src="../HTML/Logos/conferences/65/' + team.ConferenceId + '.jpg" /></a>', createTeamLogoLink(team.TeamId, 65), createTeamLinkTableCell(team.TeamId, team.Team)];
+                var cells = [startingYear, '<a href="CC.html?id=' + team.ConferenceId + '"><img src="../HTML/Logos/conferences/65/' + team.ConferenceId + '.png" /></a>', createTeamLogoLink(team.TeamId, 65), createTeamLinkTableCell(team.TeamId, team.Team)];
 
 
                 addBasicRowsToTable(table, cells, "c3");
@@ -557,7 +574,7 @@ function loadSeasonReviewData(year) {
             var cells = [["10%", "Year"], ["30%", "Bowl"], ["30%", "Team"], ["30%", "Team"]];
             addCellsWithWidth(table, cells, "c7");
 
-            for (var i = 0 ; i < bc.length ; i++) {
+            for (var i = 0; i < bc.length; i++) {
 
 
                 var champ = bc[i];
@@ -595,7 +612,7 @@ function loadSeasonReviewData(year) {
 
             d.sort(function (a, b) { return Number(a.AwardId) - Number(b.AwardId); });
 
-            for (var i = 0 ; i < d.length ; i++) {
+            for (var i = 0; i < d.length; i++) {
 
                 if (d[i].AwardName != "") {
                     var cells = [d[i].AwardName, createAwardLogoLink(d[i].AwardId), createTeamLogoLinkToStats(d[i].TeamId, 65), d[i].Year, d[i].Position, d[i].Name];
@@ -635,7 +652,7 @@ function isYearInSeasonsData(year) {
 }
 
 function getSeasonForYear(year) {
-    for (gsfy = 0 ; gsfy < seasons.Season.length ; gsfy++) {
+    for (gsfy = 0; gsfy < seasons.Season.length; gsfy++) {
         if (year == seasons.Season[gsfy].Year)
             return seasons.Season[gsfy];
     }
@@ -680,7 +697,7 @@ function csvJSON(csv, header, headerValue, skipDecompress) {
 
 function findTeam(json, teamId) {
     var teams = evalJson(json);
-    for (var i = 0 ; i < teams.length ; i++) {
+    for (var i = 0; i < teams.length; i++) {
         if (teams[i].Id == teamId)
             return teams[i];
     }
@@ -733,7 +750,7 @@ function getYearIndex(year) {
 function isOffPlayer(position) {
     var pos = ['QB', 'HB', 'FB', 'WR', 'TE', 'OT', 'OG', 'C', 'LT', 'LG', 'RG', 'RT'];
 
-    for (var i = 0 ; i < pos.length ; i++) {
+    for (var i = 0; i < pos.length; i++) {
         if (pos[i] == position)
             return true;
     }
@@ -794,7 +811,7 @@ function seasonsContainsYear(seasonFilter) {
 
 function fanOutCallToSeasons(year, file, successCallback, callsCompleteCallback, fileSelector, objectToPass, objectName, seasonFilter) {
     var calls = [];
-    for (var i = 0 ; i < seasons.Season.length && seasons.Season[i].Year <= year; i++) {
+    for (var i = 0; i < seasons.Season.length && seasons.Season[i].Year <= year; i++) {
         if (!seasonsContainsYear(seasonFilter, seasons.Season[i].Year))
             continue;
 
@@ -852,10 +869,10 @@ function loadTopSeasons() {
     topPlayers = getQueryVariable("top") == false ? topPlayers : getQueryVariable("top");
 
     loadSeasonsJsonData(
-    function () {
-        fanOutCallToSeasons(year, "leaders.csv", parseBestPlayerOnTeamStats, allTimeStatsLoaded);
-    },
-    "./Seasons");
+        function () {
+            fanOutCallToSeasons(year, "leaders.csv", parseBestPlayerOnTeamStats, allTimeStatsLoaded);
+        },
+        "./Seasons");
 
 }
 
@@ -863,7 +880,7 @@ function parseBestPlayerOnTeamStats(data, status, jqXHR) {
     var stats = csvJSON(data);
     var player = null;
 
-    for (var statIdx = 0 ; statIdx < stats.length ; statIdx++) {
+    for (var statIdx = 0; statIdx < stats.length; statIdx++) {
         var current = stats[statIdx];
         var suffix = jqXHR.Year + "-" + current.TeamId;
         player = null;
@@ -902,7 +919,7 @@ function parseBestPlayerOnTeamStats(data, status, jqXHR) {
 }
 
 function loadTopPlayersFromServer(cy, teamId, top) {
-    var uri = "ncaa.svc/teamGreats?yr=" + cy + "&id=" + teamId + "&top=" + top;
+    var uri = `../baked/teamgreats.${teamId}.txt`;
 
     $.ajax({
         url: uri,
@@ -914,7 +931,8 @@ function loadTopPlayersFromServer(cy, teamId, top) {
             addServerRowsToTable(document.getElementById("tackleTable"), data.AllTimeGreats[4].Rows);
             addServerRowsToTable(document.getElementById("sackTable"), data.AllTimeGreats[5].Rows);
             addServerRowsToTable(document.getElementById("intTable"), data.AllTimeGreats[6].Rows);
-        }
+        },
+        dataType: 'json'
     });
 }
 
@@ -937,7 +955,7 @@ function loadTopPlayers() {
     cell.width = '100%';
     cell.innerHTML = '<center><img border="0" src="' + createTeamLogoSrc(teamId, 256) + '" /></center>';
 
-    if (usingGZip) {
+    if (shouldLoadFromServer) {
         loadTopPlayersFromServer(year, teamId, topPlayers);
         return;
     }
@@ -951,7 +969,7 @@ function loadTopPlayers() {
 
 function parseAllTimeStats(data, status, jqXHR) {
     var stats = csvJSON(data);
-    for (var statIdx = 0 ; statIdx < stats.length ; statIdx++) {
+    for (var statIdx = 0; statIdx < stats.length; statIdx++) {
         var current = stats[statIdx];
 
         // do passing stats first TableIdx=1
@@ -1051,7 +1069,7 @@ function setYearsPlayed(player) {
 
 function fillInAllTimeStatsTable(players, table, addStat6) {
 
-    for (var i = 0 ; i < players.length ; i++) {
+    for (var i = 0; i < players.length; i++) {
         var player = players[i];
         setYearsPlayed(player);
         // create our data for our cells
@@ -1075,14 +1093,15 @@ function fillInAllTimeStatsTable(players, table, addStat6) {
 }
 
 function loadTeamCoachHistoryFromServer(cy, teamId, t1, t2) {
-    var uri = "ncaa.svc/teamHistory?yr=" + cy + "&id=" + teamId;
+    var uri = `../baked/teamhistory.${teamId}.txt`;
 
     $.ajax({
         url: uri,
         success: function (data) {
             addServerRowsToTable(t1, data.CoachHistory.Rows);
             addServerRowsToTable(t2, data.TeamHistory.Rows);
-        }
+        },
+        dataType: "json"
     });
 }
 
@@ -1104,7 +1123,7 @@ function loadTeamCoachHistory() {
     cells = [["5%", "Year"], ["11%", "Head Coach"], ["9%", "Record"], ["9%", "Recruiting"], ["4%", "OVR"], ["4%", "Off"], ["4%", "QB"], ["4%", "RB"], ["4%", "REC"], ["4%", "OL"], ["4%", "DEF"], ["4%", "DL"], ["4%", "LB"], ["4%", "DB"], ["4%", "ST"], ["3%", "Off"], ["3%", "Pass"], ["3%", "Run"], ["3%", "Def"], ["3%", "Pass"], ["3%", "Run"]];
     addCellsWithWidth(table2, cells, "c7");
 
-    if (usingGZip) {
+    if (shouldLoadFromServer) {
         loadTeamCoachHistoryFromServer(currentYear, teamId, table, table2);
         return;
     }
@@ -1142,7 +1161,7 @@ function teamHistoryYearLoaded() {
     var table = document.getElementById("coachDataTable");
     var table2 = document.getElementById("yearlyTalent");
 
-    for (var ii = seasons.Season.length - 1 ; ii >= 0 ; ii--) {
+    for (var ii = seasons.Season.length - 1; ii >= 0; ii--) {
         var currSeason = seasons.Season[ii];
 
         if (currSeason.Year <= currentYear) {
@@ -1178,14 +1197,14 @@ function teamHistoryYearLoaded() {
             }
 
             var cells = ["<a href=" + directory + "/Index.html>" + currSeason.Year + "</a>",
-                createCoachLink(".", currentYear, currSeason.HC.Name, currSeason.HC.CoachId, ""),
-                currSeason.OC == undefined ? "" : createCoachLink(".", currentYear, currSeason.OC.Name, currSeason.OC.CoachId, ""),
-                currSeason.DC == undefined ? "" : createCoachLink(".", currentYear, currSeason.DC.Name, currSeason.DC.CoachId, ""),
-                //team.Win + "-" + team.Loss,
-                createTeamHrefForRecentMeetings(directory, team.Id, "", team.Win, team.Loss, null, true),
+            createCoachLink(".", currentYear, currSeason.HC.Name, currSeason.HC.CoachId, ""),
+            currSeason.OC == undefined ? "" : createCoachLink(".", currentYear, currSeason.OC.Name, currSeason.OC.CoachId, ""),
+            currSeason.DC == undefined ? "" : createCoachLink(".", currentYear, currSeason.DC.Name, currSeason.DC.CoachId, ""),
+            //team.Win + "-" + team.Loss,
+            createTeamHrefForRecentMeetings(directory, team.Id, "", team.Win, team.Loss, null, true),
                 coachRank,
                 mediaRank,
-                summary.join(", ")
+            summary.join(", ")
             ];
 
             // insert the rows
@@ -1195,7 +1214,7 @@ function teamHistoryYearLoaded() {
             cells = ["<a href=" + directory + "/Index.html>" + currSeason.Year + "</a>",
             createCoachLink(".", currentYear, currSeason.HC.Name, currSeason.HC.CoachId, ""),
             createTeamHrefForRecentMeetings(directory, team.Id, "", team.Win, team.Loss, null, true),
-            recruitingRank,
+                recruitingRank,
             "<b>" + team.TeamRatingOVR + "</b>", "<b>" + team.TeamRatingOFF + "</b>", team.TeamRatingQB, team.TeamRatingRB, team.TeamRatingWR, team.TeamRatingOL, "<b>" + team.TeamRatingDEF + "</b>", team.TeamRatingDL, team.TeamRatingLB, team.TeamRatingDB, "<B>" + team.TeamRatingST + "</b>", team.OffensiveRankings.Overall, team.OffensiveRankings.Passing, team.OffensiveRankings.Rushing, team.DefensiveRankings.Overall, team.DefensiveRankings.Passing, team.DefensiveRankings.Rushing
             ];
 
@@ -1209,7 +1228,7 @@ function parseCoachFileForTeam(data, status, jqXHR) {
     var coaches = csvJSON(data);
 
     // find the team we are looking for
-    for (var currCoach = 0 ; currCoach < coaches.length ; currCoach++) {
+    for (var currCoach = 0; currCoach < coaches.length; currCoach++) {
         if (coaches[currCoach].TeamId == teamId) {
             var idx = 0;
             var season = getSeasonForYear(jqXHR.Year);
@@ -1229,16 +1248,18 @@ function parseCoachFileForTeam(data, status, jqXHR) {
 }
 
 function loadCoachH2HFromServer(cy, cid, name) {
-    var uri = "ncaa.svc/coachH2H?yr=" + cy + "&id=" + cid + "&name=" + escape(name);
+    var coachKey = base64URLEncode(name.toUpperCase());
+    var uri = `../baked/coachcareer.${cid}.${coachKey}.txt`;
 
     $.ajax({
         url: uri,
         success: function (data) {
+            data = decompJson(data);
             fillBioTable(data.CoachBio);
             var table = document.getElementById("meetingTable");
 
-            for (var v = 0 ; v < data.CoachCareer.Rows.length; v++) {
-                addBasicRowsToTable(table, data.CoachCareer.Rows[v].Cells, "c3");
+            for (var v = 0; v < data.CoachH2HSummary.Rows.length; v++) {
+                addBasicRowsToTable(table, data.CoachH2HSummary.Rows[v].Cells, "c3");
             }
         }
     });
@@ -1257,7 +1278,7 @@ function loadCoachH2H() {
     var logo = document.getElementById("careerLink");
     logo.href += "?yr=" + currentYear + "&id=" + currentCoachId + "&name=" + escape(currentCoachName);
 
-    if (usingGZip) {
+    if (shouldLoadFromServer) {
         loadCoachH2HFromServer(currentYear, currentCoachId, currentCoachName);
         return;
     }
@@ -1276,15 +1297,15 @@ function parseHeadCoachCareerFile(data, status, jqXHR) {
 function coachSingleSeasonTeamInfoLoaded() {
 
     fanOutCallToSeasons(currentYear, "team",
-    function (data, status, jqXHR) {
-        var currentSeason = getSeasonForYear(jqXHR.Year);
+        function (data, status, jqXHR) {
+            var currentSeason = getSeasonForYear(jqXHR.Year);
 
-        if (currentSeason.TeamId != null && currentSeason.TeamId != undefined) {
-            var team = findTeam(data, currentSeason.TeamId);
-            currentSeason.Team = team;
-        }
-    },
-    coachH2HSeasonsLoaded);
+            if (currentSeason.TeamId != null && currentSeason.TeamId != undefined) {
+                var team = findTeam(data, currentSeason.TeamId);
+                currentSeason.Team = team;
+            }
+        },
+        coachH2HSeasonsLoaded);
 }
 
 
@@ -1327,12 +1348,14 @@ function loadCoachPostSeason() {
     logo = document.getElementById("kogLink");
     logo.href += append;
 
-    var uri = "ncaa.svc/coachpostseason?" + append + "&filter=" + currentFilter;
+    var coachKey = base64URLEncode(currentCoachName.toUpperCase());
+    var uri = `../baked/coachcareer.${currentCoachId}.${coachKey}.txt`;
 
     $.ajax({
         url: uri,
         success: function (data) {
-            for (var x = 0 ; x < data.Rows.length; x++) {
+            data = decompJson(data)[`Coach${currentFilter.toUpperCase()}`];
+            for (var x = 0; x < data.Rows.length; x++) {
                 addBasicRowsToTable(document.getElementById('meetingTable'), data.Rows[x].Cells, 'c3');
             }
 
@@ -1373,7 +1396,7 @@ function loadCoachCareer() {
     var cells = [["4%", "Year"], ["4%", "Age"], ["4%", "Pos"], ["14%", "Team"], ["7%", ""], ["4%", "AP Poll"], ["39%", "Summary"], ["12%", ""], ["12%", ""]];
     addCellsWithWidth(table, cells, "c7");
 
-    if (usingGZip) {
+    if (shouldLoadFromServer) {
         loadCoachCareerFromServer(currentYear, currentCoachId, currentCoachName);
         return;
     }
@@ -1384,9 +1407,15 @@ function loadCoachCareer() {
         },
         "./Seasons");
 }
-
+function base64URLEncode(str) {
+    return btoa(str)
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+}
 function loadCoachCareerFromServer(cy, cid, name) {
-    var uri = "ncaa.svc/coachCareer?yr=" + cy + "&id=" + cid + "&name=" + escape(name);
+    /*
+    var uri = "ncaa.svc/coachCareer?yr=" + cy + "&id=" + cid+"&name="+escape(name);
 
     $.ajax({
         url: uri,
@@ -1399,6 +1428,23 @@ function loadCoachCareerFromServer(cy, cid, name) {
             }
         }
     });
+    */
+
+    var coachKey = base64URLEncode(name.toUpperCase());
+    var uri = `../baked/coachcareer.${cid}.${coachKey}.txt`;
+
+    $.ajax({
+        url: uri,
+        success: function (data) {
+            data = decompJson(data);
+            fillBioTable(data.CoachBio);
+            var table = document.getElementById("coachDataTable");
+
+            for (var v = 0; v < data.CoachCareer.Rows.length; v++) {
+                addBasicRowsToTable(table, data.CoachCareer.Rows[v].Cells, "c3");
+            }
+        }
+    });
 }
 
 function parseCoachCareerFile(data, status, jqXHR) {
@@ -1407,7 +1453,7 @@ function parseCoachCareerFile(data, status, jqXHR) {
     var teamName = "";
 
     // find the coach we are looking for
-    for (var currCoach = 0 ; currCoach < coaches.length ; currCoach++) {
+    for (var currCoach = 0; currCoach < coaches.length; currCoach++) {
         if (coaches[currCoach].Name == currentCoachName && Number(coaches[currCoach].CoachId) == currentCoachId) {
             teamId = coaches[currCoach].TeamId;
             teamName = coaches[currCoach].Team;
@@ -1473,7 +1519,7 @@ function getDefaultIntValue(candidate) {
 function coachCareerInfoLoaded() {
     var currentSeason = null;
     var foundYear = false;
-    for (var si = seasons.Season.length - 1 ; si >= 0 ; si--) {
+    for (var si = seasons.Season.length - 1; si >= 0; si--) {
 
         if (currentYear >= seasons.Season[si].Year && seasons.Season[si].Team != undefined && currentCoachId == seasons.Season[si].Team.HeadCoach.Id) {
 
@@ -1521,7 +1567,7 @@ function coachTeamLoaded() {
     var table = document.getElementById("coachDataTable");
     coachCareerInfoLoaded();
 
-    for (var ii = seasons.Season.length - 1 ; ii >= 0 ; ii--) {
+    for (var ii = seasons.Season.length - 1; ii >= 0; ii--) {
         var currSeason = seasons.Season[ii];
 
         if (currSeason.TeamId == null || currSeason.TeamId == undefined)
@@ -1579,10 +1625,10 @@ function coachTeamLoaded() {
 
         var cells = ["<a href=" + directory + "/Index.html>" + currSeason.Year + "</a>", currSeason.Coach0.Age,
             job,
-            createTeamHrefForRecentMeetings(directory, currSeason.Team.Id, teamName, currSeason.Team.Win, currSeason.Team.Loss, null, true),
-            "<a href='./TeamHistory.html?yr=" + currentYear + "&id=" + currSeason.Team.Id + "'><img border='0' src='" + createTeamLogoSrc(currSeason.Team.Id, 35) + "' /></a>",
+        createTeamHrefForRecentMeetings(directory, currSeason.Team.Id, teamName, currSeason.Team.Win, currSeason.Team.Loss, null, true),
+        "<a href='./TeamHistory.html?yr=" + currentYear + "&id=" + currSeason.Team.Id + "'><img border='0' src='" + createTeamLogoSrc(currSeason.Team.Id, 35) + "' /></a>",
             mediaRank,
-            summary.join(", "),
+        summary.join(", "),
             coach1,
             coach2
         ];
@@ -1593,7 +1639,7 @@ function coachTeamLoaded() {
 }
 
 function findSeason(seasonsForCoach, year) {
-    for (ii = 0 ; ii < seasonsForCoach.length; ii++) {
+    for (ii = 0; ii < seasonsForCoach.length; ii++) {
         if (seasonsForCoach[ii].Year == year)
             return seasonsForCoach[ii];
     }
@@ -1615,7 +1661,7 @@ function parseHeadToHeadSchedule(data, status, jqXHR, seasonsForCoach) {
     var scheduleForYear = csvJSON(data);
     var foundTeam = false;
 
-    for (j = 0 ; j < scheduleForYear.length ; j++) {
+    for (j = 0; j < scheduleForYear.length; j++) {
         if (scheduleForYear[j].TeamId == singleTeam) {
             foundTeam = true;
         }
@@ -1678,7 +1724,7 @@ function populateHeadToHeadMeetings() {
 
     var directory = seasons.Season[seasons.Season.length - 1].Directory.replace("Archive", "");
 
-    for (var kk = 0 ; kk < results.length ; kk++) {
+    for (var kk = 0; kk < results.length; kk++) {
         var current = results[kk];
         var lastMeeting = results[kk][results[kk].length - 1];
         var directory = isYearInSeasonsData(lastMeeting.Year);
@@ -1697,11 +1743,11 @@ function populateHeadToHeadMeetings() {
         }
 
         var cells = [
-                            current.Win + "-" + current.Loss,
-                            createTeamHrefForRecentMeetings(directory, current.OpponentId, null, null, null, 35),
-                            "<a href='HeadToHead.html?id=" + current.OpponentId + "&yr=" + currentYear + "'>" + current.Opponent + "</a>",
-                            lmLink,
-                            lastCell,
+            current.Win + "-" + current.Loss,
+            createTeamHrefForRecentMeetings(directory, current.OpponentId, null, null, null, 35),
+            "<a href='HeadToHead.html?id=" + current.OpponentId + "&yr=" + currentYear + "'>" + current.Opponent + "</a>",
+            lmLink,
+            lastCell,
 
         ];
 
@@ -1714,16 +1760,19 @@ function populateHeadToHeadMeetings() {
 }
 
 function loadHeadToHeadMeetingsFromServer(cy, teamId) {
-    var uri = "ncaa.svc/teamH2H?yr=" + cy + "&id=" + teamId + "&sort=" + getQueryVariable("sort");
+    // brute force we just have two files, we specify sorted or not
+    var end = getQueryVariable('sort') ? '.sorted' : '';
+    var uri = `../baked/teamh2h${end}.${teamId}.txt`;
 
     $.ajax({
         url: uri,
         success: function (data) {
             var table = document.getElementById("meetingTable");
-            for (var v = 0 ; v < data.Rows.length; v++) {
+            for (var v = 0; v < data.Rows.length; v++) {
                 addBasicRowsToTable(table, data.Rows[v].Cells, "c3");
             }
-        }
+        },
+        dataType: 'json'
     });
 }
 
@@ -1738,31 +1787,33 @@ function loadHeadToHeadMeetings() {
     var lookback = Number(getQueryVariable("past"));
     var calls = [];
 
-    if (usingGZip) {
+    if (shouldLoadFromServer) {
         loadHeadToHeadMeetingsFromServer(currentYear, currentTeam);
         return;
     }
 
     loadSeasonsJsonData(
-function () {
-    fanOutCallToSeasons(currentYear, "tsch.csv", parseHeadToHeadSchedule, populateHeadToHeadMeetings);
-},
-"./Seasons");
+        function () {
+            fanOutCallToSeasons(currentYear, "tsch.csv", parseHeadToHeadSchedule, populateHeadToHeadMeetings);
+        },
+        "./Seasons");
 }
 
 function loadCoachRecentMeetingsFromServer(cy, cid, name, filter) {
-    var uri = "ncaa.svc/coachH2H?yr=" + cy + "&id=" + cid + "&name=" + escape(name) + "&filter=" + filter;
+    var coachKey = base64URLEncode(name.toUpperCase());
+    var uri = `../baked/coachcareer.${cid}.${coachKey}.txt`;
 
     $.ajax({
         url: uri,
         success: function (data) {
+            data = decompJson(data);
             fillBioTable(data.CoachBio);
             var table = document.getElementById("meetingTable");
 
-            fillInSeriesResult(data.CoachCareer.Description, table);
+            fillInSeriesResult(data.CoachH2HDrilldown[filter].Description, table);
 
-            for (var v = 0 ; v < data.CoachCareer.Rows.length; v++) {
-                addBasicRowsToTable(table, data.CoachCareer.Rows[v].Cells, "c3");
+            for (var v = 0; v < data.CoachH2HDrilldown[filter].Rows.length; v++) {
+                addBasicRowsToTable(table, data.CoachH2HDrilldown[filter].Rows[v].Cells, "c3");
             }
         }
     });
@@ -1786,30 +1837,30 @@ function loadCoachRecentMeetings() {
     var logo = document.getElementById("h2hLink");
     logo.href += "?yr=" + year + "&id=" + teamId + "&name=" + escape(name);
 
-    if (usingGZip) {
+    if (shouldLoadFromServer) {
         loadCoachRecentMeetingsFromServer(currentYear, currentCoachId, currentCoachName, oppId);
         return;
     }
 
     loadSeasonsJsonData(
-    function () {
-        fanOutCallToSeasons(currentYear, "coaches.csv", parseHeadCoachCareerFile, coachRecentMeetingsSingleSeasonTeamInfoLoaded);
-    },
-    "./Seasons");
+        function () {
+            fanOutCallToSeasons(currentYear, "coaches.csv", parseHeadCoachCareerFile, coachRecentMeetingsSingleSeasonTeamInfoLoaded);
+        },
+        "./Seasons");
 }
 
 function coachRecentMeetingsSingleSeasonTeamInfoLoaded() {
 
     fanOutCallToSeasons(currentYear, "team",
-    function (data, status, jqXHR) {
-        var currentSeason = getSeasonForYear(jqXHR.Year);
+        function (data, status, jqXHR) {
+            var currentSeason = getSeasonForYear(jqXHR.Year);
 
-        if (currentSeason.TeamId != null && currentSeason.TeamId != undefined) {
-            var team = findTeam(data, currentSeason.TeamId);
-            currentSeason.Team = team;
-        }
-    },
-    coachH2HSeasonsForRecentMeetingsLoaded);
+            if (currentSeason.TeamId != null && currentSeason.TeamId != undefined) {
+                var team = findTeam(data, currentSeason.TeamId);
+                currentSeason.Team = team;
+            }
+        },
+        coachH2HSeasonsForRecentMeetingsLoaded);
 }
 
 function loadCoachCareerData() {
@@ -1817,7 +1868,7 @@ function loadCoachCareerData() {
 
     seasonsAsHeadCoach = [];
 
-    for (var ii = seasons.Season.length - 1 ; ii >= 0 ; ii--) {
+    for (var ii = seasons.Season.length - 1; ii >= 0; ii--) {
         var currSeason = seasons.Season[ii];
 
         if (currSeason.TeamId == null || currSeason.TeamId == undefined)
@@ -1842,7 +1893,7 @@ function coachH2HSeasonsForRecentMeetingsLoaded() {
         loadMeetingsBetweenTeams(
             currentYear,
             function (yearGamePlayed) {
-                for (var jj = 0 ; jj < seasonsAsHeadCoach.length ; jj++) {
+                for (var jj = 0; jj < seasonsAsHeadCoach.length; jj++) {
                     if (seasonsAsHeadCoach[jj].Year == yearGamePlayed) {
                         return seasonsAsHeadCoach[jj].TeamId;
                     }
@@ -1856,15 +1907,28 @@ function coachH2HSeasonsForRecentMeetingsLoaded() {
 
 
 function loadRecentMeetingsFromServer(cy, teamId, oppId) {
-    var uri = "ncaa.svc/teamH2H?yr=" + cy + "&id=" + teamId + "&filter=" + oppId;
+    var uri = `../baked/teamh2h.filter.${teamId}.txt`;
 
     $.ajax({
         url: uri,
         success: function (data) {
+            data = decompJson(data);
+            data = data[oppId];
+            var table = document.getElementById("biggestWins");
+            var seriesResultsRow = table.insertRow(0);
+            seriesResultsRow.innerHTML = "<td class=c2 colspan=8><br>Biggest Wins</b><br><br>";
+
+            if (data.Rows[0] != null)
+                addBasicRowsToTable(table, data.Rows[0].Cells, "c3");
+
+            if (data.Rows[1] != null)
+                addBasicRowsToTable(table, data.Rows[1].Cells, "c3");
+
+
             var table = document.getElementById("meetingTable");
             fillInSeriesResult(data.Description, table);
 
-            for (var v = 0 ; v < data.Rows.length; v++) {
+            for (var v = 2; v < data.Rows.length; v++) {
                 addBasicRowsToTable(table, data.Rows[v].Cells, "c3");
             }
         }
@@ -1881,7 +1945,7 @@ function loadRecentMeetings() {
     var logo = document.getElementById("h2hLink");
     logo.href += "?yr=" + year + "&id=" + teamId;
 
-    if (usingGZip) {
+    if (shouldLoadFromServer) {
         loadRecentMeetingsFromServer(year, teamId, oppId);
         return;
     }
@@ -1898,7 +1962,7 @@ function loadMeetingsBetweenTeams(year, getTeamId, oppId) {
 
     loadSeasonsJsonData(
         function () {
-            for (i = 0 ; i < seasons.Season.length && seasons.Season[i].Year <= year; i++) {
+            for (i = 0; i < seasons.Season.length && seasons.Season[i].Year <= year; i++) {
 
                 var scheduleUri = seasons.Season[i].Directory.replace('/Archive', '') + "/tsch.csv";
                 calls[i] = $.ajax({
@@ -1911,7 +1975,7 @@ function loadMeetingsBetweenTeams(year, getTeamId, oppId) {
                         var foundTeam = false;
                         var yearForGame = Number(jqXHR.Year);
 
-                        for (j = 0 ; j < scheduleForYear.length ; j++) {
+                        for (j = 0; j < scheduleForYear.length; j++) {
                             var teamId = getTeamId(yearForGame);
 
                             if (teamId == null) {
@@ -1955,7 +2019,7 @@ function loadMeetingsBetweenTeams(year, getTeamId, oppId) {
 
                         return diff;
                     });
-                    for (k = 0 ; k < results.length ; k++) {
+                    for (k = 0; k < results.length; k++) {
                         var directory = isYearInSeasonsData(results[k].Year);
                         var site = "";
                         var boldCellIndex = 0;
@@ -2022,39 +2086,39 @@ function loadNewBowlRecords() {
     year -= startingYear;
 
     loadSeasonsJsonData(
-    function () {
-        $.ajax({
-            url: "bowlrecords",
-            success: function (json) {
-                records = evalJson(json);
+        function () {
+            $.ajax({
+                url: "bowlrecords",
+                success: function (json) {
+                    records = evalJson(json);
 
-                var meetingTable = document.getElementById('meetingTable');
+                    var meetingTable = document.getElementById('meetingTable');
 
-                for (var xx = 0 ; xx < records.Records.length; xx++) {
-                    var bowl = records.Records[xx];
+                    for (var xx = 0; xx < records.Records.length; xx++) {
+                        var bowl = records.Records[xx];
 
-                    calculateYardAvg(bowl, ["PlayerRushingYPC", "PlayerYardsPerPass", "PlayerYardsPerRec", "BestKRAvg", "BestPRAvg"]);
-                    writeDescription(bowl, records.Teams);
-                    preparePassComp(bowl["PlayerCompletionPct"]);
+                        calculateYardAvg(bowl, ["PlayerRushingYPC", "PlayerYardsPerPass", "PlayerYardsPerRec", "BestKRAvg", "BestPRAvg"]);
+                        writeDescription(bowl, records.Teams);
+                        preparePassComp(bowl["PlayerCompletionPct"]);
 
-                    for (var record in bowl) {
-                        if (bowl[record] == null) continue;
+                        for (var record in bowl) {
+                            if (bowl[record] == null) continue;
 
-                        for (var c = 0 ; c < bowl[record].length ; c++) {
-                            var actualRecord = bowl[record][c];
+                            for (var c = 0; c < bowl[record].length; c++) {
+                                var actualRecord = bowl[record][c];
 
-                            if (actualRecord.Year == year) {
+                                if (actualRecord.Year == year) {
 
-                                addNewRecord(meetingTable, bowl, record, actualRecord)
+                                    addNewRecord(meetingTable, bowl, record, actualRecord)
 
-                                break;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-            }
-        });
-    }, "./Seasons");
+            });
+        }, "./Seasons");
 }
 
 function addNewRecord(recordTable, bowl, recordName, record) {
@@ -2092,101 +2156,101 @@ function loadBowlRecords() {
     loadBowlInfoPage();
 
     loadSeasonsJsonData(
-    function () {
-        $.ajax({
-            url: "bowlrecords",
-            success: function (json) {
-                var isPlayer = getQueryVariable("player");
-                var filter = getQueryVariable("filter");
-                records = evalJson(json);
-                br = findBowlRecords(records, bowlId);
-                var meetingTable = document.getElementById('meetingTable');
-                calculateYardAvg(br, ["PlayerRushingYPC", "PlayerYardsPerPass", "PlayerYardsPerRec", "BestKRAvg", "BestPRAvg"]);
-                writeDescription(br, records.Teams);
-                preparePassComp(br["PlayerCompletionPct"]);
+        function () {
+            $.ajax({
+                url: "bowlrecords",
+                success: function (json) {
+                    var isPlayer = getQueryVariable("player");
+                    var filter = getQueryVariable("filter");
+                    records = evalJson(json);
+                    br = findBowlRecords(records, bowlId);
+                    var meetingTable = document.getElementById('meetingTable');
+                    calculateYardAvg(br, ["PlayerRushingYPC", "PlayerYardsPerPass", "PlayerYardsPerRec", "BestKRAvg", "BestPRAvg"]);
+                    writeDescription(br, records.Teams);
+                    preparePassComp(br["PlayerCompletionPct"]);
 
-                if (filter == null || filter == undefined || filter == false) {
-                    addTeamRecord(meetingTable, "Biggest Win", br, "BiggestWins", "PointDiff", "Large Point Differential");
-                    addTeamRecord(meetingTable, "Most Points", br, "MostPoints", "Points", "Most Points Scored");
-                    addTeamRecord(meetingTable, "Least Points", br, "LeastPoints", "Points", "Least Points Allowed");
-                    addTeamRecord(meetingTable, "Most Combined Points", br, "MostCombinedPoints", "Points", "Most Combined Points Scored");
-                    addTeamRecord(meetingTable, "Least Combined Points", br, "FewestCombinedPoints", "Points", "Least Combined Points Scored");
-                    addTeamRecord(meetingTable, "Offensive Yards", br, "MostOffensiveYards", "Yards", "Most Yards of Offense");
-                    addTeamRecord(meetingTable, "Passing Yards", br, "MostPassingYards", "Yards", "Most Yards Passing");
-                    addTeamRecord(meetingTable, "Rushing Yards", br, "MostRushingYards", "Yards", "Most Yards Rushing");
-                    addTeamRecord(meetingTable, "Least Offensive Yards", br, "LeastOffensiveYards", "Yards", "Least Yards of Offense Allowed");
-                    addTeamRecord(meetingTable, "Least Passing Yards", br, "LeastPassingYards", "Yards", "Least Yards Passing Allowed");
-                    addTeamRecord(meetingTable, "Least Rushing Yards", br, "LeastRushingYards", "Yards", "Least Yards Rushing Allowed");
+                    if (filter == null || filter == undefined || filter == false) {
+                        addTeamRecord(meetingTable, "Biggest Win", br, "BiggestWins", "PointDiff", "Large Point Differential");
+                        addTeamRecord(meetingTable, "Most Points", br, "MostPoints", "Points", "Most Points Scored");
+                        addTeamRecord(meetingTable, "Least Points", br, "LeastPoints", "Points", "Least Points Allowed");
+                        addTeamRecord(meetingTable, "Most Combined Points", br, "MostCombinedPoints", "Points", "Most Combined Points Scored");
+                        addTeamRecord(meetingTable, "Least Combined Points", br, "FewestCombinedPoints", "Points", "Least Combined Points Scored");
+                        addTeamRecord(meetingTable, "Offensive Yards", br, "MostOffensiveYards", "Yards", "Most Yards of Offense");
+                        addTeamRecord(meetingTable, "Passing Yards", br, "MostPassingYards", "Yards", "Most Yards Passing");
+                        addTeamRecord(meetingTable, "Rushing Yards", br, "MostRushingYards", "Yards", "Most Yards Rushing");
+                        addTeamRecord(meetingTable, "Least Offensive Yards", br, "LeastOffensiveYards", "Yards", "Least Yards of Offense Allowed");
+                        addTeamRecord(meetingTable, "Least Passing Yards", br, "LeastPassingYards", "Yards", "Least Yards Passing Allowed");
+                        addTeamRecord(meetingTable, "Least Rushing Yards", br, "LeastRushingYards", "Yards", "Least Yards Rushing Allowed");
 
-                    addBasicRowsToTable(meetingTable, ["", "", "", "", "", "", ""], 'c10');
-                    addPlayerRecord(meetingTable, "Total Offense", br, "PlayerTotalOffense", records);
-                    addPlayerRecord(meetingTable, "Offensive TD", br, "PlayerOffensiveTD", records);
-                    addPlayerRecord(meetingTable, "All Purpose Yards", br, "AllPurposeYards", records);
-                    addPlayerRecord(meetingTable, "All Purpose TD", br, "AllPurposeTD", records);
+                        addBasicRowsToTable(meetingTable, ["", "", "", "", "", "", ""], 'c10');
+                        addPlayerRecord(meetingTable, "Total Offense", br, "PlayerTotalOffense", records);
+                        addPlayerRecord(meetingTable, "Offensive TD", br, "PlayerOffensiveTD", records);
+                        addPlayerRecord(meetingTable, "All Purpose Yards", br, "AllPurposeYards", records);
+                        addPlayerRecord(meetingTable, "All Purpose TD", br, "AllPurposeTD", records);
 
-                    addBasicRowsToTable(meetingTable, ["", "", "", "", "", "", ""], 'c10');
-                    addPlayerRecord(meetingTable, "Passing Attempts", br, "PlayerPassAtt", records);
-                    addPlayerRecord(meetingTable, "Passing Completions", br, "PlayerCompletions", records);
-                    addPlayerRecord(meetingTable, "Passing Yards", br, "PlayerPassingYards", records);
-                    addPlayerRecord(meetingTable, "Passing TD", br, "PlayerPassingTD", records);
-                    addPlayerRecord(meetingTable, "Passing Completion %", br, "PlayerCompletionPct", records);
-                    addPlayerRecord(meetingTable, "Passing YPA", br, "PlayerYardsPerPass", records)
-                    addPlayerRecord(meetingTable, "Longest Pass", br, "LongestPass", records)
+                        addBasicRowsToTable(meetingTable, ["", "", "", "", "", "", ""], 'c10');
+                        addPlayerRecord(meetingTable, "Passing Attempts", br, "PlayerPassAtt", records);
+                        addPlayerRecord(meetingTable, "Passing Completions", br, "PlayerCompletions", records);
+                        addPlayerRecord(meetingTable, "Passing Yards", br, "PlayerPassingYards", records);
+                        addPlayerRecord(meetingTable, "Passing TD", br, "PlayerPassingTD", records);
+                        addPlayerRecord(meetingTable, "Passing Completion %", br, "PlayerCompletionPct", records);
+                        addPlayerRecord(meetingTable, "Passing YPA", br, "PlayerYardsPerPass", records)
+                        addPlayerRecord(meetingTable, "Longest Pass", br, "LongestPass", records)
 
-                    addBasicRowsToTable(meetingTable, ["", "", "", "", "", "", ""], 'c10');
-                    addPlayerRecord(meetingTable, "Rushing Attempts", br, "PlayerRushingAtt", records);
-                    addPlayerRecord(meetingTable, "Rushing Yards QB", br, "PlayerRushingYdsQB", records);
-                    addPlayerRecord(meetingTable, "Rushing Yards", br, "PlayerRushingYdsNonQB", records);
-                    addPlayerRecord(meetingTable, "Rushing YPA", br, "PlayerRushingYPC", records);
-                    addPlayerRecord(meetingTable, "Rushing TD", br, "PlayerRushingTD", records);
-                    addPlayerRecord(meetingTable, "Longest Rush", br, "LongestRush", records);
+                        addBasicRowsToTable(meetingTable, ["", "", "", "", "", "", ""], 'c10');
+                        addPlayerRecord(meetingTable, "Rushing Attempts", br, "PlayerRushingAtt", records);
+                        addPlayerRecord(meetingTable, "Rushing Yards QB", br, "PlayerRushingYdsQB", records);
+                        addPlayerRecord(meetingTable, "Rushing Yards", br, "PlayerRushingYdsNonQB", records);
+                        addPlayerRecord(meetingTable, "Rushing YPA", br, "PlayerRushingYPC", records);
+                        addPlayerRecord(meetingTable, "Rushing TD", br, "PlayerRushingTD", records);
+                        addPlayerRecord(meetingTable, "Longest Rush", br, "LongestRush", records);
 
-                    addBasicRowsToTable(meetingTable, ["", "", "", "", "", "", ""], 'c10');
-                    addPlayerRecord(meetingTable, "Receptions", br, "PlayerReceptions", records);
-                    addPlayerRecord(meetingTable, "Receiving Yards", br, "PlayerRecYds", records);
-                    addPlayerRecord(meetingTable, "Receiving TD", br, "PlayerRecTD", records);
-                    addPlayerRecord(meetingTable, "Receiving YPC", br, "PlayerYardsPerRec");
-                    addPlayerRecord(meetingTable, "Longest Reception", br, "LongestRec", records);
+                        addBasicRowsToTable(meetingTable, ["", "", "", "", "", "", ""], 'c10');
+                        addPlayerRecord(meetingTable, "Receptions", br, "PlayerReceptions", records);
+                        addPlayerRecord(meetingTable, "Receiving Yards", br, "PlayerRecYds", records);
+                        addPlayerRecord(meetingTable, "Receiving TD", br, "PlayerRecTD", records);
+                        addPlayerRecord(meetingTable, "Receiving YPC", br, "PlayerYardsPerRec");
+                        addPlayerRecord(meetingTable, "Longest Reception", br, "LongestRec", records);
 
-                    addBasicRowsToTable(meetingTable, ["", "", "", "", "", "", ""], 'c10');
-                    addPlayerRecord(meetingTable, "Tackles", br, "PlayerTackles", records);
-                    addPlayerRecord(meetingTable, "Tackles for Loss", br, "PlayerTFL", records);
-                    addPlayerRecord(meetingTable, "Sacks", br, "PlayerSacks", records);
-                    addPlayerRecord(meetingTable, "Passes Defended", br, "PlayerPassDef", records);
-                    addPlayerRecord(meetingTable, "Interceptions", br, "PlayerINT", records);
-                    addPlayerRecord(meetingTable, "Int Return Yards", br, "MostIntReturnYards", records);
-                    addPlayerRecord(meetingTable, "Int Return TD", br, "MostIntTD", records);
-                    addPlayerRecord(meetingTable, "Int Return Long", br, "LongestIntReturn", records);
-                    addPlayerRecord(meetingTable, "Fumble Recovery Yards", br, "MostFumbleRecYds", records);
-                    addPlayerRecord(meetingTable, "Fumble Return TD", br, "MostFumbleRecTD", records);
+                        addBasicRowsToTable(meetingTable, ["", "", "", "", "", "", ""], 'c10');
+                        addPlayerRecord(meetingTable, "Tackles", br, "PlayerTackles", records);
+                        addPlayerRecord(meetingTable, "Tackles for Loss", br, "PlayerTFL", records);
+                        addPlayerRecord(meetingTable, "Sacks", br, "PlayerSacks", records);
+                        addPlayerRecord(meetingTable, "Passes Defended", br, "PlayerPassDef", records);
+                        addPlayerRecord(meetingTable, "Interceptions", br, "PlayerINT", records);
+                        addPlayerRecord(meetingTable, "Int Return Yards", br, "MostIntReturnYards", records);
+                        addPlayerRecord(meetingTable, "Int Return TD", br, "MostIntTD", records);
+                        addPlayerRecord(meetingTable, "Int Return Long", br, "LongestIntReturn", records);
+                        addPlayerRecord(meetingTable, "Fumble Recovery Yards", br, "MostFumbleRecYds", records);
+                        addPlayerRecord(meetingTable, "Fumble Return TD", br, "MostFumbleRecTD", records);
 
-                    addBasicRowsToTable(meetingTable, ["", "", "", "", "", "", ""], 'c10');
-                    addPlayerRecord(meetingTable, "Kick Return Yards", br, "MostKRYards", records);
-                    addPlayerRecord(meetingTable, "Highest Kick Return Average", br, "BestKRAvg");
-                    addPlayerRecord(meetingTable, "Longest Kick Return", br, "LongestKR", records);
-                    addPlayerRecord(meetingTable, "Kick Return TD", br, "MostKRTD", records);
+                        addBasicRowsToTable(meetingTable, ["", "", "", "", "", "", ""], 'c10');
+                        addPlayerRecord(meetingTable, "Kick Return Yards", br, "MostKRYards", records);
+                        addPlayerRecord(meetingTable, "Highest Kick Return Average", br, "BestKRAvg");
+                        addPlayerRecord(meetingTable, "Longest Kick Return", br, "LongestKR", records);
+                        addPlayerRecord(meetingTable, "Kick Return TD", br, "MostKRTD", records);
 
-                    addBasicRowsToTable(meetingTable, ["", "", "", "", "", "", ""], 'c10');
-                    addPlayerRecord(meetingTable, "Punt Return Yards", br, "MostPRYards", records);
-                    addPlayerRecord(meetingTable, "Highest Punt Return Average", br, "BestPRAvg", records);
-                    addPlayerRecord(meetingTable, "Longest Punt Return", br, "LongestPR", records);
-                    addPlayerRecord(meetingTable, "Punt Return TD", br, "MostPRTD", records);
-                }
-                else {
-                    var name = unescape(getQueryVariable("name"));
-                    var statName = unescape(getQueryVariable("stat"));
-                    var desc = unescape(getQueryVariable("desc"));
-
-                    if (isPlayer == "true") {
-                        addTeamRecord(meetingTable, name, br, filter, "Value", null, true);
+                        addBasicRowsToTable(meetingTable, ["", "", "", "", "", "", ""], 'c10');
+                        addPlayerRecord(meetingTable, "Punt Return Yards", br, "MostPRYards", records);
+                        addPlayerRecord(meetingTable, "Highest Punt Return Average", br, "BestPRAvg", records);
+                        addPlayerRecord(meetingTable, "Longest Punt Return", br, "LongestPR", records);
+                        addPlayerRecord(meetingTable, "Punt Return TD", br, "MostPRTD", records);
                     }
                     else {
-                        addTeamRecord(meetingTable, name, br, filter, statName, desc, true);
+                        var name = unescape(getQueryVariable("name"));
+                        var statName = unescape(getQueryVariable("stat"));
+                        var desc = unescape(getQueryVariable("desc"));
+
+                        if (isPlayer == "true") {
+                            addTeamRecord(meetingTable, name, br, filter, "Value", null, true);
+                        }
+                        else {
+                            addTeamRecord(meetingTable, name, br, filter, statName, desc, true);
+                        }
                     }
                 }
-            }
-        });
-    }, "./Seasons");
+            });
+        }, "./Seasons");
 }
 
 function writeDescription(br, map) {
@@ -2194,7 +2258,7 @@ function writeDescription(br, map) {
 
         if (br[prop] == null) continue;
 
-        for (var jj = 0 ; jj < br[prop].length; jj++) {
+        for (var jj = 0; jj < br[prop].length; jj++) {
             if (br[prop][jj].Player != undefined) {
                 br[prop][jj].Description = createPlayerDescription(br[prop][jj], map);
             }
@@ -2203,17 +2267,17 @@ function writeDescription(br, map) {
 }
 
 function preparePassComp(br) {
-    for (var jj = 0 ; jj < br.length; jj++) {
+    for (var jj = 0; jj < br.length; jj++) {
         br[jj].Value += "%";
     }
 }
 
 function calculateYardAvg(br, statNames) {
 
-    for (var jj = 0 ; jj < statNames.length ; jj++) {
+    for (var jj = 0; jj < statNames.length; jj++) {
         var statName = statNames[jj];
 
-        for (var ii = 0 ; ii < br[statName].length ; ii++) {
+        for (var ii = 0; ii < br[statName].length; ii++) {
             var stat = br[statName][ii];
             stat.Value = stat.Value / 10;
         }
@@ -2225,7 +2289,7 @@ function addPlayerRecord(rt, name, br, column, r) {
 }
 
 function getTeamNameFromMap(id, map) {
-    for (var mm = 0 ; mm < map.length ; mm++) {
+    for (var mm = 0; mm < map.length; mm++) {
         if (map[mm].TeamId == id)
             return map[mm].School;
     }
@@ -2246,7 +2310,7 @@ function addTeamRecord(recordTable, title, br, column, statName, desc, all) {
     var realYear = null;
     var directory = null;
 
-    for (var jj = 0 ; jj < length; jj++) {
+    for (var jj = 0; jj < length; jj++) {
         if (br[column] == undefined)
             return;
 
@@ -2274,7 +2338,7 @@ function addTeamRecord(recordTable, title, br, column, statName, desc, all) {
 }
 
 function findBowlRecords(records, bowlId) {
-    for (var xx = 0 ; xx < records.Records.length; xx++) {
+    for (var xx = 0; xx < records.Records.length; xx++) {
         if (records.Records[xx].BowlId == bowlId) {
             return records.Records[xx];
         }
@@ -2286,11 +2350,15 @@ function loadBowlInfoPage() {
     var year = currentYear = Number(getQueryVariable("yr"));
     var bowlId = Number(getQueryVariable("id"));
     var divide = getQueryVariable("sep");
+    var tid = getQueryVariable("tid");
 
     // TODO load the bowl logo
     if (bowlId != undefined) {
+        if (tid != false) { tid = "-" + tid; }
+        else { tid = ""; }
+
         var logo = document.getElementById("currentBowl");
-        logo.src = "./HTML/Logos/bowls/" + bowlId + ".jpg";
+        logo.src = "./HTML/Logos/bowls/" + bowlId + tid + ".jpg";
         var trophy = document.getElementById("currentBowlTrophy");
         trophy.src = "./HTML/Logos/bowl_trophies/" + bowlId + ".png";
     }
@@ -2308,24 +2376,88 @@ function loadBowlInfoPage() {
     if (newRecordLink != undefined && newRecordLink != null) {
         newRecordLink.href += "?yr=" + year;
     }
+
+    var teamBowlRecordLink = document.getElementById("teamBowlRecordLink");
+    teamBowlRecordLink.href += "?sort=0&id=" + bowlId + "&yr=" + year;
 }
 
 function loadBowlHistoryFromServer(yr, bowlId) {
     var uri = null;
 
     if (bowlId < 0) {
-        uri = "ncaa.svc/groupHistory?yr=" + yr + "&group=" + (bowlId == -1 ? "playoff" : "kickoff");
+        var group = "playoff";
+
+        if (bowlId == -2)
+            group = "kickoff";
+        else if (bowlId == -3)
+            group = "ny6";
+
+        uri = `../baked/groupHistory.${group}.txt`
+
+
+        $.ajax({
+            url: uri,
+            success: function (data) {
+                if (data.Description) {
+                    document.title = data.Description;
+                }
+                var meetingTable = document.getElementById('meetingTable');
+                while (meetingTable.delete)
+                    var currYear = data.Rows[0].Year;
+                for (var x = 0; x < data.Rows.length; x++) {
+                    if (currYear != data.Rows[x].Year) {
+                        addBasicRowsToTable(meetingTable, ["", "", "", "", "", "", ""], 'c10');
+                        currYear = data.Rows[x].Year;
+                    }
+
+                    addBasicRowsToTable(meetingTable, data.Rows[x].Cells, 'c3');
+                }
+            },
+            dataType: 'json'
+        });
     }
     else {
-        uri = "ncaa.svc/bowlHistory?yr=" + yr + "&id=" + bowlId;
+        var teamFilter = getQueryVariable("tid");
+        uri = `../baked/bowlhistory.${bowlId}.txt`
+        if (teamFilter != false) {
+            uri += "&tid=" + teamFilter;
+        }
+
+        $.ajax({
+            url: uri,
+            success: function (data) {
+                data = evalJson(data);
+                if (data.Description) {
+                    document.title = data.Description;
+                }
+                var meetingTable = document.getElementById('meetingTable');
+                while (meetingTable.delete)
+                    var currYear = data.Rows[0].Year;
+                for (var x = 0; x < data.Rows.length; x++) {
+                    if (currYear != data.Rows[x].Year) {
+                        addBasicRowsToTable(meetingTable, ["", "", "", "", "", "", ""], 'c10');
+                        currYear = data.Rows[x].Year;
+                    }
+
+                    addBasicRowsToTable(meetingTable, data.Rows[x].Cells, 'c3');
+                }
+            }
+        });
     }
+}
+
+function loadBowlTeamRecordsFromServer(yr, bowlId) {
+    var sort = getQueryVariable("sort");
+    var uri = `../baked/bowlteamrecords.${bowlId}.txt`
 
     $.ajax({
         url: uri,
         success: function (data) {
+            // the dictionary is inside
+            data = evalJson(data)[sort];
             var meetingTable = document.getElementById('meetingTable');
             var currYear = data.Rows[0].Year;
-            for (var x = 0 ; x < data.Rows.length; x++) {
+            for (var x = 0; x < data.Rows.length; x++) {
                 if (currYear != data.Rows[x].Year) {
                     addBasicRowsToTable(meetingTable, ["", "", "", "", "", "", ""], 'c10');
                     currYear = data.Rows[x].Year;
@@ -2337,6 +2469,31 @@ function loadBowlHistoryFromServer(yr, bowlId) {
     });
 }
 
+
+function loadBowlTeamRecords() {
+    htmlDir = "./HTML";
+    var year = currentYear = Number(getQueryVariable("yr"));
+    var bowlId = Number(getQueryVariable("id"));
+    var divide = getQueryVariable("sep");
+    loadBowlInfoPage();
+    var link = document.getElementById("winsSortLink");
+    link.href += "&id=" + bowlId + "&yr=" + year;
+
+    link = document.getElementById("lossSortLink");
+    link.href += "&id=" + bowlId + "&yr=" + year;
+
+    link = document.getElementById("pctSortLink");
+    link.href += "&id=" + bowlId + "&yr=" + year;
+
+    link = document.getElementById("appSortLink");
+    link.href += "&id=" + bowlId + "&yr=" + year;
+
+    if (shouldLoadFromServer) {
+        loadBowlTeamRecordsFromServer(year, bowlId);
+        return;
+    }
+}
+
 function loadBowlHistory() {
     htmlDir = "./HTML";
     var year = currentYear = Number(getQueryVariable("yr"));
@@ -2344,7 +2501,7 @@ function loadBowlHistory() {
     var divide = getQueryVariable("sep");
     loadBowlInfoPage();
 
-    if (usingGZip) {
+    if (shouldLoadFromServer) {
         loadBowlHistoryFromServer(year, bowlId);
         return;
     }
@@ -2361,7 +2518,7 @@ function loadBowlHistory() {
 
     loadSeasonsJsonData(
         function () {
-            for (i = 0 ; i < seasons.Season.length && seasons.Season[i].Year <= year; i++) {
+            for (i = 0; i < seasons.Season.length && seasons.Season[i].Year <= year; i++) {
 
                 var scheduleUri = seasons.Season[i].Directory.replace('/Archive', '') + "/tsch.csv";
                 calls[i] = $.ajax({
@@ -2377,12 +2534,12 @@ function loadBowlHistory() {
 
                         if (bowlId == -1) {
                             bowls = getPlayoffGames(jqXHR.Year);
-                            for (y = 0 ; y < bowls.length ; y++)
+                            for (y = 0; y < bowls.length; y++)
                                 bowlFound[y] = false;
                         }
                         else if (bowlId == -2) {
                             bowls = [273, 271, 272, 276];
-                            for (y = 0 ; y < bowls.length ; y++)
+                            for (y = 0; y < bowls.length; y++)
                                 bowlFound[y] = false;
                         }
                         else {
@@ -2390,7 +2547,7 @@ function loadBowlHistory() {
                             bowlFound = [false];
                         }
 
-                        for (j = 0 ; j < scheduleForYear.length ; j++) {
+                        for (j = 0; j < scheduleForYear.length; j++) {
                             if (!weekCheck(scheduleForYear[j]))
                                 continue;
 
@@ -2438,7 +2595,7 @@ function loadBowlHistory() {
 
                     var currYear = results[0].Year;
                     var meetingTable = document.getElementById('meetingTable');
-                    for (k = 0 ; k < results.length ; k++) {
+                    for (k = 0; k < results.length; k++) {
 
                         if (k > 0 && results[k].Year != currYear && divide == "true") {
                             addBasicRowsToTable(meetingTable, ["", "", "", "", "", "", ""], 'c10');
@@ -2483,20 +2640,31 @@ function loadBowlHistory() {
 
 }
 
-function loadPostSeasonFromServer(yr, teamId, playoffsOnly, ccgOnly) {
-    var uri = "ncaa.svc/bowls?yr=" + yr + "&id=" + teamId;
+function loadPostSeasonFromServer(yr, teamId, playoffsOnly, ccgOnly, koOnly) {
+    var bowlId = getQueryVariable("bowlId");
+
+    var uri = `../baked/bowls.${teamId}.txt`;
+    var key = 'bowl';
+
+    if (bowlId != false) {
+        key = bowlId.toString()
+    }
 
     if (playoffsOnly == "true") {
-        uri += "&playoffs=true";
+        key = 'playoffs';
     }
     else if (ccgOnly == "true") {
-        uri += "&ccg=true";
+        key = 'ccg';
+    }
+    else if (koOnly == "true") {
+        key = 'ko';
     }
 
     $.ajax({
         url: uri,
         success: function (data) {
-            for (var x = 0 ; x < data.Rows.length; x++) {
+            data = decompJson(data)[key];
+            for (var x = 0; x < data.Rows.length; x++) {
                 addBasicRowsToTable(document.getElementById('meetingTable'), data.Rows[x].Cells, 'c3');
             }
 
@@ -2512,6 +2680,7 @@ function loadPostSeason() {
     var teamId = getQueryVariable("id");
     var playoffsOnly = getQueryVariable("playoffs");
     var ccgOnly = getQueryVariable("ccg");
+    var koOnly = getQueryVariable("ko");
     var logo = document.getElementById("currentSchool");
     logo.src = htmlDir + "/Logos/256/team" + teamId + ".png";
 
@@ -2530,18 +2699,21 @@ function loadPostSeason() {
     var bl = document.getElementById("bowlLink");
     bl.href += "yr=" + year + "&id=" + teamId;
 
+    var kol = document.getElementById("koLink");
+    kol.href += "&yr=" + year + "&id=" + teamId;
+
 
     var wins = 0;
     var losses = 0;
 
-    if (usingGZip) {
-        loadPostSeasonFromServer(year, teamId, playoffsOnly, ccgOnly);
+    if (shouldLoadFromServer) {
+        loadPostSeasonFromServer(year, teamId, playoffsOnly, ccgOnly, koOnly);
         return;
     }
 
     loadSeasonsJsonData(
         function () {
-            for (i = 0 ; i < seasons.Season.length && seasons.Season[i].Year <= year; i++) {
+            for (i = 0; i < seasons.Season.length && seasons.Season[i].Year <= year; i++) {
 
                 var scheduleUri = seasons.Season[i].Directory.replace('/Archive', '') + "/tsch.csv";
                 calls[i] = $.ajax({
@@ -2553,7 +2725,7 @@ function loadPostSeason() {
                         var scheduleForYear = csvJSON(data);
                         var foundTeam = false;
 
-                        for (j = 0 ; j < scheduleForYear.length ; j++) {
+                        for (j = 0; j < scheduleForYear.length; j++) {
                             if (scheduleForYear[j].TeamId == teamId) {
                                 foundTeam = true;
                             }
@@ -2593,7 +2765,7 @@ function loadPostSeason() {
                         return b.Year - a.Year;
                     });
 
-                    for (k = 0 ; k < results.length ; k++) {
+                    for (k = 0; k < results.length; k++) {
                         var directory = isYearInSeasonsData(results[k].Year);
                         var site = "";
                         var boldCellIndex = 0;
@@ -2676,18 +2848,18 @@ function loadRecruitRanks() {
         success: function (data) {
             var recruits = evalJson(data);
             var table = document.getElementById("recruitRankTable");
-            for (var i = 0 ; i < recruits.length ; i++) {
+            for (var i = 0; i < recruits.length; i++) {
                 var team = recruits[i];
 
                 var cells = [i + 1,
-                    "<a href=team.html?id=" + team.TeamId + ">" + team.Team + "</a>",
-                    team.Wins + "-" + team.Losses,
-                    team.Points,
-                    team.Star5,
-                    team.Star4,
-                    team.Star3,
-                    team.Star2,
-                    team.Star1];
+                "<a href=teamroster.html?id=" + team.TeamId + ">" + team.Team + "</a>",
+                team.Wins + "-" + team.Losses,
+                team.Points,
+                team.Star5,
+                team.Star4,
+                team.Star3,
+                team.Star2,
+                team.Star1];
 
                 addBasicRowsToTable(table, cells, "c3");
             }
@@ -2708,7 +2880,7 @@ function loadCoachChangeData() {
             var width = ['15%', '15%', '25%', '20%', '25%'];
             addBasicRowsToTable(table, cells, 'C10', width);
 
-            for (var i = 0 ; i < coaches.length ; i++) {
+            for (var i = 0; i < coaches.length; i++) {
                 var coach = coaches[i];
                 var coachLink = createCoachLink("..", getCurrentYear(), coach.Name, coach.CoachId, "");
                 var oldCoachLink = createCoachLink("..", getCurrentYear(), coach.OldCoachName, coach.OldCoachCoachId, "");
@@ -2727,34 +2899,39 @@ function loadCoachChangeData() {
 }
 
 function loadCoachHistory() {
-    var uri = "ncaa.svc/coachingGreats";
+    var sort = getQueryVariable("sort");
+
+    if (!sort) sort = "nc";
+    var uri = `../baked/coachinggreats.${sort}.txt`;
 
     $.ajax({
         url: uri,
         success: function (data) {
-            var coaches = data;
+            var coaches = decompJson(data);
 
             var table = document.getElementById("topCoachesTable");
 
             // add header first
             var row = table.insertRow(-1);
-            var cells = ['Name', "Career Record", "Team Record", "Bowl Record", "Conference Championships", "National Championships", "Alma Mater"];
-            var width = ['25%', '10%', '10%', '10%', '5%', '5%', '15%'];
+            var cells = ['Name', "<a href='CoachHistory.html?sort=win'>Career Record</a>", "<a href='CoachHistory.html?sort=pct'>Win %</a>", "<a href='CoachHistory.html?sort=bowlwin'>Bowl Record</a>", "<a href='CoachHistory.html?sort=cc'>Conference Championships</a>", "<a href='CoachHistory.html?sort=nc'>National Championships</a>", "Alma Mater"];
+            var width = ['25%', '10%', '5%', '10%', '10%', '5%', '10%'];
             addBasicRowsToTable(table, cells, 'C10', width);
 
-            for (var i = 0 ; i < coaches.length ; i++) {
-                var coach = coaches[i].Coach;
+            for (var i = 0; i < coaches.length; i++) {
+                var coach = coaches[i];
+
+                if (coach.CoachBowlWin == undefined) coach.CoachBowlWin = 0;
+                if (coach.CoachBowlLoss == undefined) coach.CoachBowlLoss = 0;
+
                 var coachLink = createCoachLink("..", currentYear - 1, coach.Name, coach.Id, "");
                 var cells = [
-                    createTeamLinkTableCell(coaches[i].TeamId, coaches[i].TeamName, true),
-                    createTeamHistoryLink(coaches[i].TeamId),
                     coachLink,
                     coach.CareerRecord,
-                    coach.TeamRecord,
+                    ConvertWinPct(coach.WinPct),
+                    coach.CoachBowlWin + "-" + coach.CoachBowlLoss,
                     coach.CareerConferenceChampionships == undefined ? 0 : coach.CareerConferenceChampionships,
                     coach.CareerNationalChampionships == undefined ? 0 : coach.CareerNationalChampionships,
                     coach.AlmaMaterName,
-                    coach.Age
                 ];
 
                 // insert the rows
@@ -2779,7 +2956,7 @@ function loadTopCoachData(year) {
             var width = ['15%', '10%', '20%', '10%', '10%', '5%', '5%', '15%', '10%'];
             addBasicRowsToTable(table, cells, 'C10', width);
 
-            for (var i = 0 ; i < coaches.length ; i++) {
+            for (var i = 0; i < coaches.length; i++) {
                 var coach = coaches[i].Coach;
                 var coachLink = createCoachLink("..", currentYear - 1, coach.Name, coach.Id, "");
                 var cells = [
@@ -2824,7 +3001,7 @@ function loadTopCoordinators(coaches) {
     var width = ['5%', '18%', '10%', '28%', '10%', '8%', "22%"];
     addBasicRowsToTable(table, cells, 'C10', width);
 
-    for (var i = 0 ; i < coaches.length ; i++) {
+    for (var i = 0; i < coaches.length; i++) {
         var coach = coaches[i].Coach;
         var coachLink = createCoachLink("..", currentYear - 1, coach.Name, coach.Id, "");
         var cells = [
@@ -2847,7 +3024,7 @@ function loadHotSeatCoaches(coaches) {
     var width = ['15%', '10%', '20%', '10%', '15%', '10%', '10%'];
     addBasicRowsToTable(table, cells, 'C10', width);
 
-    for (var i = 0 ; i < coaches.length ; i++) {
+    for (var i = 0; i < coaches.length; i++) {
         var coach = coaches[i].Coach;
         var coachLink = createCoachLink("..", currentYear - 1, coach.Name, coach.Id, "");
         var cells = [
@@ -2868,7 +3045,7 @@ function loadNewHeadCoaches(coaches) {
     var width = ['5%', '10%', '10%', '20%', '5%', '10%', '40%'];
     addBasicRowsToTable(table, cells, 'C10', width);
 
-    for (var i = 0 ; i < coaches.length ; i++) {
+    for (var i = 0; i < coaches.length; i++) {
         var coach = coaches[i].Coach;
         var coachLink = createCoachLink("..", currentYear - 1, coach.Name, coach.Id, "");
         var cells = [
@@ -2892,7 +3069,7 @@ function loadLongTimeCoaches(coaches, table) {
     var width = ['15%', '15%', '20%', '5%', '5%', '10%', '10%', '10%'];
     addBasicRowsToTable(table, cells, 'C10', width);
 
-    for (var i = 0 ; i < coaches.length ; i++) {
+    for (var i = 0; i < coaches.length; i++) {
         var coach = coaches[i].Coach;
         var coachLink = createCoachLink("..", currentYear - 1, coach.Name, coach.Id, "");
         var cells = [
@@ -2917,7 +3094,7 @@ function loadCoachData() {
             var coaches = csvJSON(data);
             var table = document.getElementById("coachTable");
 
-            for (var i = 0 ; i < coaches.length ; i++) {
+            for (var i = 0; i < coaches.length; i++) {
                 var coach = coaches[i];
                 var coachLink = createCoachLink("..", getCurrentYear(), coach.Name, coach.CoachId, "");
                 var cells = [coachLink, createTeamLinkTableCell(coach.TeamId, coach.Team), coach.PositionName, coach.Age, coach.YWT, coach.CoachRating, coach.Level, coach.CareerRecord, coach.TeamRecord];
@@ -2946,7 +3123,7 @@ function loadTeamRatingsData() {
 function writeTeamRatingsTable(teams) {
     var table = document.getElementById("ratingsTable");
 
-    for (var i = 0 ; i < teams.length ; i++) {
+    for (var i = 0; i < teams.length; i++) {
         var team = teams[i];
         var cells = [1 + i, createTeamLinkTableCell(team.TeamId, team.Name), team.OVR, team.OFF, team.QB, team.RB, team.WR, team.OL, team.DEF, team.DL, team.LB, team.DB, team.ST];
         // insert the rows
@@ -3099,7 +3276,7 @@ function loadTeamRosterData(isPreseason) {
                 OffPts: 0, OffCount: 0, DefPts: 0, DefCount: 0, STPts: 0, STCount: 0, OffStarterPts: 0, OffStarterCount: 0, DefStarterPts: 0, DefStarterCount: 0, STStarterPts: 0, STStarterCount: 0,
                 Ratings: [0, 0, 0, 0, 0, 0]  //40s,50s,60s,70s,80s,90s
             };
-            for (var i = 0 ; i < records.length ; i++) {
+            for (var i = 0; i < records.length; i++) {
                 var p = records[i];
 
                 // write a new header
@@ -3113,13 +3290,13 @@ function loadTeamRosterData(isPreseason) {
             }
 
             records.sort(function (a, b) { return Number(b.Ovr) - Number(a.Ovr); });
-            for (var i = 0 ; i < records.length ; i++) {
+            for (var i = 0; i < records.length; i++) {
                 analyzePlayer(records[i], roster);
             }
 
             table = document.getElementById('breakdownTable');
             var pos = [null, "QB", "HB", "FB", "WR", "TE", "OT", "OG", "C", null, "DE", "DT", "OLB", "MLB", "CB", "FS", "SS", null];
-            for (var i = 0 ; i < pos.length ; i++) {
+            for (var i = 0; i < pos.length; i++) {
                 if (pos[i] == null) {
                     insertRosterBreakdownHeader(table);
                 }
@@ -3214,7 +3391,7 @@ function loadTeamTopPerfData() {
 
             var table = document.getElementById("passTable");
 
-            for (var i = 0 ; i < cc.length ; i++) {
+            for (var i = 0; i < cc.length; i++) {
                 var p = cc[i];
 
                 var cells = [p.Team, p.No, "<b>" + p.Name + "</b>", p.PlayerClass, p.Position, p.Height, p.Weight, p.Comp, p.Att, "<b>" + p.Yards + "</b>", p.TD, p.Int, "<a href='boxscore.html?id=" + p.GameKey + "'>Week " + getGameWeek(p.GameKey) + "</a>"];
@@ -3230,7 +3407,7 @@ function loadTeamTopPerfData() {
 
             var table = document.getElementById("rushTable");
 
-            for (var i = 0 ; i < cc.length ; i++) {
+            for (var i = 0; i < cc.length; i++) {
                 var p = cc[i];
 
                 var cells = [p.Team, p.No, "<b>" + p.Name + "</b>", p.PlayerClass, p.Position, p.Height, p.Weight, p.Att, "<b>" + p.Yards + "</b>", p.TD, "<a href='boxscore.html?id=" + p.GameKey + "'>Week " + getGameWeek(p.GameKey) + "</a>"];
@@ -3246,7 +3423,7 @@ function loadTeamTopPerfData() {
 
             var table = document.getElementById("recTable");
 
-            for (var i = 0 ; i < cc.length ; i++) {
+            for (var i = 0; i < cc.length; i++) {
                 var p = cc[i];
 
                 var cells = [p.Team, p.No, "<b>" + p.Name + "</b>", p.PlayerClass, p.Position, p.Height, p.Weight, p.Rec, "<b>" + p.Yards + "</b>", p.TD, "<a href='boxscore.html?id=" + p.GameKey + "'>Week " + getGameWeek(p.GameKey) + "</a>"];
@@ -3298,7 +3475,7 @@ function loadTeamBoxScore(box) {
         [formatSeconds(home.TimeOfPossesion).substring(3), "Time of Possessions", formatSeconds(away.TimeOfPossesion).substring(3), null]
     ];
 
-    for (var i = 0 ; i < cells.length ; i++) {
+    for (var i = 0; i < cells.length; i++) {
         addTeamStatRow(table, cells[i]);
     }
 }
@@ -3333,7 +3510,7 @@ function loadScoreSummary(box) {
     var currentQtr = -1;
     var home = 0;
     var away = 0;
-    for (var i = 0 ; i < box.Scores.length ; i++) {
+    for (var i = 0; i < box.Scores.length; i++) {
         var score = box.Scores[i];
 
         if (score.Quarter != currentQtr) {
@@ -3389,12 +3566,12 @@ function populateLogoTable(awayTeamId, homeTeamId) {
     var cell = row.insertCell(-1);
     cell.className = 'c8';
     cell.width = '50%';
-    cell.innerHTML = '<center><a href="team.html?id=' + homeTeamId + '"><img border="0" src="' + createTeamLogoSrc(homeTeamId, 256) + '" /></a></center>';
+    cell.innerHTML = '<center><a href="team.html?id=' + homeTeamId + '"><img border="0" src="' + createTeamHelmetSrc(homeTeamId, "lh") + '" /></a></center>';
 
     cell = row.insertCell(-1);
     cell.className = 'c8';
     cell.width = '50%';
-    cell.innerHTML = '<center><a href="team.html?id=' + awayTeamId + '"><img border="0" src="' + createTeamLogoSrc(awayTeamId, 256) + '" /></a></center>';
+    cell.innerHTML = '<center><a href="team.html?id=' + awayTeamId + '"><img border="0" src="' + createTeamHelmetSrc(awayTeamId, "rh") + '" /></a></center>';
 }
 
 function loadBoxScoreStatTables(box, stats) {
@@ -3410,7 +3587,7 @@ function loadBoxScoreStatTables(box, stats) {
     ];
 
     // add the header to each table
-    for (var i = 0 ; i < tables.length ; i++) {
+    for (var i = 0; i < tables.length; i++) {
         var team = 0;
         var name = 0;
         // home table
@@ -3432,7 +3609,7 @@ function loadBoxScoreStatTables(box, stats) {
     }
 
     // now write the stats to each table
-    for (var i = 0 ; i < stats.length ; i++) {
+    for (var i = 0; i < stats.length; i++) {
         var table = null;
 
         // No, Name, PlayerClass, Position, Height, Weight, Stat1, Stat2, Stat3, Stat4, Stat5, Stat6, Stat7, TeamId, TableId
@@ -3501,7 +3678,7 @@ function leadNationalStatLeaderData(year, baseYear) {
                     document.getElementById("prTable"),  //12
                 ];
 
-            for (var i = 0 ; i < stats.length ; i++) {
+            for (var i = 0; i < stats.length; i++) {
                 var table = null;
 
                 var year = Number(currentYear) + Number(startingYear);
@@ -3541,7 +3718,7 @@ function loadTeamFroshData(isPreseason) {
             var records = csvJSON(data, "TeamId", teamId);
             var table = document.getElementById("froshTable");
 
-            for (var i = 0 ; i < records.length ; i++) {
+            for (var i = 0; i < records.length; i++) {
                 var p = records[i];
 
                 var cells = [p.No, p.Name, p.Year, p.Position, p.Height, p.Weight, "<b>" + p.Ovr + "</b>", p.Spd, p.Acc, p.Agl, p.Str, p.Awr, p.City + ", " + p.State];
@@ -3561,7 +3738,7 @@ function loadTeamRecordData(isPreseason) {
             var records = csvJSON(data, "TeamId", teamId);
             var table = document.getElementById("recordTable");
 
-            for (var i = 0 ; i < records.length ; i++) {
+            for (var i = 0; i < records.length; i++) {
                 var record = records[i];
 
                 var cells = [record.RecordType, record.Description, record.Holder, record.Value, record.Opp];
@@ -3585,12 +3762,12 @@ function loadTeamDefData() {
 function writeDefDataTable(teams, boldIndex) {
     var table = document.getElementById("defTable");
 
-    for (var i = 0 ; i < teams.length ; i++) {
+    for (var i = 0; i < teams.length; i++) {
 
         var team = teams[i];
 
         var cells = [1 + i, createTeamLinkTableCell(team.TeamId, team.Team), team.Record,
-            Number(team.DefYds) / 10, Number(team.PassYds) / 10, Number(team.RushYds) / 10, ];
+        Number(team.DefYds) / 10, Number(team.PassYds) / 10, Number(team.RushYds) / 10,];
 
         cells[boldIndex] = "<b>" + cells[boldIndex] + "</b>";
 
@@ -3633,17 +3810,17 @@ function loadTeamOffData() {
             var teams = csvJSON(data);
 
             var table = document.getElementById("ppgTable");
-            for (var j = 0 ; j < teams.length ; j++) {
+            for (var j = 0; j < teams.length; j++) {
                 teams[j].PPG = Number(teams[j].PassAtt) + Number(teams[j].RushAtt);
             }
 
             teams.sort(function (a, b) { return b.PPG - a.PPG; });
 
-            for (var i = 0 ; i < teams.length ; i++) {
+            for (var i = 0; i < teams.length; i++) {
                 var team = teams[i];
                 var cells = [1 + i, createTeamLinkTableCell(team.TeamId, team.Team), team.Record,
-                    Number(team.OffYds) / 10, Number(team.PassAtt) / 10, Number(team.PassYds) / 10,
-                    Number(team.RushAtt) / 10, Number(team.RushYds) / 10, Number(team.PPG) / 10];
+                Number(team.OffYds) / 10, Number(team.PassAtt) / 10, Number(team.PassYds) / 10,
+                Number(team.RushAtt) / 10, Number(team.RushYds) / 10, Number(team.PPG) / 10];
 
                 cells[cells.length - 1] = "<b>" + cells[cells.length - 1] + "</b>";
 
@@ -3658,13 +3835,13 @@ function writeOffDataTable(teams, boldIndex) {
 
     var table = document.getElementById("offTable");
 
-    for (var i = 0 ; i < teams.length ; i++) {
+    for (var i = 0; i < teams.length; i++) {
 
         var team = teams[i];
 
         var cells = [1 + i, createTeamLinkTableCell(team.TeamId, team.Team), team.Record,
-            Number(team.OffYds) / 10, Number(team.PassAtt) / 10, Number(team.PassYds) / 10, Number(team.PassTD) / 10,
-            Number(team.RushAtt) / 10, Number(team.RushYds) / 10, Number(team.RushTD) / 10];
+        Number(team.OffYds) / 10, Number(team.PassAtt) / 10, Number(team.PassYds) / 10, Number(team.PassTD) / 10,
+        Number(team.RushAtt) / 10, Number(team.RushYds) / 10, Number(team.RushTD) / 10];
 
         cells[boldIndex] = "<b>" + cells[boldIndex] + "</b>";
 
@@ -3702,7 +3879,7 @@ function loadAwardData() {
             var logo = document.getElementById("awardLogo");
             logo.src = htmlDir + "/Logos/awards/" + award + ".png";
 
-            for (var i = 0 ; i < d.length ; i++) {
+            for (var i = 0; i < d.length; i++) {
 
                 if (d[i].AwardId == award) {
                     // we need to insert the first two rows
@@ -3750,7 +3927,7 @@ function loadBowlChampionData(baseYear) {
                 trophy.src = htmlDir + "/Logos/bowl_trophies/" + bowlId + ".png";
             }
 
-            for (var i = 0 ; i < bc.length ; i++) {
+            for (var i = 0; i < bc.length; i++) {
                 var champ = bc[i];
 
                 // add a divider for a new confeerence
@@ -3772,7 +3949,7 @@ function loadBowlChampionData(baseYear) {
 
 function addCellsWithWidth(table, cells, className) {
     var row = table.insertRow(-1);
-    for (var j = 0 ; j < cells.length ; j++) {
+    for (var j = 0; j < cells.length; j++) {
         var cell = row.insertCell(-1);
         cell.className = className;
         cell.width = cells[j][0];
@@ -3795,10 +3972,10 @@ function writeAttendanceTable(teams, boldIndex) {
 
     var table = document.getElementById("attTable");
 
-    for (var i = 0 ; i < teams.length ; i++) {
+    for (var i = 0; i < teams.length; i++) {
 
         var cells = [1 + i, createTeamLinkTableCell(teams[i].TeamId, teams[i].Team), teams[i].Stadium, teams[i].Record,
-            addCommas(teams[i].AvgAtt), addCommas(teams[i].Capacity), Number(teams[i].PctCapacity) / 100 + "%"];
+        addCommas(teams[i].AvgAtt), addCommas(teams[i].Capacity), Number(teams[i].PctCapacity) / 100 + "%"];
 
         cells[boldIndex] = "<b>" + cells[boldIndex] + "</b>";
 
@@ -3813,7 +3990,7 @@ function cleanAttendanceTable() {
 
 function cleanTable(tableName, len) {
     var table = document.getElementById(tableName);
-    for (var i = 0 ; i < len ; i++) {
+    for (var i = 0; i < len; i++) {
         table.deleteRow(-1);
     }
 }
@@ -3831,8 +4008,8 @@ function sortByAttendance() {
 }
 
 function populateDivisions(conferences) {
-    for (var i = 0 ; i < conferences.length ; i++) {
-        for (var j = 0 ; j < conferences[i].Divisions.length ; j++) {
+    for (var i = 0; i < conferences.length; i++) {
+        for (var j = 0; j < conferences[i].Divisions.length; j++) {
             divisions[conferences[i].Divisions[j].Id] = conferences[i].Divisions[j];
         }
     }
@@ -3854,7 +4031,7 @@ function addStandingsTable(table, name) {
 function writeStandings(currentTable, teamStandings) {
     var rank = 1;
 
-    for (var jj = 0 ; jj < teamStandings.length; jj++) {
+    for (var jj = 0; jj < teamStandings.length; jj++) {
         var team = teamStandings[jj];
         var cells = [rank, createTeamLogoLink(team.TeamId, 35), createTeamLinkTableCell(team.TeamId, team.Team, true), team.Win + "-" + team.Loss, team.ConferenceWin + "-" + team.ConferenceLoss];
         addBasicRowsToTable(currentTable, cells, "c3");
@@ -3880,7 +4057,7 @@ function loadStandingsData() {
                         teams.sort(function (a, b) { return a.Value.ConferenceName.localeCompare(b.Value.ConferenceName); });
                         var table = document.getElementById('mainTable');
 
-                        for (var kk = 0 ; kk < teams.length ; kk++) {
+                        for (var kk = 0; kk < teams.length; kk++) {
                             var conf = teams[kk];
 
                             if (conf.Value.Teams != undefined) {
@@ -3912,7 +4089,7 @@ function loadStandingsData() {
                         var currentTable;
                         var currentDivision = "";
 
-                        for (var i = 0 ; i < teams.length ; i++) {
+                        for (var i = 0; i < teams.length; i++) {
                             var team = teams[i];
 
                             // add a new table
@@ -3979,7 +4156,7 @@ function createStandingsTable(table, tableName, header, linkName, isPreason) {
         cells.push(["20%", "Conference"]);
         cells.push(["9%", "Division"]);
     }
-    for (var i = 0 ; i < cells.length; i++) {
+    for (var i = 0; i < cells.length; i++) {
         cell = row.insertCell(-1);
         cell.className = "c7";
         cell.width = cells[i][0];
@@ -4006,7 +4183,7 @@ function loadCCData(year) {
                 trophy.src = htmlDir + "/Logos/conference_trophies/" + confId + ".png";
             }
 
-            for (var i = 0 ; i < teams.length ; i++) {
+            for (var i = 0; i < teams.length; i++) {
                 var team = teams[i];
 
                 // add a divider for a new confeerence
@@ -4014,7 +4191,7 @@ function loadCCData(year) {
                     var row = table.insertRow(-1);
                     var cells = [["20%", "Year"], ["20%", "Conference"], ["20%", "Team"], ["40%", "Team"]];
 
-                    for (var j = 0 ; j < cells.length ; j++) {
+                    for (var j = 0; j < cells.length; j++) {
                         var cell = row.insertCell(-1);
                         cell.className = "c7";
                         cell.width = cells[j][0];
@@ -4046,7 +4223,7 @@ function loadConfRoundData() {
 function writeConfRankTable(conferences) {
     var table = document.getElementById("crtable");
 
-    for (var i = 0 ; i < conferences.length ; i++) {
+    for (var i = 0; i < conferences.length; i++) {
 
         var conf = conferences[i];
         var cells = [1 + i, createConferenceLogoLink(conf.ConfId), conf.Conference, Math.floor(conf.TopSix / 10) / 10, Math.floor(conf.All / 10) / 10, conf.BowlRecord, conf.OOCRecord, conf.POOCRecord];
@@ -4096,16 +4273,14 @@ function loadHFAData() {
                     if (a.HWP == undefined) {
                         // hfa rating is win pct + homestreak raw
                         a.HWP = (a.HomeWin * 1000 / (a.HomeWin + a.HomeLoss + a.HomeTie))
-                        a.HFA = a.HWP + a.HomeStreakRaw;
                     }
 
                     if (b.HWP == undefined) {
                         // hfa rating is win pct + homestreak raw
                         b.HWP = b.HomeWin * 1000 / (b.HomeWin + b.HomeLoss + b.HomeTie);
-                        b.HFA = b.HWP + b.HomeStreakRaw;
                     }
 
-                    return b.HFA - a.HFA;
+                    return a.ToughestPlaceToPlayRank - b.ToughestPlaceToPlayRank;
                 });
 
             writeHFATable(currentData);
@@ -4115,13 +4290,13 @@ function loadHFAData() {
 
 function writeHFATable(teams) {
     var table = document.getElementById("nctable");
-    for (var i = 0 ; i < teams.length ; i++) {
+    for (var i = 0; i < teams.length; i++) {
         var team = teams[i];
 
         if (isFCS(team.Id))
             continue;
 
-        var cells = [1 + i, createTeamLogoLink(team.Id, 35), createTeamLinkTableCell(team.Id, team.Name), team.HomeWin + "-" + team.HomeLoss + "-" + team.HomeTie, "." + Math.floor(team.HWP), team.HomeStreak];
+        var cells = [team.ToughestPlaceToPlayRank, createTeamLogoLink(team.Id, 35), createTeamLinkTableCell(team.Id, team.Name), team.HomeWin + "-" + team.HomeLoss + "-" + team.HomeTie, "." + Math.floor(team.HWP), team.HomeStreak];
 
         // insert the rows
         addBasicRowsToTable(table, cells, "c3");
@@ -4154,14 +4329,30 @@ function loadNCData() {
 function writeNCTable(teams) {
     var table = document.getElementById("nctable");
 
-    for (var i = 0 ; i < teams.length ; i++) {
+    for (var i = 0; i < teams.length; i++) {
 
         var team = teams[i];
-        var cells = [1 + i, createTeamLogoLink(team.TeamId, 35), createTeamLinkTableCell(team.TeamId, team.Team), team.Record, "." + team.WinPct, team.National, team.Conference];
+        var cells = [1 + i, createTeamLogoLink(team.TeamId, 35), createTeamLinkTableCell(team.TeamId, team.Team), team.Record, ConvertWinPct(team.WinPct), team.National, team.Conference];
 
         // insert the rows
         addBasicRowsToTable(table, cells, "c3");
     }
+}
+
+function ConvertWinPct(winpct) {
+    if (winpct == 1000) {
+        return "1.000";
+    }
+
+    if (!winpct) {
+        return ".000";
+    }
+
+    if (winpct < 100) {
+        return ".0" + winpct;
+    }
+
+    return "." + winpct;
 }
 
 function sortByAllTimeWins() {
@@ -4214,7 +4405,7 @@ function loadPollData() {
             var table = document.getElementById("pollTable");
 
             var rank = 1;
-            for (var i = 0 ; i < teams.length ; i++) {
+            for (var i = 0; i < teams.length; i++) {
                 var team = teams[i];
 
                 if (team.Table == pollId) {
@@ -4236,7 +4427,7 @@ function loadBCSData() {
             var teams = csvJSON(data);
             var table = document.getElementById("bcsTable");
 
-            for (var i = 0 ; i < teams.length ; i++) {
+            for (var i = 0; i < teams.length; i++) {
 
                 var team = teams[i];
                 var cells = [1 + i, createTeamLinkTableCell(team.TeamId, team.Team), team.Record, team.Media, team.Coaches, team.BCSPrevious];
@@ -4263,11 +4454,11 @@ function loadSOSData() {
 function writeSOSTable(teams, boldIndex) {
     var table = document.getElementById("sosTable");
 
-    for (var i = 0 ; i < teams.length ; i++) {
+    for (var i = 0; i < teams.length; i++) {
 
         var cells = [1 + i, createTeamLinkTableCell(teams[i].TeamId, teams[i].Team), teams[i].Record,
-            Number(teams[i].OppAvgRank) / 10, teams[i].OppWin, teams[i].OppLoss, "." + teams[i].OppWinPct,
-           teams[i].BCS, teams[i].Coaches, teams[i].Media];
+        Number(teams[i].OppAvgRank) / 10, teams[i].OppWin, teams[i].OppLoss, ConvertWinPct(teams[i].OppWinPct),
+        teams[i].BCS, teams[i].Coaches, teams[i].Media];
 
         cells[boldIndex] = "<b>" + cells[boldIndex] + "</b>";
 
@@ -4278,7 +4469,7 @@ function writeSOSTable(teams, boldIndex) {
 
 function cleanSosTable() {
     var table = document.getElementById("sosTable");
-    for (var i = 0 ; i < currentData.length ; i++) {
+    for (var i = 0; i < currentData.length; i++) {
         table.deleteRow(-1);
     }
 }
@@ -4300,11 +4491,26 @@ function randNext(inclusiveFrom, exclusiveTo) {
     return inclusiveFrom + (rand % (exclusiveTo - inclusiveFrom));
 }
 
-function loadTeamPageTemplate(team) {
+function createFaceSrc(face) {
+    if (face < 10) {
+        face = `00${face}`;
+    }
+    else if (face < 100) {
+        face = `0${face}`;
+    }
+    return `${htmlDir}/face/${face}.png`;
+}
+
+function loadTeamPageTemplate(team, face) {
     document.title = team.Name + " " + team.Mascot;
     var logo = document.getElementById("teamLogoImg");
     if (logo != null) {
-        logo.src = createTeamLogoSrc(teamId, 256);
+        if (face) {
+            logo.src = createFaceSrc(face);
+        }
+        else {
+            logo.src = createSecondaryTeamLogoSrc(teamId, 256);
+        }
     }
 
     // check to see if we have a headline element
@@ -4346,33 +4552,37 @@ function loadTeamStatsData(year, baseYear) {
     currentYear = year;
     startingYear = baseYear;
     teamId = getQueryVariable("id");
-
+    face = getQueryVariable("face");
 
     document.getElementById("topPerfLink").href = "teamtopperf.html?id=" + teamId;
     document.getElementById("careerStatsLink").href = "teampstat.html?career=true&id=" + teamId;
     document.getElementById("playerStatsLink2").href = "teampstat.html?id=" + teamId;
+    document.getElementById("topPerfLink").style.color = "white";
+    document.getElementById("careerStatsLink").style.color = "white";
+    document.getElementById("playerStatsLink2").style.color = "white";
 
     $.ajax({
         url: "team", // "team" + teamId + ".json",
         // async: false,
         success: function (data) {
             var team = findTeam(data, teamId);
-            loadTeamPageTemplate(team);
+            loadTeamPageTemplate(team, face);
         }
     });
 
     loadCareerStats = getQueryVariable("career") == "true";
+    forSpecificPlayer = getQueryVariable("name");
 
     $.ajax({
         url: "team" + teamId + (loadCareerStats ? "cstat.csv" : "pstat.csv"),
         success: function (data) {
             var cc = csvJSON(data);
-            loadStatsTables(cc);
+            loadStatsTables(cc, teamId, forSpecificPlayer);
         }
     });
 }
 
-function loadStatsTables(stats) {
+function loadStatsTables(stats, teamId, player) {
     var tables =
         [
             document.getElementById("passingTable"),
@@ -4385,12 +4595,21 @@ function loadStatsTables(stats) {
             document.getElementById("returnTable"),
         ];
 
-    fillInStatsTables(stats, tables);
+    fillInStatsTables(stats, tables, teamId, player);
 }
 
-function fillInStatsTables(stats, tables) {
+function createPlayerPageLink(teamId, player, face) {
+    var nameFormat = encodeURIComponent(`${player}`);
+    return `<a href='teampstat.html?career=true&id=${teamId}&name=${nameFormat}&face=${face}'><b>` + player + "</b></a>";
+}
 
-    for (var i = 0 ; i < stats.length ; i++) {
+function fillInStatsTables(stats, tables, teamId, player) {
+
+    for (var i = 0; i < stats.length; i++) {
+        if (player != false && decodeURIComponent(player) != stats[i].Name) {
+            continue;
+        }
+
         var table = null;
 
         //var year = loadCareerStats ? (Number(stats[i].Year) + startingYear) : currentYear;
@@ -4398,7 +4617,7 @@ function fillInStatsTables(stats, tables) {
         var year = (Number(stats[i].Year) + startingYear); // need to fix bug when v3.03 is release, currently team season stats year is wrong when viewing older seasons
 
         // create our data for our cells
-        var cells = [year, stats[i].No, "<b>" + stats[i].Name + "</b>", stats[i].PlayerClass, stats[i].Position, stats[i].Height, stats[i].Weight, stats[i].Stat1, stats[i].Stat2];
+        var cells = [year, stats[i].No, createPlayerPageLink(teamId, stats[i].Name, stats[i].Face), stats[i].PlayerClass, stats[i].Position, stats[i].Height, stats[i].Weight, stats[i].Stat1, stats[i].Stat2];
         if (stats[i].Stat3 != "" && stats[i].TableIdx == 5) {
             // sacks are multiplied by 10
             cells[cells.length] = Number(stats[i].Stat3) / 10;
@@ -4421,7 +4640,7 @@ function fillInStatsTables(stats, tables) {
 
 function addBasicRowsToTable(table, cells, className, widths) {
     var row = table.insertRow(-1);
-    for (var j = 0 ; j < cells.length ; j++) {
+    for (var j = 0; j < cells.length; j++) {
         var cell = row.insertCell(-1);
         cell.className = className;
         cell.innerHTML = cells[j];
@@ -4465,7 +4684,7 @@ function createTopProgramConfTable(cc) {
     var currentConference = -1;
     var currentRank = 1;
 
-    for (var i = 0 ; i < cc.length ; i++) {
+    for (var i = 0; i < cc.length; i++) {
 
         // check to see if we need to add a conference row
         if (cc[i].ConfId != currentConference) {
@@ -4482,7 +4701,7 @@ function createTopProgramConfTable(cc) {
 
 function addConferencesRowsForTopOrHotPrograms(table, cellWidth, cellInner) {
     var row = table.insertRow(-1);
-    for (var i = 0 ; i < cellWidth.length; i++) {
+    for (var i = 0; i < cellWidth.length; i++) {
         var cell = row.insertCell(-1);
         cell.className = "c7";
         cell.width = cellWidth[i];
@@ -4502,7 +4721,7 @@ function createHotProgramConfTable(cc) {
     var currentConference = -1;
     var currentRank = 1;
 
-    for (var i = 0 ; i < cc.length ; i++) {
+    for (var i = 0; i < cc.length; i++) {
 
         // check to see if we need to add a conference row
         if (cc[i].ConfId != currentConference) {
@@ -4513,7 +4732,7 @@ function createHotProgramConfTable(cc) {
 
         var row = table.insertRow(-1);
         var cells = [rank, createTeamLinkTableCell(cc[i].TeamId, cc[i].Name), cc[i].Last3Yr, formatPct(cc[i].Pct), cc[i].Record, cc[i].Trend];
-        for (var j = 0 ; j < cells.length ; j++) {
+        for (var j = 0; j < cells.length; j++) {
             var cell = row.insertCell(-1);
             cell.className = "c3";
             cell.innerHTML = cells[j];
@@ -4552,10 +4771,10 @@ function loadTopProgramData() {
 
 function addHotProgramsRows(cc, name, id) {
     var table = document.getElementById("hotPrograms");
-    for (var i = 0 ; i < cc.length ; i++) {
+    for (var i = 0; i < cc.length; i++) {
         var row = table.insertRow(-1);
         var cells = [i + 1, createTeamLinkTableCell(cc[i].TeamId, cc[i].Name), cc[i].Record, formatPct(cc[i].Pct), cc[i].Year3, cc[i].Year2, cc[i].Year1, cc[i].Trend];
-        for (var j = 0 ; j < cells.length ; j++) {
+        for (var j = 0; j < cells.length; j++) {
             var cell = row.insertCell(-1);
             cell.className = "c3";
             cell.innerHTML = cells[j];
@@ -4565,10 +4784,10 @@ function addHotProgramsRows(cc, name, id) {
 
 function addTopProgramsRows(cc, name, id) {
     var table = document.getElementById("topPrograms");
-    for (var i = 0 ; i < cc.length ; i++) {
+    for (var i = 0; i < cc.length; i++) {
         var row = table.insertRow(-1);
         var cells = [i + 1, createTeamLinkTableCell(cc[i].TeamId, cc[i].Name), cc[i].Record, formatPct(cc[i].Pct)];
-        for (var j = 0 ; j < cells.length ; j++) {
+        for (var j = 0; j < cells.length; j++) {
             var cell = row.insertCell(-1);
             cell.className = "c3";
             cell.innerHTML = cells[j];
@@ -4623,12 +4842,12 @@ function loadTeamMainData(isPreseason) {
 function addConfRows(cc, name, id) {
     var foundTeam = false;
     var table = document.getElementById("confChamps");
-    for (var i = 0 ; i < cc.length ; i++) {
+    for (var i = 0; i < cc.length; i++) {
         if (Number(cc[i].TeamId) == id) {
             foundTeam = true;
             var row = table.insertRow(-1);
-            var cells = [startingYear + Number(cc[i].Year), createConfTrophyLink(cc[i].ConfId), '<a href="CC.html?id=' + cc[i].ConfId + '"><img src="../HTML/Logos/conferences/65/' + cc[i].ConfId + '.jpg" /></a>', createTeamLogoLink(id, 55), name];
-            for (var j = 0 ; j < cells.length ; j++) {
+            var cells = [startingYear + Number(cc[i].Year), createConfTrophyLink(cc[i].ConfId), '<a href="CC.html?id=' + cc[i].ConfId + '"><img src="../HTML/Logos/conferences/65/' + cc[i].ConfId + '.png" /></a>', createTeamLogoLink(id, 55), name];
+            for (var j = 0; j < cells.length; j++) {
                 var cell = row.insertCell(-1);
                 cell.className = "c3";
                 cell.innerHTML = cells[j];
@@ -4643,7 +4862,8 @@ function addConfRows(cc, name, id) {
 function addAnnualRecordRows(records, teamId) {
     var foundTeam = false;
     var table = document.getElementById("annualtable");
-    for (var i = 0 ; i < records.length ; i++) {
+    var lookbackLength = Math.min(records.length, 5);
+    for (var i = 0; i < lookbackLength; i++) {
 
         if (Number(records[i].TeamId) == teamId) {
             foundTeam = true;
@@ -4676,12 +4896,12 @@ function addAnnualRecordRows(records, teamId) {
 function addBowlRows(cc, name, id) {
     var foundTeam = false;
     var table = document.getElementById("bowlChampionships");
-    for (var i = 0 ; i < cc.length ; i++) {
+    for (var i = 0; i < cc.length; i++) {
         if (Number(cc[i].TeamId) == id) {
             foundTeam = true;
             var row = table.insertRow(-1);
             var cells = [startingYear + Number(cc[i].Year), createBowlTrophyLink(cc[i].BowlId), createBowlLogoLink(cc[i].BowlId), createTeamLogoLink(id, 55), name];
-            for (var j = 0 ; j < cells.length ; j++) {
+            for (var j = 0; j < cells.length; j++) {
                 var cell = row.insertCell(-1);
                 cell.className = "c3";
                 cell.innerHTML = cells[j];
@@ -4698,11 +4918,11 @@ function createConferenceLogoLink(id) {
 }
 
 function createConferenceLogoSrc(id) {
-    return '../HTML/Logos/conferences/65/' + id + '.jpg';
+    return '../HTML/Logos/conferences/65/' + id + '.png';
 }
 
 function createTrophyCaseConferenceLogo(id) {
-    return '<img src="./HTML/Logos/conferences/65/' + id + '.jpg" />';
+    return '<img src="./HTML/Logos/conferences/65/' + id + '.png" />';
 }
 
 function createTeamLogoLink(id, size) {
@@ -4720,8 +4940,16 @@ function createTeamLogoLinkToStats(id, size) {
     return '<a href="teampstat.html?id=' + id + '"> <img src="' + createTeamLogoSrc(id, size) + '" /> </a>';
 }
 
+function createTeamHelmetSrc(id, dir) {
+    return `${htmlDir}/Logos/opp_helmets/${dir}_${id}.webp`;
+}
+
 function createTeamLogoSrc(id, size) {
     return htmlDir + '/Logos/' + size + '/team' + id + '.png';
+}
+
+function createSecondaryTeamLogoSrc(id, size) {
+    return htmlDir + '/Logos/' + size + '/team' + id + '.webp';
 }
 
 function createBowlLogoLink(bowlId) {
@@ -4760,7 +4988,7 @@ function addTeamSchedule(tg, name, id, isPreseason) {
     currentYear = getCurrentYear();
 
     var table = document.getElementById("scheduleTable");
-    for (var i = 0 ; i < tg.length; i++) {
+    for (var i = 0; i < tg.length; i++) {
 
         var result = tg[i].Result == "Win" ? "<b>Win</b>" : "<font color = red><b>Loss</b></font>";
         result = "<a href='../recentmeetings.html?yr=" + currentYear + "&id=" + id + "&opp=" + tg[i].OppId + "'>" + result + "</a>";
@@ -4770,18 +4998,24 @@ function addTeamSchedule(tg, name, id, isPreseason) {
         var locale = tg[i].Location;
 
         if (tg[i].BowlId != undefined && tg[i].BowlId != null && tg[i].BowlId != "") {
-            locale = "<a href='../BowlHistory.html?yr=" + currentYear + "&id=" + tg[i].BowlId + "'/>" + locale + "</a>";
+            var teamFilter = "";
+
+            if (tg[i].BowlId == "279")
+                teamFilter = "&tid=" + id;
+
+            locale = "<a href='../BowlHistory.html?yr=" + currentYear + "&id=" + tg[i].BowlId + teamFilter + "'/>" + locale + "</a>";
         }
 
+        var weekLabel = (tg[i].PlayoffDescriptor == undefined || tg[i].PlayoffDescriptor == '') ? (1 + Number(tg[i].Week)) : tg[i].PlayoffDescriptor;
         var cells = [
-            1 + Number(tg[i].Week),
+            weekLabel,
             locale,
             createTeamLogoLink(tg[i].OppId, 35),
             createTeamLinkTableCell(tg[i].OppId, tg[i].Opponent, isPreseason)];
 
         if (!isPreseason) {
             cells[cells.length] = tg[i].Result = result,
-            cells[cells.length] = '<a href="boxscore.html?id=' + tg[i].Week + '-' + tg[i].Game + '">' + tg[i].Score + '</a>';
+                cells[cells.length] = '<a href="boxscore.html?id=' + tg[i].Week + '-' + tg[i].Game + '">' + tg[i].Score + '</a>';
         }
         else {
             cells[cells.length] = (tg[i].WinPredicted == "true" ? "-" : "+") + Number(tg[i].Spread) / 10;
@@ -4792,7 +5026,7 @@ function addTeamSchedule(tg, name, id, isPreseason) {
             cells = ['', '', '', tg[i].Opponent, '', ''];
         }
 
-        for (var j = 0 ; j < cells.length ; j++) {
+        for (var j = 0; j < cells.length; j++) {
             var cell = row.insertCell(-1);
             cell.className = "c3";
             cell.innerHTML = cells[j];
@@ -4865,7 +5099,21 @@ function addTeamData(team, isPreseason) {
     addRecordRow(recordTable, "All-Time Record", team.AllTimeWin + "-" + team.AllTimeLoss + "-" + team.AllTimeTie);
     addRecordRow(recordTable, "<a href='../PostSeasonGames.html?yr=" + (yearMod + getCurrentYear()) + "&id=" + team.Id + "'>Bowl Record</a>", team.BowlWin + "-" + team.BowlLoss + "-" + team.BowlTie);
     addRecordRow(recordTable, "<a href=NC.html>National Titles</a>", team.NationalTitles + ncYr);
-    addRecordRow(recordTable, "Conference Titles", team.ConferenceTitles + ccYr);
+    // addRecordRow(recordTable, "Conference Titles", team.ConferenceTitles + ccYr);
+    addRecordRow(recordTable, "<a href='../PostSeasonGames.html?yr=" + (yearMod + getCurrentYear()) + "&ccg=true&id=" + team.Id + "'>Conference Titles</a>", team.ConferenceTitles + ccYr);
+
+    var uri = "../baked/playoffs." + team.Id + ".txt";
+    $.ajax({
+        url: uri,
+        async: false,
+        success: function (data) {
+            var app = data.Apperances;
+            var last = " (" + data.Last + ")";
+            addRecordRow(recordTable, "<a href='../PostSeasonGames.html?yr=" + (yearMod + getCurrentYear()) + "&playoffs=true&id=" + team.Id + "'>Playoff Appearances</a>", app + last);
+        },
+        dataType: "json"
+    });
+
 
     if (!isPreseason) {
         // add current header
@@ -4912,16 +5160,194 @@ function addTeamData(team, isPreseason) {
     addRecordRow(recordTable, "Bowl Wins", team.HeadCoach.BowlWins);
     addRecordRow(recordTable, "Conference Championships", team.HeadCoach.ConferenceChampionships);
     addRecordRow(recordTable, "National Championships", team.HeadCoach.NationalChampionships);
+    addRecordRow(recordTable, "Offensive Playbook", OffPlaybookName(team.HeadCoach.OffPlaybookId));
+    addRecordRow(recordTable, "Defensive Playbook", DefPlaybookName(team.HeadCoach.DefPlaybookId));
 
     addHeaderRow(recordTable, "<a href='../CoachCareer.html?yr=" + (yearMod + getCurrentYear()) + "&name=" + escape(team.OffensiveCoordinator.Name) + "&id=" + team.OffensiveCoordinator.Id + "'> Offensive Coordinator " + team.OffensiveCoordinator.Name + "</a>");
     addRecordRow(recordTable, "Seasons", seasonsWithTeam(team.OffensiveCoordinator.YearsWithTeam, isPreseason));
+    addRecordRow(recordTable, "Offensive Playbook", OffPlaybookName(team.OffensiveCoordinator.OffPlaybookId));
 
     addHeaderRow(recordTable, "<a href='../CoachCareer.html?yr=" + (yearMod + getCurrentYear()) + "&name=" + escape(team.DefensiveCoordinator.Name) + "&id=" + team.DefensiveCoordinator.Id + "'> Defensive Coordinator " + team.DefensiveCoordinator.Name + "</a>");
     addRecordRow(recordTable, "Seasons", seasonsWithTeam(team.DefensiveCoordinator.YearsWithTeam, isPreseason));
+    addRecordRow(recordTable, "Defensive Playbook", DefPlaybookName(team.DefensiveCoordinator.DefPlaybookId));
 
     var header = document.getElementById("yearlyHistory");
     header.innerHTML = "<a href='../TeamHistory.html?yr=" + (currentYear + yearMod) + "&id=" + team.Id + "'>Team History</a>";
 }
+
+function DefPlaybookName(id) {
+    switch (id) {
+        case 0: return "4-3";
+        case 1: return "3-4";
+        case 2: return "3-3-5";
+        case 3: return "4-2-5";
+        case 4: return "Multiple D";
+        case 5: return "3-4 Multiple";
+        case 6: return "4-3 Multiple";
+    }
+}
+
+function OffPlaybookName(id) {
+    if (getCurrentYear() >= 2372) {
+        switch (id) {
+            case 163: return "Spread Option (Spread)";
+            case 162: return "Cooper Spread (Spread)";
+            default: break;
+        }
+    }
+
+    switch (id) {
+        case 135: return "Spread Option Run (Spread)";
+        case 162: return "Spread Pro (Pro/Spread)";
+        case 163: return "Quick Strike Pro (Pro/Spread)";
+        case 164: return "Single Back Option (One Back)";
+        case 165: return "Quick Strike Spread (Pro/Spread)";
+        case 166: return "Cooper Spread (Spread)";
+        case 167: return "Spread Option (Spread)";
+        case 168: return "Pistol Spread (Pistol)";
+        case 169: return "Run Option (Spread)";
+        case 170: return "Power Spread (Spread)";
+        case 173: return "Air Raid Option (Air Raid)";
+        case 174: return "Spread Option (Spread)";
+        case 15:
+        case 16:
+        case 23:
+        case 33:
+        case 36:
+        case 42:
+        case 54:
+        case 72:
+        case 133:
+        case 85:
+        case 90:
+        case 92:
+        case 95:
+        case 113:
+        case 115:
+            return "Air Raid";
+        case 6:
+        case 11:
+        case 13:
+        case 12:
+        case 17:
+        case 18:
+        case 21:
+        case 101:
+        case 27:
+        case 26:
+        case 35:
+        case 39:
+        case 41:
+        case 46:
+        case 48:
+        case 53:
+        case 55:
+        case 60:
+        case 73:
+        case 76:
+        case 84:
+        case 88:
+        case 99:
+        case 106:
+        case 129:
+        case 109:
+        case 110:
+            return "Multiple";
+        case 2:
+        case 20:
+        case 24:
+        case 50:
+        case 120:
+            return "One Back";
+        case 0:
+        case 7:
+        case 30:
+        case 59:
+            return "Option";
+        case 19:
+        case 61:
+        case 62:
+        case 71:
+        case 130:
+            return "Pistol";
+        case 5:
+        case 28:
+        case 31:
+        case 132:
+        case 32:
+        case 38:
+        case 34:
+        case 40:
+        case 43:
+        case 51:
+        case 52:
+        case 66:
+        case 74:
+        case 77:
+        case 78:
+        case 80:
+        case 81:
+        case 82:
+        case 86:
+        case 87:
+        case 96:
+        case 98:
+        case 104:
+        case 105:
+        case 111:
+        case 114:
+        case 125:
+        case 116:
+        case 117:
+            return "Pro";
+        case 1:
+        case 4:
+        case 3:
+        case 8:
+        case 9:
+        case 10:
+        case 14:
+        case 22:
+        case 29:
+        case 25:
+        case 37:
+        case 44:
+        case 47:
+        case 49:
+        case 56:
+        case 58:
+        case 64:
+        case 63:
+        case 65:
+        case 67:
+        case 68:
+        case 69:
+        case 70:
+        case 57:
+        case 75:
+        case 79:
+        case 134:
+        case 91:
+        case 89:
+        case 93:
+        case 94:
+        case 97:
+        case 100:
+        case 102:
+        case 45:
+        case 131:
+        case 103:
+        case 107:
+        case 108:
+        case 112:
+        case 118:
+        case 121:
+            return "Spread";
+        case 83:
+            return "Run and Shoot";
+    }
+}
+
 
 function seasonsWithTeam(value, isPreseason) {
     if (!isPreseason)
@@ -4971,6 +5397,8 @@ function addRecordRow(table, name, data) {
 function loadRecruitData() {
     teamId = Number(getQueryVariable("id"));
     var stateFilter = getQueryVariable("state");
+    var positionFilter = getQueryVariable("position");
+    var juco = getQueryVariable("juco");
 
     // we have a Team Logo
     if (teamId != 0) {
@@ -4983,7 +5411,7 @@ function loadRecruitData() {
         // async: false,
         success: function (data) {
             var gems = csvJSON(data);
-            addRecruitRows(gems, "gemsTable", teamId, stateFilter);
+            addRecruitRows(gems, "gemsTable", teamId, stateFilter, positionFilter, juco);
         }
     });
 
@@ -4992,7 +5420,7 @@ function loadRecruitData() {
         // async: false,
         success: function (data) {
             var gems = csvJSON(data);
-            addRecruitRows(gems, "bustsTable", teamId, stateFilter);
+            addRecruitRows(gems, "bustsTable", teamId, stateFilter, positionFilter, juco);
         }
     });
 
@@ -5001,28 +5429,64 @@ function loadRecruitData() {
         // async: false,
         success: function (data) {
             var gems = csvJSON(data);
-            addRecruitRows(gems, "recruitsTable", teamId, stateFilter);
+            addRecruitRows(gems, "recruitsTable", teamId, stateFilter, positionFilter, juco);
+        }
+    });
+
+    $.ajax({
+        url: "elite11.csv",
+        // async: false,
+        success: function (data) {
+            var gems = csvJSON(data);
+            addRecruitRows(gems, "elite11Table", teamId, stateFilter, positionFilter, juco);
+        }
+    });
+
+    $.ajax({
+        url: "simpsonselect.csv",
+        // async: false,
+        success: function (data) {
+            var gems = csvJSON(data);
+            addRecruitRows(gems, "simpsonselectTable", teamId, stateFilter, positionFilter, juco);
+        }
+    });
+
+    $.ajax({
+        url: "mrtexas.csv",
+        // async: false,
+        success: function (data) {
+            var gems = csvJSON(data);
+            addRecruitRows(gems, "mrtexasTable", teamId, stateFilter, positionFilter, juco);
         }
     });
 }
 
-function addRecruitRows(recruits, tableName, teamFilter, stateFilter) {
+function addRecruitRows(recruits, tableName, teamFilter, stateFilter, positionFilter, jucoOnly) {
     var headerPct = ["3%", "3%", "16%", "3%", "3%", "3%", "3%", "3%", "3%", "13%", "13%", "13%", "18%"];
     var headerText = ["<b><center>Rnk</center></b>", "<b><center>Pos<br>Rnk</center></b>", "<b><center>Recruit</center></b>", "<b><center>Pos</center></b>", "<b><center>ATH</center></b>", "<b><center>Star</center></b>", "<b><center>Pre<br>Scout</center></b>", "<b><center>Act<br>Ovr</center></b>", "<b><center>Dif</center></b>", "<b><center>Team #1</center></b>", "<b><center>Team #2</center></b>", "<b><center>Team #3</center></b>", "<b><center>Hometown</center></b>"];
     var table = document.getElementById(tableName);
     var hashTable = new Object();
 
-    for (var i = 0 ; i < recruits.length  ; i++) {
+    for (var i = 0; i < recruits.length; i++) {
 
         // recruit is committed, that means we need to bold his top choice
         var commitedTeam = Number(recruits[i].CommittedTeam);
         var homeTown = recruits[i]["Hometown"].replace("%x2C", ",");
         var state = homeTown.slice(-2);
+        var positionGroup = recruits[i]["Group"];
+        var pyea = recruits[i]["PlayerYear"];
 
         if (stateFilter != false && stateFilter != state)
             continue;
 
+        if (positionFilter !== false && positionFilter !== positionGroup)
+            continue;
+
+        if (jucoOnly == "true" && pyea == 0)
+            continue;
+
         recruits[i]["Hometown"] = "<a href='recruits.html?state=" + state + "'>" + homeTown + "</a>";
+        recruits[i]["Pos"] = "<a href='recruits.html?position=" + positionGroup + "'>" + recruits[i]["Pos"] + "</a>";
 
         if (hashTable[state] == undefined)
             hashTable[state] = 1;
@@ -5042,7 +5506,7 @@ function addRecruitRows(recruits, tableName, teamFilter, stateFilter) {
 
         // add a new header
         if (i > 0 && (i % 100 == 0)) {
-            for (var k = 0 ; k < headerPct.length ; k++) {
+            for (var k = 0; k < headerPct.length; k++) {
                 var cell = row.insertCell(k);
                 cell.className = "c7";
                 cell.width = headerPct[k];
@@ -5055,7 +5519,7 @@ function addRecruitRows(recruits, tableName, teamFilter, stateFilter) {
 
         //add a recruit
         var j = 1;
-        for (j = 1 ; j < recruits[i].headers.length - 1 ; j++) {
+        for (j = 1; j < recruits[i].headers.length - 1; j++) {
 
             var cell = row.insertCell(j - 1);
             cell.className = "c3";
@@ -5076,23 +5540,23 @@ function loadTopUnitsData() {
     }
 
     loadSeasonsJsonData(
-    function () {
-        $.ajax({
-            url: "topunits",
-            success: function (json) {
-                var units = evalJson(json);
+        function () {
+            $.ajax({
+                url: "topunits",
+                success: function (json) {
+                    var units = evalJson(json);
 
-                addTopUnit(units["TopQB"], "qbTable", teamPage);
-                addTopUnit(units["TopHB"], "hbTable", teamPage);
-                addTopUnit(units["TopRec"], "recTable", teamPage);
-                addTopUnit(units["TopOL"], "olTable", teamPage);
-                addTopUnit(units["TopDL"], "dlTable", teamPage);
-                addTopUnit(units["TopLB"], "lbTable", teamPage);
-                addTopUnit(units["TopDB"], "dbTable", teamPage);
-            }
-        });
-    },
-    "../Seasons");
+                    addTopUnit(units["TopQB"], "qbTable", teamPage);
+                    addTopUnit(units["TopHB"], "hbTable", teamPage);
+                    addTopUnit(units["TopRec"], "recTable", teamPage);
+                    addTopUnit(units["TopOL"], "olTable", teamPage);
+                    addTopUnit(units["TopDL"], "dlTable", teamPage);
+                    addTopUnit(units["TopLB"], "lbTable", teamPage);
+                    addTopUnit(units["TopDB"], "dbTable", teamPage);
+                }
+            });
+        },
+        "../Seasons");
 }
 
 function addTopUnit(units, tableName, teamPage) {
@@ -5105,7 +5569,7 @@ function addTopUnit(units, tableName, teamPage) {
 
     var lastYear = window.location.href.substring(0, window.location.href.lastIndexOf("/")).replace(seasons.Season[seasons.Season.length - 1].Directory.substring(10), lastYear.Directory.substring(10)) + "/teampstat.html?career=true&id=";
 
-    for (var i = 0 ; i < units.length ; i++) {
+    for (var i = 0; i < units.length; i++) {
 
         var unit = units[i];
         var cells = [1 + i, createTeamLogoLinkToTeams(unit.TeamId, 55, teamPage), unit.TopPlayer, ""];
@@ -5127,9 +5591,10 @@ function loadTopClassesData() {
 
             var table = document.getElementById("rankTable");
 
-            for (var i = 0 ; i < bc.length ; i++) {
+            for (var i = 0; i < bc.length; i++) {
                 var team = bc[i];
 
+                if (getCurrentYear() >= 2372 && (team.TeamId === "61" || team.TeamId === "100")) { continue; }
 
                 var cells = [
                     i + 1,
@@ -5158,7 +5623,7 @@ function loadBowlGames(year) {
             var table = document.getElementById("bowlTable");
             var currentBowl = -1;
 
-            for (var i = 0 ; i < bc.length ; i++) {
+            for (var i = 0; i < bc.length; i++) {
                 var bowl = bc[i];
                 var cells = [
                     "<a href='../BowlHistory.html?yr=" + year + "&id=" + bowl.BowlId + "'/>" + bowl.Name + "</a>",
@@ -5190,6 +5655,10 @@ function loadPlayoffHistory() {
     window.location = "BowlHistory.html?yr=" + currentYear + "&id=-1&sep=true";
 }
 
+function loadNY6History() {
+    window.location = "BowlHistory.html?yr=" + currentYear + "&id=-3&sep=true";
+}
+
 function loadKickOffHistory() {
     window.location = "BowlHistory.html?yr=" + currentYear + "&id=-2&sep=true";
 }
@@ -5210,10 +5679,29 @@ function loadKickoffWeek(year) {
         url: "kickoffweek",
         success: function (json) {
             var games = evalJson(json);
+
+            for (var i = 0; i < games.KickoffGames.length; i++) {
+                var game = games.KickoffGames[i];
+                game.Week = Day(game.Day) + ", " + game.Time;
+            }
+
             addTopGames(games.KickoffGames, "koweek");
         }
     });
 }
+
+function Day(d) {
+    switch (d) {
+        case 0: return "Monday";
+        case 1: return "Tuesday";
+        case 2: return "Wednesday";
+        case 3: return "Thursday";
+        case 4: return "Friday";
+        case 5: return "Saturday";
+        case 6: return "Sunday";
+    }
+}
+
 
 function isFCS(id) {
     return id >= 160 && id <= 164;
@@ -5222,7 +5710,7 @@ function isFCS(id) {
 function addTopGames(games, tableName) {
     var table = document.getElementById(tableName);
 
-    for (var i = 0 ; i < games.length ; i++) {
+    for (var i = 0; i < games.length; i++) {
 
         var game = games[i];
         var matchup = "";
@@ -5282,4 +5770,4 @@ function addTopGames(games, tableName) {
     You should have received a copy of the Apache License along with JSXCompressor.
     If not, see <http://www.apache.org/licenses/>.
 */
-(function () { var e, r, n; (function (t) { function o(e, r) { return C.call(e, r) } function i(e, r) { var n, t, o, i, a, u, c, f, s, l, p = r && r.split("/"), h = k.map, d = h && h["*"] || {}; if (e && "." === e.charAt(0)) if (r) { for (p = p.slice(0, p.length - 1), e = p.concat(e.split("/")), f = 0; e.length > f; f += 1) if (l = e[f], "." === l) e.splice(f, 1), f -= 1; else if (".." === l) { if (1 === f && (".." === e[2] || ".." === e[0])) break; f > 0 && (e.splice(f - 1, 2), f -= 2) } e = e.join("/") } else 0 === e.indexOf("./") && (e = e.substring(2)); if ((p || d) && h) { for (n = e.split("/"), f = n.length; f > 0; f -= 1) { if (t = n.slice(0, f).join("/"), p) for (s = p.length; s > 0; s -= 1) if (o = h[p.slice(0, s).join("/")], o && (o = o[t])) { i = o, a = f; break } if (i) break; !u && d && d[t] && (u = d[t], c = f) } !i && u && (i = u, a = c), i && (n.splice(0, a, i), e = n.join("/")) } return e } function a(e, r) { return function () { return h.apply(t, v.call(arguments, 0).concat([e, r])) } } function u(e) { return function (r) { return i(r, e) } } function c(e) { return function (r) { b[e] = r } } function f(e) { if (o(m, e)) { var r = m[e]; delete m[e], y[e] = !0, p.apply(t, r) } if (!o(b, e) && !o(y, e)) throw Error("No " + e); return b[e] } function s(e) { var r, n = e ? e.indexOf("!") : -1; return n > -1 && (r = e.substring(0, n), e = e.substring(n + 1, e.length)), [r, e] } function l(e) { return function () { return k && k.config && k.config[e] || {} } } var p, h, d, g, b = {}, m = {}, k = {}, y = {}, C = Object.prototype.hasOwnProperty, v = [].slice; d = function (e, r) { var n, t = s(e), o = t[0]; return e = t[1], o && (o = i(o, r), n = f(o)), o ? e = n && n.normalize ? n.normalize(e, u(r)) : i(e, r) : (e = i(e, r), t = s(e), o = t[0], e = t[1], o && (n = f(o))), { f: o ? o + "!" + e : e, n: e, pr: o, p: n } }, g = { require: function (e) { return a(e) }, exports: function (e) { var r = b[e]; return r !== void 0 ? r : b[e] = {} }, module: function (e) { return { id: e, uri: "", exports: b[e], config: l(e) } } }, p = function (e, r, n, i) { var u, s, l, p, h, k, C = []; if (i = i || e, "function" == typeof n) { for (r = !r.length && n.length ? ["require", "exports", "module"] : r, h = 0; r.length > h; h += 1) if (p = d(r[h], i), s = p.f, "require" === s) C[h] = g.require(e); else if ("exports" === s) C[h] = g.exports(e), k = !0; else if ("module" === s) u = C[h] = g.module(e); else if (o(b, s) || o(m, s) || o(y, s)) C[h] = f(s); else { if (!p.p) throw Error(e + " missing " + s); p.p.load(p.n, a(i, !0), c(s), {}), C[h] = b[s] } l = n.apply(b[e], C), e && (u && u.exports !== t && u.exports !== b[e] ? b[e] = u.exports : l === t && k || (b[e] = l)) } else e && (b[e] = n) }, e = r = h = function (e, r, n, o, i) { return "string" == typeof e ? g[e] ? g[e](r) : f(d(e, r).f) : (e.splice || (k = e, r.splice ? (e = r, r = n, n = null) : e = t), r = r || function () { }, "function" == typeof n && (n = o, o = i), o ? p(t, e, r, n) : setTimeout(function () { p(t, e, r, n) }, 4), h) }, h.config = function (e) { return k = e, k.deps && h(k.deps, k.callback), h }, n = function (e, r, n) { r.splice || (n = r, r = []), o(b, e) || o(m, e) || (m[e] = [e, r, n]) }, n.amd = { jQuery: !0 } })(), n("../node_modules/almond/almond", function () { }), n("jxg", [], function () { var e = {}; return "object" != typeof JXG || JXG.extend || (e = JXG), e.extend = function (e, r, n, t) { var o, i; n = n || !1, t = t || !1; for (o in r) (!n || n && r.hasOwnProperty(o)) && (i = t ? o.toLowerCase() : o, e[i] = r[o]) }, e.extend(e, { boards: {}, readers: {}, elements: {}, registerElement: function (e, r) { e = e.toLowerCase(), this.elements[e] = r }, registerReader: function (e, r) { var n, t; for (n = 0; r.length > n; n++) t = r[n].toLowerCase(), "function" != typeof this.readers[t] && (this.readers[t] = e) }, shortcut: function (e, r) { return function () { return e[r].apply(this, arguments) } }, getRef: function (e, r) { return e.select(r) }, getReference: function (e, r) { return e.select(r) }, debugInt: function () { var e, r; for (e = 0; arguments.length > e; e++) r = arguments[e], "object" == typeof window && window.console && console.log ? console.log(r) : "object" == typeof document && document.getElementById("debug") && (document.getElementById("debug").innerHTML += r + "<br/>") }, debugWST: function () { var r = Error(); e.debugInt.apply(this, arguments), r && r.stack && (e.debugInt("stacktrace"), e.debugInt(r.stack.split("\n").slice(1).join("\n"))) }, debugLine: function () { var r = Error(); e.debugInt.apply(this, arguments), r && r.stack && e.debugInt("Called from", r.stack.split("\n").slice(2, 3).join("\n")) }, debug: function () { e.debugInt.apply(this, arguments) } }), e }), n("utils/zip", ["jxg"], function (e) { var r = [0, 128, 64, 192, 32, 160, 96, 224, 16, 144, 80, 208, 48, 176, 112, 240, 8, 136, 72, 200, 40, 168, 104, 232, 24, 152, 88, 216, 56, 184, 120, 248, 4, 132, 68, 196, 36, 164, 100, 228, 20, 148, 84, 212, 52, 180, 116, 244, 12, 140, 76, 204, 44, 172, 108, 236, 28, 156, 92, 220, 60, 188, 124, 252, 2, 130, 66, 194, 34, 162, 98, 226, 18, 146, 82, 210, 50, 178, 114, 242, 10, 138, 74, 202, 42, 170, 106, 234, 26, 154, 90, 218, 58, 186, 122, 250, 6, 134, 70, 198, 38, 166, 102, 230, 22, 150, 86, 214, 54, 182, 118, 246, 14, 142, 78, 206, 46, 174, 110, 238, 30, 158, 94, 222, 62, 190, 126, 254, 1, 129, 65, 193, 33, 161, 97, 225, 17, 145, 81, 209, 49, 177, 113, 241, 9, 137, 73, 201, 41, 169, 105, 233, 25, 153, 89, 217, 57, 185, 121, 249, 5, 133, 69, 197, 37, 165, 101, 229, 21, 149, 85, 213, 53, 181, 117, 245, 13, 141, 77, 205, 45, 173, 109, 237, 29, 157, 93, 221, 61, 189, 125, 253, 3, 131, 67, 195, 35, 163, 99, 227, 19, 147, 83, 211, 51, 179, 115, 243, 11, 139, 75, 203, 43, 171, 107, 235, 27, 155, 91, 219, 59, 187, 123, 251, 7, 135, 71, 199, 39, 167, 103, 231, 23, 151, 87, 215, 55, 183, 119, 247, 15, 143, 79, 207, 47, 175, 111, 239, 31, 159, 95, 223, 63, 191, 127, 255], n = [3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 0, 0], t = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 99, 99], o = [1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577], i = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13], a = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15], u = 256; return e.Util = e.Util || {}, e.Util.Unzip = function (c) { function f() { return R += 8, O > X ? c[X++] : -1 } function s() { B = 1 } function l() { var e; try { return R++, e = 1 & B, B >>= 1, 0 === B && (B = f(), e = 1 & B, B = 128 | B >> 1), e } catch (r) { throw r } } function p(e) { var n = 0, t = e; try { for (; t--;) n = n << 1 | l(); e && (n = r[n] >> 8 - e) } catch (o) { throw o } return n } function h() { J = 0 } function d(e) { j++, G[J++] = e, z.push(String.fromCharCode(e)), 32768 === J && (J = 0) } function g() { this.b0 = 0, this.b1 = 0, this.jump = null, this.jumppos = -1 } function b() { for (; ;) { if (M[H] >= x) return -1; if (U[M[H]] === H) return M[H]++; M[H]++ } } function m() { var e, r = P[F]; if (17 === H) return -1; if (F++, H++, e = b(), e >= 0) r.b0 = e; else if (r.b0 = 32768, m()) return -1; if (e = b(), e >= 0) r.b1 = e, r.jump = null; else if (r.b1 = 32768, r.jump = P[F], r.jumppos = F, m()) return -1; return H--, 0 } function k(e, r, n) { var t; for (P = e, F = 0, U = n, x = r, t = 0; 17 > t; t++) M[t] = 0; return H = 0, m() ? -1 : 0 } function y(e) { for (var r, n, t, o = 0, i = e[o]; ;) if (t = l()) { if (!(32768 & i.b1)) return i.b1; for (i = i.jump, r = e.length, n = 0; r > n; n++) if (e[n] === i) { o = n; break } } else { if (!(32768 & i.b0)) return i.b0; o++, i = e[o] } } function C() { var u, c, b, m, C, v, A, j, w, U, x, S, z, I, E, L, O; do if (u = l(), b = p(2), 0 === b) for (s(), U = f(), U |= f() << 8, S = f(), S |= f() << 8, 65535 & (U ^ ~S) && e.debug("BlockLen checksum mismatch\n") ; U--;) c = f(), d(c); else if (1 === b) for (; ;) if (C = r[p(7)] >> 1, C > 23 ? (C = C << 1 | l(), C > 199 ? (C -= 128, C = C << 1 | l()) : (C -= 48, C > 143 && (C += 136))) : C += 256, 256 > C) d(C); else { if (256 === C) break; for (C -= 257, w = p(t[C]) + n[C], C = r[p(5)] >> 3, i[C] > 8 ? (x = p(8), x |= p(i[C] - 8) << 8) : x = p(i[C]), x += o[C], C = 0; w > C; C++) c = G[32767 & J - x], d(c) } else if (2 === b) { for (A = Array(320), I = 257 + p(5), E = 1 + p(5), L = 4 + p(4), C = 0; 19 > C; C++) A[C] = 0; for (C = 0; L > C; C++) A[a[C]] = p(3); for (w = q.length, m = 0; w > m; m++) q[m] = new g; if (k(q, 19, A, 0)) return h(), 1; for (z = I + E, m = 0, O = -1; z > m;) if (O++, C = y(q), 16 > C) A[m++] = C; else if (16 === C) { if (C = 3 + p(2), m + C > z) return h(), 1; for (v = m ? A[m - 1] : 0; C--;) A[m++] = v } else { if (C = 17 === C ? 3 + p(3) : 11 + p(7), m + C > z) return h(), 1; for (; C--;) A[m++] = 0 } for (w = T.length, m = 0; w > m; m++) T[m] = new g; if (k(T, I, A, 0)) return h(), 1; for (w = T.length, m = 0; w > m; m++) q[m] = new g; for (j = [], m = I; A.length > m; m++) j[m - I] = A[m]; if (k(q, E, j, 0)) return h(), 1; for (; ;) if (C = y(T), C >= 256) { if (C -= 256, 0 === C) break; for (C -= 1, w = p(t[C]) + n[C], C = y(q), i[C] > 8 ? (x = p(8), x |= p(i[C] - 8) << 8) : x = p(i[C]), x += o[C]; w--;) c = G[32767 & J - x], d(c) } else d(C) } while (!u); return h(), s(), 0 } function v() { var e, r, n, t, o, i, a, c, s = []; try { if (z = [], L = !1, s[0] = f(), s[1] = f(), 120 === s[0] && 218 === s[1] && (C(), E[I] = [z.join(""), "geonext.gxt"], I++), 31 === s[0] && 139 === s[1] && (S(), E[I] = [z.join(""), "file"], I++), 80 === s[0] && 75 === s[1] && (L = !0, s[2] = f(), s[3] = f(), 3 === s[2] && 4 === s[3])) { for (s[0] = f(), s[1] = f(), A = f(), A |= f() << 8, c = f(), c |= f() << 8, f(), f(), f(), f(), a = f(), a |= f() << 8, a |= f() << 16, a |= f() << 24, i = f(), i |= f() << 8, i |= f() << 16, i |= f() << 24, o = f(), o |= f() << 8, o |= f() << 16, o |= f() << 24, t = f(), t |= f() << 8, n = f(), n |= f() << 8, e = 0, N = []; t--;) r = f(), "/" === r | ":" === r ? e = 0 : u - 1 > e && (N[e++] = String.fromCharCode(r)); for (w || (w = N), e = 0; n > e;) r = f(), e++; j = 0, 8 === c && (C(), E[I] = Array(2), E[I][0] = z.join(""), E[I][1] = N.join(""), I++), S() } } catch (l) { throw l } } var A, j, w, U, x, S, z = [], I = 0, E = [], G = Array(32768), J = 0, L = !1, O = c.length, X = 0, B = 1, R = 0, T = Array(288), q = Array(32), F = 0, P = null, H = (Array(64), Array(64), 0), M = Array(17), N = []; M[0] = 0, S = function () { var e, r, n, t, o, i, a = []; if (8 & A && (a[0] = f(), a[1] = f(), a[2] = f(), a[3] = f(), 80 === a[0] && 75 === a[1] && 7 === a[2] && 8 === a[3] ? (e = f(), e |= f() << 8, e |= f() << 16, e |= f() << 24) : e = a[0] | a[1] << 8 | a[2] << 16 | a[3] << 24, r = f(), r |= f() << 8, r |= f() << 16, r |= f() << 24, n = f(), n |= f() << 8, n |= f() << 16, n |= f() << 24), L && v(), a[0] = f(), 8 === a[0]) { if (A = f(), f(), f(), f(), f(), f(), t = f(), 4 & A) for (a[0] = f(), a[2] = f(), H = a[0] + 256 * a[1], o = 0; H > o; o++) f(); if (8 & A) for (o = 0, N = [], i = f() ; i;) ("7" === i || ":" === i) && (o = 0), u - 1 > o && (N[o++] = i), i = f(); if (16 & A) for (i = f() ; i;) i = f(); 2 & A && (f(), f()), C(), e = f(), e |= f() << 8, e |= f() << 16, e |= f() << 24, n = f(), n |= f() << 8, n |= f() << 16, n |= f() << 24, L && v() } }, e.Util.Unzip.prototype.unzipFile = function (e) { var r; for (this.unzip(), r = 0; E.length > r; r++) if (E[r][1] === e) return E[r][0]; return "" }, e.Util.Unzip.prototype.unzip = function () { return v(), E } }, e.Util }), n("utils/encoding", ["jxg"], function (e) { var r = 0, n = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 10, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 11, 6, 6, 6, 5, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 12, 24, 36, 60, 96, 84, 12, 12, 12, 48, 72, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 0, 12, 12, 12, 12, 12, 0, 12, 0, 12, 12, 12, 24, 12, 12, 12, 12, 12, 24, 12, 24, 12, 12, 12, 12, 12, 12, 12, 12, 12, 24, 12, 12, 12, 12, 12, 24, 12, 12, 12, 12, 12, 12, 12, 24, 12, 12, 12, 12, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12, 12, 36, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12, 12, 36, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]; return e.Util = e.Util || {}, e.Util.UTF8 = { encode: function (e) { var r, n, t = "", o = e.length; if (e = e.replace(/\r\n/g, "\n"), "function" == typeof unescape && "function" == typeof encodeURIComponent) return unescape(encodeURIComponent(e)); for (r = 0; o > r; r++) n = e.charCodeAt(r), 128 > n ? t += String.fromCharCode(n) : n > 127 && 2048 > n ? (t += String.fromCharCode(192 | n >> 6), t += String.fromCharCode(128 | 63 & n)) : (t += String.fromCharCode(224 | n >> 12), t += String.fromCharCode(128 | 63 & n >> 6), t += String.fromCharCode(128 | 63 & n)); return t }, decode: function (e) { var t, o, i, a = 0, u = 0, c = r, f = [], s = e.length, l = []; for (t = 0; s > t; t++) o = e.charCodeAt(t), i = n[o], u = c !== r ? 63 & o | u << 6 : 255 >> i & o, c = n[256 + c + i], c === r && (u > 65535 ? f.push(55232 + (u >> 10), 56320 + (1023 & u)) : f.push(u), a++, 0 === a % 1e4 && (l.push(String.fromCharCode.apply(null, f)), f = [])); return l.push(String.fromCharCode.apply(null, f)), l.join("") }, asciiCharCodeAt: function (e, r) { var n = e.charCodeAt(r); if (n > 255) switch (n) { case 8364: n = 128; break; case 8218: n = 130; break; case 402: n = 131; break; case 8222: n = 132; break; case 8230: n = 133; break; case 8224: n = 134; break; case 8225: n = 135; break; case 710: n = 136; break; case 8240: n = 137; break; case 352: n = 138; break; case 8249: n = 139; break; case 338: n = 140; break; case 381: n = 142; break; case 8216: n = 145; break; case 8217: n = 146; break; case 8220: n = 147; break; case 8221: n = 148; break; case 8226: n = 149; break; case 8211: n = 150; break; case 8212: n = 151; break; case 732: n = 152; break; case 8482: n = 153; break; case 353: n = 154; break; case 8250: n = 155; break; case 339: n = 156; break; case 382: n = 158; break; case 376: n = 159; break; default: } return n } }, e.Util.UTF8 }), n("utils/base64", ["jxg", "utils/encoding"], function (e, r) { function n(e, r) { return 255 & e.charCodeAt(r) } function t(e, r) { var n = o.indexOf(e.charAt(r)); if (-1 === n) throw Error("JSXGraph/utils/base64: Can't decode string (invalid character)."); return n } var o = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", i = "="; return e.Util = e.Util || {}, e.Util.Base64 = { encode: function (e) { var t, a, u, c, f, s = []; for (f = r.encode(e), u = f.length, c = u % 3, t = 0; u - c > t; t += 3) a = n(f, t) << 16 | n(f, t + 1) << 8 | n(f, t + 2), s.push(o.charAt(a >> 18), o.charAt(63 & a >> 12), o.charAt(63 & a >> 6), o.charAt(63 & a)); switch (c) { case 1: a = n(f, u - 1), s.push(o.charAt(a >> 2), o.charAt(63 & a << 4), i, i); break; case 2: a = n(f, u - 2) << 8 | n(f, u - 1), s.push(o.charAt(a >> 10), o.charAt(63 & a >> 4), o.charAt(63 & a << 2), i) } return s.join("") }, decode: function (e, n) { var o, a, u, c, f, s, l = [], p = []; if (o = e.replace(/[^A-Za-z0-9\+\/=]/g, ""), u = o.length, 0 !== u % 4) throw Error("JSXGraph/utils/base64: Can't decode string (invalid input length)."); for (o.charAt(u - 1) === i && (c = 1, o.charAt(u - 2) === i && (c = 2), u -= 4), a = 0; u > a; a += 4) f = t(o, a) << 18 | t(o, a + 1) << 12 | t(o, a + 2) << 6 | t(o, a + 3), p.push(f >> 16, 255 & f >> 8, 255 & f), 0 === a % 1e4 && (l.push(String.fromCharCode.apply(null, p)), p = []); switch (c) { case 1: f = t(o, u) << 12 | t(o, u + 1) << 6 | t(o, u + 2), p.push(f >> 10, 255 & f >> 2); break; case 2: f = t(o, a) << 6 | t(o, a + 1), p.push(f >> 4) } return l.push(String.fromCharCode.apply(null, p)), s = l.join(""), n && (s = r.decode(s)), s }, decodeAsArray: function (e) { var r, n = this.decode(e), t = [], o = n.length; for (r = 0; o > r; r++) t[r] = n.charCodeAt(r); return t } }, e.Util.Base64 }), n("../build/compressor.deps.js", ["jxg", "utils/zip", "utils/base64"], function (e, r, n) { return e.decompress = function (e) { return unescape(new r.Unzip(n.decodeAsArray(e)).unzip()[0][0]) }, e }), window.JXG = r("../build/compressor.deps.js") })();
+(function () { var e, r, n; (function (t) { function o(e, r) { return C.call(e, r) } function i(e, r) { var n, t, o, i, a, u, c, f, s, l, p = r && r.split("/"), h = k.map, d = h && h["*"] || {}; if (e && "." === e.charAt(0)) if (r) { for (p = p.slice(0, p.length - 1), e = p.concat(e.split("/")), f = 0; e.length > f; f += 1) if (l = e[f], "." === l) e.splice(f, 1), f -= 1; else if (".." === l) { if (1 === f && (".." === e[2] || ".." === e[0])) break; f > 0 && (e.splice(f - 1, 2), f -= 2) } e = e.join("/") } else 0 === e.indexOf("./") && (e = e.substring(2)); if ((p || d) && h) { for (n = e.split("/"), f = n.length; f > 0; f -= 1) { if (t = n.slice(0, f).join("/"), p) for (s = p.length; s > 0; s -= 1) if (o = h[p.slice(0, s).join("/")], o && (o = o[t])) { i = o, a = f; break } if (i) break; !u && d && d[t] && (u = d[t], c = f) } !i && u && (i = u, a = c), i && (n.splice(0, a, i), e = n.join("/")) } return e } function a(e, r) { return function () { return h.apply(t, v.call(arguments, 0).concat([e, r])) } } function u(e) { return function (r) { return i(r, e) } } function c(e) { return function (r) { b[e] = r } } function f(e) { if (o(m, e)) { var r = m[e]; delete m[e], y[e] = !0, p.apply(t, r) } if (!o(b, e) && !o(y, e)) throw Error("No " + e); return b[e] } function s(e) { var r, n = e ? e.indexOf("!") : -1; return n > -1 && (r = e.substring(0, n), e = e.substring(n + 1, e.length)), [r, e] } function l(e) { return function () { return k && k.config && k.config[e] || {} } } var p, h, d, g, b = {}, m = {}, k = {}, y = {}, C = Object.prototype.hasOwnProperty, v = [].slice; d = function (e, r) { var n, t = s(e), o = t[0]; return e = t[1], o && (o = i(o, r), n = f(o)), o ? e = n && n.normalize ? n.normalize(e, u(r)) : i(e, r) : (e = i(e, r), t = s(e), o = t[0], e = t[1], o && (n = f(o))), { f: o ? o + "!" + e : e, n: e, pr: o, p: n } }, g = { require: function (e) { return a(e) }, exports: function (e) { var r = b[e]; return r !== void 0 ? r : b[e] = {} }, module: function (e) { return { id: e, uri: "", exports: b[e], config: l(e) } } }, p = function (e, r, n, i) { var u, s, l, p, h, k, C = []; if (i = i || e, "function" == typeof n) { for (r = !r.length && n.length ? ["require", "exports", "module"] : r, h = 0; r.length > h; h += 1) if (p = d(r[h], i), s = p.f, "require" === s) C[h] = g.require(e); else if ("exports" === s) C[h] = g.exports(e), k = !0; else if ("module" === s) u = C[h] = g.module(e); else if (o(b, s) || o(m, s) || o(y, s)) C[h] = f(s); else { if (!p.p) throw Error(e + " missing " + s); p.p.load(p.n, a(i, !0), c(s), {}), C[h] = b[s] } l = n.apply(b[e], C), e && (u && u.exports !== t && u.exports !== b[e] ? b[e] = u.exports : l === t && k || (b[e] = l)) } else e && (b[e] = n) }, e = r = h = function (e, r, n, o, i) { return "string" == typeof e ? g[e] ? g[e](r) : f(d(e, r).f) : (e.splice || (k = e, r.splice ? (e = r, r = n, n = null) : e = t), r = r || function () { }, "function" == typeof n && (n = o, o = i), o ? p(t, e, r, n) : setTimeout(function () { p(t, e, r, n) }, 4), h) }, h.config = function (e) { return k = e, k.deps && h(k.deps, k.callback), h }, n = function (e, r, n) { r.splice || (n = r, r = []), o(b, e) || o(m, e) || (m[e] = [e, r, n]) }, n.amd = { jQuery: !0 } })(), n("../node_modules/almond/almond", function () { }), n("jxg", [], function () { var e = {}; return "object" != typeof JXG || JXG.extend || (e = JXG), e.extend = function (e, r, n, t) { var o, i; n = n || !1, t = t || !1; for (o in r) (!n || n && r.hasOwnProperty(o)) && (i = t ? o.toLowerCase() : o, e[i] = r[o]) }, e.extend(e, { boards: {}, readers: {}, elements: {}, registerElement: function (e, r) { e = e.toLowerCase(), this.elements[e] = r }, registerReader: function (e, r) { var n, t; for (n = 0; r.length > n; n++) t = r[n].toLowerCase(), "function" != typeof this.readers[t] && (this.readers[t] = e) }, shortcut: function (e, r) { return function () { return e[r].apply(this, arguments) } }, getRef: function (e, r) { return e.select(r) }, getReference: function (e, r) { return e.select(r) }, debugInt: function () { var e, r; for (e = 0; arguments.length > e; e++) r = arguments[e], "object" == typeof window && window.console && console.log ? console.log(r) : "object" == typeof document && document.getElementById("debug") && (document.getElementById("debug").innerHTML += r + "<br/>") }, debugWST: function () { var r = Error(); e.debugInt.apply(this, arguments), r && r.stack && (e.debugInt("stacktrace"), e.debugInt(r.stack.split("\n").slice(1).join("\n"))) }, debugLine: function () { var r = Error(); e.debugInt.apply(this, arguments), r && r.stack && e.debugInt("Called from", r.stack.split("\n").slice(2, 3).join("\n")) }, debug: function () { e.debugInt.apply(this, arguments) } }), e }), n("utils/zip", ["jxg"], function (e) { var r = [0, 128, 64, 192, 32, 160, 96, 224, 16, 144, 80, 208, 48, 176, 112, 240, 8, 136, 72, 200, 40, 168, 104, 232, 24, 152, 88, 216, 56, 184, 120, 248, 4, 132, 68, 196, 36, 164, 100, 228, 20, 148, 84, 212, 52, 180, 116, 244, 12, 140, 76, 204, 44, 172, 108, 236, 28, 156, 92, 220, 60, 188, 124, 252, 2, 130, 66, 194, 34, 162, 98, 226, 18, 146, 82, 210, 50, 178, 114, 242, 10, 138, 74, 202, 42, 170, 106, 234, 26, 154, 90, 218, 58, 186, 122, 250, 6, 134, 70, 198, 38, 166, 102, 230, 22, 150, 86, 214, 54, 182, 118, 246, 14, 142, 78, 206, 46, 174, 110, 238, 30, 158, 94, 222, 62, 190, 126, 254, 1, 129, 65, 193, 33, 161, 97, 225, 17, 145, 81, 209, 49, 177, 113, 241, 9, 137, 73, 201, 41, 169, 105, 233, 25, 153, 89, 217, 57, 185, 121, 249, 5, 133, 69, 197, 37, 165, 101, 229, 21, 149, 85, 213, 53, 181, 117, 245, 13, 141, 77, 205, 45, 173, 109, 237, 29, 157, 93, 221, 61, 189, 125, 253, 3, 131, 67, 195, 35, 163, 99, 227, 19, 147, 83, 211, 51, 179, 115, 243, 11, 139, 75, 203, 43, 171, 107, 235, 27, 155, 91, 219, 59, 187, 123, 251, 7, 135, 71, 199, 39, 167, 103, 231, 23, 151, 87, 215, 55, 183, 119, 247, 15, 143, 79, 207, 47, 175, 111, 239, 31, 159, 95, 223, 63, 191, 127, 255], n = [3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 0, 0], t = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 99, 99], o = [1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577], i = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13], a = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15], u = 256; return e.Util = e.Util || {}, e.Util.Unzip = function (c) { function f() { return R += 8, O > X ? c[X++] : -1 } function s() { B = 1 } function l() { var e; try { return R++, e = 1 & B, B >>= 1, 0 === B && (B = f(), e = 1 & B, B = 128 | B >> 1), e } catch (r) { throw r } } function p(e) { var n = 0, t = e; try { for (; t--;) n = n << 1 | l(); e && (n = r[n] >> 8 - e) } catch (o) { throw o } return n } function h() { J = 0 } function d(e) { j++, G[J++] = e, z.push(String.fromCharCode(e)), 32768 === J && (J = 0) } function g() { this.b0 = 0, this.b1 = 0, this.jump = null, this.jumppos = -1 } function b() { for (; ;) { if (M[H] >= x) return -1; if (U[M[H]] === H) return M[H]++; M[H]++ } } function m() { var e, r = P[F]; if (17 === H) return -1; if (F++, H++, e = b(), e >= 0) r.b0 = e; else if (r.b0 = 32768, m()) return -1; if (e = b(), e >= 0) r.b1 = e, r.jump = null; else if (r.b1 = 32768, r.jump = P[F], r.jumppos = F, m()) return -1; return H--, 0 } function k(e, r, n) { var t; for (P = e, F = 0, U = n, x = r, t = 0; 17 > t; t++) M[t] = 0; return H = 0, m() ? -1 : 0 } function y(e) { for (var r, n, t, o = 0, i = e[o]; ;) if (t = l()) { if (!(32768 & i.b1)) return i.b1; for (i = i.jump, r = e.length, n = 0; r > n; n++) if (e[n] === i) { o = n; break } } else { if (!(32768 & i.b0)) return i.b0; o++, i = e[o] } } function C() { var u, c, b, m, C, v, A, j, w, U, x, S, z, I, E, L, O; do if (u = l(), b = p(2), 0 === b) for (s(), U = f(), U |= f() << 8, S = f(), S |= f() << 8, 65535 & (U ^ ~S) && e.debug("BlockLen checksum mismatch\n"); U--;) c = f(), d(c); else if (1 === b) for (; ;) if (C = r[p(7)] >> 1, C > 23 ? (C = C << 1 | l(), C > 199 ? (C -= 128, C = C << 1 | l()) : (C -= 48, C > 143 && (C += 136))) : C += 256, 256 > C) d(C); else { if (256 === C) break; for (C -= 257, w = p(t[C]) + n[C], C = r[p(5)] >> 3, i[C] > 8 ? (x = p(8), x |= p(i[C] - 8) << 8) : x = p(i[C]), x += o[C], C = 0; w > C; C++) c = G[32767 & J - x], d(c) } else if (2 === b) { for (A = Array(320), I = 257 + p(5), E = 1 + p(5), L = 4 + p(4), C = 0; 19 > C; C++) A[C] = 0; for (C = 0; L > C; C++) A[a[C]] = p(3); for (w = q.length, m = 0; w > m; m++) q[m] = new g; if (k(q, 19, A, 0)) return h(), 1; for (z = I + E, m = 0, O = -1; z > m;) if (O++, C = y(q), 16 > C) A[m++] = C; else if (16 === C) { if (C = 3 + p(2), m + C > z) return h(), 1; for (v = m ? A[m - 1] : 0; C--;) A[m++] = v } else { if (C = 17 === C ? 3 + p(3) : 11 + p(7), m + C > z) return h(), 1; for (; C--;) A[m++] = 0 } for (w = T.length, m = 0; w > m; m++) T[m] = new g; if (k(T, I, A, 0)) return h(), 1; for (w = T.length, m = 0; w > m; m++) q[m] = new g; for (j = [], m = I; A.length > m; m++) j[m - I] = A[m]; if (k(q, E, j, 0)) return h(), 1; for (; ;) if (C = y(T), C >= 256) { if (C -= 256, 0 === C) break; for (C -= 1, w = p(t[C]) + n[C], C = y(q), i[C] > 8 ? (x = p(8), x |= p(i[C] - 8) << 8) : x = p(i[C]), x += o[C]; w--;) c = G[32767 & J - x], d(c) } else d(C) } while (!u); return h(), s(), 0 } function v() { var e, r, n, t, o, i, a, c, s = []; try { if (z = [], L = !1, s[0] = f(), s[1] = f(), 120 === s[0] && 218 === s[1] && (C(), E[I] = [z.join(""), "geonext.gxt"], I++), 31 === s[0] && 139 === s[1] && (S(), E[I] = [z.join(""), "file"], I++), 80 === s[0] && 75 === s[1] && (L = !0, s[2] = f(), s[3] = f(), 3 === s[2] && 4 === s[3])) { for (s[0] = f(), s[1] = f(), A = f(), A |= f() << 8, c = f(), c |= f() << 8, f(), f(), f(), f(), a = f(), a |= f() << 8, a |= f() << 16, a |= f() << 24, i = f(), i |= f() << 8, i |= f() << 16, i |= f() << 24, o = f(), o |= f() << 8, o |= f() << 16, o |= f() << 24, t = f(), t |= f() << 8, n = f(), n |= f() << 8, e = 0, N = []; t--;) r = f(), "/" === r | ":" === r ? e = 0 : u - 1 > e && (N[e++] = String.fromCharCode(r)); for (w || (w = N), e = 0; n > e;) r = f(), e++; j = 0, 8 === c && (C(), E[I] = Array(2), E[I][0] = z.join(""), E[I][1] = N.join(""), I++), S() } } catch (l) { throw l } } var A, j, w, U, x, S, z = [], I = 0, E = [], G = Array(32768), J = 0, L = !1, O = c.length, X = 0, B = 1, R = 0, T = Array(288), q = Array(32), F = 0, P = null, H = (Array(64), Array(64), 0), M = Array(17), N = []; M[0] = 0, S = function () { var e, r, n, t, o, i, a = []; if (8 & A && (a[0] = f(), a[1] = f(), a[2] = f(), a[3] = f(), 80 === a[0] && 75 === a[1] && 7 === a[2] && 8 === a[3] ? (e = f(), e |= f() << 8, e |= f() << 16, e |= f() << 24) : e = a[0] | a[1] << 8 | a[2] << 16 | a[3] << 24, r = f(), r |= f() << 8, r |= f() << 16, r |= f() << 24, n = f(), n |= f() << 8, n |= f() << 16, n |= f() << 24), L && v(), a[0] = f(), 8 === a[0]) { if (A = f(), f(), f(), f(), f(), f(), t = f(), 4 & A) for (a[0] = f(), a[2] = f(), H = a[0] + 256 * a[1], o = 0; H > o; o++) f(); if (8 & A) for (o = 0, N = [], i = f(); i;) ("7" === i || ":" === i) && (o = 0), u - 1 > o && (N[o++] = i), i = f(); if (16 & A) for (i = f(); i;) i = f(); 2 & A && (f(), f()), C(), e = f(), e |= f() << 8, e |= f() << 16, e |= f() << 24, n = f(), n |= f() << 8, n |= f() << 16, n |= f() << 24, L && v() } }, e.Util.Unzip.prototype.unzipFile = function (e) { var r; for (this.unzip(), r = 0; E.length > r; r++) if (E[r][1] === e) return E[r][0]; return "" }, e.Util.Unzip.prototype.unzip = function () { return v(), E } }, e.Util }), n("utils/encoding", ["jxg"], function (e) { var r = 0, n = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 10, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 11, 6, 6, 6, 5, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 12, 24, 36, 60, 96, 84, 12, 12, 12, 48, 72, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 0, 12, 12, 12, 12, 12, 0, 12, 0, 12, 12, 12, 24, 12, 12, 12, 12, 12, 24, 12, 24, 12, 12, 12, 12, 12, 12, 12, 12, 12, 24, 12, 12, 12, 12, 12, 24, 12, 12, 12, 12, 12, 12, 12, 24, 12, 12, 12, 12, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12, 12, 36, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12, 12, 36, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]; return e.Util = e.Util || {}, e.Util.UTF8 = { encode: function (e) { var r, n, t = "", o = e.length; if (e = e.replace(/\r\n/g, "\n"), "function" == typeof unescape && "function" == typeof encodeURIComponent) return unescape(encodeURIComponent(e)); for (r = 0; o > r; r++) n = e.charCodeAt(r), 128 > n ? t += String.fromCharCode(n) : n > 127 && 2048 > n ? (t += String.fromCharCode(192 | n >> 6), t += String.fromCharCode(128 | 63 & n)) : (t += String.fromCharCode(224 | n >> 12), t += String.fromCharCode(128 | 63 & n >> 6), t += String.fromCharCode(128 | 63 & n)); return t }, decode: function (e) { var t, o, i, a = 0, u = 0, c = r, f = [], s = e.length, l = []; for (t = 0; s > t; t++) o = e.charCodeAt(t), i = n[o], u = c !== r ? 63 & o | u << 6 : 255 >> i & o, c = n[256 + c + i], c === r && (u > 65535 ? f.push(55232 + (u >> 10), 56320 + (1023 & u)) : f.push(u), a++, 0 === a % 1e4 && (l.push(String.fromCharCode.apply(null, f)), f = [])); return l.push(String.fromCharCode.apply(null, f)), l.join("") }, asciiCharCodeAt: function (e, r) { var n = e.charCodeAt(r); if (n > 255) switch (n) { case 8364: n = 128; break; case 8218: n = 130; break; case 402: n = 131; break; case 8222: n = 132; break; case 8230: n = 133; break; case 8224: n = 134; break; case 8225: n = 135; break; case 710: n = 136; break; case 8240: n = 137; break; case 352: n = 138; break; case 8249: n = 139; break; case 338: n = 140; break; case 381: n = 142; break; case 8216: n = 145; break; case 8217: n = 146; break; case 8220: n = 147; break; case 8221: n = 148; break; case 8226: n = 149; break; case 8211: n = 150; break; case 8212: n = 151; break; case 732: n = 152; break; case 8482: n = 153; break; case 353: n = 154; break; case 8250: n = 155; break; case 339: n = 156; break; case 382: n = 158; break; case 376: n = 159; break; default: } return n } }, e.Util.UTF8 }), n("utils/base64", ["jxg", "utils/encoding"], function (e, r) { function n(e, r) { return 255 & e.charCodeAt(r) } function t(e, r) { var n = o.indexOf(e.charAt(r)); if (-1 === n) throw Error("JSXGraph/utils/base64: Can't decode string (invalid character)."); return n } var o = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", i = "="; return e.Util = e.Util || {}, e.Util.Base64 = { encode: function (e) { var t, a, u, c, f, s = []; for (f = r.encode(e), u = f.length, c = u % 3, t = 0; u - c > t; t += 3) a = n(f, t) << 16 | n(f, t + 1) << 8 | n(f, t + 2), s.push(o.charAt(a >> 18), o.charAt(63 & a >> 12), o.charAt(63 & a >> 6), o.charAt(63 & a)); switch (c) { case 1: a = n(f, u - 1), s.push(o.charAt(a >> 2), o.charAt(63 & a << 4), i, i); break; case 2: a = n(f, u - 2) << 8 | n(f, u - 1), s.push(o.charAt(a >> 10), o.charAt(63 & a >> 4), o.charAt(63 & a << 2), i) } return s.join("") }, decode: function (e, n) { var o, a, u, c, f, s, l = [], p = []; if (o = e.replace(/[^A-Za-z0-9\+\/=]/g, ""), u = o.length, 0 !== u % 4) throw Error("JSXGraph/utils/base64: Can't decode string (invalid input length)."); for (o.charAt(u - 1) === i && (c = 1, o.charAt(u - 2) === i && (c = 2), u -= 4), a = 0; u > a; a += 4) f = t(o, a) << 18 | t(o, a + 1) << 12 | t(o, a + 2) << 6 | t(o, a + 3), p.push(f >> 16, 255 & f >> 8, 255 & f), 0 === a % 1e4 && (l.push(String.fromCharCode.apply(null, p)), p = []); switch (c) { case 1: f = t(o, u) << 12 | t(o, u + 1) << 6 | t(o, u + 2), p.push(f >> 10, 255 & f >> 2); break; case 2: f = t(o, a) << 6 | t(o, a + 1), p.push(f >> 4) } return l.push(String.fromCharCode.apply(null, p)), s = l.join(""), n && (s = r.decode(s)), s }, decodeAsArray: function (e) { var r, n = this.decode(e), t = [], o = n.length; for (r = 0; o > r; r++) t[r] = n.charCodeAt(r); return t } }, e.Util.Base64 }), n("../build/compressor.deps.js", ["jxg", "utils/zip", "utils/base64"], function (e, r, n) { return e.decompress = function (e) { return unescape(new r.Unzip(n.decodeAsArray(e)).unzip()[0][0]) }, e }), window.JXG = r("../build/compressor.deps.js") })();

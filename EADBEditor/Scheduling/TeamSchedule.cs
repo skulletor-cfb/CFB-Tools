@@ -24,6 +24,7 @@ namespace EA_DB_Editor
             
         }
 
+        public int ScheduledGameCount => this.games.Where(g => g != null).Count();
         public int Length => this.games.Length;
 
         public PreseasonScheduledGame this[int index]

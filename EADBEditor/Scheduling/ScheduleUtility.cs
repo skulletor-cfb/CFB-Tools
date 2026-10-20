@@ -64,7 +64,7 @@ namespace EA_DB_Editor
 
             if (verifyMembership)
             {
-                badSchedule = teams.Where(t => RecruitingFixup.TeamAndConferences[t.Team] != confId).ToArray();
+                badSchedule = teams.Where(t => TableUtility.TeamAndConferences[t.Team] != confId).ToArray();
                 if (badSchedule.Any())
                 {
                     throw new Exception("Team not in " + confName + ": " + string.Join(",", badSchedule.Select(t => t.Team.ToString())));
