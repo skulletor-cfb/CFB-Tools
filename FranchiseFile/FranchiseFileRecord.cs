@@ -35,7 +35,10 @@ public sealed class FranchiseFileRecord
 
     public T Transform<T>()
     {
-        return this._fields.ToDictionary(kvp => kvp.Key, kvp => kvp.Value).Serialize().Deserialize<T>();
+        // Serialize field values, not FranchiseFileField objects (those link back through
+        // Parent → table → Records). Undecodable compound types come back as a raw BitView; skip them.
+        return this._fields.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Value is BitView ? null : kvp.Value.Value)
+            .Serialize().Deserialize<T>();
     }
 
     public FranchiseFileRecord(byte[] tableDataArray, int byteOffset, int byteLength, int index,

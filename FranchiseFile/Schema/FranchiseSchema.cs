@@ -6,8 +6,8 @@ using Newtonsoft.Json.Linq;
 namespace MaddenFranchise.Schema;
 
 /// <summary>
-/// Port of FranchiseSchema.js, narrowed to the gzip+JSON schema format only (the XML/FTX schema
-/// generator is not ported - see README/plan for rationale).
+/// Port of FranchiseSchema.js. Loads madden-franchise .gz (V1 or V2) schemas, or FTX documents
+/// extracted from the game via <see cref="FtxSchemaReader"/>.
 /// </summary>
 public sealed class FranchiseSchema
 {
@@ -46,13 +46,43 @@ public sealed class FranchiseSchema
         assembly ??= typeof(FranchiseSchema).Assembly;
         using var resourceStream = assembly.GetManifestResourceStream(resourceName)
             ?? throw new InvalidOperationException($"Embedded schema resource not found: {resourceName}");
-        using var gzip = new GZipStream(resourceStream, CompressionMode.Decompress);
+        return LoadFromGzipStream(resourceStream);
+    }
+
+    /// <summary>
+    /// Loads a schema from disk: a madden-franchise .gz schema, the cfb27-schema.xml stream
+    /// extract-schema.py writes, or its directory of .ftx files.
+    /// </summary>
+    public static FranchiseSchema LoadFromPath(string path)
+    {
+        if (Directory.Exists(path))
+        {
+            return FromDto(FtxSchemaReader.ReadDirectory(path));
+        }
+        if (path.EndsWith(".gz", StringComparison.OrdinalIgnoreCase))
+        {
+            using var file = File.OpenRead(path);
+            return LoadFromGzipStream(file);
+        }
+        if (path.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
+        {
+            return FromDto(FtxSchemaReader.ReadConcatenatedXml(path));
+        }
+        throw new ArgumentException($"Unsupported schema path: {path}. Use a .gz file, a .xml file, or a folder of .ftx files.");
+    }
+
+    public static FranchiseSchema LoadFromGzipStream(Stream gzStream)
+    {
+        using var gzip = new GZipStream(gzStream, CompressionMode.Decompress);
         using var reader = new StreamReader(gzip);
         using var jsonReader = new JsonTextReader(reader);
-
         var dto = JsonSerializer.CreateDefault().Deserialize<SchemaFileDto>(jsonReader)
-            ?? throw new InvalidOperationException($"Failed to parse schema resource: {resourceName}");
+            ?? throw new InvalidDataException("The schema file is empty or not valid JSON.");
+        return FromDto(dto);
+    }
 
+    public static FranchiseSchema FromDto(SchemaFileDto dto)
+    {
         var tableSchemas = new List<TableSchema>(dto.Schemas.Count);
         var enumsByName = new Dictionary<string, FranchiseEnum>();
         foreach (var schemaDto in dto.Schemas)

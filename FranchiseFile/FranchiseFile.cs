@@ -5,6 +5,15 @@ using MaddenFranchise.Util;
 
 namespace MaddenFranchise;
 
+public enum TableName
+{
+    Team,
+    BowlGame,
+    TeamHistoricalData,
+    SeasonGame,
+    Story,
+}
+
 public sealed class FranchiseFileType
 {
     public string Format { get; init; } = "";
@@ -21,6 +30,12 @@ public sealed class SchemaMetadata
 }
 
 public readonly record struct AssetTableEntry(int AssetId, int Reference);
+
+/// <summary>
+/// Outcome of <see cref="FranchiseFile.Save"/>: compressed database size vs. the room the save has for
+/// it, and whether the slower maximum-compression fallback was needed to make it fit.
+/// </summary>
+public readonly record struct FranchiseSaveResult(string Destination, int CompressedSize, int Budget, bool UsedMaxCompression = false);
 
 public readonly record struct TableRecordReference(int TableId, string Name, FranchiseFileTable Table);
 
@@ -94,7 +109,9 @@ public sealed class FranchiseFile
 
         var schemaMeta = ExpectedSchemaVersion
             ?? throw new InvalidOperationException("Could not determine the schema version for this save file.");
-        SchemaList = FranchiseSchema.LoadClosest(Type.Year.Value, schemaMeta.Major, schemaMeta.Minor, GameType);
+        SchemaList = Settings.SchemaPath is not null
+            ? FranchiseSchema.LoadFromPath(Settings.SchemaPath)
+            : FranchiseSchema.LoadClosest(Type.Year.Value, schemaMeta.Major, schemaMeta.Minor, GameType);
 
         ScanTables();
         ParseAssetTable();
@@ -172,27 +189,104 @@ public sealed class FranchiseFile
         AssetTable = entries;
     }
 
-    public void Save(string? outputFilePath = null)
+    /// <summary>
+    /// Writes the save. The database is recompressed into its original slot; everything after the
+    /// slot (CharacterVisuals and the other chunks) is kept byte-for-byte, and the output is always
+    /// the same size as the input. Throws <see cref="SaveSlotOverflowException"/> without writing
+    /// anything if the edited database no longer fits.
+    /// </summary>
+    public FranchiseSaveResult Save(string? outputFilePath = null)
     {
         bool saveOnChangeEnabled = Settings.SaveOnChange;
         Settings.SaveOnChange = false;
-
-        UnpackedFileContents = _strategy.GenerateUnpackedContents(
-            Tables.Cast<IPatchUnit>().ToList(), UnpackedFileContents);
-
-        string destination = outputFilePath ?? FilePath;
-        byte[] deflated = Net48Compat.ZlibDeflate(UnpackedFileContents);
-        byte[] dataToSave = _strategy.PostPackFile(PackedFileContents ?? RawContents, deflated);
-
-        File.WriteAllBytes(destination, dataToSave);
-
-        if (saveOnChangeEnabled)
+        try
         {
-            Settings.SaveOnChange = true;
+            UnpackedFileContents = _strategy.GenerateUnpackedContents(
+                Tables.Cast<IPatchUnit>().ToList(), UnpackedFileContents);
+
+            string destination = outputFilePath ?? FilePath;
+            if (!Type.Compressed)
+            {
+                WriteFileSafely(destination, UnpackedFileContents);
+                return new FranchiseSaveResult(destination, UnpackedFileContents.Length, UnpackedFileContents.Length);
+            }
+
+            byte[] original = PackedFileContents ?? RawContents;
+            // .NET Framework's deflate reproduces EA's own stream, so unedited data comes back
+            // byte-identical. Saves leave only a few bytes of slack after the stream, though, so
+            // when an edit no longer fits, recompress at maximum level (~90 KB smaller than EA's).
+            byte[] compressed = Net48Compat.ZlibDeflate(UnpackedFileContents);
+            bool usedMaxCompression = false;
+            if (compressed.Length > FranchiseFileStrategy.MeasureSlot(original).Budget)
+            {
+                compressed = Net48Compat.ZlibDeflateMax(UnpackedFileContents);
+                usedMaxCompression = true;
+            }
+            if (!Net48Compat.ZlibInflate(compressed).AsSpan().SequenceEqual(UnpackedFileContents))
+            {
+                throw new InvalidOperationException(
+                    "The recompressed database did not decompress back to the same bytes. Nothing was written.");
+            }
+
+            byte[] output = _strategy.PostPackFile(original, compressed);
+            WriteFileSafely(destination, output);
+
+            // Later saves measure the slot from this output, so repeated saves keep working.
+            PackedFileContents = output;
+            return new FranchiseSaveResult(destination, compressed.Length,
+                FranchiseFileStrategy.MeasureSlot(output).Budget, usedMaxCompression);
+        }
+        finally
+        {
+            if (saveOnChangeEnabled)
+            {
+                Settings.SaveOnChange = true;
+            }
         }
     }
 
+    private static void WriteFileSafely(string destination, byte[] data)
+    {
+        string temp = destination + ".tmp";
+        File.WriteAllBytes(temp, data);
+        if (File.Exists(destination))
+        {
+            File.Copy(temp, destination, overwrite: true);
+            File.Delete(temp);
+        }
+        else
+        {
+            File.Move(temp, destination);
+        }
+    }
+
+    /// <summary>
+    /// The first table with this name. Many names have several tables (Team has 9 in a typical
+    /// dynasty, TeamHistoricalData one per team); use <see cref="GetPrimaryTable"/> for the main one.
+    /// </summary>
     public FranchiseFileTable? GetTableByName(string name) => Tables.FirstOrDefault(t => t.Name == name);
+
+    /// <summary>
+    /// The main table among those sharing a name: the one with the most rows in use, optionally
+    /// limited to tables whose schema has every field in <paramref name="requiredFields"/>.
+    /// Returns null when no table with that name (and those fields) exists.
+    /// </summary>
+    public FranchiseFileTable GetPrimaryTable(TableName name, params string[] requiredFields) => GetPrimaryTable(name.ToString(), requiredFields);
+    public FranchiseFileTable GetPrimaryTable(string name, params string[] requiredFields)
+    {
+        var table = Tables
+            .Where(t => t.Name == name)
+            .Where(t => requiredFields.Length == 0 ||
+                        (t.Schema is not null &&
+                         requiredFields.All(f => t.Schema.Attributes.Any(a => a.Name == f))))
+            .Select(t => (Table: t, Used: t.CountRowsInUse()))
+            .OrderByDescending(x => x.Used)
+            .ThenByDescending(x => x.Table.Header.RecordCapacity)
+            .Select(x => x.Table)
+            .FirstOrDefault();
+        table.ReadRecords();
+        return table;
+    }
 
     public List<FranchiseFileTable> GetAllTablesByName(string name) => Tables.Where(t => t.Name == name).ToList();
 

@@ -56,6 +56,23 @@ internal static class Net48Compat
         return output.ToArray();
     }
 
+    /// <summary>
+    /// zlib stream at maximum compression (SharpZipLib level 9). Several seconds for a full dynasty
+    /// database, but well under the size of EA's own stream.
+    /// </summary>
+    public static byte[] ZlibDeflateMax(byte[] data)
+    {
+        using var output = new MemoryStream();
+        using (var deflater = new ICSharpCode.SharpZipLib.Zip.Compression.Streams.DeflaterOutputStream(
+                   output, new ICSharpCode.SharpZipLib.Zip.Compression.Deflater(
+                       ICSharpCode.SharpZipLib.Zip.Compression.Deflater.BEST_COMPRESSION, noZlibHeaderOrFooter: false),
+                   1 << 16) { IsStreamOwner = false })
+        {
+            deflater.Write(data, 0, data.Length);
+        }
+        return output.ToArray();
+    }
+
     private static uint Adler32(byte[] data)
     {
         const uint Mod = 65521;

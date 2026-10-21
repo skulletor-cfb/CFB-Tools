@@ -32,7 +32,8 @@ foreach (var table in seasonGameTables)
     Console.WriteLine($"  Table id={table.Header.TableId} records={table.Records.Count} numMembers={table.Header.NumMembers}");
 }
 
-var bigTable = seasonGameTables.OrderByDescending(t => { t.ReadRecords(); return t.Records.Count; }).First();
+var bigTable = franchise.GetPrimaryTable("SeasonGame")!;
+bigTable.ReadRecords();
 {
     var table = bigTable;
     var fieldNames = table.Schema?.Attributes.Select(a => a.Name).ToList() ?? new();
@@ -62,13 +63,14 @@ string scratchDir = Path.Combine(Path.GetTempPath(), "franchisefile-sample");
 Directory.CreateDirectory(scratchDir);
 string scratchPath = Path.Combine(scratchDir, "roundtrip-output");
 Console.WriteLine($"\nRound-trip saving (no edits) to: {scratchPath}");
-franchise.Save(scratchPath);
+var saved = franchise.Save(scratchPath);
+Console.WriteLine($"Compressed database: {saved.CompressedSize:N0} bytes of {saved.Budget:N0} available");
 
 var reloaded = FranchiseFile.Load(scratchPath);
 Console.WriteLine($"Reloaded table count: {reloaded.Tables.Count} (original: {franchise.Tables.Count})");
 
-var origSeasonGame = franchise.GetTableByName("SeasonGame");
-var reloadedSeasonGame = reloaded.GetTableByName("SeasonGame");
+var origSeasonGame = franchise.GetPrimaryTable("SeasonGame");
+var reloadedSeasonGame = reloaded.GetPrimaryTable("SeasonGame");
 if (origSeasonGame is not null && reloadedSeasonGame is not null)
 {
     reloadedSeasonGame.ReadRecords();
@@ -78,7 +80,7 @@ if (origSeasonGame is not null && reloadedSeasonGame is not null)
 
 bool byteIdentical = franchise.RawContents.Length == reloaded.RawContents.Length &&
                       franchise.RawContents.AsSpan().SequenceEqual(reloaded.RawContents);
-Console.WriteLine($"Round-trip output byte-identical to original (expected False - different deflate impl): {byteIdentical}");
+Console.WriteLine($"Round-trip output byte-identical to original (expected True on .NET Framework): {byteIdentical}");
 
 bool unpackedIdentical = franchise.UnpackedFileContents.Length == reloaded.UnpackedFileContents.Length &&
                           franchise.UnpackedFileContents.AsSpan().SequenceEqual(reloaded.UnpackedFileContents);
@@ -87,7 +89,7 @@ Console.WriteLine($"Round-trip DECOMPRESSED content byte-identical (expected Tru
 // --- Mutation test: flip AwayScore on one played game, save, reload, verify the write stuck and
 // nothing else in the file changed. ---
 Console.WriteLine("\nMutation test: editing AwayScore on one record...");
-var mutTable = franchise.GetAllTablesByName("SeasonGame").OrderByDescending(t => { t.ReadRecords(); return t.Records.Count; }).First();
+var mutTable = franchise.GetPrimaryTable("SeasonGame")!;
 var targetRecord = mutTable.Records.FirstOrDefault(r =>
 {
     if (r.IsEmpty) return false;

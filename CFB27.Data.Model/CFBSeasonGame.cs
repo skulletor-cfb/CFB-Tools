@@ -24,7 +24,7 @@ namespace CFB27.Data.Model
         public int AwayRequestId { get; set; }
         public int GameSessionId { get; set; }
         public int HomeRequestId { get; set; }
-        public int InitialMomentum { get; set; }
+        public float InitialMomentum { get; set; }
         public string AwayTeamStatus { get; set; }
         public int TimeOfDay { get; set; }
         public int Attendance { get; set; }
@@ -91,9 +91,9 @@ namespace CFB27.Data.Model
         public int AwayTeamId => this.AwayTeam.ToRowId();
 
         [JsonIgnore]
-        public int RealHomeTeamId => CFBTeam.TeamIdToOldIdMap[this.HomeTeamId];
+        public int RealHomeTeamId => CFBTeam.TeamRowToOldTeamIdMap[this.HomeTeamId];
 
         [JsonIgnore]
-        public int RealAwayTeamId => CFBTeam.TeamIdToOldIdMap[this.AwayTeamId];
+        public int RealAwayTeamId => CFBTeam.TeamRowToOldTeamIdMap[this.AwayTeamId];
     }
 }

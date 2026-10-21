@@ -16,4 +16,10 @@ public sealed class FranchiseFileSettings
 
     /// <summary>Overrides game-type detection ("madden" or "college").</summary>
     public string? GameTypeOverride { get; set; }
+
+    /// <summary>
+    /// Load the schema from this path instead of picking the closest embedded one: a .gz schema,
+    /// the cfb27-schema.xml from extract-schema.py, or its folder of .ftx files.
+    /// </summary>
+    public string? SchemaPath { get; set; }
 }

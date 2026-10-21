@@ -441,7 +441,7 @@ namespace EA_DB_Editor
             if (year >= CFB27StartingYear)
             {
                 var dynasty = FranchiseFile.Load(file);
-                this.DataEngine = new CFB27DataEngine(directory);
+                this.DataEngine = new CFB27DataEngine(dynasty);
                 return;
             }
 

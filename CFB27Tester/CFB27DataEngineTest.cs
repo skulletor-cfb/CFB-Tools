@@ -1,5 +1,6 @@
 ﻿using CFB27.Data.Model;
 using EA_DB_Editor;
+using MaddenFranchise;
 using System.Linq;
 
 namespace CFB27Tester
@@ -12,7 +13,8 @@ namespace CFB27Tester
         [ClassInitialize]
         public static void Init(TestContext testContext)
         {
-            engine = new CFB27DataEngine(@"D:\CFB27\export\DYNASTY-Q5");
+            var dynasty = FranchiseFile.Load(@"D:\OneDrive\Documents\EA SPORTS College Football 27\saves\DYNASTY-Y587P-AUTOSAVE");
+            engine = new CFB27DataEngine(dynasty);
         }
 
 
@@ -32,12 +34,13 @@ namespace CFB27Tester
         [TestMethod]
         public void VerifyMap()
         {
-            Assert.HasCount(143, CFBTeam.TeamIdToOldIdMap);
+            Assert.HasCount(143, CFBTeam.TeamRowToOldTeamIdMap);
         }
 
         [TestMethod]
         public void EveryTeamHasHistoricalData()
         {
+            Assert.IsGreaterThan(0, engine.Teams.Records.Count());
             Assert.IsTrue(engine.Teams.Records.All(t => t.HistoricalData != null));
          }
 
@@ -51,7 +54,7 @@ namespace CFB27Tester
         [TestMethod]
         public void TestSeasonOver()
         {
-            Assert.IsTrue(engine.IsSeasonOver());
+            Assert.IsFalse(engine.IsSeasonOver());
         }
 
         [TestMethod]

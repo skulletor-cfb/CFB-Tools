@@ -1,9 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using MaddenFranchise;
+using MaddenFranchise.Util;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 namespace CFB27.Data.Model
 {
+    public static class SaveFileExtensions
+    {
+        public static T DefaultTransform<T>(this FranchiseFile dynasty, FranchiseFileRecord record) where T : BaseRecord
+        {
+            var result = record.Transform<T>();
+            result.Row = record.Index;
+            result.IsEmpty = record.IsEmpty;
+            return result;
+        }
+
+        public static FranchiseFileRecord Follow(this FranchiseFile dynasty, RecordReference reference)
+        {
+            if (reference.TableId <= 0)
+            {
+                return null;
+            }
+
+            var table = dynasty.GetTableById(reference.TableId);
+            table.ReadRecords();
+            return reference.RowNumber < table.Records.Count ? table.Records[reference.RowNumber] : null;
+        }
+
+        public static CFBTable<T> GetTable<T>(this FranchiseFile dynasty, TableName name, Func<FranchiseFile, FranchiseFileRecord, T> transform = null) where T : BaseRecord
+        {
+            if (transform == null)
+            {
+                transform = DefaultTransform<T>;
+            }
+
+            var table = dynasty.GetPrimaryTable(name);
+            var records = table.Records.Select(r => transform(dynasty, r)).ToList();
+            return new CFBTable<T>
+            {
+                Records = records,
+                RawTable = table
+            };
+        }
+    }
+
     [JsonObject]
     public class CFBTable<T> where T : BaseRecord
     {
@@ -15,6 +56,9 @@ namespace CFB27.Data.Model
 
         [JsonProperty("records")]
         public List<T> Records { get; set; }
+
+        [JsonIgnore]
+        public FranchiseFileTable RawTable { get; set; }
     }
 
     [JsonObject]

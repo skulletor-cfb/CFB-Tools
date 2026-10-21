@@ -11,26 +11,24 @@ namespace EA_DB_Editor
 
     public class CFB27DataEngine : IDataEngine
     {
-        private const string TeamFile = "Team";
         private FranchiseFile dynasty;
         public CFBTable<CFBTeam> Teams { get; private set; }
-        public Dictionary<int, CFBTable<CFBTeamHistoricalData>> TeamHistoricalData { get; private set; }
         public CFBTable<CFBBowl> Bowls { get; private set; }
         public CFBTable<CFBSeasonGame> SeasonGames { get; private set; }
         public Dictionary<int, CFBSeasonGame> BowlSeasonGames { get; }
         public CFBTable<CFBStory> Stories { get; }
 
-        public Dictionary<int, string> TeamNames => this.Teams.Records.ToDictionary(t => t.Row, t => t.DisplayName);
+        public Dictionary<int, string> TeamNames { get; private set; }
 
         public CFB27DataEngine(FranchiseFile dynasty)
         {
             this.dynasty = dynasty;
-            this.Teams = this.GetFile(TeamFile).ReadJson<CFBTeam>();
-            this.TeamHistoricalData = this.GetTeamHistoricalData();
-            this.SeasonGames = this.GetFile("SeasonGame").ReadJson<CFBSeasonGame>();
+            this.Teams = dynasty.GetTable<CFBTeam>(TableName.Team, CFBTeam.Transform);
+            this.TeamNames = this.Teams.Records.ToDictionary(t => t.TeamId, t => t.DisplayName);
+            this.Bowls = dynasty.GetTable<CFBBowl>(TableName.BowlGame);
+            this.SeasonGames = dynasty.GetTable<CFBSeasonGame>(TableName.SeasonGame);
             this.BowlSeasonGames = this.SeasonGames.Records.Where(g => !g.IsEmpty && g.IsBowlGame).ToDictionary(g => g.BowlId);
-            this.Bowls = this.GetFile("BowlGame").ReadJson<CFBBowl>();
-            this.Stories = this.GetFile("Story").ReadJson<CFBStory>();
+            this.Stories = dynasty.GetTable<CFBStory>(TableName.Story);
         }
 
         public Dictionary<string, Bowl> CreateBowlTable()
@@ -272,24 +270,6 @@ namespace EA_DB_Editor
         public string ReadStadiumName(int siteId)
         {
             throw new NotImplementedException();
-        }
-
-    
-        private Dictionary<int, CFBTable<CFBTeamHistoricalData>> GetTeamHistoricalData()
-        {
-            var table = this.dynasty.GetTableByName("TeamHistoricalData");
-            var data = table.Records.Select(r => r.Transform<CFBTeamHistoricalData>());
-//            var data = files.Select(f => f.ReadJson<CFBTeamHistoricalData>()).ToArray();
-  //          var result = data.ToDictionary(t => t.Table t.Header.tableId);
-
-            //match historical data to teams
-            foreach (var team in Teams.Records)
-            {
-                var tableId = team.TeamHistoricalData.ToTableId();
-                team.HistoricalData = result[tableId].Records[0];
-            }
-
-            return result;
         }
     }
 }

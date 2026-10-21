@@ -1,10 +1,20 @@
-﻿using Newtonsoft.Json;
+﻿using MaddenFranchise;
+using MaddenFranchise.Util;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace CFB27.Data.Model
 {
     public class CFBTeam : BaseRecord
     {
+        public static CFBTeam Transform(FranchiseFile dynasty, FranchiseFileRecord record)
+        {
+            var team = dynasty.DefaultTransform<CFBTeam>(record);
+            var thd = dynasty.Follow(record.GetReferenceDataByKey("TeamHistoricalData").Value);
+            team.HistoricalData = thd.Transform<CFBTeamHistoricalData>();
+            return team;
+        }
+
         #region Properties
         public string DefaultPhilosophy { get; set; }
         public string DefenseActiveAbilitiesPlayers { get; set; }
@@ -417,7 +427,7 @@ namespace CFB27.Data.Model
         #endregion
 
         [JsonIgnore]
-        public int TeamId => TeamIdToOldIdMap[this.TeamIndex];
+        public int TeamId => TeamRowToOldTeamIdMap[this.Row];
 
         [JsonIgnore]
         public CFBTeamHistoricalData HistoricalData { get; set; }
@@ -434,7 +444,7 @@ namespace CFB27.Data.Model
         /// <summary>
         /// ids in CFB27 mapped to the classic ids
         /// </summary>
-        public static readonly Dictionary<int, int> TeamIdToOldIdMap = new Dictionary<int, int>
+        public static readonly Dictionary<int, int> TeamRowToOldTeamIdMap = new Dictionary<int, int>
         {
             { 0, 1 },     // Air Force
             { 1, 2 },     // Akron
@@ -579,6 +589,150 @@ namespace CFB27.Data.Model
             { 140, 113 },   // W. Michigan
             { 141, 114 },   // Wisconsin
             { 142, 115 },    // Wyoming
+        };
+
+        // Keyed by Team.TeamIndex (0-137). The 5 generic FCS teams all share TeamIndex 255,
+        // so they can't be keyed by index; see FcsTeamRowToOldIdMap below.
+        public static readonly Dictionary<int, int> TeamIndexToOldIdMap = new Dictionary<int, int>
+        {
+            { 0, 1 },     // Air Force
+            { 1, 2 },     // Akron
+            { 2, 3 },     // Alabama
+            { 3, 4 },     // Arizona
+            { 4, 5 },     // Arizona State
+            { 5, 6 },     // Arkansas
+            { 6, 7 },     // Arkansas State
+            { 7, 8 },     // Army
+            { 8, 9 },     // Auburn
+            { 9, 10 },    // Ball State
+            { 10, 11 },   // Baylor
+            { 11, 12 },   // Boise State
+            { 12, 13 },   // Boston College
+            { 13, 14 },   // Bowling Green
+            { 14, 15 },   // Buffalo
+            { 15, 16 },   // BYU
+            { 16, 17 },   // California
+            { 17, 18 },   // UCF
+            { 18, 19 },   // C. Michigan
+            { 19, 20 },   // Cincinnati
+            { 20, 21 },   // Clemson
+            { 21, 22 },   // Colorado
+            { 22, 23 },   // Colorado State
+            { 23, 24 },   // Duke
+            { 24, 25 },   // East Carolina
+            { 25, 26 },   // E. Michigan
+            { 26, 27 },   // Florida
+            { 27, 28 },   // Florida State
+            { 28, 29 },   // Fresno State
+            { 29, 30 },   // Georgia
+            { 30, 31 },   // Georgia Tech
+            { 31, 32 },   // Hawai'i
+            { 32, 33 },   // Houston
+            { 33, 35 },   // Illinois
+            { 34, 36 },   // Indiana
+            { 35, 37 },   // Iowa
+            { 36, 38 },   // Iowa State
+            { 37, 39 },   // Kansas
+            { 38, 40 },   // Kansas State
+            { 39, 41 },   // Kent State
+            { 40, 42 },   // Kentucky
+            { 41, 43 },   // Louisiana Tech
+            { 42, 44 },   // Louisville
+            { 43, 45 },   // LSU
+            { 44, 46 },   // Marshall
+            { 45, 47 },   // Maryland
+            { 46, 48 },   // Memphis
+            { 47, 49 },   // Miami
+            { 48, 50 },   // Miami (OH)
+            { 49, 51 },   // Michigan
+            { 50, 52 },   // Michigan State
+            { 51, 53 },   // Middle Tenn
+            { 52, 54 },   // Minnesota
+            { 53, 55 },   // Mississippi St
+            { 54, 56 },   // Missouri
+            { 55, 57 },   // Navy
+            { 56, 58 },   // Nebraska
+            { 57, 59 },   // Nevada
+            { 58, 60 },   // New Mexico
+            { 59, 61 },   // New Mexico St.
+            { 60, 62 },   // North Carolina
+            { 61, 63 },   // NC State
+            { 62, 64 },   // North Texas
+            { 63, 65 },   // UL Monroe
+            { 64, 66 },   // NIU
+            { 65, 67 },   // Northwestern
+            { 66, 68 },   // Notre Dame
+            { 67, 69 },   // Ohio
+            { 68, 70 },   // Ohio State
+            { 69, 71 },   // Oklahoma
+            { 70, 72 },   // Oklahoma State
+            { 71, 73 },   // Ole Miss
+            { 72, 74 },   // Oregon
+            { 73, 75 },   // Oregon State
+            { 74, 76 },   // Penn State
+            { 75, 77 },   // Pittsburgh
+            { 76, 78 },   // Purdue
+            { 77, 79 },   // Rice
+            { 78, 80 },   // Rutgers
+            { 79, 81 },   // San Diego St.
+            { 80, 82 },   // San Jose State
+            { 81, 83 },   // SMU
+            { 82, 84 },   // South Carolina
+            { 83, 85 },   // Southern Miss
+            { 84, 86 },   // Louisiana
+            { 85, 87 },   // Stanford
+            { 86, 88 },   // Syracuse
+            { 87, 89 },   // TCU
+            { 88, 90 },   // Temple
+            { 89, 91 },   // Tennessee
+            { 90, 92 },   // Texas
+            { 91, 93 },   // Texas A&M
+            { 92, 94 },   // Texas Tech
+            { 93, 95 },   // Toledo
+            { 94, 96 },   // Tulane
+            { 95, 97 },   // Tulsa
+            { 96, 98 },   // UAB
+            { 97, 99 },   // UCLA
+            { 98, 100 },  // UConn
+            { 99, 101 },  // UNLV
+            { 100, 102 }, // USC
+            { 101, 103 }, // Utah
+            { 102, 104 }, // Utah State
+            { 103, 105 }, // UTEP
+            { 104, 106 }, // Vanderbilt
+            { 105, 107 }, // Virginia
+            { 106, 108 }, // Virginia Tech
+            { 107, 109 }, // Wake Forest
+            { 108, 110 }, // Washington
+            { 109, 111 }, // Washington St.
+            { 110, 112 }, // West Virginia
+            { 111, 113 }, // W. Michigan
+            { 112, 114 }, // Wisconsin
+            { 113, 115 }, // Wyoming
+            { 114, 229 }, // FLA Atlantic
+            { 115, 230 }, // FIU
+            { 116, 233 }, // Georgia State
+            { 117, 232 }, // UTSA
+            { 118, 234 }, // Old Dominion
+            { 119, 181 }, // UMass
+            { 120, 235 }, // South Alabama
+            { 121, 144 }, // USF
+            { 122, 143 }, // Troy
+            { 123, 211 }, // W. Kentucky
+            { 124, 218 }, // Texas State
+            { 125, 901 }, // App St.
+            { 126, 904 }, // Charlotte
+            { 127, 903 }, // C. Carolina
+            { 128, 902 }, // Ga Southern
+            { 129, 907 }, // Jax State
+            { 130, 905 }, // James Madison
+            { 131, 909 }, // Liberty
+            { 132, 913 }, // Sam Houston
+            { 133, 908 }, // Kennesaw St.
+            { 134, 906 }, // Delaware
+            { 135, 910 }, // Missouri State
+            { 136, 911 }, // NDSU
+            { 137, 912 }, // Sac State
         };
     }
 

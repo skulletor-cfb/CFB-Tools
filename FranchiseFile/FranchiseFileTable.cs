@@ -351,6 +351,28 @@ public sealed class FranchiseFileTable : IPatchUnit
         return this;
     }
 
+    /// <summary>
+    /// Rows that aren't on the table's free list, counted straight from the table bytes (no need to
+    /// call ReadRecords first). Matches the number of records ReadRecords marks as not empty.
+    /// </summary>
+    public int CountRowsInUse()
+    {
+        if (Header.Record1Size <= 0)
+        {
+            return 0;
+        }
+        int totalRows = (Header.Table2StartIndex - Header.Table1StartIndex) / Header.Record1Size;
+        int free = 0;
+        int index = Header.NextRecordToUse;
+        while (index != Header.RecordCapacity && index >= 0 && index < totalRows && free < totalRows)
+        {
+            free++;
+            index = unchecked((int)BinaryPrimitives.ReadUInt32BigEndian(
+                Data.AsSpan(Header.Table1StartIndex + index * Header.Record1Size, 4)));
+        }
+        return Math.Max(0, totalRows - free);
+    }
+
     private EmptyRecordMap ParseEmptyRecords()
     {
         var emptyRecords = new EmptyRecordMap();
