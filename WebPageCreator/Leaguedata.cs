@@ -67,6 +67,10 @@ namespace EA_DB_Editor
     [DataContract]
     public class Division
     {
+        public Division()
+        {
+        }
+
         public Division(MaddenRecord record)
         {
             Id = record.lEntries[1].Data.ToInt32();

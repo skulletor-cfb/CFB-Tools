@@ -10,5 +10,9 @@
   <ItemGroup>
     <ProjectReference Include="..\FranchiseFile\FranchiseFile.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- the game's stadium table, extracted with CFBStadium.ExtractFromGame -->
+    <EmbeddedResource Include="Resources\stadiums.csv" />
+  </ItemGroup>
 
 </Project>

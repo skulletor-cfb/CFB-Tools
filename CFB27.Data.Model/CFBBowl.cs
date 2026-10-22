@@ -15,18 +15,19 @@ namespace CFB27.Data.Model
             if (!string.Equals(bowl.Conference1, NoRefString))
             {
                 var conf1 = dynasty.Follow(record.GetReferenceDataByKey("Conference1").Value);
-                bowl.ConferenceId1 = conf1.Index;
+                bowl.ConferenceId1 = CFBConference.ToClassicId(conf1);
             }
 
             if (!string.Equals(bowl.Conference2, NoRefString))
             {
                 var conf2 = dynasty.Follow(record.GetReferenceDataByKey("Conference2").Value);
-                bowl.ConferenceId2 = conf2.Index;
+                bowl.ConferenceId2 = CFBConference.ToClassicId(conf2);
             }
 
             return bowl;
         }
 
+        /// <summary>classic conference id of the tie-in (see CFBConference.ClassicIds), -1 for none</summary>
         [JsonIgnore]
         public int ConferenceId1 { get; private set; } = -1;
         [JsonIgnore]

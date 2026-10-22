@@ -1,7 +1,6 @@
 ﻿using CFB27.Data.Model;
 using EA_DB_Editor;
 using MaddenFranchise;
-using System.Linq;
 
 namespace CFB27Tester
 {

@@ -1141,8 +1141,10 @@ namespace EA_DB_Editor
             TeamRatingDB = team.TEAM_RATINGDB;
 
 
+            // generic FCS teams have no stadium; 0 is ReadStadiums' placeholder for them
+            StadiumId = string.Equals(team.Stadium, BaseRecord.NoRefString) ? 0 : CFBStadium.ToStadiumId(team.Stadium);
+
             // CFB-TODO Need to parse this out
-            //StadiumId = record.GetInt(39);
             //MainRival = record["TRIV"].ToInt32();
             //LastConferenceChampionshipYear = //need to figure this out
             //    LastNationalChampionshipYear = // need to figure this out

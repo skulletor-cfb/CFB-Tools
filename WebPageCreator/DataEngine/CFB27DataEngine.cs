@@ -18,6 +18,16 @@ namespace EA_DB_Editor
         public Dictionary<int, CFBSeasonGame> BowlSeasonGames { get; }
         public CFBTable<CFBStory> Stories { get; }
 
+        // the Player table is large (~16k rows), so it's only read when players are needed
+        private CFBTable<CFBPlayer> players;
+        public CFBTable<CFBPlayer> Players => this.players ?? (this.players = dynasty.GetTable<CFBPlayer>(TableName.Player, CFBPlayer.Transform));
+
+        private CFBTable<CFBCoach> coaches;
+        public CFBTable<CFBCoach> Coaches => this.coaches ?? (this.coaches = dynasty.GetTable<CFBCoach>(TableName.Coach, CFBCoach.Transform));
+
+        private List<CFBConference> conferences;
+        public List<CFBConference> Conferences => this.conferences ?? (this.conferences = CFBConference.Read(dynasty));
+
         public Dictionary<int, string> TeamNames { get; private set; }
 
         public CFB27DataEngine(FranchiseFile dynasty)
@@ -180,27 +190,143 @@ namespace EA_DB_Editor
 
         public void CreatePlayers(Dictionary<int, List<Player>> Rosters, Dictionary<int, Player> Players)
         {
-            throw new NotImplementedException();
+            // only FBS rosters; generic FCS teams, recruits and unattached players all have TeamIndex 255
+            foreach (var record in this.Players.Records.Where(p => p.IsOnTeam))
+            {
+                var player = new Player
+                {
+                    // PresentationId isn't unique, so use the Player table row (what the save's references point to)
+                    Id = record.Row,
+                    FirstName = record.FirstName,
+                    LastName = record.LastName,
+                    TeamId = record.TeamId,
+                    Year = record.SchoolYear,
+                    IsRedShirt = record.HasRedshirted,
+                    Position = record.Position,
+                    Number = record.JerseyNum,
+                    Height = record.Height,
+                    Weight = record.Weight + 160,
+                    Ovr = record.OverallRating,
+                    Spd = record.SpeedRating,
+                    Acc = record.AccelerationRating,
+                    Agl = record.AgilityRating,
+                    Str = record.StrengthRating,
+                    Awr = record.AwarenessRating,
+                    Face = record.Portrait,
+                    // TODO: City is an NCAA 14 cities.csv id; CFB27 only has HomeTown/HomeState strings
+                    // TODO: GamesPlayed comes from the player's stats, see ReadStats
+                };
+
+                Players[player.Id] = player;
+
+                if (!Rosters.TryGetValue(player.TeamId, out var roster))
+                {
+                    roster = new List<Player>();
+                    Rosters[player.TeamId] = roster;
+                }
+
+                roster.Add(player);
+            }
         }
 
         public void ReadStats()
         {
-            throw new NotImplementedException();
+            // no-op for now, not needed for preseason
         }
 
+        /// <summary>Conferences keyed by classic id; only the Sun Belt still has divisions (West 16, East 17).</summary>
         public Dictionary<int, Conference> ReadConferenceMetadata()
         {
-            throw new NotImplementedException();
+            var conferences = new Dictionary<int, Conference>();
+            foreach (var cfbConference in this.Conferences)
+            {
+                var conference = new Conference
+                {
+                    Id = cfbConference.ClassicId,
+                    Name = cfbConference.ClassicName,
+                };
+
+                foreach (var division in cfbConference.Divisions.Where(d => d.ClassicId != CFBConference.NoDivisionId))
+                {
+                    conference.Divisions.Add(new Division
+                    {
+                        Id = division.ClassicId,
+                        Name = $"{cfbConference.ClassicName} ({division.Name})",
+                        SubName = division.Name,
+                    });
+                }
+
+                conferences.Add(conference.Id, conference);
+            }
+
+            return conferences;
         }
 
         public Dictionary<int, Team> ReadTeams(bool isPreseason)
         {
-            return this.Teams.Records.ToDictionary(t => t.TeamId, t => new Team(t, isPreseason));
+            var conferenceByTeamRow = ReadConferenceByTeamRow();
+            return this.Teams.Records.ToDictionary(t => t.TeamId, t =>
+            {
+                var team = new Team(t, isPreseason);
+                if (conferenceByTeamRow.TryGetValue(t.Row, out var conference))
+                {
+                    team.ConferenceId = conference.ConferenceId;
+                    team.DivisionId = conference.DivisionId;
+                }
+
+                return team;
+            });
         }
 
         public Dictionary<string, Coach> ReadCoaches()
         {
-            throw new NotImplementedException();
+            var coaches = new Dictionary<string, Coach>();
+
+            // Coach.AlmaMater is TEAM_ORIGID - 1100 (Florida State 1132 -> 32, Georgia 1134 -> 34)
+            var teamIdByAlmaMater = this.Teams.Records
+                .Where(t => !t.IsEmpty)
+                .GroupBy(t => t.TEAM_ORIGID - CFBCoach.AlmaMaterOrigIdOffset)
+                .ToDictionary(g => g.Key, g => g.First().TeamId);
+
+            // only FBS staffs (HC/OC/DC); coaches without a job have TeamIndex 255
+            foreach (var record in this.Coaches.Records.Where(c => c.IsOnTeam && c.PositionId >= 0))
+            {
+                var coach = new Coach
+                {
+                    // PresentationId isn't unique, so use the Coach table row
+                    Id = record.Row,
+                    TeamId = record.TeamId,
+                    Position = record.PositionId,
+                    FirstName = record.FirstName,
+                    LastName = record.LastName,
+                    Age = record.Age,
+                    ContractLength = record.ContractLength,
+                    YearsIntoContract = record.ContractLength - record.ContractYearsRemaining,
+                    YearsWithTeam = record.SeasonsWithTeam,
+                    Level = record.Level,
+                    Exp = record.ExperiencePoints,
+                    CareerWin = record.CareerWins,
+                    CareerLoss = record.CareerLosses,
+                    TeamWin = record.WinsAtCurrentSchool,
+                    TeamLoss = record.LossesAtCurrentSchool,
+                    CoachBowlWin = record.BowlWins,
+                    CoachBowlLoss = record.BowlLosses,
+                    CareerConferenceChampionships = record.ConfChampWins,
+                    CareerNationalChampionships = record.NCWins,
+                    Top25Win = record.Top25Wins,
+                    Top25Loss = record.Top25Losses,
+                    RivalWin = record.RivalWins,
+                    RivalLoss = record.RivalLosses,
+                    LongestWinStreak = record.CareerLongWinStreak,
+                    AlmaMaterId = teamIdByAlmaMater.TryGetValue(record.AlmaMater, out var almaMaterId) ? almaMaterId : 0,
+                    // TODO: Rating - COACH_RATING is always 0;
+                    // OffPlaybookId/DefPlaybookId - playbooks are references into game asset tables
+                };
+
+                coaches.Add(coach.Key, coach);
+            }
+
+            return coaches;
         }
 
         public Dictionary<int, Dictionary<int, TeamSeasonRecord>> CreateTeamHistoricRecords()
@@ -228,14 +354,114 @@ namespace EA_DB_Editor
             throw new NotImplementedException();
         }
 
+        private Dictionary<int, Stadium> stadiums;
+
+        /// <summary>
+        /// Stadiums keyed by the save's stadium reference (CFBStadium.ToStadiumId): every team's home plus the
+        /// neutral sites in CFBStadium.NeutralSites. Names and capacities come from the game's stadium table,
+        /// since the save doesn't hold them.
+        /// </summary>
         public Dictionary<int, Stadium> ReadStadiums()
         {
-            throw new NotImplementedException();
+            if (this.stadiums != null)
+            {
+                return this.stadiums;
+            }
+
+            // placeholder for teams without a stadium (the generic FCS teams), like NCAA 14's 1023
+            var result = new Dictionary<int, Stadium> { [0] = new Stadium() };
+
+            foreach (var team in this.Teams.Records.Where(t => !t.IsEmpty && !string.Equals(t.Stadium, BaseRecord.NoRefString)))
+            {
+                var id = CFBStadium.ToStadiumId(team.Stadium);
+                var home = CFBStadium.FindHome(team.AssetName, team.ShortName);
+                if (home != null && !result.ContainsKey(id))
+                {
+                    result.Add(id, new Stadium { Id = id, Name = home.Name, Capacity = home.Capacity });
+                }
+            }
+
+            foreach (var neutral in CFBStadium.NeutralSites)
+            {
+                var id = unchecked((int)neutral.Key);
+                var stadium = CFBStadium.FindByName(neutral.Value);
+                if (stadium != null && !result.ContainsKey(id))
+                {
+                    result.Add(id, new Stadium { Id = id, Name = stadium.Name, Capacity = stadium.Capacity });
+                }
+            }
+
+            return this.stadiums = result;
         }
 
         public Dictionary<int, RecruitClassRanking> ReadRecruitClasses()
         {
-            throw new NotImplementedException();
+            var rankings = new Dictionary<int, RecruitClassRanking>();
+            var conferenceByTeamRow = ReadConferenceByTeamRow();
+
+            foreach (var team in this.Teams.Records.Where(t => !t.IsEmpty && t.TeamIndex != CFBPlayer.NoTeamIndex))
+            {
+                var stars = ReadCommittedPlayerRows(team).Select(row => this.Players.Records[row].StarRating).ToList();
+
+                var ranking = new RecruitClassRanking
+                {
+                    TeamId = team.TeamId,
+                    // the save has the game's class rank (TopClassRank) but no class points, so score the class by stars
+                    Points = stars.Sum(s => RecruitStarPoints[s]),
+                    Star1 = stars.Count(s => s == 1),
+                    Star2 = stars.Count(s => s == 2),
+                    Star3 = stars.Count(s => s == 3),
+                    Star4 = stars.Count(s => s == 4),
+                    Star5 = stars.Count(s => s == 5),
+                    ConferenceId = conferenceByTeamRow.TryGetValue(team.Row, out var conference) ? conference.ConferenceId : -1,
+                    DivisionId = conferenceByTeamRow.TryGetValue(team.Row, out conference) ? conference.DivisionId : CFBConference.NoDivisionId,
+                    Wins = team.Win,
+                    Losses = team.Loss,
+                };
+
+                rankings.Add(ranking.TeamId, ranking);
+            }
+
+            return rankings;
+        }
+
+        /// <summary>Class points per recruit, indexed by star rating (0 = no rating).</summary>
+        private static readonly int[] RecruitStarPoints = { 0, 1, 2, 4, 12, 18 };
+
+        /// <summary>Player table rows in the team's CommittedPlayers list (signed recruits keep TeamIndex 255 until they join the roster).</summary>
+        private IEnumerable<int> ReadCommittedPlayerRows(CFBTeam team)
+        {
+            var record = this.Teams.RawTable.Records[team.Row];
+            var committed = dynasty.Follow(record.GetReferenceDataByKey("CommittedPlayers").Value);
+            if (committed == null)
+            {
+                return Enumerable.Empty<int>();
+            }
+
+            return committed.FieldsArray
+                .Take(committed.ArraySize ?? 0)
+                .Select(f => f.ReferenceData)
+                .Where(r => r.HasValue && r.Value.TableId == this.Players.RawTable.Header.TableId)
+                .Select(r => r.Value.RowNumber)
+                .ToList();
+        }
+
+        /// <summary>Team table row -> (classic conference id, classic division id), from each conference's divisions.</summary>
+        private Dictionary<int, (int ConferenceId, int DivisionId)> ReadConferenceByTeamRow()
+        {
+            var result = new Dictionary<int, (int, int)>();
+            foreach (var conference in this.Conferences)
+            {
+                foreach (var division in conference.Divisions)
+                {
+                    foreach (var row in division.TeamRows)
+                    {
+                        result[row] = (conference.ClassicId, division.ClassicId);
+                    }
+                }
+            }
+
+            return result;
         }
 
         public Dictionary<int, Recruit> ReadRecruits()
@@ -305,7 +531,7 @@ namespace EA_DB_Editor
 
         public string ReadStadiumName(int siteId)
         {
-            throw new NotImplementedException();
+            return ReadStadiums().TryGetValue(siteId, out var stadium) ? stadium.Name : string.Empty;
         }
     }
 }

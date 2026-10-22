@@ -12,6 +12,8 @@ public enum TableName
     TeamHistoricalData,
     SeasonGame,
     Story,
+    Player,
+    Coach,
 }
 
 public sealed class FranchiseFileType
