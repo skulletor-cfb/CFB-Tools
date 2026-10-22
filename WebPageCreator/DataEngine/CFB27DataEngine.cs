@@ -25,9 +25,17 @@ namespace EA_DB_Editor
             this.dynasty = dynasty;
             this.Teams = dynasty.GetTable<CFBTeam>(TableName.Team, CFBTeam.Transform);
             this.TeamNames = this.Teams.Records.ToDictionary(t => t.TeamId, t => t.DisplayName);
-            this.Bowls = dynasty.GetTable<CFBBowl>(TableName.BowlGame);
+            this.Bowls = dynasty.GetTable<CFBBowl>(TableName.BowlGame, CFBBowl.Transform);
             this.SeasonGames = dynasty.GetTable<CFBSeasonGame>(TableName.SeasonGame);
             this.BowlSeasonGames = this.SeasonGames.Records.Where(g => !g.IsEmpty && g.IsBowlGame).ToDictionary(g => g.BowlId);
+
+            // CFP quarterfinal/semifinal rows (12-17) rotate between the NY6 bowls; the host bowl is
+            // only identified by the SeasonGame's stadium (BowlGame.Stadium is empty for those rows).
+            foreach (var bsg in this.BowlSeasonGames.Values)
+            {
+                this.Bowls.Records[bsg.BowlId].StadiumId = bsg.Stadium.CFBToInt64();
+            }
+
             this.Stories = dynasty.GetTable<CFBStory>(TableName.Story);
         }
 
@@ -44,8 +52,8 @@ namespace EA_DB_Editor
                     Week = bsg.SeasonWeek,
                     Game = bsg.SeasonGameNum,
                     Day = bsg.GameDateDay,
-                    ConferenceTieInId1 = b.Conference1.ToRowId(),
-                    ConferenceTieInId2 = b.Conference2.ToRowId(),
+                    ConferenceTieInId1 = b.ConferenceId1,
+                    ConferenceTieInId2 = b.ConferenceId2,
                     ConferenceTieInSelection1 = b.Conference1Rank,
                     ConferenceTieInSelection2 = b.Conference2Rank,
                     Id = b.BowlId,
@@ -132,9 +140,37 @@ namespace EA_DB_Editor
             return false;
         }
 
-        public int ReadBowlChampions(bool didNotEnterBowlChampLoop, int currentYear, Dictionary<string, BowlChampion> bowlChampions)
+        public void ReadBowlChampions(Dictionary<string, BowlChampion> bowlChampions)
         {
-            throw new NotImplementedException();
+            // no changes in preseason
+            if (!this.IsSeasonOver())
+            {
+                return; 
+            }
+
+            foreach (var sg in BowlSeasonGames.Values)
+            {
+                if (sg.GameStatus != "HomeWon" && sg.GameStatus != "AwayWon")
+                    continue;
+
+                var bc = new BowlChampion
+                {
+                    TeamId = sg.GameStatus == "HomeWon" ? sg.RealHomeTeamId : sg.RealAwayTeamId,
+                    Year = sg.SeasonYear + ContinuationData.ContinuationYear,
+                    BowlId = this.Bowls.Records[sg.BowlId].BowlId,
+                };
+
+                if (bowlChampions.TryGetValue(bc.GetKey(), out var existing))
+                {
+                    // already loaded (e.g. from the archive); a different team means two bowls mapped to the same id
+                    if (existing.TeamId != bc.TeamId)
+                        throw new InvalidOperationException($"Bowl key {bc.GetKey()} already has team {existing.TeamId}; season game for bowl row {sg.BowlId} maps to the same bowl");
+                }
+                else
+                {
+                    bowlChampions.Add(bc.GetKey(), bc);
+                }
+            }
         }
 
         public List<AllAmerican> CreateAllAmericans()

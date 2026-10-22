@@ -193,7 +193,10 @@ public sealed class FranchiseFileField
             }
             if (BinaryUtil.StringOnlyContainsBinaryDigits(s))
             {
-                try { return e.GetMemberByUnformattedValue(s); } catch { /* fall through */ }
+                if (e.TryGetMemberByUnformattedValue(s, out var byBits))
+                {
+                    return byBits!;
+                }
             }
             return e.Members[0];
         }
@@ -217,15 +220,9 @@ public sealed class FranchiseFileField
         if (offset.Enum is not null)
         {
             string enumUnformattedValue = BinaryUtil.Dec2Bin(unformatted.GetBits(offset.Offset, offset.Length), offset.Enum.MaxLength);
-            try
-            {
-                var theEnum = offset.Enum.GetMemberByUnformattedValue(enumUnformattedValue);
-                return theEnum.Name;
-            }
-            catch
-            {
-                return enumUnformattedValue;
-            }
+            return offset.Enum.TryGetMemberByUnformattedValue(enumUnformattedValue, out var theEnum)
+                ? theEnum!.Name
+                : enumUnformattedValue;
         }
         if (offset.IsReference)
         {

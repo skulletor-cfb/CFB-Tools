@@ -800,12 +800,11 @@ namespace EA_DB_Editor
             return !(record.lEntries[1].Data.ToInt32() == 0 && record.lEntries[2].Data.ToInt32() == 0);
         }
 
-        public int ReadBowlChampions(bool didNotEnterBowlChampLoop, int currentYear, Dictionary<string, BowlChampion> bowlChampions)
+        public void ReadBowlChampions(Dictionary<string, BowlChampion> bowlChampions)
         {
             var table = this.MaddenDatabase.lTables[0];
             for (int i = 0; i < table.Table.currecords; i++)
             {
-                didNotEnterBowlChampLoop = false;
                 var record = table.lRecords[i];
                 var bc = new BowlChampion
                 {
@@ -822,11 +821,7 @@ namespace EA_DB_Editor
                 {
                     bowlChampions.Add(bc.GetKey(), bc);
                 }
-
-                currentYear = Math.Max(currentYear, bc.Year);
             }
-
-            return currentYear;
         }
 
         public Dictionary<int, TeamSchedule> CreateTeamSchedule(bool isPreseason)
@@ -1092,7 +1087,7 @@ namespace EA_DB_Editor
                     GamesPlayed = record.GetInt(148),
                     Position = record.GetInt(114),
                     City = record.GetInt(33),
-                    Face = record["PGHE"].ToInt32(),
+                    Face = record["PGHE"].ToInt32(), // the images are zero indexed, but the value in the db is 1 indexed
                 };
 
                 // add player to the rosters

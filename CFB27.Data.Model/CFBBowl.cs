@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MaddenFranchise;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,6 +8,29 @@ namespace CFB27.Data.Model
 {
     public class CFBBowl : BaseRecord
     {
+        public static CFBBowl Transform(FranchiseFile dynasty, FranchiseFileRecord record)
+        {
+            var bowl= dynasty.DefaultTransform<CFBBowl>(record);
+
+            if (!string.Equals(bowl.Conference1, NoRefString))
+            {
+                var conf1 = dynasty.Follow(record.GetReferenceDataByKey("Conference1").Value);
+                bowl.ConferenceId1 = conf1.Index;
+            }
+
+            if (!string.Equals(bowl.Conference2, NoRefString))
+            {
+                var conf2 = dynasty.Follow(record.GetReferenceDataByKey("Conference2").Value);
+                bowl.ConferenceId2 = conf2.Index;
+            }
+
+            return bowl;
+        }
+
+        [JsonIgnore]
+        public int ConferenceId1 { get; private set; } = -1;
+        [JsonIgnore]
+        public int ConferenceId2 { get; private set; } = -1;
         public string Stadium { get; set; }
         public string RelativeAppt { get; set; }
         public string Conference2 { get; set; }

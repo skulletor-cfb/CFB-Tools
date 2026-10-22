@@ -14,11 +14,9 @@ namespace EA_DB_Editor
         /// <summary>
         /// returns an annual list of bowl champions
         /// </summary>
-        /// <param name="didNotEnterBowlChampLoop"></param>
-        /// <param name="currentYear"></param>
         /// <param name="bowlChampions"></param>
         /// <returns>returns the current year</returns>
-        int ReadBowlChampions(bool didNotEnterBowlChampLoop, int currentYear, Dictionary<string, BowlChampion> bowlChampions);
+        void ReadBowlChampions(Dictionary<string, BowlChampion> bowlChampions);
 
         /// <summary>
         /// checks if the current season is over

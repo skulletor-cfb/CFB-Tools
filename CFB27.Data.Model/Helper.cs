@@ -18,11 +18,6 @@ namespace CFB27.Data.Model
             return JsonConvert.SerializeObject(payload, Formatting.Indented);
         }
 
-        public static int ToTableId(this string id, int prefixLength = 15)
-        {
-            return Convert.ToInt32(id.Substring(0, prefixLength), 2);
-        }
-
         public static int ToRowId(this string id, int suffixLength = 12)
         {
             return Convert.ToInt32(id.Substring(id.Length - suffixLength), 2);

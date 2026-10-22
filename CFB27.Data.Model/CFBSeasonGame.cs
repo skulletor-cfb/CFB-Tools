@@ -30,7 +30,7 @@ namespace CFB27.Data.Model
         public int Attendance { get; set; }
         public string StripeOutType { get; set; }
         public int NumberTimesPlayed { get; set; }
-        public string WeatherIconId { get; set; }
+        public object WeatherIconId { get; set; }
         public int GameOfTheWeekScore { get; set; }
         public int HomeScore { get; set; }
         public int AwayScore { get; set; }

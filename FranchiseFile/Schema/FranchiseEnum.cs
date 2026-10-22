@@ -47,26 +47,35 @@ public sealed class FranchiseEnum
 
     public FranchiseEnumValue GetMemberByUnformattedValue(string value)
     {
+        if (!TryGetMemberByUnformattedValue(value, out var member))
+        {
+            throw new ArgumentException(
+                $"Argument is not a valid enum value for this field. You passed in {value}. Field name: {Name}");
+        }
+        return member!;
+    }
+
+    /// <summary>
+    /// Non-throwing lookup used when parsing records: saves can hold values the schema doesn't
+    /// define (e.g. SeasonGame.WeatherIconId), and throwing per field is slow and noisy under a debugger.
+    /// </summary>
+    public bool TryGetMemberByUnformattedValue(string value, out FranchiseEnumValue? member)
+    {
+        member = null;
         if (value.Length > MaxLength)
         {
             string cutOff = value.Substring(0, value.Length - MaxLength);
             bool cutOffContainsData = cutOff.Any(c => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '1' && c <= '9'));
             if (cutOffContainsData)
             {
-                throw new ArgumentException(
-                    $"Argument is not a valid enum value for this field. You passed in {value}. Field name: {Name}");
+                return false;
             }
             value = value.Substring(value.Length - MaxLength);
         }
 
         var matches = _members.Where(m => m.Name != "First_" && m.Name != "Last_" && m.UnformattedValue == value).ToList();
-        if (matches.Count == 0)
-        {
-            throw new ArgumentException(
-                $"Argument is not a valid enum value for this field. You passed in {value}. Field name: {Name}");
-        }
-        var noUnderscore = matches.FirstOrDefault(m => !m.Name.EndsWith("_"));
-        return noUnderscore ?? matches[0];
+        member = matches.FirstOrDefault(m => !m.Name.EndsWith("_")) ?? matches.FirstOrDefault();
+        return member is not null;
     }
 
     public FranchiseEnumValue? GetMemberByName(string name)
