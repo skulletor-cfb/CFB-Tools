@@ -629,7 +629,7 @@ namespace EA_DB_Editor
             // clear our the reports directory first
             foreach (System.IO.FileInfo file in new DirectoryInfo(@".\archive\reports").GetFiles()) file.Delete();
 
-            if (chkbxPolls.Checked == true) { PocketScout.Polls(); }
+            if (chkbxPolls.Checked == true) { PocketScout.Polls(this.DataEngine); }
             progressBar1.Value = 1;
             if (chkbxRecruiting.Checked == true)
             {
@@ -985,7 +985,7 @@ namespace EA_DB_Editor
             // need to create all the team stuff to get a schedule, then predict CCG/Bowls and then redo team stuff
             Team.CreateMainPage(this.DataEngine, true);
 
-            PredictionEngine.Create();
+            PredictionEngine.Create(this.DataEngine);
             Team.CreateMainPage(this.DataEngine, true);
             Conference.Create(this.DataEngine);
             // roster and freshman won't change from the start and end of the season so just emit them now
@@ -994,10 +994,10 @@ namespace EA_DB_Editor
             PocketScout.Team_Record_Book(true);
             PocketScout.National_Record_Book();
             PocketScout.PreseasonPage();
-            TeamArticles.Create();
+            TeamArticles.Create(this.DataEngine);
             Team.ToJsonFile(true);
             CoachArticles.CreateCoachingChangePage(this.DataEngine);
-            TopUnits.Create();
+            TopUnits.Create(this.DataEngine);
             PocketScout.CreateStandingsPage();
             Conference.ToJsonFile();
             ScheduledGame.CreateTopGames(this.DataEngine, true);

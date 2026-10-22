@@ -377,7 +377,7 @@ namespace EA_DB_Editor
 
             ConferenceChampion.ToCCFile("tcc.csv");
             BowlChampion.ToBCFile("tbc.csv");
-            HistoricTeamRecord.ToHistoricRecordFile(isPreseason ? "ps-thr.csv" : "thr.csv", isPreseason ? 5 : default(int?));
+            HistoricTeamRecord.ToHistoricRecordFile(isPreseason ? "ps-thr.csv" : "thr.csv", dataEngine.SkipFirstHistoricRecord, isPreseason ? 5 : default(int?));
             Team.ToJsonFile(isPreseason);
             TeamSchedule.ToAllSchedulesCsv(dataEngine, isPreseason);
 
@@ -387,7 +387,7 @@ namespace EA_DB_Editor
                 LoadLast5Years();
                 foreach (var team in Team.Teams.Values)
                 {
-                    if (team.Id.IsFCS() || team.Id.TeamNoLongerFBS())
+                    if (team.Id.IsFCS() || team.Id.TeamNoLongerFBS(dataEngine))
                         continue;
 
                     var sum = Last5TeamFiles.Select(dict => dict.ContainsKey(team.Id) ? dict[team.Id].RecruitClassRating : 0).Sum();
@@ -1156,7 +1156,7 @@ namespace EA_DB_Editor
         public Team(MaddenRecord record, MaddenDatabase db, bool isPreseason)
         {
             OffPlayBookId = record["TOPB"].ToInt32();
-            Id = record.lEntries[40].Data.ToInt32().GetRealTeamId();
+            Id = record.lEntries[40].Data.ToInt32().GetRealTeamId(true);
             Name = record.lEntries[7].Data;
             Mascot = record.lEntries[9].Data;
             ConferenceId = record.lEntries[36].Data.ToInt32();
@@ -1270,7 +1270,7 @@ namespace EA_DB_Editor
                 this.ToughestPlaceToPlayRank = stadium["STDR"].ToInt32();
             }
 
-            if (this.Id.TeamNoLongerFBS())
+            if (this.Id.TeamNoLongerFBS(true))
             {
                 this.ToughestPlaceToPlayRank = 1000;
             }
@@ -1374,7 +1374,7 @@ namespace EA_DB_Editor
             TeamRecords = dataEngine.CreateTeamHistoricRecords();
         }
 
-        public static void ToHistoricRecordFile(string file, int? take = null)
+        public static void ToHistoricRecordFile(string file, bool skipRecord, int? take = null)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Year,Record,TeamId");
@@ -1385,7 +1385,7 @@ namespace EA_DB_Editor
                 IEnumerable<TeamSeasonRecord> records = hr.Value.Values.OrderByDescending(r => r.Year);
 
                 // preaseason uses this only, and that means we don't have a record for the current season so we go ahead and skip it
-                if (take.HasValue)
+                if (skipRecord)
                 {
                     records = records.Skip(1).Take(take.Value);
                 }

@@ -4518,11 +4518,19 @@ function loadTeamPageTemplate(team, face) {
     // check to see if we have a headline element
     var headline = document.getElementById("headlineContent");
     var headlineText = document.getElementById("headlineText");
-    if (headline != null && team.MediaCoverage != undefined && team.MediaCoverage != null) {
-        var randIdx = randNext(0, team.MediaCoverage.length);
-        var mc = team.MediaCoverage[randIdx];
-        headline.innerText = mc.Headline;
-        headlineText.innerHTML = mc.Content + "<br/><br/>" + team.Article;
+    if (headline != null) {
+        var article = team.Article != undefined && team.Article != null ? team.Article : "";
+
+        if (team.MediaCoverage != undefined && team.MediaCoverage != null && team.MediaCoverage.length > 0) {
+            var randIdx = randNext(0, team.MediaCoverage.length);
+            var mc = team.MediaCoverage[randIdx];
+            headline.innerText = mc.Headline;
+            headlineText.innerHTML = mc.Content + "<br/><br/>" + article;
+        }
+        else {
+            // CFB27 has few media stories; show the team article on its own
+            headlineText.innerHTML = article;
+        }
     }
 
     document.getElementById("teamScheduleLink").href += "?id=" + teamId;

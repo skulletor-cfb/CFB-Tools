@@ -40,29 +40,29 @@ namespace EA_DB_Editor
         [DataMember]
         public TopUnit[] TopDB { get; set; }
 
-        public static void Create()
+        public static void Create(IDataEngine dataEngine)
         {
             if (Instance != null)
                 return;
 
             Instance = new TopUnits
             {
-                TopQB = GetTop10(t => t.TeamRatingQB,QB),
-                TopHB = GetTop10(t => t.TeamRatingRB,RB),
-                TopRec = GetTop10(t => t.TeamRatingWR,REC),
-                TopOL = GetTop10(t => t.TeamRatingOL,OL),
-                TopDL = GetTop10(t => t.TeamRatingDL,DL),
-                TopLB = GetTop10(t => t.TeamRatingLB,LB),
-                TopDB = GetTop10(t => t.TeamRatingDB,DB),
+                TopQB = GetTop10(t => t.TeamRatingQB,QB, dataEngine),
+                TopHB = GetTop10(t => t.TeamRatingRB,RB, dataEngine),
+                TopRec = GetTop10(t => t.TeamRatingWR,REC, dataEngine),
+                TopOL = GetTop10(t => t.TeamRatingOL,OL, dataEngine),
+                TopDL = GetTop10(t => t.TeamRatingDL,DL, dataEngine),
+                TopLB = GetTop10(t => t.TeamRatingLB,LB, dataEngine),
+                TopDB = GetTop10(t => t.TeamRatingDB,DB, dataEngine),
             };
 
             Instance.ToJsonFile(@".\archive\reports\topunits");
             PocketScout.TopUnits();
         }
 
-        public static TopUnit[] GetTop10(Func<Team, int> ratingFunc, int[] group)
+        public static TopUnit[] GetTop10(Func<Team, int> ratingFunc, int[] group, IDataEngine dataEngine)
         {
-            return Team.Teams.Values.Where(t => !t.Id.IsFCS() && !t.Id.TeamNoLongerFBS())
+            return Team.Teams.Values.Where(t => !t.Id.IsFCS() && !t.Id.TeamNoLongerFBS(dataEngine))
                 .OrderByDescending(t => ratingFunc(t)).ThenByDescending(t => PlayerDB.Rosters[t.Id].Where(p => group.Contains(p.Position)).OrderByDescending(p => p.Ovr).Select(p => p.Ovr).First()).Take(10)
                 .Select(t => CreateTopUnit(t.Id, t.Name, group))
                 .ToArray();

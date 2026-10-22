@@ -285,7 +285,7 @@ namespace EA_DB_Editor
                 return;
 
             // make sure we have our data structure
-            EnsureInstanceExists();
+            EnsureInstanceExists(dataEngine);
 
             foreach (var bowl in Bowl.Bowls.Values.Where(b => b.ScheduleGame.Week >= 16))
             {
@@ -317,7 +317,7 @@ namespace EA_DB_Editor
             Instance.ToJsonFile(BowlRecordsFile);
         }
 
-        public static void EnsureInstanceExists()
+        public static void EnsureInstanceExists(IDataEngine dataEngine)
         {
             if (Instance != null)
                 return;
@@ -334,7 +334,7 @@ namespace EA_DB_Editor
                     Records = Bowl.Bowls.Values.Where(b => b.Week >= 16).Select(b => new IndividualBowlRecords(b.Id, b.Name)).ToList(),
                     Teams = Team.Teams.Values.Select(t => new TeamMap
                     {
-                        TeamId = t.Id.GetRealTeamId(),
+                        TeamId = t.Id.GetRealTeamId(dataEngine),
                         School = t.Name,
                         Mascot = t.Mascot
                     }).ToList()

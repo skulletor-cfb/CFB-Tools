@@ -41,9 +41,11 @@ namespace EA_DB_Editor
 
         public int TeamCount => 126;
 
+        public bool SkipFirstHistoricRecord => true;
+
         public int CalculateRosterSpots(RecruitClassRanking ranking)
         {
-            return 70 - MaddenDatabase.GetTable("PLAY").lRecords.Where(player => player["TGID"].ToInt32().GetRealTeamId() == ranking.TeamId).Count();
+            return 70 - MaddenDatabase.GetTable("PLAY").lRecords.Where(player => player["TGID"].ToInt32().GetRealTeamId(this) == ranking.TeamId).Count();
         }
 
         public List<Record> ReadNcaaRecords()
@@ -135,10 +137,10 @@ namespace EA_DB_Editor
                 {
                     var id = MaddenDatabase.lTables[95].lRecords[i].lEntries[34].Data.ToInt32();
                     var recruit = RecruitRankings[id];
-                    recruit.CommittedTeam = MaddenDatabase.lTables[95].lRecords[i].lEntries[35].Data.ToInt32().GetRealTeamId();
-                    recruit.Team1 = MaddenDatabase.lTables[95].lRecords[i].lEntries[6].Data.ToInt32().GetRealTeamId();
-                    recruit.Team2 = MaddenDatabase.lTables[95].lRecords[i].lEntries[10].Data.ToInt32().GetRealTeamId();
-                    recruit.Team3 = MaddenDatabase.lTables[95].lRecords[i].lEntries[13].Data.ToInt32().GetRealTeamId();
+                    recruit.CommittedTeam = MaddenDatabase.lTables[95].lRecords[i].lEntries[35].Data.ToInt32().GetRealTeamId(this);
+                    recruit.Team1 = MaddenDatabase.lTables[95].lRecords[i].lEntries[6].Data.ToInt32().GetRealTeamId(this);
+                    recruit.Team2 = MaddenDatabase.lTables[95].lRecords[i].lEntries[10].Data.ToInt32().GetRealTeamId(this);
+                    recruit.Team3 = MaddenDatabase.lTables[95].lRecords[i].lEntries[13].Data.ToInt32().GetRealTeamId(this);
                     RecruitRankings[10000 + recruit.Rank] = recruit;
                 }
             }
@@ -154,7 +156,7 @@ namespace EA_DB_Editor
             {
                 var ranking = new RecruitClassRanking
                 {
-                    TeamId = MaddenDatabase.lTables[97].lRecords[i].lEntries[4].Data.ToInt32().GetRealTeamId(),
+                    TeamId = MaddenDatabase.lTables[97].lRecords[i].lEntries[4].Data.ToInt32().GetRealTeamId(this),
                     Points = MaddenDatabase.lTables[97].lRecords[i].lEntries[5].Data.ToInt32(),
                     Star1 = MaddenDatabase.lTables[97].lRecords[i].lEntries[6].Data.ToInt32(),
                     Star2 = MaddenDatabase.lTables[97].lRecords[i].lEntries[7].Data.ToInt32(),
@@ -168,7 +170,7 @@ namespace EA_DB_Editor
 
             for (int i = 0; i < MaddenDatabase.lTables[167].Table.currecords; i++)
             {
-                int teamId = MaddenDatabase.lTables[167].lRecords[i].lEntries[40].Data.ToInt32().GetRealTeamId();
+                int teamId = MaddenDatabase.lTables[167].lRecords[i].lEntries[40].Data.ToInt32().GetRealTeamId(this);
                 RecruitClassRanking ranking = null;
                 if (teamRankings.TryGetValue(teamId, out ranking))
                 {
@@ -213,7 +215,7 @@ namespace EA_DB_Editor
                 cc.Add(new ConferenceChampion
                 {
                     ConferenceId = record.GetInt(0),
-                    TeamId = record.GetInt(1).GetRealTeamId(),
+                    TeamId = record.GetInt(1).GetRealTeamId(this),
                     Year = record.GetInt(2) + ContinuationData.ContinuationYear
                 });
             }
@@ -252,7 +254,7 @@ namespace EA_DB_Editor
                 var record = table.lRecords[i];
                 var gameNumber = record.GetInt(1);
                 var weekNumber = record.GetInt(2);
-                var teamId = record.GetInt(0).GetRealTeamId();
+                var teamId = record.GetInt(0).GetRealTeamId(this);
                 var game = games[ScheduledGame.CreateKey(weekNumber, gameNumber)];
 
                 //create the box score
@@ -524,8 +526,8 @@ namespace EA_DB_Editor
                     PostSeason = table.lRecords[i].lEntries[0].Data.ToInt32(),
                     AwayScore = table.lRecords[i].lEntries[1].Data.ToInt32(),
                     HomeScore = table.lRecords[i].lEntries[2].Data.ToInt32(),
-                    AwayTeamId = table.lRecords[i].lEntries[6].Data.ToInt32().GetRealTeamId(),
-                    HomeTeamId = table.lRecords[i].lEntries[7].Data.ToInt32().GetRealTeamId(),
+                    AwayTeamId = table.lRecords[i].lEntries[6].Data.ToInt32().GetRealTeamId(this),
+                    HomeTeamId = table.lRecords[i].lEntries[7].Data.ToInt32().GetRealTeamId(this),
                     DynastySeason = table.lRecords[i].lEntries[8].Data.ToInt32(),
                     GameNumber = table.lRecords[i].lEntries[11].Data.ToInt32(),
                     Week = table.lRecords[i].lEntries[12].Data.ToInt32(),
@@ -644,7 +646,7 @@ namespace EA_DB_Editor
             for (int i = 0; i < table.Table.currecords; i++)
             {
                 var record = table.lRecords[i];
-                var teamId = record.GetInt(0).GetRealTeamId();
+                var teamId = record.GetInt(0).GetRealTeamId(this);
                 Dictionary<int, TeamSeasonRecord> teamSeasonRecords;
                 if (teamRecords.TryGetValue(teamId, out teamSeasonRecords) == false)
                 {
@@ -696,7 +698,7 @@ namespace EA_DB_Editor
                 var coach = new Coach
                 {
                     Id = MaddenDatabase.lTables[133].lRecords[i].lEntries[20].Data.ToInt32(),
-                    TeamId = MaddenDatabase.lTables[133].lRecords[i].lEntries[23].Data.ToInt32().GetRealTeamId(),
+                    TeamId = MaddenDatabase.lTables[133].lRecords[i].lEntries[23].Data.ToInt32().GetRealTeamId(this),
                     Position = MaddenDatabase.lTables[133].lRecords[i].lEntries[100].Data.ToInt32(),
                     FirstName = MaddenDatabase.lTables[133].lRecords[i].lEntries[65].Data,
                     LastName = MaddenDatabase.lTables[133].lRecords[i].lEntries[66].Data,
@@ -714,7 +716,7 @@ namespace EA_DB_Editor
                     Exp = exp,
                     OffPlaybookId = coachTable.lRecords[i]["CPID"].ToInt32(),
                     DefPlaybookId = (DefensivePlaybook)coachTable.lRecords[i]["CDID"].ToInt32(),
-                    AlmaMaterId = coachTable.lRecords[i]["CHFT"].ToInt32().GetRealTeamId(),
+                    AlmaMaterId = coachTable.lRecords[i]["CHFT"].ToInt32().GetRealTeamId(this),
                     CoachBowlWin = coachTable.lRecords[i]["CBLW"].ToInt32(),
                     CoachBowlLoss = coachTable.lRecords[i]["CBLL"].ToInt32(),
                     AllAmericans = coachTable.lRecords[i]["CNAA"].ToInt32(),
@@ -742,7 +744,7 @@ namespace EA_DB_Editor
             var table = MaddenDatabase.lTables[167];
             for (int i = 0; i < table.Table.currecords; i++)
             {
-                var teamId = table.lRecords[i].lEntries[40].Data.ToInt32().GetRealTeamId();
+                var teamId = table.lRecords[i].lEntries[40].Data.ToInt32().GetRealTeamId(this);
 
                 // don't look at any team with an id greater than 235 and less than 901 which is the first teambuilder team id
                 if (teamId > 235 && teamId < 901)
@@ -811,7 +813,7 @@ namespace EA_DB_Editor
                 var record = table.lRecords[i];
                 var bc = new BowlChampion
                 {
-                    TeamId = record.GetInt(0).GetRealTeamId(),
+                    TeamId = record.GetInt(0).GetRealTeamId(this),
                     Year = record.GetInt(1) + ContinuationData.ContinuationYear,
                     BowlId = record.GetInt(2)
                 };
@@ -834,7 +836,7 @@ namespace EA_DB_Editor
 
             for (int i = 0; i < table.Table.currecords; i++)
             {
-                var teamId = table.lRecords[i].lEntries[2].Data.ToInt32().GetRealTeamId();
+                var teamId = table.lRecords[i].lEntries[2].Data.ToInt32().GetRealTeamId(this);
 
                 // get or create team schedule
                 if (TeamSchedules.TryGetValue(teamId, out var teamSchedule) == false)
@@ -848,7 +850,7 @@ namespace EA_DB_Editor
                 var game = new Game
                 {
                     IsHomeGame = table.lRecords[i].lEntries[0].Data.ToInt32() > 0,
-                    OpponentId = table.lRecords[i].lEntries[1].Data.ToInt32().GetRealTeamId(),
+                    OpponentId = table.lRecords[i].lEntries[1].Data.ToInt32().GetRealTeamId(this),
                     GameNumber = table.lRecords[i].lEntries[3].Data.ToInt32(),
                     Week = table.lRecords[i].lEntries[4].Data.ToInt32(),
                     TeamId = teamId
@@ -1075,7 +1077,7 @@ namespace EA_DB_Editor
                     LastName = record.GetData(16),
                     Acc = record.GetInt(29),
                     Id = record.GetInt(34),
-                    TeamId = record.GetInt(35).GetRealTeamId(),
+                    TeamId = record.GetInt(35).GetRealTeamId(this),
                     OriginalPlayerId = record.GetInt(36),
                     Spd = record.GetInt(39),
                     IsRedShirt = record.GetInt(40) == 2,
@@ -1118,7 +1120,7 @@ namespace EA_DB_Editor
             for (int i = 0; i < table.Table.currecords; i++)
             {
                 var row = table.lRecords[i];
-                var teamId = row.GetInt(0).GetRealTeamId();
+                var teamId = row.GetInt(0).GetRealTeamId(this);
 
                 var stats = new TeamStat
                 {
@@ -1173,7 +1175,7 @@ namespace EA_DB_Editor
             for (int i = 0; i < table.Length; i++)
             {
                 var record = table[i];
-                var teamId = record.GetInt(7).GetRealTeamId();
+                var teamId = record.GetInt(7).GetRealTeamId(this);
                 var holder = record["RCDH"].Substring(5);
 
                 TeamRecord.SetNewRecord(
@@ -1190,7 +1192,7 @@ namespace EA_DB_Editor
         {
             var draftHistoryTable = MaddenTable.FindTable(MaddenDatabase.lTables, "TPHS");
             return draftHistoryTable.lRecords.GroupBy(
-                mr => mr["TGID"].ToInt32().GetRealTeamId(),
+                mr => mr["TGID"].ToInt32().GetRealTeamId(this),
                 mr => new DraftClass
                 {
                     DynastyYear = mr["dryr"].ToInt32(),
@@ -1205,7 +1207,7 @@ namespace EA_DB_Editor
         {
             var mediaTable = MaddenTable.FindMaddenTable(MaddenDatabase.lTables, "MCOV");
             return mediaTable.lRecords
-                .GroupBy(mr => mr["TGID"].ToInt32().GetRealTeamId())
+                .GroupBy(mr => mr["TGID"].ToInt32().GetRealTeamId(this))
                 .ToDictionary(
                     group => group.Key,
                     group => group
@@ -1213,7 +1215,7 @@ namespace EA_DB_Editor
                         .Select(mr =>
                         new MediaCoverage
                         {
-                            TeamId = mr["TGID"].ToInt32().GetRealTeamId(),
+                            TeamId = mr["TGID"].ToInt32().GetRealTeamId(this),
                             GameNumber = mr["SGNM"].ToInt32(),
                             Week = mr["SEWN"].ToInt32(),
                             PlayerId = mr["PGID"].ToInt32(),
@@ -1228,7 +1230,7 @@ namespace EA_DB_Editor
         public Dictionary<int, Dictionary<int, DepthChartPosition[]>> ReadDepthCharts()
         {
             var depthChartTable = MaddenTable.FindMaddenTable(MaddenDatabase.lTables, "DCHT");
-            return depthChartTable.lRecords.Where(mr => mr["TGID"].ToInt32().GetRealTeamId().IsValidTeam()).GroupBy(mr => mr["TGID"].ToInt32().GetRealTeamId()).ToDictionary(
+            return depthChartTable.lRecords.Where(mr => mr["TGID"].ToInt32().GetRealTeamId(this).IsValidTeam()).GroupBy(mr => mr["TGID"].ToInt32().GetRealTeamId(this)).ToDictionary(
                 group => group.Key,
                 group => group.Select(g =>
                     new DepthChartPosition

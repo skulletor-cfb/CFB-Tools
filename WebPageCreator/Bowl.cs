@@ -79,7 +79,7 @@ namespace EA_DB_Editor
 
             if (!isPreseason)
             {
-                BowlRecords.EnsureInstanceExists();
+                BowlRecords.EnsureInstanceExists(dataEngine);
             }
         }
 

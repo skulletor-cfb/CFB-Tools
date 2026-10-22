@@ -41,7 +41,7 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void Polls()
+        public static void Polls(IDataEngine dataEngine)
         {
 
             TextWriter tw;
@@ -95,7 +95,7 @@ namespace EA_DB_Editor
             sb.AppendLine("Team,TeamId,Record,National,Conference,WinPct");
             foreach (var team in Team.Teams.Values.Where(t => t.Id.IsFCS()==false).OrderByDescending(t => t.NationalTitles).ThenByDescending(t => t.AllTimeWin))
             {
-                if(team.Id.TeamNoLongerFBS())
+                if(team.Id.TeamNoLongerFBS(dataEngine))
                 {
                     continue;
                 }

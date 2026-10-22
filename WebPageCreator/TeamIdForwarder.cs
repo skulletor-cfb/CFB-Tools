@@ -8,11 +8,34 @@ namespace EA_DB_Editor
     {
         public static Dictionary<int, int> TeamIdFwd = ConfigurationManager.AppSettings["TeamIdFwd"]?.Split(',').ToDictionary(s => s.Split('=').First().ToInt32(), s => s.Split('=')[1].ToInt32()) ?? new Dictionary<int, int>();
 
-        public static int GetRealTeamId(this int id)
+        public static int GetRealTeamId(this int id, IDataEngine dataEngine)
         {
-            return TeamIdFwd.TryGetValue(id, out var value) ? value : id;
+            return id.GetRealTeamId(dataEngine is NCAA14DataEngine);
         }
 
-        public static bool TeamNoLongerFBS(this int id) => TeamIdFwd.ContainsKey(id);
+        public static int GetRealTeamId(this int id, bool checkTeamIdFwd)
+        {
+            if (checkTeamIdFwd)
+            {
+                return TeamIdFwd.TryGetValue(id, out var value) ? value : id;
+            }
+
+            return id;
+        }
+
+        public static bool TeamNoLongerFBS(this int id, bool checkTeamIdFwd)
+        {
+            if (checkTeamIdFwd)
+            {
+                return TeamIdFwd.ContainsKey(id);
+            }
+
+            return false;
+        }
+
+        public static bool TeamNoLongerFBS(this int id, IDataEngine dataEngine)
+        {
+            return id.TeamNoLongerFBS(dataEngine is NCAA14DataEngine);
+        }
     }
 }

@@ -11,6 +11,7 @@ namespace EA_DB_Editor
 
     public class CFB27DataEngine : IDataEngine
     {
+        private Dictionary<int, Dictionary<int, TeamSeasonRecord>> teamHistoricRecords;
         private FranchiseFile dynasty;
         public CFBTable<CFBTeam> Teams { get; private set; }
         public CFBTable<CFBBowl> Bowls { get; private set; }
@@ -30,6 +31,8 @@ namespace EA_DB_Editor
 
         public Dictionary<int, string> TeamNames { get; private set; }
         public int TeamCount => 138;
+
+        public bool SkipFirstHistoricRecord => false;
 
         public CFB27DataEngine(FranchiseFile dynasty)
         {
@@ -102,7 +105,7 @@ namespace EA_DB_Editor
                 // now add to a team schedules
                 var awayGame = new Game
                 {
-                    IsHomeGame  = false,
+                    IsHomeGame = false,
                     OpponentId = sg.RealHomeTeamId,
                     GameNumber = sg.SeasonGameNum,
                     Week = sg.SeasonWeek,
@@ -128,7 +131,7 @@ namespace EA_DB_Editor
                     gamesForWeek.Add(homeGame);
                 }
 
-                if (!awaySchedule?.TryGetValue(sg.SeasonWeek, out  gamesForWeek) ?? false)
+                if (!awaySchedule?.TryGetValue(sg.SeasonWeek, out gamesForWeek) ?? false)
                 {
                     gamesForWeek = new List<Game>();
                     awaySchedule.Add(awayGame.Week, gamesForWeek);
@@ -139,16 +142,14 @@ namespace EA_DB_Editor
             return schedules;
         }
 
+        /// <summary>
+        /// The season is over once the game has moved to the offseason (SeasonInfo.CurrentStage: PreSeason, NFLSeason,
+        /// OffSeason). It stays OffSeason until the next season's preseason, when CurrentSeasonYear moves on.
+        /// </summary>
         public bool IsSeasonOver()
         {
-            const int nationalChampionshipId = 11;
-
-            if(BowlSeasonGames.TryGetValue(nationalChampionshipId, out var championshipGame))
-            {
-                return (championshipGame.HomeScore + championshipGame.AwayScore) > 0;
-            }
-
-            return false;
+            var seasonInfo = dynasty.GetPrimaryTable("SeasonInfo").Records.First(r => !r.IsEmpty);
+            return string.Equals(seasonInfo["CurrentStage"] as string, "OffSeason");
         }
 
         public void ReadBowlChampions(Dictionary<string, BowlChampion> bowlChampions)
@@ -156,7 +157,7 @@ namespace EA_DB_Editor
             // no changes in preseason
             if (!this.IsSeasonOver())
             {
-                return; 
+                return;
             }
 
             foreach (var sg in BowlSeasonGames.Values)
@@ -322,14 +323,28 @@ namespace EA_DB_Editor
 
         public Dictionary<int, Team> ReadTeams(bool isPreseason)
         {
+            var thr = this.CreateTeamHistoricRecords();
+
             var conferenceByTeamRow = ReadConferenceByTeamRow();
             return this.Teams.Records.ToDictionary(t => t.TeamId, t =>
             {
                 var team = new Team(t, isPreseason);
+                if (thr.TryGetValue(team.Id, out var records) && records.Count > 0)
+                {
+                    var key = records.Keys.Max();
+                    var record = records[key];
+                    team.PriorSeasonWin = record.Win;
+                    team.PriorSeasonLoss = record.Loss;
+                }
+
                 if (conferenceByTeamRow.TryGetValue(t.Row, out var conference))
                 {
                     team.ConferenceId = conference.ConferenceId;
                     team.DivisionId = conference.DivisionId;
+                }
+                else if (team.Id.IsFCS())
+                {
+                    team.ConferenceId = 17;
                 }
 
                 return team;
@@ -394,6 +409,15 @@ namespace EA_DB_Editor
         /// continuation file come first, as in NCAA 14.
         /// </summary>
         public Dictionary<int, Dictionary<int, TeamSeasonRecord>> CreateTeamHistoricRecords()
+        {
+            if (this.teamHistoricRecords == null)
+            {
+                this.teamHistoricRecords = this.ExecuteCreateTeamHistoricRecords();
+            }
+
+            return this.teamHistoricRecords;
+        }
+        private Dictionary<int, Dictionary<int, TeamSeasonRecord>> ExecuteCreateTeamHistoricRecords()
         {
             var teamRecords = new Dictionary<int, Dictionary<int, TeamSeasonRecord>>();
             var seasonInfo = dynasty.GetPrimaryTable("SeasonInfo").Records.First(r => !r.IsEmpty);
