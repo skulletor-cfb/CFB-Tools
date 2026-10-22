@@ -114,6 +114,22 @@ public sealed class PreseasonSchedule
         return game;
     }
 
+    /// <summary>Days a game can be played on (the DayOfWeek enum, Sunday ... Saturday).</summary>
+    public IReadOnlyList<string> DayOptions => EnumOptions("DayOfWeek");
+
+    /// <summary>Kickoff slots (the GameTimeRange enum): exact times such as T1200 and ranges such as NIGHT_FIRST.</summary>
+    public IReadOnlyList<string> TimeSlotOptions => EnumOptions("TimeOfDayEnum");
+
+    private IReadOnlyList<string> EnumOptions(string field)
+    {
+        var members = _gameTable.OffsetTable.FirstOrDefault(o => o.Name == field)?.Enum?.Members;
+        // skip markers like First_ and the Invalid/INVALID placeholders
+        return members?
+            .Where(m => !m.Name.EndsWith("_") && !string.Equals(m.Name, "Invalid", StringComparison.OrdinalIgnoreCase))
+            .Select(m => m.Name)
+            .ToList() ?? new List<string>();
+    }
+
     public string? TeamName(int teamRow) =>
         teamRow >= 0 && teamRow < TeamTable.Records.Count ? TeamTable.Records[teamRow]["DisplayName"] as string : null;
 
@@ -248,16 +264,57 @@ public sealed class ScheduledGame
     /// <summary>Row in the Team table, or -1 when the slot is empty or points elsewhere.</summary>
     public int HomeTeamRow => TeamRow("HomeTeam");
     public int AwayTeamRow => TeamRow("AwayTeam");
-    public int Week => Convert.ToInt32(Record["SeasonWeek"]);
+    /// <summary>Regular-season week, 0-14.</summary>
+    public int Week
+    {
+        get => Convert.ToInt32(Record["SeasonWeek"]);
+        set => Record["SeasonWeek"] = value;
+    }
+
     public string? WeekType => Record["SeasonWeekType"] as string;
-    public string? DayOfWeek => Record["DayOfWeek"] as string;
-    /// <summary>Kickoff slot such as "T1200", "NIGHT_FIRST" or "DAY_LAST".</summary>
-    public string? TimeSlot => Record["TimeOfDayEnum"] as string;
-    public bool IsKickoffGame => Record["IsKickoffGame"] is true;
+
+    /// <summary>A <see cref="PreseasonSchedule.DayOptions"/> value, e.g. "Saturday".</summary>
+    public string? DayOfWeek
+    {
+        get => Record["DayOfWeek"] as string;
+        set => Record["DayOfWeek"] = value;
+    }
+
+    /// <summary>Kickoff slot such as "T1200", "NIGHT_FIRST" or "DAY_LAST" (<see cref="PreseasonSchedule.TimeSlotOptions"/>).</summary>
+    public string? TimeSlot
+    {
+        get => Record["TimeOfDayEnum"] as string;
+        set => Record["TimeOfDayEnum"] = value;
+    }
+
+    public bool IsKickoffGame
+    {
+        get => Record["IsKickoffGame"] is true;
+        set => Record["IsKickoffGame"] = value;
+    }
+
     public bool IsEnabled => Record["IsEnabled"] is true;
+
+    /// <summary>
+    /// The stadium's 32-bit asset reference (the same ids Team.Stadium uses). 0 means the home team's stadium, which is
+    /// how almost every game is stored; a neutral-site game names its stadium.
+    /// </summary>
+    public uint StadiumId
+    {
+        get => Record["Stadium"] is string bits ? Convert.ToUInt32(bits, 2) : 0;
+        set => Record["Stadium"] = BinaryUtil.GetBinaryReferenceData((int)(value >> 17), (int)(value & 0x1FFFF));
+    }
 
     public void SetHomeTeam(int teamRow) => Record["HomeTeam"] = BinaryUtil.GetBinaryReferenceData(_teamTable.Header.TableId, teamRow);
     public void SetAwayTeam(int teamRow) => Record["AwayTeam"] = BinaryUtil.GetBinaryReferenceData(_teamTable.Header.TableId, teamRow);
+
+    /// <summary>Swaps which team hosts the game.</summary>
+    public void FlipHomeAndAway()
+    {
+        int home = HomeTeamRow, away = AwayTeamRow;
+        SetHomeTeam(away);
+        SetAwayTeam(home);
+    }
 
     private int TeamRow(string field) =>
         Record.GetFieldByKey(field)?.ReferenceData is { } r && r.TableId == _teamTable.Header.TableId ? r.RowNumber : -1;

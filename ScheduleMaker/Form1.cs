@@ -1,0 +1,537 @@
+using CFB27.Data.Model;
+using MaddenFranchise;
+using MaddenFranchise.Dynasty;
+using NCAA14Utility;
+
+namespace ScheduleMaker
+{
+    /// <summary>
+    /// Edits a CFB 27 dynasty's schedule in the preseason (PreseasonSchedule): one grid of every game, sorted by week
+    /// and home team. Edits go straight into the save; the grid only re-sorts on Ctrl+H.
+    /// </summary>
+    public partial class Form1 : Form
+    {
+        private const int LastRegularSeasonWeek = 14;
+        private const int NoTeamIndex = 255;
+        private const string ScheduleModelFile = @"D:\repos\CFB-Tools\Release\schedulemodel.txt";
+
+        private readonly DataGridView grid = new DataGridView();
+        private readonly ToolStripStatusLabel status = new ToolStripStatusLabel();
+
+        private FranchiseFile? dynasty;
+        private PreseasonSchedule? schedule;
+        private string? savePath;
+        private bool isDirty;
+
+        // grid columns
+        private DataGridViewComboBoxColumn weekColumn = null!;
+        private DataGridViewComboBoxColumn dayColumn = null!;
+        private DataGridViewComboBoxColumn timeColumn = null!;
+        private DataGridViewComboBoxColumn awayColumn = null!;
+        private DataGridViewComboBoxColumn homeColumn = null!;
+        private DataGridViewComboBoxColumn stadiumColumn = null!;
+        private DataGridViewCheckBoxColumn kickoffColumn = null!;
+        private DataGridViewTextBoxColumn conferenceColumn = null!;
+
+        private bool populating;
+
+        public Form1()
+        {
+            InitializeComponent();
+            Text = "CFB 27 Schedule Maker";
+            ClientSize = new Size(1200, 800);
+
+            BuildGrid();
+            BuildMenu();
+
+            var statusStrip = new StatusStrip();
+            statusStrip.Items.Add(status);
+            Controls.Add(statusStrip);
+            status.Text = "Ctrl+O to open a preseason dynasty save.";
+
+            FormClosing += OnFormClosing;
+        }
+
+        #region read / save
+
+        /// <summary>Ctrl+O. Picks a dynasty save (DYNASTY-xxx, no extension) and shows its preseason schedule.</summary>
+        private void OpenSave()
+        {
+            if (isDirty &&
+                MessageBox.Show(this, "You have unsaved schedule changes. Open another save anyway?", "Open",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+            {
+                return;
+            }
+
+            // Documents\EA SPORTS College Football 27\saves (MyDocuments follows a OneDrive redirect)
+            var savesFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "EA SPORTS College Football 27", "saves");
+
+            using var dialog = new OpenFileDialog
+            {
+                Title = "Open dynasty save",
+                InitialDirectory = savePath != null ? Path.GetDirectoryName(savePath) : Directory.Exists(savesFolder) ? savesFolder : null,
+                Filter = "Dynasty saves|DYNASTY-*|All files|*.*",
+                CheckFileExists = true,
+            };
+
+            if (dialog.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+
+            try
+            {
+                Cursor = Cursors.WaitCursor;
+                LoadSchedule(FranchiseFile.Load(dialog.FileName), dialog.FileName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "Open failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        /// <summary>Ctrl+R. Writes the schedule as it stands (schedulemodel.txt, the ScheduleDisplay format) to the current directory.</summary>
+        private void ReadSave()
+        {
+            if (dynasty == null || schedule == null)
+            {
+                status.Text = "Ctrl+O to open a save first.";
+                return;
+            }
+
+            try
+            {
+                grid.EndEdit();
+                var path = Path.Combine(Environment.CurrentDirectory, ScheduleModelFile);
+                ScheduleModelExporter.Create(dynasty, schedule).WriteJsonFile(path);
+                status.Text = $"Wrote {path}";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "Export failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Shows a save's preseason schedule. Throws (from PreseasonSchedule.Load) if the save is past the preseason,
+        /// since the game moves the schedule into SeasonGame at week 0.
+        /// </summary>
+        public void LoadSchedule(FranchiseFile file, string? path)
+        {
+            var loaded = PreseasonSchedule.Load(file);
+
+            dynasty = file;
+            schedule = loaded;
+            savePath = path;
+            isDirty = false;
+
+            SetColumnChoices();
+            RefreshGrid();
+        }
+
+        private void SaveAs()
+        {
+            if (dynasty == null)
+            {
+                return;
+            }
+
+            grid.EndEdit();
+            var problems = schedule!.Validate();
+            if (problems.Count > 0 &&
+                MessageBox.Show(this, "The schedule has problems:\n\n" + string.Join("\n", problems.Take(20)) + "\n\nSave anyway?",
+                    "Save", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+            {
+                return;
+            }
+
+            using var dialog = new SaveFileDialog
+            {
+                Title = "Save schedule as",
+                InitialDirectory = savePath == null ? null : Path.GetDirectoryName(savePath),
+                FileName = savePath == null ? "DYNASTY-EDIT" : Path.GetFileName(savePath) + "-EDIT",
+                Filter = "Dynasty saves|DYNASTY-*|All files|*.*",
+                OverwritePrompt = true,
+            };
+
+            if (dialog.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+
+            try
+            {
+                var result = dynasty.Save(dialog.FileName);
+                isDirty = false;
+                savePath = dialog.FileName;
+                status.Text = $"Saved {result.Destination} ({result.CompressedSize:N0} of {result.Budget:N0} bytes).";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "Save failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        #endregion
+
+        #region layout
+
+        private void BuildMenu()
+        {
+            var menu = new MenuStrip();
+
+            var file = new ToolStripMenuItem("&File");
+            file.DropDownItems.Add(new ToolStripMenuItem("&Open save...", null, (s, e) => OpenSave(), Keys.Control | Keys.O));
+            file.DropDownItems.Add(new ToolStripMenuItem("&Write schedule model", null, (s, e) => ReadSave(), Keys.Control | Keys.R));
+            file.DropDownItems.Add(new ToolStripMenuItem("Save &as...", null, (s, e) => SaveAs(), Keys.Control | Keys.S));
+            file.DropDownItems.Add(new ToolStripSeparator());
+            file.DropDownItems.Add(new ToolStripMenuItem("E&xit", null, (s, e) => Close()));
+
+            var games = new ToolStripMenuItem("&Games");
+            games.DropDownItems.Add(new ToolStripMenuItem("&Add game", null, (s, e) => AddGame(), Keys.Control | Keys.N));
+            games.DropDownItems.Add(new ToolStripMenuItem("&Flip home and away", null, (s, e) => FlipSelected(), Keys.Control | Keys.F));
+            games.DropDownItems.Add(new ToolStripSeparator());
+            games.DropDownItems.Add(new ToolStripMenuItem("Re&fresh grid", null, (s, e) => { grid.EndEdit(); RefreshGrid(); }, Keys.Control | Keys.H));
+            games.DropDownItems.Add(new ToolStripMenuItem("&Validate", null, (s, e) => ShowValidation()));
+
+            menu.Items.Add(file);
+            menu.Items.Add(games);
+            MainMenuStrip = menu;
+            Controls.Add(menu);
+        }
+
+        private void BuildGrid()
+        {
+            grid.Dock = DockStyle.Fill;
+            grid.AllowUserToAddRows = false;
+            grid.AllowUserToDeleteRows = false;
+            grid.AutoGenerateColumns = false;
+            grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            grid.EditMode = DataGridViewEditMode.EditOnEnter;
+            grid.RowHeadersWidth = 30;
+
+            weekColumn = ComboColumn("Week", 60);
+            dayColumn = ComboColumn("Day", 100);
+            timeColumn = ComboColumn("Time", 160);
+            awayColumn = ComboColumn("Away", 180);
+            homeColumn = ComboColumn("Home", 180);
+            stadiumColumn = ComboColumn("Stadium", 300);
+            kickoffColumn = new DataGridViewCheckBoxColumn { HeaderText = "Kickoff", Width = 60 };
+            conferenceColumn = new DataGridViewTextBoxColumn { HeaderText = "Conf", Width = 120, ReadOnly = true };
+
+            grid.Columns.AddRange(weekColumn,  homeColumn, awayColumn, stadiumColumn, kickoffColumn, dayColumn, timeColumn, conferenceColumn);
+
+            // combo and checkbox edits take effect right away rather than when the cell loses focus
+            grid.CurrentCellDirtyStateChanged += (s, e) =>
+            {
+                if (grid.IsCurrentCellDirty)
+                {
+                    grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
+                }
+            };
+            grid.CellValueChanged += OnCellValueChanged;
+            grid.DataError += (s, e) => e.ThrowException = false;
+
+            Controls.Add(grid);
+        }
+
+        private static DataGridViewComboBoxColumn ComboColumn(string header, int width) =>
+            new DataGridViewComboBoxColumn
+            {
+                HeaderText = header,
+                Width = width,
+                FlatStyle = FlatStyle.Flat,
+                DisplayStyle = DataGridViewComboBoxDisplayStyle.Nothing,
+            };
+
+        private sealed class Choice<T>
+        {
+            public Choice(T value, string name)
+            {
+                Value = value;
+                Name = name;
+            }
+
+            public T Value { get; }
+            public string Name { get; }
+        }
+
+        /// <summary>Teams, days, time slots and stadiums for the combo columns.</summary>
+        private void SetColumnChoices()
+        {
+            var s = schedule!;
+
+            weekColumn.DataSource = Enumerable.Range(0, LastRegularSeasonWeek + 1).ToList();
+            dayColumn.DataSource = s.DayOptions.ToList();
+            timeColumn.DataSource = s.TimeSlotOptions.ToList();
+
+            var teams = s.TeamTable.Records
+                .Where(r => !r.IsEmpty && !string.IsNullOrEmpty(r["DisplayName"] as string))
+                .Select(r => new Choice<int>(r.Index, (string)r["DisplayName"]!))
+                .OrderBy(t => t.Name)
+                .ToList();
+            foreach (var column in new[] { awayColumn, homeColumn })
+            {
+                column.ValueMember = nameof(Choice<int>.Value);
+                column.DisplayMember = nameof(Choice<int>.Name);
+                column.DataSource = teams.ToList();
+            }
+
+            stadiumColumn.ValueMember = nameof(Choice<long>.Value);
+            stadiumColumn.DisplayMember = nameof(Choice<long>.Name);
+            stadiumColumn.DataSource = StadiumChoices();
+        }
+
+        /// <summary>
+        /// "(Home stadium)" first, then the neutral sites marked with "*" (the known ones plus any other non-home stadium
+        /// the schedule already uses), then every team's home stadium. Each group is alphabetical.
+        /// </summary>
+        private List<Choice<long>> StadiumChoices()
+        {
+            var homes = new Dictionary<long, string>();
+            foreach (var team in schedule!.TeamTable.Records.Where(r => !r.IsEmpty))
+            {
+                if (team["Stadium"] is not string bits || Convert.ToUInt32(bits, 2) == 0)
+                {
+                    continue;
+                }
+
+                var stadium = CFBStadium.FindHome(team["AssetName"] as string, team["ShortName"] as string);
+                homes.TryAdd(Convert.ToUInt32(bits, 2), stadium?.Name ?? $"{team["DisplayName"]} home stadium");
+            }
+
+            var neutrals = new Dictionary<long, string>();
+            foreach (var neutral in CFBStadium.NeutralSites.Where(n => !homes.ContainsKey(n.Key)))
+            {
+                neutrals.TryAdd(neutral.Key, neutral.Value);
+            }
+
+            foreach (var game in schedule.Games.Where(g => g.StadiumId != 0 && !homes.ContainsKey(g.StadiumId)))
+            {
+                neutrals.TryAdd(game.StadiumId, $"Stadium 0x{game.StadiumId:X8}");
+            }
+
+            var choices = new List<Choice<long>> { new Choice<long>(0, "(Home stadium)") };
+            choices.AddRange(neutrals.OrderBy(n => n.Value).Select(n => new Choice<long>(n.Key, "* " + n.Value)));
+            choices.AddRange(homes.OrderBy(h => h.Value).Select(h => new Choice<long>(h.Key, h.Value)));
+            return choices;
+        }
+
+        #endregion
+
+        #region grid
+
+        /// <summary>Ctrl+H. Rebuilds the grid sorted by week, then home team.</summary>
+        private void RefreshGrid()
+        {
+            if (schedule == null)
+            {
+                return;
+            }
+
+            var selected = grid.CurrentRow?.Tag as ScheduledGame;
+
+            populating = true;
+            grid.SuspendLayout();
+            grid.Rows.Clear();
+            foreach (var game in schedule.Games
+                .OrderBy(g => g.Week)
+                .ThenBy(g => schedule.TeamName(g.HomeTeamRow) ?? string.Empty))
+            {
+                AddRow(game);
+            }
+            grid.ResumeLayout();
+            populating = false;
+
+            HighlightConflicts();
+            if (selected != null)
+            {
+                SelectGame(selected);
+            }
+
+            UpdateStatus();
+        }
+
+        private void AddRow(ScheduledGame game)
+        {
+            int index = grid.Rows.Add();
+            var row = grid.Rows[index];
+            row.Tag = game;
+            FillRow(row);
+        }
+
+        private void FillRow(DataGridViewRow row)
+        {
+            var game = (ScheduledGame)row.Tag!;
+            bool wasPopulating = populating;
+            populating = true;
+
+            row.Cells[weekColumn.Index].Value = game.Week;
+            row.Cells[dayColumn.Index].Value = game.DayOfWeek;
+            row.Cells[timeColumn.Index].Value = game.TimeSlot;
+            row.Cells[awayColumn.Index].Value = game.AwayTeamRow;
+            row.Cells[homeColumn.Index].Value = game.HomeTeamRow;
+            row.Cells[stadiumColumn.Index].Value = (long)game.StadiumId;
+            row.Cells[kickoffColumn.Index].Value = game.IsKickoffGame;
+            row.Cells[conferenceColumn.Index].Value = schedule!.IsConferenceGame(game) ? schedule.ConferenceOf(game.HomeTeamRow) : string.Empty;
+
+            populating = wasPopulating;
+        }
+
+        private void OnCellValueChanged(object? sender, DataGridViewCellEventArgs e)
+        {
+            if (populating || e.RowIndex < 0 || grid.Rows[e.RowIndex].Tag is not ScheduledGame game)
+            {
+                return;
+            }
+
+            var value = grid.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+            if (value == null)
+            {
+                return;
+            }
+
+            if (e.ColumnIndex == weekColumn.Index) game.Week = Convert.ToInt32(value);
+            else if (e.ColumnIndex == dayColumn.Index) game.DayOfWeek = (string)value;
+            else if (e.ColumnIndex == timeColumn.Index) game.TimeSlot = (string)value;
+            else if (e.ColumnIndex == awayColumn.Index) game.SetAwayTeam(Convert.ToInt32(value));
+            else if (e.ColumnIndex == homeColumn.Index) game.SetHomeTeam(Convert.ToInt32(value));
+            else if (e.ColumnIndex == stadiumColumn.Index) game.StadiumId = (uint)Convert.ToInt64(value);
+            else if (e.ColumnIndex == kickoffColumn.Index) game.IsKickoffGame = (bool)value;
+            else return;
+
+            isDirty = true;
+
+            // the conference label depends on the teams; the row keeps its place until Ctrl+H
+            FillRow(grid.Rows[e.RowIndex]);
+            HighlightConflicts();
+            UpdateStatus();
+        }
+
+        /// <summary>
+        /// Rows where a team plays twice in one week are shown in red. The game's generic FCS opponents (TeamIndex 255)
+        /// legitimately play several games a week, so they don't count.
+        /// </summary>
+        private void HighlightConflicts()
+        {
+            var games = grid.Rows.Cast<DataGridViewRow>().Select(r => (Row: r, Game: (ScheduledGame)r.Tag!)).ToList();
+            var doubleBooked = games
+                .SelectMany(x => new[] { (Team: x.Game.HomeTeamRow, x.Game.Week), (Team: x.Game.AwayTeamRow, x.Game.Week) })
+                .Where(x => x.Team >= 0 && !IsGenericFcsTeam(x.Team))
+                .GroupBy(x => x)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToHashSet();
+
+            foreach (var (row, game) in games)
+            {
+                bool conflict = doubleBooked.Contains((game.HomeTeamRow, game.Week)) || doubleBooked.Contains((game.AwayTeamRow, game.Week));
+                row.DefaultCellStyle.BackColor = conflict ? Color.MistyRose : Color.Empty;
+            }
+        }
+
+        private bool IsGenericFcsTeam(int teamRow) =>
+            Convert.ToInt32(schedule!.TeamTable.Records[teamRow]["TeamIndex"]) == NoTeamIndex;
+
+        private void SelectGame(ScheduledGame game)
+        {
+            var row = grid.Rows.Cast<DataGridViewRow>().FirstOrDefault(r => ReferenceEquals(r.Tag, game));
+            if (row != null)
+            {
+                grid.CurrentCell = row.Cells[weekColumn.Index];
+            }
+        }
+
+        private void UpdateStatus()
+        {
+            if (schedule == null)
+            {
+                return;
+            }
+
+            int conflicts = grid.Rows.Cast<DataGridViewRow>().Count(r => r.DefaultCellStyle.BackColor == Color.MistyRose);
+            status.Text = $"{(savePath == null ? "(no file)" : Path.GetFileName(savePath))}: {schedule.Games.Count} games" +
+                (conflicts > 0 ? $", {conflicts} in conflict" : string.Empty) +
+                (isDirty ? " - unsaved changes" : string.Empty) +
+                "   |   Ctrl+H refresh, Ctrl+N add, Ctrl+F flip, Ctrl+S save as";
+        }
+
+        #endregion
+
+        #region commands
+
+        /// <summary>Adds a game at the bottom of the grid (it sorts into place on Ctrl+H), starting from the selected game's week and teams.</summary>
+        private void AddGame()
+        {
+            if (schedule == null)
+            {
+                return;
+            }
+
+            grid.EndEdit();
+            var template = grid.CurrentRow?.Tag as ScheduledGame;
+            int home = template?.HomeTeamRow ?? schedule.Games[0].HomeTeamRow;
+            int away = template?.AwayTeamRow ?? schedule.Games[0].AwayTeamRow;
+            int week = template?.Week ?? 0;
+
+            try
+            {
+                var game = schedule.AddGame(home, away, week);
+                isDirty = true;
+                AddRow(game);
+                SelectGame(game);
+                HighlightConflicts();
+                UpdateStatus();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "Add game", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void FlipSelected()
+        {
+            grid.EndEdit();
+            foreach (var row in grid.SelectedRows.Cast<DataGridViewRow>())
+            {
+                ((ScheduledGame)row.Tag!).FlipHomeAndAway();
+                FillRow(row);
+                isDirty = true;
+            }
+
+            HighlightConflicts();
+            UpdateStatus();
+        }
+
+        private void ShowValidation()
+        {
+            if (schedule == null)
+            {
+                return;
+            }
+
+            grid.EndEdit();
+            var problems = schedule.Validate();
+            MessageBox.Show(this,
+                problems.Count == 0 ? "No problems found." : string.Join("\n", problems.Take(40)),
+                "Validate", MessageBoxButtons.OK, problems.Count == 0 ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+        }
+
+        #endregion
+
+        private void OnFormClosing(object? sender, FormClosingEventArgs e)
+        {
+            if (isDirty &&
+                MessageBox.Show(this, "You have unsaved schedule changes. Close anyway?", "Schedule Maker",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+            {
+                e.Cancel = true;
+            }
+        }
+    }
+}

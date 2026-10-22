@@ -9,6 +9,10 @@ namespace NCAA14Utility
         public int Day { get; set; }
         public int OpponentId { get; set; }
         public string Opponent { get; set; }
+        /// <summary>
+        /// CFB27 uses a reference
+        /// </summary>
+        public string OpponentReference { get; set; }
         public bool IsConferenceGame { get; set; }
         public bool IsP5Game { get; set; }
         public bool IsG5Game { get; set; }
