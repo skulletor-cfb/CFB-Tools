@@ -118,6 +118,52 @@ namespace ScheduleMaker
         }
 
         /// <summary>
+        /// Ctrl+I. Replaces the whole schedule with an NCAA 14 SCHD dump (CSV); the teams new in CFB 27 get a round robin
+        /// and an FCS game. Nothing is written until Save as.
+        /// </summary>
+        private void ImportNcaa14Schedule()
+        {
+            if (schedule == null)
+            {
+                status.Text = "Ctrl+O to open a save first.";
+                return;
+            }
+
+            using var dialog = new OpenFileDialog
+            {
+                Title = "Import NCAA 14 schedule (SCHD.csv)",
+                Filter = "CSV files|*.csv|All files|*.*",
+                CheckFileExists = true,
+            };
+
+            if (dialog.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+
+            try
+            {
+                Cursor = Cursors.WaitCursor;
+                grid.EndEdit();
+                var report = Ncaa14ScheduleImporter.Import(schedule, dialog.FileName);
+                schedule.AcceptChanges();
+                isDirty = true;
+                RefreshGrid();
+                MessageBox.Show(this, string.Join("\n\n", report.Take(2)) +
+                    (report.Count > 2 ? "\n\nProblems:\n" + string.Join("\n", report.Skip(2).Take(30)) : "\n\nEvery FBS team has 12 games, one per week."),
+                    "Import", MessageBoxButtons.OK, report.Count > 2 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "Import failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        /// <summary>
         /// Shows a save's preseason schedule. Throws (from PreseasonSchedule.Load) if the save is past the preseason,
         /// since the game moves the schedule into SeasonGame at week 0.
         /// </summary>
@@ -188,6 +234,7 @@ namespace ScheduleMaker
             var file = new ToolStripMenuItem("&File");
             file.DropDownItems.Add(new ToolStripMenuItem("&Open save...", null, (s, e) => OpenSave(), Keys.Control | Keys.O));
             file.DropDownItems.Add(new ToolStripMenuItem("&Write schedule model", null, (s, e) => ReadSave(), Keys.Control | Keys.R));
+            file.DropDownItems.Add(new ToolStripMenuItem("&Import NCAA 14 schedule...", null, (s, e) => ImportNcaa14Schedule(), Keys.Control | Keys.I));
             file.DropDownItems.Add(new ToolStripMenuItem("Save &as...", null, (s, e) => SaveAs(), Keys.Control | Keys.S));
             file.DropDownItems.Add(new ToolStripSeparator());
             file.DropDownItems.Add(new ToolStripMenuItem("E&xit", null, (s, e) => Close()));
@@ -306,7 +353,8 @@ namespace ScheduleMaker
             }
 
             var neutrals = new Dictionary<long, string>();
-            foreach (var neutral in CFBStadium.NeutralSites.Where(n => !homes.ContainsKey(n.Key)))
+            // the generic and high-school stadiums aren't game venues (Oval Stadium crashed a game)
+            foreach (var neutral in CFBStadium.NeutralSites.Where(n => !homes.ContainsKey(n.Key) && !CFBStadium.NonGameSites.Contains(n.Key)))
             {
                 neutrals.TryAdd(neutral.Key, neutral.Value);
             }

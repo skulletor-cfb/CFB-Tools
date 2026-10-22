@@ -1,181 +1,181 @@
-Code,School,Name,Abbreviation,Capacity
-AIRFOR,Air Force,Falcon Stadium,AFA,46692
-AKRONX,Akron,InfoCision Stadium,AKR,30000
-ALBAMA,Alabama,Saban Field at Bryant-Denny Stadium,ALA,101821
-APPSTA,Appalachian State,Kidd Brewer Stadium,APP,30000
-ARIZON,Arizona,Casino Del Sol Stadium,ARIZ,50782
-AZSTAT,Arizona State,Mountain America Stadium,ASU,56232
-ARKANS,Arkansas,DW Reynolds Razorback Stadium,ARK,76212
-ARKSTX,Arkansas State,Centennial Bank Stadium,ARST,30964
-ARMYXX,Army,Michie Stadium,ARMY,36000
-AUBURN,Auburn,Jordan-Hare Stadium,AUB,87451
-BALLST,Ball State,Scheumann Stadium,BALL,22500
-BAYLOR,Baylor,McLane Stadium,BAY,45140
-BOISES,Boise State,Albertsons Stadium,BSU,36387
-BOSTON,Boston College,Alumni Stadium,BC,44500
-BOWLGR,Bowling Green,Doyt L. Perry Stadium,BGSU,24000
-BUFFAL,Buffalo,Broadview Stadium,BUFF,29013
-BYUXXX,BYU,LaVell Edwards Stadium,BYU,63470
-CALXXX,Cal,California Memorial Stadium,CAL,62717
-CMICHI,Central Michigan,Kelly-Shorts Stadium,CMU,30255
-CHARLO,Charlotte,Jerry Richardson Stadium,CHAR,15314
-CINCIN,Cincinnati,Nippert Stadium,CIN,38088
-clemson,Clemson,Clemson Memorial Stadium,CLEM,81500
-COACAR,Coastal Carolina,Brooks Stadium,CCAR,21000
-COLORA,Colorado,Folsom Field,COLO,50183
-COLOST,Colorado State,Canvas Stadium,CSU,41200
-UCONNX,Connecticut,Rentschler Field,CONN,40000
-DUKEXX,Duke,Wallace Wade Stadium,DUKE,40004
-EMICHI,Eastern Michigan,Rynearson Stadium,EMU,30200
-ECUXXX,ECU,Dowdy-Ficklen Stadium,ECU,50000
-FIUXXX,FIU,Pitbull Stadium,FIU,23500
-gators,Florida,Ben Hill Griffin Stadium,FLA,88548
-FAUXXX,Florida Atlantic,Flagler Credit Union Stadium,FAU,30000
-FLORST,Florida State,Doak Campbell Stadium,FSU,67277
-FRESNO,Fresno State,Valley Children's Stadium,FRES,41031
-GEORGA,Georgia,Sanford Stadium,UGA,92746
-GEOSOU,Georgia Southern,Paulson Stadium,GASO,25000
-GEORST,Georgia State,Center Parc Stadium,GSU,25000
-GATECH,Georgia Tech,Bobby Dodd Stadium,GT,51913
-CLARENCE,Hawaii,Clarence T. C. Ching Complex,HAW,15194
-HOUSTO,Houston,TDECU Stadium,HOU,40000
-ILLINO,Illinois,Gies Memorial Stadium,ILL,60670
-INDIAN,Indiana,Memorial Stadium,IND,52959
-IOWAXX,Iowa,Kinnick Stadium,IOWA,70585
-IOWAST,Iowa State,Jack Trice Stadium,ISU,61500
-JSU,Jacksonville State,AmFirst Stadium,JVST,24000
-JAMMAD,James Madison,Bridgeforth Stadium,JMU,24877
-KANSAS,Kansas,David Booth Kansas Memorial Stadium,KU,41525
-KANSST,Kansas State,Bill Snyder Family Stadium,KSU,50000
-KENTXX,Kent State,Dix Stadium,KENT,25319
-KENTUC,Kentucky,Kroger Field,UK,61000
-LIBERT,Liberty,Williams Stadium,LIB,25000
-ULLAFY,Louisiana,Our Lady of Lourdes Stadium,ULL,41426
-LATECH,Louisiana Tech,Joe Aillet Stadium,LT,28109
-LOUISV,Louisville,L&N Stadium,LOU,61000
-lsutigers,LSU,Tiger Stadium,LSU,102321
-MARSHA,Marshall,Joan C. Edwards Stadium,MRSH,38227
-MARYLA,Maryland,SECU Stadium,UMD,51802
-MEMPHI,Memphis,Simmons Bank Liberty Stadium,MEM,62380
-hurricanes,Miami,Hard Rock Stadium,MIA,65326
-MIAMOH,Miami (OH),Fred C. Yager Stadium,MIAOH,24286
-MICHIG,Michigan,Michigan Stadium,MICH,107601
-spartans,Michigan State,Spartan Stadium,MSU,75005
-MIDTEN,Mid Tenn State,"Johnny ""Red"" Floyd Stadium",MTSU,27303
-MINNES,Minnesota,Huntington Bank Stadium,MINN,50805
-MISSTA,Mississippi State,Davis Wade Stadium,MSST,61337
-MISSOU,Missouri,Faurot Field at Memorial Stadium,MIZZ,62621
-NAVYXX,Navy,Navy-Marine Corps Memorial,NAVY,34000
-NCSTAT,NC State,Carter-Finley Stadium,NCST,57583
-cornhuskers,Nebraska,Memorial Stadium,NEB,85458
-NEVADA,Nevada,Mackay Stadium,NEV,27000
-NEWMEX,New Mexico,University Stadium,UNM,39224
-NMEXST,New Mexico State,Aggie Memorial Stadium,NMSU,30343
-NCAROL,North Carolina,Kenan Stadium,UNC,51000
-NTEXAS,North Texas,DATCU Stadium,UNT,30850
-NILLIN,Northern Illinois,Huskie Stadium,NIU,23595
-NORTHW,Northwestern,Ryan Field,NW,35000
-NOTDAM,Notre Dame,Notre Dame Stadium,ND,77622
-OHIOXX,Ohio,Peden Stadium,OHIO,24000
-OHIOST,Ohio State,Ohio Stadium,OSU,102780
-OKLAHO,Oklahoma,Gaylord-Oklahoma Memorial,OU,80126
-OKLAST,Oklahoma State,Boone Pickens Stadium,OKST,60218
-OLDDOM,Old Dominion,S.B. Ballard Stadium,ODU,22480
-OLEMIS,Ole Miss,Vaught-Hemingway Stadium,MISS,64038
-ducks,Oregon,Autzen Stadium,ORE,54000
-OREGST,Oregon State,Reser Stadium,ORST,35548
-PENNST,Penn State,West Shore Home Field at Beaver Stadium,PSU,106572
-PITTSB,Pittsburgh,Acrisure Stadium,PITT,51416
-PURDUE,Purdue,Ross-Ade Stadium,PUR,57236
-RICEXX,Rice,Rice Stadium,RICE,47000
-RUTGER,Rutgers,SHI Stadium,RUTG,52454
-SAMHOU,Sam Houston State,Bowers Stadium,SHSU,14000
-SANDST,San Diego State,Snapdragon Stadium,SDSU,35000
-SANJOS,San Jose State,CEFCU Stadium,SJSU,30456
-SMUXXX,SMU,Gerald J. Ford Stadium,SMU,32000
-SALBAM,South Alabama,Hancock Whitney Stadium,USA,25450
-SCAROL,South Carolina,Williams-Brice Stadium,SC,77559
-SMISSI,Southern Miss,M. M. Roberts Stadium,USM,36000
-STANFO,Stanford,Stanford Stadium,STAN,50424
-SYRACU,Syracuse,JMA Wireless Dome,SYR,49250
-TCUXXX,TCU,Amon G. Carter Stadium,TCU,47000
-TEMPLE,Temple,Lincoln Financial Field,TEM,68532
-TENNES,Tennessee,Neyland Stadium,TENN,102455
-TEXAS,Texas,Texas Memorial Stadium,TEX,100119
-TEXAAM,Texas A&M,Kyle Field,TAMU,102733
-TXSTXX,Texas State,UFCU Stadium,TXST,30000
-TXTECH,Texas Tech,Jones Stadium,TTU,60229
-TOLEDO,Toledo,Glass Bowl,TOL,26038
-TROYST,Troy,Veterans Memorial Stadium,TROY,30470
-TULANE,Tulane,Yulman Stadium,TULN,30000
-TULSAX,Tulsa,H.A. Chapman Stadium,TLSA,30000
-UABXXX,UAB,Protective Stadium,UAB,47000
-UCFXXX,UCF,Acrisure Bounce House,UCF,44206
-UCLAXX,UCLA,Rose Bowl Stadium,UCLA,90888
-ULMONR,UL Monroe,Malone Stadium,ULM,30427
-UMASSX,UMass,Warren McGuirk Alumni Stadium,UMASS,17000
-UNLVXX,UNLV,Allegiant Stadium,UNLV,65000
-trojans,USC,Los Angeles Memorial Coliseum,USC,77500
-USFXXX,USF,Raymond James Stadium,USF,65618
-UTAHXX,Utah,Rice-Eccles Stadium,UTAH,51444
-UTAHST,Utah State,Maverik Stadium,USU,25513
-UTEPXX,UTEP,Sun Bowl,UTEP,46670
-UTSAXX,UTSA,Alamodome,UTSA,64000
-VANDER,Vanderbilt,FirstBank Stadium,VAN,40350
-VIRGIN,Virginia,Scott Stadium,UVA,61500
-VATECH,Virginia Tech,Lane Stadium,VT,66233
-WAKEFO,Wake Forest,Allegacy Federal Credit Union,WAKE,31500
-WASHIN,Washington,Husky Stadium,WASH,70083
-WASSTA,Washington State,Martin Stadium,WSU,32248
-WVIRGI,West Virginia,Milan Puskar Stadium,WVU,60000
-WKENTU,Western Kentucky,L.T. Smith Stadium,WKU,22113
-WMICHI,Western Michigan,Waldo Stadium,WMU,30200
-WISCON,Wisconsin,Camp Randall Stadium,WIS,76057
-WYOMIN,Wyoming,War Memorial Stadium,WYO,29181
-Kenn,Kennesaw State,Fifth Third Stadium,KENN,10200
-wembley,Wembley,Wembley Stadium,Union_Jack_Classic_GameFan Section,72000
-MiamiX,Hard Rock Stadium,Hard Rock Stadium,MIA,65326
-texans_open,Reliant Stadium,Reliant Stadium,generic_neutral,72220
-ROSEXX,Rose Bowl,Rose Bowl,UCLA,90888
-ATT_Stadium,AT&T Stadium,AT&T Stadium,ARL_B,80000
-OUTBAC,Raymond James Stadium,Raymond James Stadium,USF,65857
-saints,Caesars Superdome,Caesars Superdome,NO_B,83000
-panthers,Bank of America Stadium,Bank of America Stadium,CHA_B,75413
-MACCHA,Ford Field,Ford Field,DET_B,65000
-BIGTEN,Lucas Oil Stadium,Lucas Oil Stadium,generic_neutral,70000
-cardinals,State Farm Stadium,State Farm Stadium,GLE_B,63400
-TOYOTA,Frisco Bowl Stadium,Frisco Bowl Stadium,GEN01,20500
-FENWAY,Fenway Bowl Stadium,Fenway Bowl Stadium,GEN05,37755
-GNRIC2,Independence Bowl Stadium,Independence Bowl Stadium,,65000
-chargers,SoFi Stadium,SoFi Stadium,ING_B,70000
-EXPLORIA,Exploria Stadium,Exploria Stadium,GEN03,25500
-CAMP,Camping World Stadium,Camping World Stadium,generic_neutral,60219
-CREMTON,Salute to Veterans Bowl Stadium,Salute to Veterans Bowl Stadium,GEN02,25000
-THOMAS,Xbox Bowl,Xbox Bowl Stadium,,15023
-CHASE,Rate Bowl Stadium,Rate Bowl Stadium,GEN05,48519
-Holiday Bowl Stadium,Holiday Bowl Stadium,Holiday Bowl Stadium,GEN05,42445
-YANKEE,City Stadium,City Stadium,GEN05,46537
-CFBpractice,College practice field,College Practice Field,PRACTI,0
-Dela,Delaware,Delaware Stadium,DEL,18500
-MISTXX,Missouri State,Robert W. Plaster Stadium,MOST,17337
-NDSU,North Dakota State,North Dakota State Stadium,NDSU,19000
-SACST,Sacramento St.,Sacramento State Stadium,SAC,21195
-CottonBowl,Cotton Bowl,Cotton Bowl,cotton_bowl,92100
-NEUTRA,Army - Navy,Lincoln Financial Field,NOR_B,68532
-falcons,Mercedes-Benz Stadium,Mercedes-Benz Stadium,generic_neutral,71000
-jaguars,EverBank Stadium,EverBank Stadium,JAC_B,67838
-NEUTRC,Metlife Stadium,Metlife Stadium,EAST_B,82500
-titans,Nissan Stadium,Nissan Stadium,NASH_B,69143
-avivastadium,Dublin,Dublin Stadium,aer_lcl_event,51700
-baltimore,M&T Bank Stadium,M&T Bank Stadium,,82000
-HSS1,High School Stadium,High School Stadium,HIGH_R,140
-foxborough_b,Gillette Stadium,Gillette Stadium,FOX_B,68000
-generic4stadium,Generic Stadium 4,Generic Stadium 4,GEN04,51700
-MOUNTAINDEW,Mountain Dew Stadium,Mountain Dew Stadium,GEN03,51700
-HSS2,High School Stadium 01,High School Stadium 01,HIGH01_R,140
-HSS3,High School Stadium 02,High School Stadium 02,HIGH02_R,140
-HSS3,High School Stadium 03,High School Stadium 03,HIGH03_R,140
-horseshoe,Horseshoe stadium,Horseshoe stadium,HORS01,51700
-side,Side stadium,Side stadium,SIDE01,51700
-oval,Oval Stadium,Oval Stadium,OVAL01,51700
-packers,Lambeau Field,Lambeau Field,GRE_B,81435
+Code,School,Name,Abbreviation,Capacity,Latitude,Longitude
+AIRFOR,Air Force,Falcon Stadium,AFA,46692,39,-104.8
+AKRONX,Akron,InfoCision Stadium,AKR,30000,41,-81.5
+ALBAMA,Alabama,Saban Field at Bryant-Denny Stadium,ALA,101821,33.2,-87.6
+APPSTA,Appalachian State,Kidd Brewer Stadium,APP,30000,36.2,-81.6
+ARIZON,Arizona,Casino Del Sol Stadium,ARIZ,50782,32.2,-110.9
+AZSTAT,Arizona State,Mountain America Stadium,ASU,56232,33.4,-111.9
+ARKANS,Arkansas,DW Reynolds Razorback Stadium,ARK,76212,36.1,-94.2
+ARKSTX,Arkansas State,Centennial Bank Stadium,ARST,30964,35.8,-90.7
+ARMYXX,Army,Michie Stadium,ARMY,36000,41.4,-74
+AUBURN,Auburn,Jordan-Hare Stadium,AUB,87451,32.6,-85.5
+BALLST,Ball State,Scheumann Stadium,BALL,22500,40.2,-85.4
+BAYLOR,Baylor,McLane Stadium,BAY,45140,31.5,-97.1
+BOISES,Boise State,Albertsons Stadium,BSU,36387,43.6,-116.2
+BOSTON,Boston College,Alumni Stadium,BC,44500,42.3,-71.2
+BOWLGR,Bowling Green,Doyt L. Perry Stadium,BGSU,24000,41.4,-83.6
+BUFFAL,Buffalo,Broadview Stadium,BUFF,29013,43,-78.8
+BYUXXX,BYU,LaVell Edwards Stadium,BYU,63470,40.3,-111.7
+CALXXX,Cal,California Memorial Stadium,CAL,62717,37.9,-122.3
+CMICHI,Central Michigan,Kelly-Shorts Stadium,CMU,30255,43.6,-84.8
+CHARLO,Charlotte,Jerry Richardson Stadium,CHAR,15314,35.3,-80.7
+CINCIN,Cincinnati,Nippert Stadium,CIN,38088,39.1,-84.5
+clemson,Clemson,Clemson Memorial Stadium,CLEM,81500,34.7,-82.8
+COACAR,Coastal Carolina,Brooks Stadium,CCAR,21000,33.7,-79
+COLORA,Colorado,Folsom Field,COLO,50183,40,-105.3
+COLOST,Colorado State,Canvas Stadium,CSU,41200,40.6,-105.1
+UCONNX,Connecticut,Rentschler Field,CONN,40000,41.8,-72.6
+DUKEXX,Duke,Wallace Wade Stadium,DUKE,40004,36,-78.9
+EMICHI,Eastern Michigan,Rynearson Stadium,EMU,30200,42.3,-83.6
+ECUXXX,ECU,Dowdy-Ficklen Stadium,ECU,50000,35.6,-77.4
+FIUXXX,FIU,Pitbull Stadium,FIU,23500,25.8,-80.4
+gators,Florida,Ben Hill Griffin Stadium,FLA,88548,29.7,-82.3
+FAUXXX,Florida Atlantic,Flagler Credit Union Stadium,FAU,30000,26.2,-80.2
+FLORST,Florida State,Doak Campbell Stadium,FSU,67277,30.4,-84.3
+FRESNO,Fresno State,Valley Children's Stadium,FRES,41031,36.8,-119.8
+GEORGA,Georgia,Sanford Stadium,UGA,92746,34,-83.4
+GEOSOU,Georgia Southern,Paulson Stadium,GASO,25000,32.24,-81.78
+GEORST,Georgia State,Center Parc Stadium,GSU,25000,33.2,-87.6
+GATECH,Georgia Tech,Bobby Dodd Stadium,GT,51913,33.8,-84.4
+CLARENCE,Hawaii,Clarence T. C. Ching Complex,HAW,15194,21.29,-157.81
+HOUSTO,Houston,TDECU Stadium,HOU,40000,29.7,-95.4
+ILLINO,Illinois,Gies Memorial Stadium,ILL,60670,40.1,-88.2
+INDIAN,Indiana,Memorial Stadium,IND,52959,39.2,-86.5
+IOWAXX,Iowa,Kinnick Stadium,IOWA,70585,41.7,-91.6
+IOWAST,Iowa State,Jack Trice Stadium,ISU,61500,42,-93.6
+JSU,Jacksonville State,AmFirst Stadium,JVST,24000,33.8,-85.7
+JAMMAD,James Madison,Bridgeforth Stadium,JMU,24877,38.4,-78.8
+KANSAS,Kansas,David Booth Kansas Memorial Stadium,KU,41525,39,-95.2
+KANSST,Kansas State,Bill Snyder Family Stadium,KSU,50000,39.2,-96.6
+KENTXX,Kent State,Dix Stadium,KENT,25319,41.1,-81.3
+KENTUC,Kentucky,Kroger Field,UK,61000,38,-84.6
+LIBERT,Liberty,Williams Stadium,LIB,25000,37.3,-79.1
+ULLAFY,Louisiana,Our Lady of Lourdes Stadium,ULL,41426,30.2,-92
+LATECH,Louisiana Tech,Joe Aillet Stadium,LT,28109,32.5,-92.7
+LOUISV,Louisville,L&N Stadium,LOU,61000,38.2,-85.8
+lsutigers,LSU,Tiger Stadium,LSU,102321,30.4,-91.2
+MARSHA,Marshall,Joan C. Edwards Stadium,MRSH,38227,38.4,-82.4
+MARYLA,Maryland,SECU Stadium,UMD,51802,39,-76.9
+MEMPHI,Memphis,Simmons Bank Liberty Stadium,MEM,62380,35.1,-90
+hurricanes,Miami,Hard Rock Stadium,MIA,65326,25.8,-80.2
+MIAMOH,Miami (OH),Fred C. Yager Stadium,MIAOH,24286,39.5,-84.7
+MICHIG,Michigan,Michigan Stadium,MICH,107601,42.3,-83.7
+spartans,Michigan State,Spartan Stadium,MSU,75005,42.7,-84.5
+MIDTEN,Mid Tenn State,"Johnny ""Red"" Floyd Stadium",MTSU,27303,35.9,-86.4
+MINNES,Minnesota,Huntington Bank Stadium,MINN,50805,45,-93.3
+MISSTA,Mississippi State,Davis Wade Stadium,MSST,61337,30.4,-88.9
+MISSOU,Missouri,Faurot Field at Memorial Stadium,MIZZ,62621,38.9,-92.3
+NAVYXX,Navy,Navy-Marine Corps Memorial,NAVY,34000,39,-76.5
+NCSTAT,NC State,Carter-Finley Stadium,NCST,57583,35.8,-78.7
+cornhuskers,Nebraska,Memorial Stadium,NEB,85458,40.8,-96.7
+NEVADA,Nevada,Mackay Stadium,NEV,27000,39.5,-119.8
+NEWMEX,New Mexico,University Stadium,UNM,39224,35.1,-106.6
+NMEXST,New Mexico State,Aggie Memorial Stadium,NMSU,30343,32.3,-106.7
+NCAROL,North Carolina,Kenan Stadium,UNC,51000,35.9,-79
+NTEXAS,North Texas,DATCU Stadium,UNT,30850,33.2,-97.2
+NILLIN,Northern Illinois,Huskie Stadium,NIU,23595,41.9,-88.8
+NORTHW,Northwestern,Ryan Field,NW,35000,42.1,-87.7
+NOTDAM,Notre Dame,Notre Dame Stadium,ND,77622,41.7,-86.2
+OHIOXX,Ohio,Peden Stadium,OHIO,24000,39.3,-82.1
+OHIOST,Ohio State,Ohio Stadium,OSU,102780,40,-83
+OKLAHO,Oklahoma,Gaylord-Oklahoma Memorial,OU,80126,35.2,-97.4
+OKLAST,Oklahoma State,Boone Pickens Stadium,OKST,60218,36.1,-97.1
+OLDDOM,Old Dominion,S.B. Ballard Stadium,ODU,22480,33.2,-87.6
+OLEMIS,Ole Miss,Vaught-Hemingway Stadium,MISS,64038,34.4,-89.5
+ducks,Oregon,Autzen Stadium,ORE,54000,44.1,-123.1
+OREGST,Oregon State,Reser Stadium,ORST,35548,44.6,-123.3
+PENNST,Penn State,West Shore Home Field at Beaver Stadium,PSU,106572,40.8,-77.9
+PITTSB,Pittsburgh,Acrisure Stadium,PITT,51416,40.4,-80
+PURDUE,Purdue,Ross-Ade Stadium,PUR,57236,40.4,-86.9
+RICEXX,Rice,Rice Stadium,RICE,47000,29.7,-95.4
+RUTGER,Rutgers,SHI Stadium,RUTG,52454,40.5,-74.5
+SAMHOU,Sam Houston State,Bowers Stadium,SHSU,14000,30.71,-95.54
+SANDST,San Diego State,Snapdragon Stadium,SDSU,35000,32.8,-117.1
+SANJOS,San Jose State,CEFCU Stadium,SJSU,30456,37.3,-121.9
+SMUXXX,SMU,Gerald J. Ford Stadium,SMU,32000,32.8,-96.8
+SALBAM,South Alabama,Hancock Whitney Stadium,USA,25450,30.7,-88.1
+SCAROL,South Carolina,Williams-Brice Stadium,SC,77559,34,-81
+SMISSI,Southern Miss,M. M. Roberts Stadium,USM,36000,31.3,-89.3
+STANFO,Stanford,Stanford Stadium,STAN,50424,37.4,-122.2
+SYRACU,Syracuse,JMA Wireless Dome,SYR,49250,43,-76.1
+TCUXXX,TCU,Amon G. Carter Stadium,TCU,47000,32.7,-97.4
+TEMPLE,Temple,Lincoln Financial Field,TEM,68532,39.9,-75.3
+TENNES,Tennessee,Neyland Stadium,TENN,102455,36,-83.9
+TEXAS,Texas,Texas Memorial Stadium,TEX,100119,30.3,-97.7
+TEXAAM,Texas A&M,Kyle Field,TAMU,102733,29.9,-97.9
+TXSTXX,Texas State,UFCU Stadium,TXST,30000,29.9,-97.9
+TXTECH,Texas Tech,Jones Stadium,TTU,60229,33.6,-101.9
+TOLEDO,Toledo,Glass Bowl,TOL,26038,41.7,-83.6
+TROYST,Troy,Veterans Memorial Stadium,TROY,30470,31.8,-86
+TULANE,Tulane,Yulman Stadium,TULN,30000,29.9,-90.1
+TULSAX,Tulsa,H.A. Chapman Stadium,TLSA,30000,36.1,-95.9
+UABXXX,UAB,Protective Stadium,UAB,47000,33.5,-86.8
+UCFXXX,UCF,Acrisure Bounce House,UCF,44206,28.5,-81.4
+UCLAXX,UCLA,Rose Bowl Stadium,UCLA,90888,34.2,-118.2
+ULMONR,UL Monroe,Malone Stadium,ULM,30427,32.5,-92.1
+UMASSX,UMass,Warren McGuirk Alumni Stadium,UMASS,17000,42.1,-71.3
+UNLVXX,UNLV,Allegiant Stadium,UNLV,65000,36.1,-115
+trojans,USC,Los Angeles Memorial Coliseum,USC,77500,34,-118.3
+USFXXX,USF,Raymond James Stadium,USF,65618,28,-82.5
+UTAHXX,Utah,Rice-Eccles Stadium,UTAH,51444,40.8,-111.8
+UTAHST,Utah State,Maverik Stadium,USU,25513,41.8,-111.8
+UTEPXX,UTEP,Sun Bowl,UTEP,46670,31.8,-106.5
+UTSAXX,UTSA,Alamodome,UTSA,64000,29.4,-98.5
+VANDER,Vanderbilt,FirstBank Stadium,VAN,40350,36.1,-86.8
+VIRGIN,Virginia,Scott Stadium,UVA,61500,38,-78.5
+VATECH,Virginia Tech,Lane Stadium,VT,66233,37.2,-80.4
+WAKEFO,Wake Forest,Allegacy Federal Credit Union,WAKE,31500,30.1,-80.3
+WASHIN,Washington,Husky Stadium,WASH,70083,47.7,-122.3
+WASSTA,Washington State,Martin Stadium,WSU,32248,46.7,-117.2
+WVIRGI,West Virginia,Milan Puskar Stadium,WVU,60000,39.7,-80
+WKENTU,Western Kentucky,L.T. Smith Stadium,WKU,22113,43.4,-79.2
+WMICHI,Western Michigan,Waldo Stadium,WMU,30200,42.3,-85.6
+WISCON,Wisconsin,Camp Randall Stadium,WIS,76057,43.1,-89.4
+WYOMIN,Wyoming,War Memorial Stadium,WYO,29181,41.3,-105.6
+Kenn,Kennesaw State,Fifth Third Stadium,KENN,10200,34,-84.6
+wembley,Wembley,Wembley Stadium,Union_Jack_Classic_GameFan Section,72000,51,-1
+MiamiX,Hard Rock Stadium,Hard Rock Stadium,MIA,65326,25,-80
+texans_open,Reliant Stadium,Reliant Stadium,generic_neutral,72220,29,-95
+ROSEXX,Rose Bowl,Rose Bowl,UCLA,90888,34.2,-118.2
+ATT_Stadium,AT&T Stadium,AT&T Stadium,ARL_B,80000,32,-96
+OUTBAC,Raymond James Stadium,Raymond James Stadium,USF,65857,28,-82.5
+saints,Caesars Superdome,Caesars Superdome,NO_B,83000,30,-90
+panthers,Bank of America Stadium,Bank of America Stadium,CHA_B,75413,35,-80
+MACCHA,Ford Field,Ford Field,DET_B,65000,42.3,-83
+BIGTEN,Lucas Oil Stadium,Lucas Oil Stadium,generic_neutral,70000,42.3,-83
+cardinals,State Farm Stadium,State Farm Stadium,GLE_B,63400,33,-112
+TOYOTA,Frisco Bowl Stadium,Frisco Bowl Stadium,GEN01,20500,33.9,-96.5
+FENWAY,Fenway Bowl Stadium,Fenway Bowl Stadium,GEN05,37755,42.2,-71.5
+GNRIC2,Independence Bowl Stadium,Independence Bowl Stadium,,65000,32.5,-93.7
+chargers,SoFi Stadium,SoFi Stadium,ING_B,70000,34,-118
+EXPLORIA,Exploria Stadium,Exploria Stadium,GEN03,25500,28.54,-81.38
+CAMP,Camping World Stadium,Camping World Stadium,generic_neutral,60219,28.32,-82.2
+CREMTON,Salute to Veterans Bowl Stadium,Salute to Veterans Bowl Stadium,GEN02,25000,32.7,-86.29
+THOMAS,Xbox Bowl,Xbox Bowl Stadium,,15023,,
+CHASE,Rate Bowl Stadium,Rate Bowl Stadium,GEN05,48519,33.26,-112.41
+Holiday Bowl Stadium,Holiday Bowl Stadium,Holiday Bowl Stadium,GEN05,42445,32.7,-117.15
+YANKEE,City Stadium,City Stadium,GEN05,46537,40.49,-73.53
+CFBpractice,College practice field,College Practice Field,PRACTI,0,,
+Dela,Delaware,Delaware Stadium,DEL,18500,39.662,-75.749
+MISTXX,Missouri State,Robert W. Plaster Stadium,MOST,17337,37.198,-93.279
+NDSU,North Dakota State,North Dakota State Stadium,NDSU,19000,46.9,-96.8
+SACST,Sacramento St.,Sacramento State Stadium,SAC,21195,38.5,-121.4
+CottonBowl,Cotton Bowl,Cotton Bowl,cotton_bowl,92100,32,-96
+NEUTRA,Army - Navy,Lincoln Financial Field,NOR_B,68532,39.9,-75.3
+falcons,Mercedes-Benz Stadium,Mercedes-Benz Stadium,generic_neutral,71000,34,-84
+jaguars,EverBank Stadium,EverBank Stadium,JAC_B,67838,30,-81
+NEUTRC,Metlife Stadium,Metlife Stadium,EAST_B,82500,30.3,-81.6
+titans,Nissan Stadium,Nissan Stadium,NASH_B,69143,36,-86
+avivastadium,Dublin,Dublin Stadium,aer_lcl_event,51700,,
+baltimore,M&T Bank Stadium,M&T Bank Stadium,,82000,38,-76
+HSS1,High School Stadium,High School Stadium,HIGH_R,140,34,-84.6
+foxborough_b,Gillette Stadium,Gillette Stadium,FOX_B,68000,42,-71
+generic4stadium,Generic Stadium 4,Generic Stadium 4,GEN04,51700,,
+MOUNTAINDEW,Mountain Dew Stadium,Mountain Dew Stadium,GEN03,51700,,
+HSS2,High School Stadium 01,High School Stadium 01,HIGH01_R,140,34,-84.6
+HSS3,High School Stadium 02,High School Stadium 02,HIGH02_R,140,34,-84.6
+HSS3,High School Stadium 03,High School Stadium 03,HIGH03_R,140,34,-84.6
+horseshoe,Horseshoe stadium,Horseshoe stadium,HORS01,51700,,
+side,Side stadium,Side stadium,SIDE01,51700,,
+oval,Oval Stadium,Oval Stadium,OVAL01,51700,,
+packers,Lambeau Field,Lambeau Field,GRE_B,81435,44,-88

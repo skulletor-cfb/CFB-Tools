@@ -19,8 +19,8 @@ public sealed class PreseasonSchedule
     private readonly FranchiseFileTable _gameTable;
     private readonly List<ScheduledGame> _games;
     private readonly Dictionary<int, string> _conferenceByTeamRow;
-    private readonly Dictionary<int, int> _gameCountsAtLoad;
-    private readonly Dictionary<(int Team, int Week), int> _bookingsAtLoad;
+    private Dictionary<int, int> _gameCountsAtLoad;
+    private Dictionary<(int Team, int Week), int> _bookingsAtLoad;
 
     public FranchiseFileTable TeamTable { get; }
     public IReadOnlyList<ScheduledGame> Games => _games;
@@ -177,6 +177,13 @@ public sealed class PreseasonSchedule
             }
         }
         return problems;
+    }
+
+    /// <summary>Makes the current schedule the baseline <see cref="Validate"/> compares against (after a bulk rewrite such as an import).</summary>
+    public void AcceptChanges()
+    {
+        _gameCountsAtLoad = CountGamesPerTeam();
+        _bookingsAtLoad = CountBookingsPerWeek();
     }
 
     private Dictionary<(int Team, int Week), int> CountBookingsPerWeek() =>

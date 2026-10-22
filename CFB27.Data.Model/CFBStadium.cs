@@ -23,6 +23,15 @@ namespace CFB27.Data.Model
         public int Capacity { get; set; }
 
         /// <summary>
+        /// Approximate position from the game table (degrees, north and east positive; west longitudes are negative).
+        /// Null when the game has none: 0,0, or the 25N 55E placeholder the generic stadiums and Dublin share. Several
+        /// neutral sites are only whole-degree or copied from another stadium (Lucas Oil has Ford Field's, MetLife
+        /// has Jacksonville's), so treat them as rough.
+        /// </summary>
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
+
+        /// <summary>
         /// Stadium id used by the web page creator: the save's 32-bit stadium asset reference
         /// (e.g. 0x80654C94 for Jack Trice), so team and game stadiums share one key.
         /// </summary>
@@ -115,6 +124,7 @@ namespace CFB27.Data.Model
             { 0x80654CB9, "Metlife Stadium" },                 // Army-Navy
             { 0x80654CD4, "Rentschler Field" },
             { 0x80654CDE, "Rose Bowl" },                       // Rose Bowl (CFP)
+            { 0x80654C4D, "Aloha Stadium" },                   // Team Builder stadium list; not in the game's stadium table
             { 0x806A46F0, "Xbox Bowl Stadium" },
             { 0x806A46F3, "Exploria Stadium" },
             { 0x806A46FD, "Frisco Bowl Stadium" },
@@ -135,6 +145,24 @@ namespace CFB27.Data.Model
             { 0x80B4451F, "Side stadium" },
             { 0x80B7A946, "Gillette Stadium" },                // Notre Dame-Navy
             { 0x80C7E4D7, "Lambeau Field" },                   // Wisconsin-Notre Dame
+            { 0x80DA11F2, "Wembley Stadium" },                 // Arizona State-Kansas (seen in game, DYNASTY-TEST)
+        };
+
+        /// <summary>
+        /// Generic, practice and high-school stadium assets in <see cref="NeutralSites"/>. They aren't real game venues
+        /// (a dynasty game set at Oval Stadium crashed the game), so schedule editors shouldn't offer them.
+        /// </summary>
+        public static readonly ISet<uint> NonGameSites = new HashSet<uint>
+        {
+            0x80639DD6, // College Practice Field
+            0x8095C1A7, // Generic Stadium 4
+            0x80A62A1C, // High School Stadium
+            0x80B4451A, // High School Stadium 01
+            0x80B4451B, // High School Stadium 02
+            0x80B4451C, // High School Stadium 03
+            0x80B4451D, // Horseshoe stadium
+            0x80B4451E, // Oval Stadium
+            0x80B4451F, // Side stadium
         };
 
         /// <summary>The neutral site a save stadium reference points to, or null when it isn't in <see cref="NeutralSites"/>.</summary>
@@ -144,7 +172,7 @@ namespace CFB27.Data.Model
         }
 
         #region csv
-        private static readonly string[] CsvHeader = { "Code", "School", "Name", "Abbreviation", "Capacity" };
+        private static readonly string[] CsvHeader = { "Code", "School", "Name", "Abbreviation", "Capacity", "Latitude", "Longitude" };
 
         public static void WriteCsv(IEnumerable<CFBStadium> stadiums, string path)
         {
@@ -152,7 +180,8 @@ namespace CFB27.Data.Model
             sb.AppendLine(string.Join(",", CsvHeader));
             foreach (var s in stadiums)
             {
-                sb.AppendLine(string.Join(",", Quote(s.Code), Quote(s.School), Quote(s.Name), Quote(s.Abbreviation), s.Capacity));
+                sb.AppendLine(string.Join(",", Quote(s.Code), Quote(s.School), Quote(s.Name), Quote(s.Abbreviation), s.Capacity,
+                    FormatCoordinate(s.Latitude), FormatCoordinate(s.Longitude)));
             }
 
             File.WriteAllText(path, sb.ToString());
@@ -178,11 +207,19 @@ namespace CFB27.Data.Model
                     Name = parts[2],
                     Abbreviation = parts[3],
                     Capacity = int.Parse(parts[4]),
+                    Latitude = parts.Count > 5 ? ParseCoordinate(parts[5]) : null,
+                    Longitude = parts.Count > 6 ? ParseCoordinate(parts[6]) : null,
                 });
             }
 
             return stadiums;
         }
+
+        private static string FormatCoordinate(double? value) =>
+            value?.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+
+        private static double? ParseCoordinate(string value) =>
+            double.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var d) ? d : (double?)null;
 
         private static string Quote(string value)
         {
@@ -216,7 +253,9 @@ namespace CFB27.Data.Model
 
         #region extraction
         // The table is a run of fixed 216-byte records inside an uncompressed CAS asset (the same kind of
-        // asset the FTX schema ships in): code[32] school[40] index[2] name[40] abbreviation[42] capacity(u32 BE).
+        // asset the FTX schema ships in): code[32] school[40] index[2] name[40] abbreviation[42] capacity(u32 BE), then 56 bytes
+        // that end with the NEXT record's longitude and latitude (f32 BE at +204/+208). So a record's position sits in the
+        // 56 bytes before it, and the first record's position comes from the bytes just before the table.
         // CAS stores assets in 64 KB blocks, each preceded by an 8-byte header: [u32be size][u8 0][u8 0x70|0x71][u16].
         private const int RecordSize = 216;
         private const int BlockSize = 0x10000;
@@ -358,7 +397,7 @@ namespace CFB27.Data.Model
                 return null;
             }
 
-            return new CFBStadium
+            var stadium = new CFBStadium
             {
                 Code = code,
                 School = ReadString(data, p + 32, 40),
@@ -366,6 +405,38 @@ namespace CFB27.Data.Model
                 Abbreviation = ReadString(data, p + 114, 42),
                 Capacity = (data[p + 156] << 24) | (data[p + 157] << 16) | (data[p + 158] << 8) | data[p + 159],
             };
+
+            if (p >= 56)
+            {
+                ReadPosition(data, p - 56 + 44, stadium);
+            }
+
+            return stadium;
+        }
+
+        /// <summary>
+        /// Longitude then latitude. The original stadiums store west longitudes as positive numbers; the schools added
+        /// later (App State, Charlotte, Delaware...) use negative ones, so every longitude is turned into a west (negative)
+        /// one. Wembley's 1.0 becomes 1W, close to London's 0.1W.
+        /// </summary>
+        private static void ReadPosition(byte[] data, int offset, CFBStadium stadium)
+        {
+            float lon = ReadFloatBigEndian(data, offset);
+            float lat = ReadFloatBigEndian(data, offset + 4);
+            bool none = (lon == 0 && lat == 0) || (lon == 55 && lat == 25);
+            if (none || float.IsNaN(lon) || float.IsNaN(lat))
+            {
+                return;
+            }
+
+            stadium.Latitude = Math.Round(lat, 3);
+            stadium.Longitude = -Math.Round(Math.Abs((double)lon), 3);
+        }
+
+        private static float ReadFloatBigEndian(byte[] data, int offset)
+        {
+            var bytes = new[] { data[offset + 3], data[offset + 2], data[offset + 1], data[offset] };
+            return BitConverter.ToSingle(bytes, 0);
         }
 
         private static string ReadString(byte[] data, int offset, int length)

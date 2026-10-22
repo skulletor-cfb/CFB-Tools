@@ -384,8 +384,8 @@ namespace CFB27Tester
             Assert.AreEqual("Gillette Stadium", season.ReadStadiumName(unchecked((int)0x80B7A946)));
             Assert.AreEqual("Lambeau Field", season.ReadStadiumName(unchecked((int)0x80C7E4D7)));
 
-            // every neutral site in the list exists in the game's stadium table
-            foreach (var neutral in CFBStadium.NeutralSites)
+            // every neutral site in the list exists in the game's stadium table, except Aloha Stadium (Team Builder only)
+            foreach (var neutral in CFBStadium.NeutralSites.Where(n => n.Value != "Aloha Stadium"))
             {
                 Assert.IsNotNull(CFBStadium.FindByName(neutral.Value), neutral.Value);
             }
