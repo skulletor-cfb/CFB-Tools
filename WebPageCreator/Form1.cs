@@ -440,6 +440,17 @@ namespace EA_DB_Editor
             var year = file.Substring(file.IndexOf(DynastyFilePrefix) + DynastyFilePrefix.Length).ToInt32();
             if (year >= CFB27StartingYear)
             {
+                this.SetBowlIdOverrides(dict => dict[15] = new Tuple<int, int>(7015, 194));
+
+                // San Fran Bowl became Boca Raton Bowl in 2433
+                this.SetBowlIdOverrides(dict => dict[3] = new Tuple<int, int>(9000, 420));
+
+                // LA Bowl became Poinesttia Bowl in 2583
+                this.SetBowlIdOverrides(dict => dict[0] = new Tuple<int, int>(15, 570));
+
+                // GameAbove Sports becomes PR bowl in 2583
+                this.SetBowlIdOverrides(dict => dict[4] = new Tuple<int, int>(9100, 570));
+
                 var dynasty = FranchiseFile.Load(file);
                 this.DataEngine = new CFB27DataEngine(dynasty);
                 return;

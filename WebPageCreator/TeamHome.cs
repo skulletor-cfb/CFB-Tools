@@ -379,7 +379,7 @@ namespace EA_DB_Editor
             BowlChampion.ToBCFile("tbc.csv");
             HistoricTeamRecord.ToHistoricRecordFile(isPreseason ? "ps-thr.csv" : "thr.csv", isPreseason ? 5 : default(int?));
             Team.ToJsonFile(isPreseason);
-            TeamSchedule.ToAllSchedulesCsv(isPreseason);
+            TeamSchedule.ToAllSchedulesCsv(dataEngine, isPreseason);
 
             // get the 4 year recruiting class average
             if (isPreseason)
@@ -1100,7 +1100,7 @@ namespace EA_DB_Editor
             BCSPrevious = team.CFPPoll_LastWeeksRank;
             MediaPollRank = team.MediaPoll_CurrentRank;
             MediaPollFirstPlaceVotes = team.MediaPoll_FirstPlaceVotes;
-            MediaPollPoints = team.MediaPoll_FirstPlaceVotes;
+            MediaPollPoints = team.MediaPoll_CurrentPoints;
             MediaPollPrevious = team.MediaPoll_LastWeeksRank;
             CoachesPollRank = team.CoachesPoll_CurrentRank;
             CoachesPollFirstPlaceVotes = team.CoachesPoll_FirstPlaceVotes;
@@ -1322,12 +1322,15 @@ namespace EA_DB_Editor
                 ConferenceTitles = cts;
             }
 
-            // data about Championships
-            this.IsNationalChampion = BowlChampion.IsNationalChampionshipYear(this.Id, BowlChampion.CurrentYear);
-            this.BowlWinsThisYear = string.Join(", ", BowlChampion.GetBowlChampionships(this.Id, BowlChampion.CurrentYear).Select(bc => bc + " Champions"));
+            if (!isPreseason)
+            {
+                // data about Championships
+                this.IsNationalChampion = BowlChampion.IsNationalChampionshipYear(this.Id, BowlChampion.CurrentYear);
+                this.BowlWinsThisYear = string.Join(", ", BowlChampion.GetBowlChampionships(this.Id, BowlChampion.CurrentYear).Select(bc => bc + " Champions"));
 
-            // check if we are Conference champion
-            this.ConferenceOrDivisionChampionship = ConferenceChampion.GetConferenceChampionship(this.Id, BowlChampion.CurrentYear);
+                // check if we are Conference champion
+                this.ConferenceOrDivisionChampionship = ConferenceChampion.GetConferenceChampionship(this.Id, BowlChampion.CurrentYear);
+            }
 
             TeamSchedule schedule = null;
 

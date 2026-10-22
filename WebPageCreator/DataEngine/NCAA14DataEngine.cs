@@ -38,6 +38,9 @@ namespace EA_DB_Editor
                 return teamNames;
             }
         }
+
+        public int TeamCount => 126;
+
         public int CalculateRosterSpots(RecruitClassRanking ranking)
         {
             return 70 - MaddenDatabase.GetTable("PLAY").lRecords.Where(player => player["TGID"].ToInt32().GetRealTeamId() == ranking.TeamId).Count();

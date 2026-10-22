@@ -488,6 +488,12 @@ namespace EA_DB_Editor
 
             dataEngine.ReadBowlChampions(BowlChampions);
             CurrentYear = BowlChampions.Values.Select(bc => bc.Year).Max();
+
+            // if we haven't played the bowls, we need to increment the current year by 1, aka the assumption that CurrentYear is correct is only true at the end of the season
+            if (dataEngine.IsSeasonOver() == false)
+            {
+                CurrentYear = CurrentYear + 1;
+            }
         }
 
         public string GetKey() => CreateKey(this.Year, this.BowlId);

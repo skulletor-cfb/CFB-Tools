@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace EA_DB_Editor
 {
     public interface IDataEngine
     {
+        /// <summary>
+        /// the number of teams in dynasty
+        /// </summary>
+        int TeamCount { get; }
+
         // map of team ids to names
         Dictionary<int, string> TeamNames { get; }
 

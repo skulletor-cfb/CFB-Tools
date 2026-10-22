@@ -114,8 +114,18 @@ namespace EA_DB_Editor
 
                     int count = Convert.ToInt32(ConfigurationManager.AppSettings["RecruitingGemsBusts"]);
                     int i = 0;
-                    Recruit.ToCsvFile(Recruit.RecruitRankings.Values.OrderByDescending(r => r.OvrDiff).Distinct().Take(count), "gems.csv");
-                    Recruit.ToCsvFile(Recruit.RecruitRankings.Values.OrderBy(r => r.OvrDiff).Distinct().Take(count), "busts.csv");
+                    if (Recruit.RecruitRankings.Values.Any(r => r.IsGem || r.IsBust))
+                    {
+                        // CFB27: the game flags gems and busts; list the best-ranked 25 of each
+                        const int flaggedCount = 25;
+                        Recruit.ToCsvFile(Recruit.RecruitRankings.Values.Where(r => r.IsGem).Distinct().OrderBy(r => r.Rank).Take(flaggedCount), "gems.csv");
+                        Recruit.ToCsvFile(Recruit.RecruitRankings.Values.Where(r => r.IsBust).Distinct().OrderBy(r => r.Rank).Take(flaggedCount), "busts.csv");
+                    }
+                    else
+                    {
+                        Recruit.ToCsvFile(Recruit.RecruitRankings.Values.OrderByDescending(r => r.OvrDiff).Distinct().Take(count), "gems.csv");
+                        Recruit.ToCsvFile(Recruit.RecruitRankings.Values.OrderBy(r => r.OvrDiff).Distinct().Take(count), "busts.csv");
+                    }
                     Recruit.ToCsvFile(Recruit.RecruitRankings.Values.OrderBy(r => r.Rank).Distinct(), "recruits.csv",true);
                     CreateRecruitTable(tw, "Top Gems", "gemsTable");
                     CreateRecruitTable(tw, "Top Busts", "bustsTable");
@@ -424,6 +434,12 @@ namespace EA_DB_Editor
         {
             get
             {
+                // CFB27 recruits carry their hometown as text rather than an NCAA 14 city id
+                if (!string.IsNullOrEmpty(this.Hometown))
+                {
+                    return string.Format("{0}, {1}", this.Hometown, this.Homestate);
+                }
+
                 return City.Cities.ContainsKey(this.HometownValue) ? string.Format("{0}, {1}", City.Cities[this.HometownValue].Name, City.Cities[this.HometownValue].State) : "N/A";
             }
         }
@@ -432,6 +448,10 @@ namespace EA_DB_Editor
     
         public int CommittedTeam { get; set; }
         public int HometownValue { get; set; }
+
+        /// <summary>CFB27 flags gems and busts directly (it has no pre-scouting overall to diff against)</summary>
+        public bool IsGem { get; set; }
+        public bool IsBust { get; set; }
     }
 
     [DataContract]

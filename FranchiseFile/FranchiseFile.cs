@@ -14,6 +14,7 @@ public enum TableName
     Story,
     Player,
     Coach,
+    Recruit,
 }
 
 public sealed class FranchiseFileType

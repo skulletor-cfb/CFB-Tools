@@ -100,8 +100,7 @@ namespace CFB27.Data.Model
                 };
 
                 var conferenceEnum = record["ConferenceEnum"] as string;
-                var divisions = dynasty.Follow(record.GetReferenceDataByKey("Divisions").Value);
-                foreach (var divisionRecord in ArrayItems(dynasty, divisions))
+                foreach (var divisionRecord in dynasty.FollowArray(record, "Divisions"))
                 {
                     var name = divisionRecord["Name"] as string;
                     var teams = dynasty.Follow(divisionRecord.GetReferenceDataByKey("Teams").Value);
@@ -124,22 +123,6 @@ namespace CFB27.Data.Model
             }
 
             return conferences;
-        }
-
-        private static IEnumerable<FranchiseFileRecord> ArrayItems(FranchiseFile dynasty, FranchiseFileRecord array)
-        {
-            if (array == null)
-            {
-                return Enumerable.Empty<FranchiseFileRecord>();
-            }
-
-            return array.FieldsArray
-                .Take(array.ArraySize ?? 0)
-                .Select(f => f.ReferenceData)
-                .Where(r => r.HasValue && r.Value.TableId > 0)
-                .Select(r => dynasty.Follow(r.Value))
-                .Where(r => r != null)
-                .ToList();
         }
     }
 

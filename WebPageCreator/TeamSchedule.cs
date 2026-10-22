@@ -52,7 +52,7 @@ namespace EA_DB_Editor
 
             foreach (var schedule in TeamSchedules.Values)
             {
-                schedule.CalculateOpponentMetrics(isPreseason);
+                schedule.CalculateOpponentMetrics(isPreseason, dataEngine);
             }
 
             opponentMetricsDone = true;
@@ -92,7 +92,7 @@ namespace EA_DB_Editor
             }
         }
 
-        public void CalculateOpponentMetrics(bool isPreseason)
+        public void CalculateOpponentMetrics(bool isPreseason, IDataEngine dataEngine)
         {
             int rankUnits = 0;
             List<double> highestRankedGames = new List<double>();
@@ -117,7 +117,7 @@ namespace EA_DB_Editor
                     this.OpponentWin += game.Opponent.Win;
                 }
 
-                if (game.Opponent.CoachesPollRank < 127)
+                if (game.Opponent.CoachesPollRank <= dataEngine.TeamCount)
                 {
                     this.OpponentRank = (game.Opponent.MediaPollRank + game.Opponent.BCSRank + game.Opponent.CoachesPollRank) / 3.0;
                     this.AverageOpponentRank += game.Opponent.MediaPollRank + game.Opponent.BCSRank + game.Opponent.CoachesPollRank;
@@ -125,21 +125,21 @@ namespace EA_DB_Editor
                 }
 
                 //Top 15 Record
-                if ((this.OpponentRank <= Convert.ToDouble(ConfigurationManager.AppSettings["Level1TopRanking"])) && game.Opponent.CoachesPollRank < 127)
+                if ((this.OpponentRank <= Convert.ToDouble(ConfigurationManager.AppSettings["Level1TopRanking"])) && game.Opponent.CoachesPollRank <= dataEngine.TeamCount)
                 {
                     if (game.DidIWin == true) { this.TopLvl1Wins++; }
                     else { if (game.Score != "0-0") { this.TopLvl1Losses++; } }
                 }
 
                 //Top 25 Record
-                if ((this.OpponentRank <= Convert.ToDouble(ConfigurationManager.AppSettings["Level2TopRanking"])) && game.Opponent.CoachesPollRank < 127 )
+                if ((this.OpponentRank <= Convert.ToDouble(ConfigurationManager.AppSettings["Level2TopRanking"])) && game.Opponent.CoachesPollRank <= dataEngine.TeamCount)
                 {
                     if (game.DidIWin == true) { this.TopLvl2Wins++; }
                     else { if (game.Score != "0-0") { this.TopLvl2Losses++; } }
                 }
 
                 //Top 45 Record
-                if ((this.OpponentRank <= Convert.ToDouble(ConfigurationManager.AppSettings["Level3TopRanking"])) && game.Opponent.CoachesPollRank < 127)
+                if ((this.OpponentRank <= Convert.ToDouble(ConfigurationManager.AppSettings["Level3TopRanking"])) && game.Opponent.CoachesPollRank <= dataEngine.TeamCount)
                 {
                     if (game.DidIWin == true) { this.TopLvl3Wins++; }
                     else { if (game.Score != "0-0") { this.TopLvl3Losses++; } }
@@ -178,7 +178,7 @@ namespace EA_DB_Editor
             
         }
 
-        public static void ToAllSchedulesCsv(bool isPreason = false)
+        public static void ToAllSchedulesCsv(IDataEngine dataEngine, bool isPreason = false)
         {
             string[] keys = "Week,Game,Location,OppId,Opponent,Result,Score,TeamId,TeamName,BowlId,PlayoffDescriptor".Split(',');
             if (isPreason)
@@ -189,7 +189,7 @@ namespace EA_DB_Editor
             List<string> lines = new List<string>();
             foreach (var schedule in TeamSchedules.Values)
             {
-                schedule.CalculateOpponentMetrics(isPreason);
+                schedule.CalculateOpponentMetrics(isPreason, dataEngine);
                 Team currentTeam = null;
                 foreach (var game in schedule.FlattenedListOfGames.Where(g => g.OpponentId != 1023).OrderBy(g => g.Week))
                 {
@@ -224,13 +224,13 @@ namespace EA_DB_Editor
             lines.ToCsvFile(keys, s => s, file);
         }
 
-        public static void ToCsv(int teamId, bool isPreseason)
+        public static void ToCsv(int teamId, bool isPreseason, IDataEngine dataEngine)
         {
             if (TeamSchedules.ContainsKey(teamId) == false)
                 return;
 
             var schedule = TeamSchedules[teamId];
-            schedule.CalculateOpponentMetrics(isPreseason);
+            schedule.CalculateOpponentMetrics(isPreseason, dataEngine);
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Week,Game,Location,OppId,Opponent,Result,Score");
             foreach (var game in schedule.FlattenedListOfGames.Where(g => g.OpponentId != 1023).OrderBy(g => g.Week))

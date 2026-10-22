@@ -29,6 +29,7 @@ namespace EA_DB_Editor
         public List<CFBConference> Conferences => this.conferences ?? (this.conferences = CFBConference.Read(dynasty));
 
         public Dictionary<int, string> TeamNames { get; private set; }
+        public int TeamCount => 138;
 
         public CFB27DataEngine(FranchiseFile dynasty)
         {
@@ -82,7 +83,7 @@ namespace EA_DB_Editor
             foreach (var sg in this.SeasonGames.Records.Where(n => !n.IsEmpty).OrderBy(n => n.SeasonWeek))
             {
                 // create the team schedule as needed
-                if (!schedules.TryGetValue(sg.HomeTeamId, out var homeSchedule))
+                if (!schedules.TryGetValue(sg.RealHomeTeamId, out var homeSchedule))
                 {
                     homeSchedule = schedules[sg.RealHomeTeamId] = new TeamSchedule
                     {
@@ -90,7 +91,7 @@ namespace EA_DB_Editor
                     };
                 }
 
-                if (!schedules.TryGetValue(sg.AwayTeamId, out var awaySchedule))
+                if (!schedules.TryGetValue(sg.RealAwayTeamId, out var awaySchedule) && !sg.RealAwayTeamId.IsFcsTeam())
                 {
                     awaySchedule = schedules[sg.RealAwayTeamId] = new TeamSchedule
                     {
@@ -127,7 +128,7 @@ namespace EA_DB_Editor
                     gamesForWeek.Add(homeGame);
                 }
 
-                if (!awaySchedule.TryGetValue(sg.SeasonWeek, out  gamesForWeek))
+                if (!awaySchedule?.TryGetValue(sg.SeasonWeek, out  gamesForWeek) ?? false)
                 {
                     gamesForWeek = new List<Game>();
                     awaySchedule.Add(awayGame.Week, gamesForWeek);
@@ -183,9 +184,66 @@ namespace EA_DB_Editor
             }
         }
 
+        /// <summary>The classic conference id the All-American report uses for the national teams.</summary>
+        private const int NationalAllAmericanConferenceId = 14;
+
+        /// <summary>
+        /// The All-American teams (25 players each) from PlayerAward, nationally (conference 14, as in NCAA 14) and for each
+        /// conference. The final 1st, 2nd and Freshman teams are used once they're named at the end of the season; before
+        /// that, the preseason 1st and 2nd teams.
+        /// </summary>
         public List<AllAmerican> CreateAllAmericans()
         {
-            throw new NotImplementedException();
+            var finalTeams = new Dictionary<string, AllAmericanTeam>
+            {
+                { "ALL_AM_1ST", AllAmericanTeam.First }, { "ALL_AM_2ND", AllAmericanTeam.Second }, { "ALL_AM_FR", AllAmericanTeam.Freshman },
+                { "ALL_AM_1ST_CONF", AllAmericanTeam.First }, { "ALL_AM_2ND_CONF", AllAmericanTeam.Second }, { "ALL_AM_FR_CONF", AllAmericanTeam.Freshman },
+            };
+            var preseasonTeams = new Dictionary<string, AllAmericanTeam>
+            {
+                { "ALL_AM_1ST_PRE", AllAmericanTeam.First }, { "ALL_AM_2ND_PRE", AllAmericanTeam.Second },
+                { "ALL_AM_1ST_PRE_CONF", AllAmericanTeam.First }, { "ALL_AM_2ND_PRE_CONF", AllAmericanTeam.Second },
+            };
+
+            var playerTableId = this.Players.RawTable.Header.TableId;
+            var awards = dynasty.GetPrimaryTable("PlayerAward").Records
+                .Where(r => !r.IsEmpty && (r["Period"] as string) == "Season")
+                .ToList();
+            var teams = awards.Any(r => finalTeams.ContainsKey(r["AwardType"] as string)) ? finalTeams : preseasonTeams;
+
+            var allAmericans = new List<AllAmerican>();
+            foreach (var award in awards)
+            {
+                if (!teams.TryGetValue(award["AwardType"] as string, out var team))
+                {
+                    continue;
+                }
+
+                var player = award.GetReferenceDataByKey("Player").Value;
+                if (player.TableId != playerTableId || !this.Players.Records[player.RowNumber].IsOnTeam)
+                {
+                    continue;
+                }
+
+                // national teams have no conference
+                var conference = dynasty.Follow(award.GetReferenceDataByKey("Conference").Value);
+                var positionField = award.GetFieldByKey("Position");
+
+                allAmericans.Add(new AllAmerican
+                {
+                    AllAmericanTeam = team,
+                    PlayerId = player.RowNumber,
+                    // PositionE uses the classic position numbers (QB 0 ... P 20)
+                    Position = (int)positionField.Offset.Enum.GetMemberByName(positionField.Value as string).Value,
+                    ConferenceId = conference == null ? NationalAllAmericanConferenceId : CFBConference.ToClassicId(conference),
+                });
+            }
+
+            return allAmericans
+                .OrderBy(a => a.ConferenceId)
+                .ThenBy(a => a.AllAmericanTeam)
+                .ThenBy(a => a.Position)
+                .ToList();
         }
 
         public void CreatePlayers(Dictionary<int, List<Player>> Rosters, Dictionary<int, Player> Players)
@@ -329,29 +387,307 @@ namespace EA_DB_Editor
             return coaches;
         }
 
+        /// <summary>
+        /// Each team's win-loss record per dynasty season, from Team.TeamSeriesHistory -> TeamHistoricSeriesYear (newest
+        /// first; the entries for seasons before the dynasty point into game data that isn't in the save). The current
+        /// season's entry holds its record so far, so it's only included once the season is over. Records from the
+        /// continuation file come first, as in NCAA 14.
+        /// </summary>
         public Dictionary<int, Dictionary<int, TeamSeasonRecord>> CreateTeamHistoricRecords()
         {
-            throw new NotImplementedException();
+            var teamRecords = new Dictionary<int, Dictionary<int, TeamSeasonRecord>>();
+            var seasonInfo = dynasty.GetPrimaryTable("SeasonInfo").Records.First(r => !r.IsEmpty);
+            var baseCalendarYear = Convert.ToInt32(seasonInfo["BaseCalendarYear"]);
+            var lastCompletedSeason = Convert.ToInt32(seasonInfo["CurrentSeasonYear"]) - (this.IsSeasonOver() ? 0 : 1);
+
+            foreach (var team in this.Teams.Records.Where(t => !t.IsEmpty && t.TeamIndex != CFBPlayer.NoTeamIndex))
+            {
+                Dictionary<int, TeamSeasonRecord> seasons;
+                if (ContinuationData.UsingContinuationData && ContinuationData.Instance != null && ContinuationData.Instance.TeamHistoricRecords.TryGetValue(team.TeamId, out var continued))
+                {
+                    seasons = continued;
+                }
+                else
+                {
+                    seasons = new Dictionary<int, TeamSeasonRecord>();
+                }
+
+                foreach (var season in dynasty.FollowArray(this.Teams.RawTable.Records[team.Row], "TeamSeriesHistory"))
+                {
+                    var calendarYear = Convert.ToInt32(season["Year"]);
+                    if (calendarYear < baseCalendarYear || calendarYear > lastCompletedSeason)
+                    {
+                        continue;
+                    }
+
+                    var record = new TeamSeasonRecord
+                    {
+                        Year = calendarYear - baseCalendarYear + ContinuationData.ContinuationYear,
+                        Win = Convert.ToInt32(season["Wins"]),
+                        Loss = Convert.ToInt32(season["Losses"]),
+                    };
+
+                    seasons[record.Year] = record;
+                }
+
+                teamRecords[team.TeamId] = seasons;
+            }
+
+            return teamRecords;
         }
 
+        /// <summary>SeasonGame.DayOfWeek -> the pages' day numbering (0 Monday ... 6 Sunday).</summary>
+        private static readonly Dictionary<string, int> GameDays = new Dictionary<string, int>
+        {
+            { "Monday", 0 }, { "Tuesday", 1 }, { "Wednesday", 2 }, { "Thursday", 3 }, { "Friday", 4 }, { "Saturday", 5 }, { "Sunday", 6 },
+        };
+
+        /// <summary>
+        /// The season's games from SeasonGame (filled in at week 0). A game's Stadium is empty when it's played at the home
+        /// team's stadium; a regular-season game with any other stadium is a neutral-site game, and GameSite/SiteId name it.
+        /// CFB27 has no augmented bowl games; bowl games get their bowl stadium as GameSite.
+        /// </summary>
         public Dictionary<string, ScheduledGame> ReadSchedule(bool isPreseason)
         {
-            throw new NotImplementedException();
+            var schedule = new Dictionary<string, ScheduledGame>();
+
+            // unscheduled bowls and conference title games don't have their teams yet
+            foreach (var sg in this.SeasonGames.Records.Where(g => !g.IsEmpty
+                && !string.Equals(g.HomeTeam, BaseRecord.NoRefString)
+                && !string.Equals(g.AwayTeam, BaseRecord.NoRefString)))
+            {
+                var homeStadium = this.Teams.Records[sg.HomeTeamId].Stadium;
+                var playedAtHome = string.Equals(sg.Stadium, BaseRecord.NoRefString) || string.Equals(sg.Stadium, homeStadium);
+                var stadiumId = playedAtHome
+                    ? (string.Equals(homeStadium, BaseRecord.NoRefString) ? 0 : CFBStadium.ToStadiumId(homeStadium))
+                    : CFBStadium.ToStadiumId(sg.Stadium);
+
+                var game = new ScheduledGame
+                {
+                    PostSeason = sg.SeasonWeekType == "RegularSeason" ? 0 : 1,
+                    AwayScore = sg.AwayScore,
+                    HomeScore = sg.HomeScore,
+                    AwayTeamId = sg.RealAwayTeamId,
+                    HomeTeamId = sg.RealHomeTeamId,
+                    DynastySeason = sg.SeasonYear,
+                    GameNumber = sg.SeasonGameNum,
+                    Week = sg.SeasonWeek,
+                    Year = sg.SeasonYear + ContinuationData.ContinuationYear,
+                    WentToOvertime = sg.IsOvertimeGame ? 1 : 0,
+                    GameDay = GameDays.TryGetValue(sg.DayOfWeek ?? string.Empty, out var day) ? day : GameDays["Saturday"],
+                    TimeOfDay = sg.TimeOfDay,
+                    StadiumId = stadiumId,
+                    GameSite = ReadStadiumName(stadiumId),
+                };
+
+                // regular-season games (including conference title games) away from the home team's stadium
+                if (!playedAtHome && game.PostSeason == 0)
+                {
+                    game.IsNeutralSite = true;
+                    game.SiteId = stadiumId;
+                }
+
+                schedule.Add(game.Key, game);
+            }
+
+            return schedule;
         }
 
+        /// <summary>Record.Type for Team.GameStatRecords / SeasonStatRecords / CareerStatRecords.</summary>
+        private static readonly (string Field, int Type)[] SchoolRecordTypes = { ("GameStatRecords", 0), ("SeasonStatRecords", 1), ("CareerStatRecords", 2) };
+
+        /// <summary>Record.Description (TeamRecordKeys) for each PlayerStatRecords field.</summary>
+        private static readonly (string Field, TeamRecordKeys Key)[] SchoolRecordStats =
+        {
+            ("RushYards", TeamRecordKeys.RushingYds),
+            ("RushTDS", TeamRecordKeys.RushingTD),
+            ("PassYards", TeamRecordKeys.PassYds),
+            ("PassTDS", TeamRecordKeys.PassTD),
+            ("ReceivingCatches", TeamRecordKeys.Receptions),
+            ("ReceivingYards", TeamRecordKeys.RecYds),
+            ("ReceivingTDS", TeamRecordKeys.RecTD),
+            ("DefensiveSacks", TeamRecordKeys.Sacks),
+            ("DefensiveInts", TeamRecordKeys.INT),
+        };
+
+        /// <summary>NCAA 14's year for records set before the dynasty ("Past").</summary>
+        private const int PastRecordYear = 63;
+
+        /// <summary>
+        /// Each team's game, season and career records for the 9 classic stats, from Team.*StatRecords -> PlayerStatRecord.
+        /// CFB27 keeps the holder's name and calendar year but not the opponent, so Opponent is empty.
+        /// </summary>
         public Dictionary<int, List<Record>> ReadSchoolRecords(bool recreateUsingRecordsFile)
         {
-            throw new NotImplementedException();
+            var schoolRecords = new Dictionary<int, List<Record>>();
+            var baseCalendarYear = Convert.ToInt32(dynasty.GetPrimaryTable("SeasonInfo").Records.First(r => !r.IsEmpty)["BaseCalendarYear"]);
+
+            foreach (var team in this.Teams.Records.Where(t => !t.IsEmpty && t.TeamIndex != CFBPlayer.NoTeamIndex))
+            {
+                var teamRecord = this.Teams.RawTable.Records[team.Row];
+                var records = new List<Record>();
+
+                foreach (var (field, type) in SchoolRecordTypes)
+                {
+                    var statRecords = dynasty.Follow(teamRecord.GetReferenceDataByKey(field).Value);
+                    if (statRecords == null)
+                    {
+                        continue;
+                    }
+
+                    foreach (var (statField, key) in SchoolRecordStats)
+                    {
+                        var stat = dynasty.Follow(statRecords.GetReferenceDataByKey(statField).Value);
+                        if (stat == null)
+                        {
+                            continue;
+                        }
+
+                        var calendarYear = Convert.ToInt32(stat["calendarYear"]);
+                        var year = ToRecordYear(calendarYear, baseCalendarYear);
+                        var holderYear = year == PastRecordYear ? calendarYear : Utility.StartingYear + year;
+
+                        records.Add(new Record
+                        {
+                            Type = type,
+                            Description = (int)key,
+                            Holder = $"{holderYear} {ToRecordHolderName(stat)}",
+                            Value = Convert.ToInt32(stat["statValue"]),
+                            Opponent = string.Empty,
+                            Year = year,
+                        });
+                    }
+                }
+
+                if (records.Count > 0)
+                {
+                    schoolRecords[team.TeamId] = records;
+                }
+            }
+
+            return schoolRecords;
+        }
+
+        /// <summary>Records set during the dynasty get the dynasty year like the rest of the engine; older ones are "Past".</summary>
+        private static int ToRecordYear(int calendarYear, int baseCalendarYear)
+        {
+            return calendarYear >= baseCalendarYear
+                ? calendarYear - baseCalendarYear + ContinuationData.ContinuationYear
+                : PastRecordYear;
+        }
+
+        /// <summary>"T.Davis" from a PlayerStatRecord.</summary>
+        private static string ToRecordHolderName(FranchiseFileRecord stat)
+        {
+            var firstName = stat["firstName"] as string;
+            return $"{(string.IsNullOrEmpty(firstName) ? string.Empty : firstName.Substring(0, 1) + ".")}{stat["lastName"]}";
+        }
+
+        /// <summary>
+        /// Nat_Rec_Desc code for each League.Player*StatRecords field. CFB27's single-game rushing, passing and receiving TD
+        /// records have no classic code, so they aren't listed.
+        /// </summary>
+        private static readonly (string Field, (string Stat, int Description)[] Stats)[] NcaaRecordCodes =
+        {
+            ("PlayerGameStatRecords", new[]
+            {
+                ("PassYards", 9), ("RushYards", 10), ("ReceivingYards", 11), ("ReceivingCatches", 12), ("DefensiveSacks", 13), ("DefensiveInts", 14),
+            }),
+            ("PlayerSeasonStatRecords", new[]
+            {
+                ("RushYards", 21), ("RushTDS", 22), ("PassYards", 23), ("PassTDS", 24), ("ReceivingCatches", 26),
+                ("ReceivingYards", 27), ("ReceivingTDS", 28), ("DefensiveSacks", 29), ("DefensiveInts", 30),
+            }),
+            ("PlayerCareerStatRecords", new[]
+            {
+                ("RushYards", 32), ("RushTDS", 33), ("PassYards", 34), ("PassTDS", 35), ("ReceivingCatches", 36),
+                ("ReceivingYards", 37), ("ReceivingTDS", 38), ("DefensiveSacks", 39), ("DefensiveInts", 40),
+            }),
+        };
+
+        /// <summary>
+        /// The national record book from League.PlayerGameStatRecords / PlayerSeasonStatRecords / PlayerCareerStatRecords.
+        /// CFB27 only keeps player records for 9 stats, so the classic team, coach, longest-play, QB rating and field goal
+        /// records aren't available. Holder is "1988 B.Sanders (Oklahoma State)"; CFB27 doesn't keep the opponent.
+        /// </summary>
+        public List<Record> ReadNcaaRecords()
+        {
+            var records = new List<Record>();
+            var baseCalendarYear = Convert.ToInt32(dynasty.GetPrimaryTable("SeasonInfo").Records.First(r => !r.IsEmpty)["BaseCalendarYear"]);
+            var league = dynasty.GetPrimaryTable("League").Records.First(r => !r.IsEmpty);
+
+            foreach (var (field, stats) in NcaaRecordCodes)
+            {
+                var statRecords = dynasty.Follow(league.GetReferenceDataByKey(field).Value);
+                if (statRecords == null)
+                {
+                    continue;
+                }
+
+                foreach (var (statField, description) in stats)
+                {
+                    var stat = dynasty.Follow(statRecords.GetReferenceDataByKey(statField).Value);
+                    if (stat == null)
+                    {
+                        continue;
+                    }
+
+                    // the page shows "Past" for pre-dynasty years, so the holder keeps the year too (as school records do)
+                    var calendarYear = Convert.ToInt32(stat["calendarYear"]);
+                    var year = ToRecordYear(calendarYear, baseCalendarYear);
+                    var holderYear = year == PastRecordYear ? calendarYear : Utility.StartingYear + year;
+
+                    records.Add(new Record
+                    {
+                        Description = description,
+                        Holder = $"{holderYear} {ToRecordHolderName(stat)} ({stat["teamName"]})",
+                        Value = Convert.ToInt32(stat["statValue"]),
+                        Opponent = string.Empty,
+                        Year = year,
+                    });
+                }
+            }
+
+            return records;
         }
 
         public void ReadGameStats(Dictionary<string, ScheduledGame> games)
         {
-            throw new NotImplementedException();
+            return;
         }
 
+        /// <summary>
+        /// Every season's conference champions from the league history: LeagueHistoryManager.LeagueHistory -> YearSummary
+        /// (one per dynasty year, PeriodIndex) -> ConferenceChampions -> LeagueHistoryConferenceChampion. A season's entries
+        /// appear once its title games are played; the current season's YearSummary is empty until then.
+        /// </summary>
         public List<ConferenceChampion> ReadConferenceChamps()
         {
-            throw new NotImplementedException();
+            var champions = new List<ConferenceChampion>();
+            var manager = dynasty.GetPrimaryTable("LeagueHistoryManager").Records.First(r => !r.IsEmpty);
+
+            foreach (var yearSummary in dynasty.FollowArray(manager, "LeagueHistory"))
+            {
+                var year = Convert.ToInt32(yearSummary["PeriodIndex"]) + ContinuationData.ContinuationYear;
+                foreach (var champion in dynasty.FollowArray(yearSummary, "ConferenceChampions"))
+                {
+                    var conference = dynasty.Follow(champion.GetReferenceDataByKey("ConferenceIdentity").Value);
+                    var team = dynasty.Follow(champion.GetReferenceDataByKey("WinningTeamIdentity").Value);
+                    if (team == null || CFBConference.ToClassicId(conference) < 0)
+                    {
+                        continue;
+                    }
+
+                    champions.Add(new ConferenceChampion
+                    {
+                        ConferenceId = CFBConference.ToClassicId(conference),
+                        TeamId = CFBTeam.TeamRowToOldTeamIdMap[team.Index],
+                        Year = year,
+                    });
+                }
+            }
+
+            return champions;
         }
 
         private Dictionary<int, Stadium> stadiums;
@@ -464,14 +800,158 @@ namespace EA_DB_Editor
             return result;
         }
 
+        /// <summary>No team, as NCAA 14 recorded it.</summary>
+        private const int NoTeamId = 1023;
+
+        /// <summary>
+        /// Every ranked recruit, keyed like NCAA 14: by RecruitId (the Recruit table row) and again by 10000 + national rank.
+        /// </summary>
         public Dictionary<int, Recruit> ReadRecruits()
         {
-            throw new NotImplementedException();
+            var recruits = new Dictionary<int, Recruit>();
+
+            // signed and committed recruits are only linked to their school through Team.CommittedPlayers
+            var committedTeamByPlayerRow = new Dictionary<int, int>();
+            foreach (var team in this.Teams.Records.Where(t => !t.IsEmpty && t.TeamIndex != CFBPlayer.NoTeamIndex))
+            {
+                foreach (var row in ReadCommittedPlayerRows(team))
+                {
+                    committedTeamByPlayerRow[row] = team.TeamId;
+                }
+            }
+
+            var recruitTable = dynasty.GetTable<CFBRecruit>(TableName.Recruit, CFBRecruit.Transform);
+            foreach (var record in recruitTable.Records.Where(r => r.IsRanked))
+            {
+                var player = this.Players.Records[record.PlayerRow];
+                var topSchools = record.TopSchoolTeamIndexes.Select(t => CFBTeam.TeamIndexToOldIdMap[t]).Concat(Enumerable.Repeat(NoTeamId, 3)).ToList();
+
+                var recruit = new Recruit
+                {
+                    RecruitId = record.Row,
+                    FirstName = player.FirstName,
+                    LastName = player.LastName,
+                    PositionValue = player.Position,
+                    Rank = record.NationalRank,
+                    PositionRank = record.PositionRank,
+                    StarRating = player.StarRating,
+                    RealOVR = player.OverallRating,
+                    // CFB27 has no pre-scouting overall; the game flags gems and busts instead
+                    PreScoutOVR = player.OverallRating,
+                    IsGem = record.QualityModifier == "GEM",
+                    IsBust = record.QualityModifier == "BUST",
+                    // NCAA 14's ATH recruits; in CFB27 a recruit listed with a second position
+                    IsAthlete = record.HasAlternatePosition,
+                    PlayerYear = player.SchoolYear,
+                    Tendency = ToQbTendency(player.PlayerType),
+                    State = player.HomeStateId,
+                    Hometown = player.HomeTown,
+                    Homestate = player.HomeStateAbbreviation,
+                    // NCAA 14 city ids are grouped by state (state * 256 + city); without a city, use the state's first id
+                    // so the recruiting page's players-by-state counts still work
+                    HometownValue = player.HomeStateId >= 0 && player.HomeStateId <= 50 ? (player.HomeStateId * 256) + 1 : 0,
+                    CommittedTeam = committedTeamByPlayerRow.TryGetValue(record.PlayerRow, out var committedTeam) ? committedTeam : NoTeamId,
+                    Team1 = topSchools[0],
+                    Team2 = topSchools[1],
+                    Team3 = topSchools[2],
+                };
+
+                recruits[recruit.RecruitId] = recruit;
+                recruits[10000 + recruit.Rank] = recruit;
+            }
+
+            return recruits;
         }
 
+        /// <summary>NCAA 14 QB tendency from the CFB27 archetype: 0 pocket passer, 1 balanced, 2 scrambler; -1 for non-QBs.</summary>
+        private static int ToQbTendency(string playerType)
+        {
+            switch (playerType)
+            {
+                case "QB_FieldGeneral": return 0;
+                case "QB_Improviser": return 1;
+                case "QB_Scrambler":
+                case "QB_PureScrambler": return 2;
+                default: return -1;
+            }
+        }
+
+        /// <summary>
+        /// Award id (award_names.xml) for each CFB27 AwardType, with its ranking list on the Awards hub. 0-16 are the classic
+        /// NCAA 14 awards (BEST_SR is the Jet Award, the classic best returner); 17+ are awards new in CFB27.
+        /// </summary>
+        private static readonly (int Id, string AwardType, string RankingField)[] AwardMap =
+        {
+            (0, "HEISMAN", "HeismanRanking"),
+            (1, "BEST_PLAYER", "BestPlayerRankingArray"),          // Maxwell
+            (2, "BEST_POTY", "BestPOTYRankingArray"),              // Walter Camp
+            (3, "BEST_DEF_1", "BestDef1RankingArray"),             // Bednarik
+            (4, "BEST_DEF_2", "BestDef2RankingArray"),             // Nagurski
+            (5, "BEST_QB", "BestQBRankingArray"),                  // Davey O'Brien
+            (6, "BEST_RB", "BestRBRankingArray"),                  // Doak Walker
+            (7, "BEST_REC", "BestWRRankingArray"),                 // Biletnikoff
+            (8, "BEST_TE", "BestTERankingArray"),                  // Mackey
+            (9, "BEST_IL", "BestILRankingArray"),                  // Outland
+            (10, "BEST_C", "BestCRankingArray"),                   // Rimington
+            (11, "BEST_DL", "BestDLRankingArray"),                 // Lombardi
+            (12, "BEST_LB", "BestLBRankingArray"),                 // Butkus
+            (13, "BEST_DB", "BestDBRankingArray"),                 // Thorpe
+            (14, "BEST_KICK", "BestKickRankingArray"),             // Groza
+            (15, "BEST_PUNT", "BestPuntRankingArray"),             // Ray Guy
+            (16, "BEST_SR", "BestSRRankingArray"),                 // Jet Award (best returner)
+            (17, "BEST_DE", "BestDERankingArray"),                 // Edge Rusher of the Year
+            (18, "BEST_SR_QB", "BestSRQBRankingArray"),            // Johnny Unitas Golden Arm
+            (19, "MOST_VERSATILE", "MostVersatileRankingArray"),   // Paul Hornung
+            (20, "BEST_FRESHMAN_POTY", "BestFreshmanPOTYRankingArray"), // Shaun Alexander
+            (21, "BEST_ACADEMIC", "BestAcademicRankingArray"),     // William V. Campbell
+        };
+
+        /// <summary>
+        /// The current season's award rankings from the Awards hub (each award's ranked list, winner first; the Heisman has
+        /// its own HeismanRanking). The lists fill in during the season and are final once the awards are given, so an
+        /// award with no list yet falls back to its PlayerAward winner. Only players on FBS rosters are included, since
+        /// the awards page looks them up in PlayerDB. CFB27 doesn't link past seasons' winners to players.
+        /// </summary>
         public Dictionary<int, List<Award>> ReadAwards()
         {
-            throw new NotImplementedException();
+            var awards = new Dictionary<int, List<Award>>();
+            var seasonInfo = dynasty.GetPrimaryTable("SeasonInfo").Records.First(r => !r.IsEmpty);
+            var year = Convert.ToInt32(seasonInfo["CurrentYear"]) + ContinuationData.ContinuationYear;
+            var hub = dynasty.GetPrimaryTable("Awards").Records.First(r => !r.IsEmpty);
+            var playerTableId = this.Players.RawTable.Header.TableId;
+
+            // season winners, for awards whose ranking list is empty
+            var winners = dynasty.GetPrimaryTable("PlayerAward").Records
+                .Where(r => !r.IsEmpty && (r["Period"] as string) == "Season")
+                .GroupBy(r => r["AwardType"] as string)
+                .ToDictionary(g => g.Key, g => g.Select(r => r.GetReferenceDataByKey("Player").Value).Where(p => p.TableId == playerTableId).Select(p => p.RowNumber).ToList());
+
+            foreach (var (id, awardType, rankingField) in AwardMap)
+            {
+                // the Heisman list holds HeismanAwardRanking entries; the others point straight at players
+                var ranked = dynasty.FollowArray(hub, rankingField)
+                    .Select(entry => entry.Parent.Header.TableId == playerTableId ? entry : dynasty.Follow(entry.GetReferenceDataByKey("Player").Value))
+                    .Where(player => player != null && player.Parent.Header.TableId == playerTableId)
+                    .Select(player => player.Index)
+                    .ToList();
+
+                if (ranked.Count == 0 && winners.TryGetValue(awardType, out var winnerRows))
+                {
+                    ranked = winnerRows;
+                }
+
+                var list = ranked
+                    .Where(row => this.Players.Records[row].IsOnTeam)
+                    .Select((row, i) => new Award { Id = id, PlayerId = row, Rank = i + 1, Year = year })
+                    .ToList();
+
+                if (list.Count > 0)
+                {
+                    awards[id] = list;
+                }
+            }
+
+            return awards;
         }
 
         public int CalculateRosterSpots(RecruitClassRanking ranking)
@@ -479,14 +959,9 @@ namespace EA_DB_Editor
             throw new NotImplementedException();
         }
 
-        public List<Record> ReadNcaaRecords()
-        {
-            throw new NotImplementedException();
-        }
-
         public Dictionary<int, TeamStat> ReadTeamStats()
         {
-            throw new NotImplementedException();
+            return new Dictionary<int, TeamStat>();
         }
 
         public void CommitTeamRecords()
@@ -494,24 +969,58 @@ namespace EA_DB_Editor
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// NFL draft picks per college and class, from the DraftPick table. CFB27 keeps a rolling window of the last three
+        /// drafts: YearOffset is how many seasons ago the class played (CurrentSeasonYear - YearOffset), Round is 0-based
+        /// (0 = first round) and Team is the college. A placeholder row with no team is skipped.
+        /// </summary>
         public Dictionary<int, DraftClass[]> ReadDraftHistory()
         {
-            throw new NotImplementedException();
+            var seasonInfo = dynasty.GetPrimaryTable("SeasonInfo").Records.First(r => !r.IsEmpty);
+            var baseCalendarYear = Convert.ToInt32(seasonInfo["BaseCalendarYear"]);
+            var currentSeasonYear = Convert.ToInt32(seasonInfo["CurrentSeasonYear"]);
+            var teamTableId = this.Teams.RawTable.Header.TableId;
+
+            return dynasty.GetPrimaryTable("DraftPick").Records
+                .Where(r => !r.IsEmpty)
+                .Select(r => new { Pick = r, Team = r.GetReferenceDataByKey("Team").Value })
+                .Where(p => p.Team.TableId == teamTableId)
+                .GroupBy(p => CFBTeam.TeamRowToOldTeamIdMap[p.Team.RowNumber])
+                .ToDictionary(
+                    team => team.Key,
+                    team => team
+                        .GroupBy(p => Convert.ToInt32(p.Pick["YearOffset"]))
+                        .OrderBy(year => year.Key)
+                        .Select(year =>
+                        {
+                            var rounds = year.Select(p => Convert.ToInt32(p.Pick["Round"])).ToList();
+                            return new DraftClass
+                            {
+                                DynastyYear = currentSeasonYear - year.Key - baseCalendarYear + ContinuationData.ContinuationYear,
+                                Round1 = rounds.Count(r => r == 0),
+                                Round2 = rounds.Count(r => r == 1),
+                                Round3 = rounds.Count(r => r == 2),
+                                RoundLater = rounds.Count(r => r > 2),
+                            };
+                        })
+                        .ToArray());
         }
 
         public Dictionary<int, MediaCoverage[]> ReadMediaCoverage()
         {
+            // CFBStory.TeamId is the Team table row; pages look teams up by their old id. Teams without a story are left out
+            // (CFB27 writes few stories, mostly next-game previews, rather than a preview per team)
             return this.Stories.Records
-                .Where(s => !s.IsEmpty)
-                .GroupBy(s => s.TeamId)
+                .Where(s => !s.IsEmpty && !string.Equals(s.Team, BaseRecord.NoRefString))
+                .Where(mr => mr.Category != "NEXT_GAME")  // we don't want week 1 game info
+                .GroupBy(s => CFBTeam.TeamRowToOldTeamIdMap[s.TeamId])
                 .ToDictionary(
                 g => g.Key,
                     group => group
-                        .Where(mr => mr.Category != "NEXT_GAME")  // we don't want week 1 game info
                         .Select(mr =>
                         new MediaCoverage
                         {
-                            TeamId = mr.TeamId,
+                            TeamId = group.Key,
                             Headline = mr.Header,
                             Content = mr.Tag,
                         })
@@ -519,14 +1028,60 @@ namespace EA_DB_Editor
                 );
         }
 
+        /// <summary>
+        /// DepthChart field -> position number. QB..P (0-20) and KR/PR/KOS/LS (21-24) use the classic numbers; CFB27 has
+        /// LS 21, KR 22, PR 23, KOS 24. The sub-package positions keep CFB27's own numbers (3DRB 25 ... SLCB 34).
+        /// </summary>
+        private static readonly Dictionary<string, int> DepthChartPositions = new Dictionary<string, int>
+        {
+            { "QB", 0 }, { "HB", 1 }, { "FB", 2 }, { "WR", 3 }, { "TE", 4 }, { "LT", 5 }, { "LG", 6 }, { "C", 7 }, { "RG", 8 }, { "RT", 9 },
+            { "LE", 10 }, { "RE", 11 }, { "DT", 12 }, { "LOLB", 13 }, { "MLB", 14 }, { "ROLB", 15 }, { "CB", 16 }, { "FS", 17 }, { "SS", 18 },
+            { "K", 19 }, { "P", 20 },
+            { "KR", 21 }, { "PR", 22 }, { "KOS", 23 }, { "LS", 24 },
+            { "3DRB", 25 }, { "GAD", 26 }, { "PWHB", 27 }, { "SLWR", 28 }, { "RLE", 29 }, { "RRE", 30 }, { "RDT", 31 }, { "NT", 32 },
+            { "SUBLB", 33 }, { "SLCB", 34 },
+        };
+
+        /// <summary>
+        /// Each FBS team's depth chart: Team.DepthChart has a Player[] per position, already in depth order (depth 0 is the
+        /// starter). Players not on the team's roster are skipped so PlayerDB lookups work.
+        /// </summary>
         public Dictionary<int, Dictionary<int, DepthChartPosition[]>> ReadDepthCharts()
         {
-            throw new NotImplementedException();
+            var depthCharts = new Dictionary<int, Dictionary<int, DepthChartPosition[]>>();
+            var playerTableId = this.Players.RawTable.Header.TableId;
+
+            foreach (var team in this.Teams.Records.Where(t => !t.IsEmpty && t.TeamIndex != CFBPlayer.NoTeamIndex))
+            {
+                var depthChart = dynasty.Follow(this.Teams.RawTable.Records[team.Row].GetReferenceDataByKey("DepthChart").Value);
+                if (depthChart == null)
+                {
+                    continue;
+                }
+
+                var positions = new Dictionary<int, DepthChartPosition[]>();
+                foreach (var position in DepthChartPositions)
+                {
+                    var players = dynasty.FollowArray(depthChart, position.Key)
+                        .Where(p => p.Parent.Header.TableId == playerTableId && this.Players.Records[p.Index].TeamIndex == team.TeamIndex)
+                        .Select((p, depth) => new DepthChartPosition { PlayerId = p.Index, PlayerPosition = position.Value, PositionDepth = depth })
+                        .ToArray();
+
+                    if (players.Length > 0)
+                    {
+                        positions[position.Value] = players;
+                    }
+                }
+
+                depthCharts[team.TeamId] = positions;
+            }
+
+            return depthCharts;
         }
 
         public Dictionary<int, int> FindCoachesOnHotSeat()
         {
-            throw new NotImplementedException();
+            return new Dictionary<int, int>();
         }
 
         public string ReadStadiumName(int siteId)

@@ -47,6 +47,8 @@ namespace CFB27.Data.Model
             player.PresentationId = Convert.ToInt32(record["PresentationId"]);
             player.HomeTown = record["PLYR_HOME_TOWN"] as string;
             player.HomeState = record["PLYR_HOME_STATE"] as string;
+            player.HomeStateId = EnumValue(record, "PLYR_HOME_STATE");
+            player.PlayerType = record["PlayerType"] as string;
             player.StarRating = ToStars(record["ProspectStarRating"] as string);
             return player;
         }
@@ -103,7 +105,25 @@ namespace CFB27.Data.Model
         public int StarRating { get; set; }
 
         public string HomeTown { get; set; }
+
+        /// <summary>StateName enum name, e.g. NorthCarolina</summary>
         public string HomeState { get; set; }
+
+        /// <summary>StateName enum value: Alabama 0 ... Texas 42 ... Wyoming 49, NonUS 50; same numbering as NCAA 14</summary>
+        public int HomeStateId { get; set; }
+
+        /// <summary>postal abbreviation of the home state, or empty</summary>
+        public string HomeStateAbbreviation => this.HomeStateId >= 0 && this.HomeStateId < StateAbbreviations.Length ? StateAbbreviations[this.HomeStateId] : string.Empty;
+
+        private static readonly string[] StateAbbreviations =
+        {
+            "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+            "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+            "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
+        };
+
+        /// <summary>archetype, e.g. QB_FieldGeneral, HB_ElusiveBack</summary>
+        public string PlayerType { get; set; }
 
         public bool IsOnTeam => !this.IsEmpty && this.TeamIndex != NoTeamIndex;
 

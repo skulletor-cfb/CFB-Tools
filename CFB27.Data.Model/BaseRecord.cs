@@ -23,9 +23,33 @@ namespace CFB27.Data.Model
                 return null;
             }
 
+            // references into game data (e.g. pre-dynasty TeamHistoricSeriesYear entries) name tables the save doesn't have
             var table = dynasty.GetTableById(reference.TableId);
+            if (table == null)
+            {
+                return null;
+            }
+
             table.ReadRecords();
             return reference.RowNumber < table.Records.Count ? table.Records[reference.RowNumber] : null;
+        }
+
+        /// <summary>The records an array field (e.g. YearSummary[], Division[]) points to, in order; empty when the field is unset.</summary>
+        public static List<FranchiseFileRecord> FollowArray(this FranchiseFile dynasty, FranchiseFileRecord record, string arrayField)
+        {
+            var array = dynasty.Follow(record.GetReferenceDataByKey(arrayField).Value);
+            if (array == null)
+            {
+                return new List<FranchiseFileRecord>();
+            }
+
+            return array.FieldsArray
+                .Take(array.ArraySize ?? 0)
+                .Select(f => f.ReferenceData)
+                .Where(r => r.HasValue && r.Value.TableId > 0)
+                .Select(r => dynasty.Follow(r.Value))
+                .Where(r => r != null)
+                .ToList();
         }
 
         public static CFBTable<T> GetTable<T>(this FranchiseFile dynasty, TableName name, Func<FranchiseFile, FranchiseFileRecord, T> transform = null) where T : BaseRecord
