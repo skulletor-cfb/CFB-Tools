@@ -225,6 +225,49 @@ namespace ScheduleMaker
         }
 
         /// <summary>
+        /// Ctrl+T. Ports NCAA 14 team metadata (a TEAM dump, CSV) onto the open save: polls, recruiting pitch grades and
+        /// prestige, and zeroes the teams' history totals. Nothing is written until Save as.
+        /// </summary>
+        private void ImportNcaa14Teams()
+        {
+            if (dynasty == null)
+            {
+                status.Text = "Ctrl+O to open a save first.";
+                return;
+            }
+
+            using var dialog = new OpenFileDialog
+            {
+                Title = "Import NCAA 14 teams (TEAM.csv)",
+                Filter = "CSV files|*.csv|All files|*.*",
+                CheckFileExists = true,
+            };
+
+            if (dialog.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+
+            try
+            {
+                Cursor = Cursors.WaitCursor;
+                var report = Ncaa14TeamImporter.Import(dynasty, dialog.FileName);
+                isDirty = true;
+                UpdateStatus();
+                MessageBox.Show(this, report[0] + (report.Count > 1 ? "\n\nSkipped:\n" + string.Join("\n", report.Skip(1).Take(30)) : string.Empty),
+                    "Import teams", MessageBoxButtons.OK, report.Count > 1 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "Import failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        /// <summary>
         /// Ctrl+K. Ports the NCAA 14 coaching staffs (a COCH dump, CSV) onto the open save and writes continuationfile.txt
         /// (NCAA 14 coach id → CFB 27 coach row) to the current directory. The save itself isn't written until Save as.
         /// </summary>
@@ -344,6 +387,7 @@ namespace ScheduleMaker
             file.DropDownItems.Add(new ToolStripMenuItem("&Import NCAA 14 schedule...", null, (s, e) => ImportNcaa14Schedule(), Keys.Control | Keys.I));
             file.DropDownItems.Add(new ToolStripMenuItem("Import NCAA 14 &rosters...", null, (s, e) => ImportNcaa14Rosters(), Keys.Control | Keys.P));
             file.DropDownItems.Add(new ToolStripMenuItem("Import NCAA 14 &coaches...", null, (s, e) => ImportNcaa14Coaches(), Keys.Control | Keys.K));
+            file.DropDownItems.Add(new ToolStripMenuItem("Import NCAA 14 &teams...", null, (s, e) => ImportNcaa14Teams(), Keys.Control | Keys.T));
             file.DropDownItems.Add(new ToolStripMenuItem("Save &as...", null, (s, e) => SaveAs(), Keys.Control | Keys.S));
             file.DropDownItems.Add(new ToolStripSeparator());
             file.DropDownItems.Add(new ToolStripMenuItem("E&xit", null, (s, e) => Close()));

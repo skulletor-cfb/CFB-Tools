@@ -59,9 +59,62 @@ namespace EA_DB_Editor
                     Instance.BowlChamps = BowlChampion.FromCsvFile(Path.Combine(ContinuationDirectory, "bowlchamps.csv"));
                     Instance.ConferenceChamps = ConferenceChampion.FromCsvFile(Path.Combine(ContinuationDirectory, "cc.csv"));
                     Instance.TeamHistoricRecords = HistoricTeamRecord.FromCsvFile(Path.Combine(ContinuationDirectory, "thr.csv"));
+                    MergeRetiredTeams();
                 }
             }
             catch { }
+        }
+
+        /// <summary>
+        /// NCAA 14 teams whose slot was later given to another school (FIU, UMass, New Mexico State, UConn), by the season folder
+        /// they last played in. Their history stops after that season, but CFB 27 has them again.
+        /// </summary>
+        private static readonly Dictionary<int, string> RetiredTeamLastSeasons = new Dictionary<int, string>
+        {
+            { 230, "2487_Season" }, // FIU
+            { 181, "2197_Season" }, // UMass
+            { 61, "2371_Season" },  // New Mexico State
+            { 100, "2371_Season" }, // UConn
+        };
+
+        /// <summary>
+        /// Brings a retired team's all-time totals, season records, bowl wins and conference titles back from its last season
+        /// when the continuation season doesn't have them (it has no entry, or a placeholder with no games). Once a season has
+        /// been built with them, later seasons carry them forward and this does nothing.
+        /// </summary>
+        private static void MergeRetiredTeams()
+        {
+            var archive = Path.GetDirectoryName(Path.GetFullPath(ContinuationDirectory).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+            foreach (var retired in RetiredTeamLastSeasons)
+            {
+                int id = retired.Key;
+                if (Instance.TeamData.TryGetValue(id, out var current) && current.AllTimeWin + current.AllTimeLoss + current.AllTimeTie > 0)
+                {
+                    continue;
+                }
+
+                var lastSeason = Path.Combine(archive, retired.Value);
+                if (!Directory.Exists(lastSeason))
+                {
+                    continue;
+                }
+
+                var team = Team.FromJsonFile(Path.Combine(lastSeason, "team")).FirstOrDefault(t => t.Id == id);
+                if (team != null)
+                {
+                    Instance.TeamData[id] = team;
+                }
+
+                if (HistoricTeamRecord.FromCsvFile(Path.Combine(lastSeason, "thr.csv")).TryGetValue(id, out var records) && !Instance.TeamHistoricRecords.ContainsKey(id))
+                {
+                    Instance.TeamHistoricRecords[id] = records;
+                }
+
+                Instance.BowlChamps.AddRange(BowlChampion.FromCsvFile(Path.Combine(lastSeason, "bowlchamps.csv"))
+                    .Where(b => b.TeamId == id && !Instance.BowlChamps.Any(x => x.Year == b.Year && x.BowlId == b.BowlId)));
+                Instance.ConferenceChamps.AddRange(ConferenceChampion.FromCsvFile(Path.Combine(lastSeason, "cc.csv"))
+                    .Where(c => c.TeamId == id && !Instance.ConferenceChamps.Any(x => x.Year == c.Year && x.TeamId == c.TeamId)));
+            }
         }
 
         [DataMember]
