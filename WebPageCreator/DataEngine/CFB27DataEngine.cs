@@ -1,4 +1,5 @@
 ﻿using CFB27.Data.Model;
+using EA_DB_Editor;
 using MaddenFranchise;
 using Newtonsoft.Json;
 using System;
@@ -593,13 +594,21 @@ namespace EA_DB_Editor
                     TimeOfDay = sg.TimeOfDay,
                     StadiumId = stadiumId,
                     GameSite = ReadStadiumName(stadiumId),
+                    IsKickoffGame  = sg.IsKickoffGame,
                 };
 
                 // regular-season games (including conference title games) away from the home team's stadium
-                if (!playedAtHome && game.PostSeason == 0)
+                if (game.IsKickoffGame)
                 {
                     game.IsNeutralSite = true;
                     game.SiteId = stadiumId;
+                    game.GameSite = KickoffGames.TryGetValue((uint)game.StadiumId, out var kickoff) ? kickoff.Name : game.GameSite;
+                }
+                else if (!playedAtHome && game.PostSeason == 0)
+                {
+                    game.IsNeutralSite = true;
+                    game.SiteId = stadiumId;
+                    game.GameSite = KickoffGames.TryGetValue((uint)game.StadiumId, out var kickoff) ? kickoff.Name : game.GameSite;
                 }
 
                 schedule.Add(game.Key, game);
@@ -607,6 +616,24 @@ namespace EA_DB_Editor
 
             return schedule;
         }
+
+        private static Dictionary<uint, (string Name, int id)> KickoffGames = new Dictionary<uint, (string Name, int id)>
+        {
+            [0x80639DCE] = (Name: "Texas Kickoff", id: 272),
+            [0x806385D0] = (Name: "Allstate Kickoff Classic", id: 271),
+            [0x80639E01] = (Name: "World's Largest Outdoor Cocktail Party", id: 183),
+            [0x806385C1] = (Name: "Red River Shootout", id: 182),
+            [0x8095C153] = (Name: "Aer Lingus College Football Classic", id: 261),
+            [0x80639DE7] = (Name: "Cactus Kickoff Classic", id: 22500),
+            [0x806385B3] = (Name: "Duke's Mayo Classic", id: 34596),
+            [0x80654CB9] = (Name: "The Kickoff Classic", id: 76729),
+            [0x806A4715] = (Name: "Camping World Kickoff", id: 703724112),
+            [0x806385CF] = (Name: "Louisiana Kickoff", id: 77841),
+            [0x80654CE3] = (Name: "Vegas Kickoff Classic", id: 75076),
+            [0x80639DC0] = (Name: "Music City Kickoff", id: 165165165),
+            [0x80638637] = (Name: "Aflac Kickoff", id: 273),
+            [0x80DA11F2] = (Name: "Union Jack Classic", id: 267762),
+        };
 
         /// <summary>Record.Type for Team.GameStatRecords / SeasonStatRecords / CareerStatRecords.</summary>
         private static readonly (string Field, int Type)[] SchoolRecordTypes = { ("GameStatRecords", 0), ("SeasonStatRecords", 1), ("CareerStatRecords", 2) };

@@ -1011,6 +1011,7 @@ namespace EA_DB_Editor
         [DataMember]
         public int TimeOfDay { get; set; }
         public Dictionary<int, PlayerStats> GamePlayerStats { get; set; }
+        public bool IsKickoffGame { get; set; }
 
         public ScheduledGame()
         {
