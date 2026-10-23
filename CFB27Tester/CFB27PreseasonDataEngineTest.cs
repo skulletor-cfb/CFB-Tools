@@ -102,10 +102,10 @@ namespace CFB27Tester
         [TestMethod]
         public void CreateTeamHistoricRecords()
         {
-            // week 0 of the first dynasty season: the 2026 entry is 0-0 and in progress, so there's no history yet
+            // week 0 of the first dynasty season: only the 2026 season in progress, at 0-0 (NCAA14DataEngine includes it too)
             var records = season.CreateTeamHistoricRecords();
             Assert.AreEqual(138, records.Count);
-            Assert.IsTrue(records.Values.All(seasons => seasons.Count == 0));
+            Assert.IsTrue(records.Values.All(seasons => seasons.Count == 1 && seasons.Values.All(r => r.Win == 0 && r.Loss == 0)));
         }
 
         [TestMethod]

@@ -138,12 +138,29 @@ namespace ScheduleMaker
             return (report, importer.mapping);
         }
 
-        /// <summary>The continuation file the web page creator reads: {"CoachMapping":[{"NewCoachId":..,"OldCoachId":..}]}.</summary>
-        public static void WriteContinuationFile(IEnumerable<(int OldCoachId, int NewCoachId)> mapping, string path)
+        /// <summary>
+        /// The continuation file the web page creator reads: the coach id map, {"CoachMapping":[{"NewCoachId":..,"OldCoachId":..}]},
+        /// and each carried-over coach's NCAA 14 award counts, which CFB 27 doesn't keep per coach (CoachAwardHistory adds
+        /// each new season to them): All-Americans (CNAA), Heisman winners (CHTW), top 25 classes (CNTC), coach of the year (CYRA).
+        /// </summary>
+        public static void WriteContinuationFile(IEnumerable<(int OldCoachId, int NewCoachId)> mapping, string coachCsvPath, string path)
         {
+            var mapped = mapping.ToList();
+            var ncaa = ReadCsv(coachCsvPath).GroupBy(c => c.Int("CCID")).ToDictionary(g => g.Key, g => g.First());
             var json = JsonConvert.SerializeObject(new
             {
-                CoachMapping = mapping.Select(m => new { m.NewCoachId, m.OldCoachId }),
+                CoachMapping = mapped.Select(m => new { m.NewCoachId, m.OldCoachId }),
+                CoachAwards = mapped
+                    .Where(m => ncaa.ContainsKey(m.OldCoachId))
+                    .Select(m => ncaa[m.OldCoachId])
+                    .Select(c => new
+                    {
+                        CoachId = c.Int("CCID"),
+                        AllAmericans = c.Int("CNAA"),
+                        HeismanWinners = c.Int("CHTW"),
+                        Top25Classes = c.Int("CNTC"),
+                        CoachOfYearAwards = c.Int("CYRA"),
+                    }),
             });
             File.WriteAllText(path, json);
         }
@@ -153,9 +170,9 @@ namespace ScheduleMaker
             var map = CFBTeam.OldTeamIdToTeamRowMap;
             int? TeamRow(int oldId) => map.TryGetValue(OldIdAliases.TryGetValue(oldId, out var alias) ? alias : oldId, out var row) ? row : (int?)null;
 
-            // CFB 27 Coach.AlmaMater = Team.TEAM_ORIGID - 1100
+            // CFB 27 Coach.AlmaMater = Team.TEAM_ORIGID - 1100 (Air Force is 1100, so 0 is a real alma mater)
             int? AlmaMater(int oldId) =>
-                TeamRow(oldId) is int row && Convert.ToInt32(teams.Records[row]["TEAM_ORIGID"]) is var origId && origId > CFBCoach.AlmaMaterOrigIdOffset
+                TeamRow(oldId) is int row && Convert.ToInt32(teams.Records[row]["TEAM_ORIGID"]) is var origId && origId >= CFBCoach.AlmaMaterOrigIdOffset
                     ? origId - CFBCoach.AlmaMaterOrigIdOffset
                     : (int?)null;
 

@@ -19,6 +19,7 @@ namespace EA_DB_Editor
                 return;
 
             Coaches = dataEngine.ReadCoaches(isPreseason);
+            CoachAwardHistory.Apply(dataEngine, Coaches, isPreseason);
         }
 
         [DataMember(EmitDefaultValue = false)]

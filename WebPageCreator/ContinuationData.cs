@@ -67,6 +67,10 @@ namespace EA_DB_Editor
         [DataMember]
         public List<CoachMapping> CoachMapping { get; set; }
 
+        /// <summary>NCAA 14's All-American, Heisman, top 25 class and coach of the year counts for each carried-over coach.</summary>
+        [DataMember]
+        public List<CoachAwardCount> CoachAwards { get; set; }
+
         public ContinuationData()
         {
             this.CoachMapping = new List<CoachMapping>();

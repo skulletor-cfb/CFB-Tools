@@ -111,6 +111,7 @@
       <DependentUpon>ChooseField.cs</DependentUpon>
     </Compile>
     <Compile Include="CoachArticles.cs" />
+    <Compile Include="CoachAwards.cs" />
     <Compile Include="Coaches.cs" />
     <Compile Include="Compression.cs" />
     <Compile Include="ConfigCopySelection.cs">

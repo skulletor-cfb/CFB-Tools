@@ -253,7 +253,7 @@ namespace ScheduleMaker
                 Cursor = Cursors.WaitCursor;
                 var (report, mapping) = Ncaa14CoachImporter.Import(dynasty, dialog.FileName);
                 var continuation = Path.Combine(Environment.CurrentDirectory, ContinuationFile);
-                Ncaa14CoachImporter.WriteContinuationFile(mapping, continuation);
+                Ncaa14CoachImporter.WriteContinuationFile(mapping, dialog.FileName, continuation);
                 isDirty = true;
                 UpdateStatus();
                 MessageBox.Show(this, report[0] + $"\n\nWrote {continuation} ({mapping.Count} coaches)." +

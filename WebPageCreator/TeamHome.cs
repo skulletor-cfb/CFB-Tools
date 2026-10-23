@@ -1387,7 +1387,12 @@ namespace EA_DB_Editor
                 // preaseason uses this only, and that means we don't have a record for the current season so we go ahead and skip it
                 if (skipRecord)
                 {
-                    records = records.Skip(1).Take(take.Value);
+                    records = records.Skip(1);
+                }
+
+                if (take.HasValue)
+                {
+                    records = records.Take(take.Value);
                 }
 
                 foreach (var record in records)

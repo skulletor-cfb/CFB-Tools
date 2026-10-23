@@ -32,7 +32,11 @@ namespace EA_DB_Editor
         public Dictionary<int, string> TeamNames { get; private set; }
         public int TeamCount => 138;
 
-        public bool SkipFirstHistoricRecord => false;
+        /// <summary>
+        /// Team history includes the season in progress (0-0 at week 0) until the season is over; like NCAA 14, the history
+        /// files leave it out.
+        /// </summary>
+        public bool SkipFirstHistoricRecord => !this.IsSeasonOver();
 
         public CFB27DataEngine(FranchiseFile dynasty)
         {
@@ -140,6 +144,87 @@ namespace EA_DB_Editor
             }
 
             return schedules;
+        }
+
+        /// <summary>The save's season (SeasonInfo.CurrentSeasonYear), e.g. 2026.</summary>
+        public int CurrentSeasonYear => Convert.ToInt32(dynasty.GetPrimaryTable("SeasonInfo").Records.First(r => !r.IsEmpty)["CurrentSeasonYear"]);
+
+        /// <summary>
+        /// This season's coach award credits, for the coaches on staff now (see CoachAwardHistory):
+        /// - national 1st and 2nd team All-Americans: the head coach, plus the offensive coordinator for QB-RT or the defensive
+        ///   coordinator for LE-SS; kickers and punters count for the head coach only
+        /// - the Heisman winner: the same
+        /// - a top 25 recruiting class (the game's Team.TopClassRank): the head coach
+        /// - coach of the year (CoachAward BEST_HC) and the Broyles (BEST_AC, assistants): the coach named
+        /// </summary>
+        public List<CoachAwardCount> ReadSeasonCoachAwards()
+        {
+            var counts = new Dictionary<int, CoachAwardCount>();
+            CoachAwardCount For(int coachRow)
+            {
+                // the id the site uses: the NCAA 14 id for coaches the continuation file carries over
+                var id = ContinuationData.Instance != null && ContinuationData.Instance.NewToOldCoachMap.TryGetValue(coachRow, out var oldId) ? oldId : coachRow;
+                if (!counts.TryGetValue(id, out var count))
+                {
+                    counts[id] = count = new CoachAwardCount { CoachId = id };
+                }
+
+                return count;
+            }
+
+            var staff = this.Coaches.Records
+                .Where(c => c.IsOnTeam && c.PositionId >= 0 && c.PositionId <= 2)
+                .GroupBy(c => (c.TeamId, c.PositionId))
+                .ToDictionary(g => g.Key, g => g.First().Row);
+
+            void Credit(int teamId, int position, Action<CoachAwardCount> add)
+            {
+                if (staff.TryGetValue((teamId, 0), out var headCoach))
+                {
+                    add(For(headCoach));
+                }
+
+                // QB (0) ... RT (9) offense, LE (10) ... SS (18) defense, K and P the head coach only
+                int coordinator = position <= 9 ? 1 : position <= 18 ? 2 : -1;
+                if (coordinator > 0 && staff.TryGetValue((teamId, coordinator), out var coordinatorRow))
+                {
+                    add(For(coordinatorRow));
+                }
+            }
+
+            foreach (var allAmerican in this.CreateAllAmericans().Where(a => a.ConferenceId == NationalAllAmericanConferenceId && a.AllAmericanTeam != AllAmericanTeam.Freshman))
+            {
+                Credit(this.Players.Records[allAmerican.PlayerId].TeamId, allAmerican.Position, c => c.AllAmericans++);
+            }
+
+            if (this.ReadAwards().TryGetValue(0, out var heisman) && heisman.FirstOrDefault(a => a.Rank == 1) is Award winner)
+            {
+                var player = this.Players.Records[winner.PlayerId];
+                Credit(player.TeamId, player.Position, c => c.HeismanWinners++);
+            }
+
+            foreach (var team in this.Teams.Records.Where(t => !t.IsEmpty && t.TeamIndex != CFBPlayer.NoTeamIndex && t.TopClassRank >= 1 && t.TopClassRank <= 25))
+            {
+                if (staff.TryGetValue((team.TeamId, 0), out var headCoach))
+                {
+                    For(headCoach).Top25Classes++;
+                }
+            }
+
+            var coachTableId = dynasty.GetPrimaryTable("Coach", "FirstName").Header.TableId;
+            var coachAwards = dynasty.GetPrimaryTable("CoachAward");
+            coachAwards.ReadRecords();
+            foreach (var award in coachAwards.Records.Where(r => !r.IsEmpty && (r["Period"] as string) == "Season"
+                && ((r["AwardType"] as string) == "BEST_HC" || (r["AwardType"] as string) == "BEST_AC")))
+            {
+                var coach = award.GetReferenceDataByKey("Coach");
+                if (coach.HasValue && coach.Value.TableId == coachTableId)
+                {
+                    For(coach.Value.RowNumber).CoachOfYearAwards++;
+                }
+            }
+
+            return counts.Values.ToList();
         }
 
         /// <summary>
@@ -426,7 +511,9 @@ namespace EA_DB_Editor
             var teamRecords = new Dictionary<int, Dictionary<int, TeamSeasonRecord>>();
             var seasonInfo = dynasty.GetPrimaryTable("SeasonInfo").Records.First(r => !r.IsEmpty);
             var baseCalendarYear = Convert.ToInt32(seasonInfo["BaseCalendarYear"]);
-            var lastCompletedSeason = Convert.ToInt32(seasonInfo["CurrentSeasonYear"]) - (this.IsSeasonOver() ? 0 : 1);
+            // the season in progress is included (0-0 at week 0), as NCAA14DataEngine includes it: the team page counts a head
+            // coach's seasons by walking these back until they add up to his wins at the school
+            var currentSeason = Convert.ToInt32(seasonInfo["CurrentSeasonYear"]);
 
             foreach (var team in this.Teams.Records.Where(t => !t.IsEmpty && t.TeamIndex != CFBPlayer.NoTeamIndex))
             {
@@ -443,7 +530,7 @@ namespace EA_DB_Editor
                 foreach (var season in dynasty.FollowArray(this.Teams.RawTable.Records[team.Row], "TeamSeriesHistory"))
                 {
                     var calendarYear = Convert.ToInt32(season["Year"]);
-                    if (calendarYear < baseCalendarYear || calendarYear > lastCompletedSeason)
+                    if (calendarYear < baseCalendarYear || calendarYear > currentSeason)
                     {
                         continue;
                     }
