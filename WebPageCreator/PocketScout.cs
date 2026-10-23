@@ -271,7 +271,7 @@ namespace EA_DB_Editor
                 {
                     foreach (var player in PlayerDB.Rosters[team.Id].OrderBy(p => p.Position).ThenByDescending(p => p.Ovr).ThenByDescending(p => p.Spd).ThenByDescending(p => p.Awr))
                     {
-                        string city = string.Empty, state = string.Empty;
+                        string city = player.HomeTown ?? string.Empty, state = player.HomeState ?? string.Empty;
                         if (City.Cities.ContainsKey(player.City))
                         {
                             city = City.Cities[player.City].Name;
@@ -344,7 +344,7 @@ namespace EA_DB_Editor
                 {
                     foreach (var player in PlayerDB.Rosters[team.Id].Where(p => p.IsRedShirt == false && p.Year == 0).OrderByDescending(p => p.Ovr).ThenByDescending(p => p.Spd).ThenByDescending(p => p.Awr))
                     {
-                        string city = string.Empty, state = string.Empty;
+                        string city = player.HomeTown ?? string.Empty, state = player.HomeState ?? string.Empty;
                         if (City.Cities.ContainsKey(player.City))
                         {
                             city = City.Cities[player.City].Name;

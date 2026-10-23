@@ -272,7 +272,9 @@ namespace EA_DB_Editor
                     Str = record.StrengthRating,
                     Awr = record.AwarenessRating,
                     Face = record.Portrait,
-                    // TODO: City is an NCAA 14 cities.csv id; CFB27 only has HomeTown/HomeState strings
+                    // CFB27 keeps the hometown as text, not an NCAA 14 cities.csv id (City); the roster csv is unquoted, so no commas
+                    HomeTown = record.HomeTown?.Replace(",", string.Empty),
+                    HomeState = record.HomeStateAbbreviation,
                     // TODO: GamesPlayed comes from the player's stats, see ReadStats
                 };
 

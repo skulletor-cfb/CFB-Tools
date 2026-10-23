@@ -487,6 +487,9 @@ namespace EA_DB_Editor
         public int Weight { get; set; }
         public int GamesPlayed { get; set; }
         public int City { get; set; }
+        /// <summary>Hometown and state abbreviation for saves that keep them as text (CFB 27) rather than as a cities.csv id in <see cref="City"/>.</summary>
+        public string HomeTown { get; set; }
+        public string HomeState { get; set; }
         public int Hand { get; set; }
         public int Number { get; set; }
         public bool IsRedShirt { get; set; }

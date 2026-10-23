@@ -13,7 +13,8 @@ namespace ScheduleMaker
     {
         private const int LastRegularSeasonWeek = 14;
         private const int NoTeamIndex = 255;
-        private const string ScheduleModelFile = @"D:\repos\CFB-Tools\Release\schedulemodel.txt";
+        private const string ContinuationFile = "continuationfile.txt";
+        private const string ScheduleModelFile =@"D:\repos\CFB-Tools\Release\schedulemodel.txt";
 
         private readonly DataGridView grid = new DataGridView();
         private readonly ToolStripStatusLabel status = new ToolStripStatusLabel();
@@ -164,6 +165,112 @@ namespace ScheduleMaker
         }
 
         /// <summary>
+        /// Ctrl+P. Ports the NCAA 14 rosters (a PLAY dump, CSV) onto the open save; hometowns come from cities.csv, looked
+        /// for next to PLAY.csv and one folder up. Nothing is written until Save as.
+        /// </summary>
+        private void ImportNcaa14Rosters()
+        {
+            if (dynasty == null)
+            {
+                status.Text = "Ctrl+O to open a save first.";
+                return;
+            }
+
+            using var dialog = new OpenFileDialog
+            {
+                Title = "Import NCAA 14 rosters (PLAY.csv)",
+                Filter = "CSV files|*.csv|All files|*.*",
+                CheckFileExists = true,
+            };
+
+            if (dialog.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+
+            var folder = Path.GetDirectoryName(dialog.FileName)!;
+            var cities = new[] { folder, Path.GetDirectoryName(folder) }
+                .Where(d => d != null)
+                .Select(d => Path.Combine(d!, "cities.csv"))
+                .FirstOrDefault(File.Exists);
+            if (cities == null)
+            {
+                using var citiesDialog = new OpenFileDialog { Title = "NCAA 14 hometowns (cities.csv)", Filter = "CSV files|*.csv|All files|*.*", CheckFileExists = true };
+                if (citiesDialog.ShowDialog(this) != DialogResult.OK)
+                {
+                    return;
+                }
+
+                cities = citiesDialog.FileName;
+            }
+
+            try
+            {
+                Cursor = Cursors.WaitCursor;
+                var report = Ncaa14RosterImporter.Import(dynasty, dialog.FileName, cities);
+                isDirty = true;
+                UpdateStatus();
+                MessageBox.Show(this, string.Join("\n\n", report.Take(1)) +
+                    (report.Count > 1 ? "\n\nSkipped:\n" + string.Join("\n", report.Skip(1).Take(30)) : string.Empty),
+                    "Import rosters", MessageBoxButtons.OK, report.Count > 1 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "Import failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        /// <summary>
+        /// Ctrl+K. Ports the NCAA 14 coaching staffs (a COCH dump, CSV) onto the open save and writes continuationfile.txt
+        /// (NCAA 14 coach id → CFB 27 coach row) to the current directory. The save itself isn't written until Save as.
+        /// </summary>
+        private void ImportNcaa14Coaches()
+        {
+            if (dynasty == null)
+            {
+                status.Text = "Ctrl+O to open a save first.";
+                return;
+            }
+
+            using var dialog = new OpenFileDialog
+            {
+                Title = "Import NCAA 14 coaches (COCH.csv)",
+                Filter = "CSV files|*.csv|All files|*.*",
+                CheckFileExists = true,
+            };
+
+            if (dialog.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+
+            try
+            {
+                Cursor = Cursors.WaitCursor;
+                var (report, mapping) = Ncaa14CoachImporter.Import(dynasty, dialog.FileName);
+                var continuation = Path.Combine(Environment.CurrentDirectory, ContinuationFile);
+                Ncaa14CoachImporter.WriteContinuationFile(mapping, continuation);
+                isDirty = true;
+                UpdateStatus();
+                MessageBox.Show(this, report[0] + $"\n\nWrote {continuation} ({mapping.Count} coaches)." +
+                    (report.Count > 1 ? "\n\nSkipped:\n" + string.Join("\n", report.Skip(1).Take(30)) : string.Empty),
+                    "Import coaches", MessageBoxButtons.OK, report.Count > 1 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "Import failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        /// <summary>
         /// Shows a save's preseason schedule. Throws (from PreseasonSchedule.Load) if the save is past the preseason,
         /// since the game moves the schedule into SeasonGame at week 0.
         /// </summary>
@@ -235,6 +342,8 @@ namespace ScheduleMaker
             file.DropDownItems.Add(new ToolStripMenuItem("&Open save...", null, (s, e) => OpenSave(), Keys.Control | Keys.O));
             file.DropDownItems.Add(new ToolStripMenuItem("&Write schedule model", null, (s, e) => ReadSave(), Keys.Control | Keys.R));
             file.DropDownItems.Add(new ToolStripMenuItem("&Import NCAA 14 schedule...", null, (s, e) => ImportNcaa14Schedule(), Keys.Control | Keys.I));
+            file.DropDownItems.Add(new ToolStripMenuItem("Import NCAA 14 &rosters...", null, (s, e) => ImportNcaa14Rosters(), Keys.Control | Keys.P));
+            file.DropDownItems.Add(new ToolStripMenuItem("Import NCAA 14 &coaches...", null, (s, e) => ImportNcaa14Coaches(), Keys.Control | Keys.K));
             file.DropDownItems.Add(new ToolStripMenuItem("Save &as...", null, (s, e) => SaveAs(), Keys.Control | Keys.S));
             file.DropDownItems.Add(new ToolStripSeparator());
             file.DropDownItems.Add(new ToolStripMenuItem("E&xit", null, (s, e) => Close()));
