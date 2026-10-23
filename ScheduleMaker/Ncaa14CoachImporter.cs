@@ -39,12 +39,39 @@ namespace ScheduleMaker
         private static readonly string[] Jobs = { "HeadCoach", "OffensiveCoordinator", "DefensiveCoordinator" };
 
         /// <summary>
-        /// NCAA 14 coach prestige (COSP, 1-6; CTOP is the same for a whole staff, so it's the program's) → CFB 27 letter grade,
-        /// matched by where each sits in its league: the top ~13% of NCAA 14 coaches (6) to an A, the bottom ~10% (1) to an F.
+        /// NCAA 14 coach prestige (PHPV, 0-11: its twelve grades A+ down to D-, which track coach rating almost exactly) → the
+        /// same CFB 27 letter grade. CFB 27 also has an F, which no ported coach gets.
         /// </summary>
         private static readonly Dictionary<int, string> PrestigeGrades = new Dictionary<int, string>
         {
-            { 6, "A" }, { 5, "Bplus" }, { 4, "Bminus" }, { 3, "C" }, { 2, "D" }, { 1, "F" },
+            { 11, "Aplus" }, { 10, "A" }, { 9, "Aminus" },
+            { 8, "Bplus" }, { 7, "B" }, { 6, "Bminus" },
+            { 5, "Cplus" }, { 4, "C" }, { 3, "Cminus" },
+            { 2, "Dplus" }, { 1, "D" }, { 0, "Dminus" },
+        };
+
+        /// <summary>
+        /// The CoachPrestigeScore that goes with each grade. CFB 27 grades each job on its own scale (a head coach's A+ starts
+        /// near 1100, a coordinator's near 490), so these are each grade's median score per job among the game's own coaches
+        /// (DYNASTY-Y587P before any port). Coordinator D- is set to 60, since most of those sit at 0, to keep the order.
+        /// </summary>
+        private static readonly Dictionary<string, Dictionary<string, int>> PrestigeScores = new Dictionary<string, Dictionary<string, int>>
+        {
+            ["HeadCoach"] = new Dictionary<string, int>
+            {
+                ["Aplus"] = 1250, ["A"] = 945, ["Aminus"] = 860, ["Bplus"] = 755, ["B"] = 670, ["Bminus"] = 625, ["Cplus"] = 505,
+                ["C"] = 475, ["Cminus"] = 380, ["Dplus"] = 300, ["D"] = 230, ["Dminus"] = 180, ["F"] = 90,
+            },
+            ["OffensiveCoordinator"] = new Dictionary<string, int>
+            {
+                ["Aplus"] = 490, ["A"] = 450, ["Aminus"] = 430, ["Bplus"] = 375, ["B"] = 330, ["Bminus"] = 285, ["Cplus"] = 250,
+                ["C"] = 205, ["Cminus"] = 170, ["Dplus"] = 145, ["D"] = 115, ["Dminus"] = 60, ["F"] = 35,
+            },
+            ["DefensiveCoordinator"] = new Dictionary<string, int>
+            {
+                ["Aplus"] = 490, ["A"] = 460, ["Aminus"] = 420, ["Bplus"] = 370, ["B"] = 350, ["Bminus"] = 280, ["Cplus"] = 255,
+                ["C"] = 200, ["Cminus"] = 165, ["Dplus"] = 155, ["D"] = 125, ["Dminus"] = 60, ["F"] = 30,
+            },
         };
 
         /// <summary>
@@ -133,7 +160,6 @@ namespace ScheduleMaker
         private readonly FranchiseFile dynasty;
         private readonly FranchiseFileTable coaches;
         private readonly FranchiseFileTable teams;
-        private readonly Dictionary<string, int> prestigeScores;
         private readonly Dictionary<string, int> statOwners;
 
         /// <summary>
@@ -143,7 +169,17 @@ namespace ScheduleMaker
         private readonly List<(string Head, int Portrait)>[] headsBySkin = { new List<(string, int)>(), new List<(string, int)>(), new List<(string, int)>() };
         private readonly List<string> report = new List<string>();
         private readonly List<(int OldCoachId, int NewCoachId)> mapping = new List<(int, int)>();
-        private int ported, almaMaters, careerRowsAdded, statRowsUnlinked, facesChanged, playbooksChanged;
+        private int ported, almaMaters, careerRowsAdded, statRowsUnlinked, facesChanged, playbooksChanged, levelsRaised;
+
+        /// <summary>NCAA 14 coaches top out at level 54 and CFB 27's at 100; levels scale linearly between them.</summary>
+        private const int NcaaMaxLevel = 54;
+        private const int CfbMaxLevel = 100;
+
+        /// <summary>Coach points a CFB 27 coach earns per level, given as unspent points for each level a ported coach gains.</summary>
+        private const int CoachPointsPerLevel = 25;
+
+        /// <summary>NCAA 14 coach level (CSKL.CLVL) by coach id, from CSKL.csv next to COCH.csv; empty if it isn't there.</summary>
+        private Dictionary<int, int> ncaaLevels = new Dictionary<int, int>();
 
         /// <summary>The save's own playbook lists (OffensivePlaybookDataType[] / DefensivePlaybookDataType[]) by style, school playbooks only.</summary>
         private readonly Dictionary<string, List<CFBPlaybook>> offensePlaybooks;
@@ -158,11 +194,6 @@ namespace ScheduleMaker
             teams.ReadRecords();
 
             var all = coaches.Records.Where(r => !r.IsEmpty).ToList();
-
-            // the score that goes with each grade: the median of the coaches who have it now
-            prestigeScores = all
-                .GroupBy(r => r["CoachPrestige"] as string ?? string.Empty)
-                .ToDictionary(g => g.Key, g => g.Select(r => Convert.ToInt32(r["CoachPrestigeScore"])).OrderBy(v => v).ElementAt(g.Count() / 2));
 
             foreach (var r in all)
             {
@@ -221,6 +252,16 @@ namespace ScheduleMaker
 
         private List<string> Run(string coachCsvPath)
         {
+            var skillsPath = Path.Combine(Path.GetDirectoryName(coachCsvPath) ?? string.Empty, "CSKL.csv");
+            if (File.Exists(skillsPath))
+            {
+                ncaaLevels = ReadCsv(skillsPath).GroupBy(k => k.Int("CCID")).ToDictionary(g => g.Key, g => g.First().Int("CLVL"));
+            }
+            else
+            {
+                report.Add($"No CSKL.csv next to {Path.GetFileName(coachCsvPath)}, so coach levels were left as they were.");
+            }
+
             var map = CFBTeam.OldTeamIdToTeamRowMap;
             int? TeamRow(int oldId) => map.TryGetValue(OldIdAliases.TryGetValue(oldId, out var alias) ? alias : oldId, out var row) ? row : (int?)null;
 
@@ -266,18 +307,16 @@ namespace ScheduleMaker
                     almaMaters++;
                 }
 
-                if (PrestigeGrades.TryGetValue(c.Int("COSP"), out var grade))
+                if (PrestigeGrades.TryGetValue(c.Int("PHPV"), out var grade))
                 {
                     r["CoachPrestige"] = grade;
-                    if (prestigeScores.TryGetValue(grade, out var score))
-                    {
-                        r["CoachPrestigeScore"] = score;
-                    }
+                    r["CoachPrestigeScore"] = PrestigeScores[Jobs[job]][grade];
                 }
 
                 WriteHead(c, r);
                 WritePlaybooks(c, r);
                 WriteRecords(c, r);
+                WriteLevel(c, r);
                 mapping.Add((c.Int("CCID"), r.Index));
                 ported++;
             }
@@ -297,7 +336,7 @@ namespace ScheduleMaker
 
             var user = coaches.Records.FirstOrDefault(r => !r.IsEmpty && r["IsUserControlled"] is true);
             report.Insert(0,
-                $"Ported {ported} coaches ({almaMaters} with an alma mater found, {facesChanged} given a head matching their NCAA 14 skin tone, {playbooksChanged} given CFB 27 playbooks of their NCAA 14 styles). NCAA 14 records copied ({careerRowsAdded} coaches " +
+                $"Ported {ported} coaches ({almaMaters} with an alma mater found, {facesChanged} given a head matching their NCAA 14 skin tone, {playbooksChanged} given CFB 27 playbooks of their NCAA 14 styles, {levelsRaised} raised to their NCAA 14 level). NCAA 14 records copied ({careerRowsAdded} coaches " +
                 $"needed a new career stats row, {statRowsUnlinked} shared rows unlinked)." + (user == null ? string.Empty : $" You control {user["FirstName"]} {user["LastName"]} ({user["Position"]})."));
             return report;
         }
@@ -324,6 +363,29 @@ namespace ScheduleMaker
                 .Where(p => available.Contains(p.AssetId) && p.IsCollegeTeamPlaybook)
                 .GroupBy(p => p.Scheme)
                 .ToDictionary(g => g.Key, g => g.OrderBy(p => p.AssetId).ToList());
+        }
+
+        /// <summary>
+        /// NCAA 14 level x 100 / 54, but never below the CFB 27 coach's level: his talent tree was bought with the points of that
+        /// level, so a raise comes with 25 unspent coach points per level gained to buy more.
+        /// </summary>
+        private void WriteLevel(NcaaCoach c, FranchiseFileRecord r)
+        {
+            if (!ncaaLevels.TryGetValue(c.Int("CCID"), out var ncaaLevel))
+            {
+                return;
+            }
+
+            int level = Math.Clamp((int)Math.Round(ncaaLevel * (double)CfbMaxLevel / NcaaMaxLevel), 1, CfbMaxLevel);
+            int current = Convert.ToInt32(r["Level"]);
+            if (level <= current)
+            {
+                return;
+            }
+
+            r["Level"] = level;
+            r["CoachPoints"] = Math.Min(4095, Convert.ToInt32(r["CoachPoints"]) + (level - current) * CoachPointsPerLevel);
+            levelsRaised++;
         }
 
         /// <summary>The playbooks of a style, plus those of the styles it's compatible with.</summary>

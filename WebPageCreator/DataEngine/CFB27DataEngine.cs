@@ -406,17 +406,20 @@ namespace EA_DB_Editor
         public Dictionary<int, Team> ReadTeams(bool isPreseason)
         {
             var thr = this.CreateTeamHistoricRecords();
+            var seasonInProgress = !this.IsSeasonOver();
 
             var conferenceByTeamRow = ReadConferenceByTeamRow();
             return this.Teams.Records.ToDictionary(t => t.TeamId, t =>
             {
                 var team = new Team(t, isPreseason);
-                if (thr.TryGetValue(team.Id, out var records) && records.Count > 0)
+                // the newest record is the season in progress until the season is over, so the prior season is the one before it
+                var priorSeason = thr.TryGetValue(team.Id, out var records)
+                    ? records.OrderByDescending(r => r.Key).Skip(seasonInProgress ? 1 : 0).Select(r => r.Value).FirstOrDefault()
+                    : null;
+                if (priorSeason != null)
                 {
-                    var key = records.Keys.Max();
-                    var record = records[key];
-                    team.PriorSeasonWin = record.Win;
-                    team.PriorSeasonLoss = record.Loss;
+                    team.PriorSeasonWin = priorSeason.Win;
+                    team.PriorSeasonLoss = priorSeason.Loss;
                 }
 
                 if (conferenceByTeamRow.TryGetValue(t.Row, out var conference))
