@@ -12,7 +12,7 @@ namespace ScheduleMaker
     /// coach, offensive and defensive coordinator per team, so each NCAA 14 coach replaces the CFB 27 coach in the same job
     /// at the same school. The row keeps whether the user controls it, so the user takes over whoever lands in their seat.
     ///
-    /// A replaced coach gets the NCAA 14 name, age, alma mater, prestige, years with the team, a generic coach head of the NCAA 14 skin tone
+    /// A replaced coach gets the NCAA 14 name, age, alma mater, prestige, years with the team, play-calling tendencies, a generic coach head of the NCAA 14 skin tone
     /// (CHGT), a random CFB 27 playbook of each NCAA 14 playbook's style (an Air Raid coach gets one of CFB 27's Air Raid
     /// playbooks; the team takes its head coach's), and the NCAA 14 career record (wins and losses overall and at the school, bowls, titles, rivalry and top-25
     /// games, longest streak); the CFB 27 coach's own record and this season's numbers are cleared. Schemes, level, talent tree, contract, hometown,
@@ -136,6 +136,18 @@ namespace ScheduleMaker
 
         private static readonly Dictionary<int, string> OffenseStyleById =
             OffensePlaybookIdsByStyle.SelectMany(kvp => kvp.Value.Select(id => (id, kvp.Key))).ToDictionary(x => x.id, x => x.Key);
+
+        /// <summary>
+        /// NCAA 14 play-calling tendencies (Xan's config: sim run/pass ratio and playcalling aggressiveness) → CFB 27 coach
+        /// fields. Both games use the same 0-100 style scale; CFB 27's own coaches all have 0 defensive run/pass.
+        /// </summary>
+        private static readonly (string Ncaa, string Cfb)[] TendencyMap =
+        {
+            ("COTR", "COACH_OFFTENDENCYRUNPASS"),
+            ("CDTR", "COACH_DEFTENDENCYRUNPASS"),
+            ("COTA", "COACH_OFFTENDENCYAGGRESSCONSERV"),
+            ("CDTA", "COACH_DEFTENDENCYAGGRESSCONSERV"),
+        };
 
         /// <summary>NCAA 14 coach column → CFB 27 CareerCoachStats field (the columns NCAA14DataEngine reads for the same stats).</summary>
         private static readonly (string Ncaa, string Cfb)[] CareerStatMap =
@@ -317,6 +329,11 @@ namespace ScheduleMaker
                 WritePlaybooks(c, r);
                 WriteRecords(c, r);
                 WriteLevel(c, r);
+
+                foreach (var (ncaa, cfb) in TendencyMap)
+                {
+                    r[cfb] = Math.Clamp(c.Int(ncaa), 0, 100);
+                }
                 mapping.Add((c.Int("CCID"), r.Index));
                 ported++;
             }
