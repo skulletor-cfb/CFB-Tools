@@ -13,12 +13,12 @@ namespace EA_DB_Editor
         public static bool IsPostSeason { get; set; }
         public static Dictionary<string, Coach> Coaches { get; set; }
 
-        public static void Create(IDataEngine dataEngine)
+        public static void Create(IDataEngine dataEngine, bool isPreseason = false)
         {
             if (Coaches != null)
                 return;
 
-            Coaches = dataEngine.ReadCoaches();
+            Coaches = dataEngine.ReadCoaches(isPreseason);
         }
 
         [DataMember(EmitDefaultValue = false)]
@@ -352,7 +352,7 @@ namespace EA_DB_Editor
 
         public static void CreatePage(IDataEngine dataEngine, bool isPreseason)
         {
-            Create(dataEngine);
+            Create(dataEngine, isPreseason);
             Team.Create(dataEngine, isPreseason);
             ToCoachCsv();
 

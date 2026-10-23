@@ -353,7 +353,7 @@ namespace EA_DB_Editor
             });
         }
 
-        public Dictionary<string, Coach> ReadCoaches()
+        public Dictionary<string, Coach> ReadCoaches(bool isPreseason = false)
         {
             var coaches = new Dictionary<string, Coach>();
 
@@ -377,7 +377,9 @@ namespace EA_DB_Editor
                     Age = record.Age,
                     ContractLength = record.ContractLength,
                     YearsIntoContract = record.ContractLength - record.ContractYearsRemaining,
-                    YearsWithTeam = record.SeasonsWithTeam,
+                    // SeasonsWithTeam counts completed seasons; the preseason magazine (built from the week 0 save) shows the
+                    // season about to start
+                    YearsWithTeam = record.SeasonsWithTeam + (isPreseason ? 1 : 0),
                     Level = record.Level,
                     Exp = record.ExperiencePoints,
                     CareerWin = record.CareerWins,

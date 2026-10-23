@@ -682,7 +682,7 @@ namespace EA_DB_Editor
             return teamRecords;
         }
 
-        public Dictionary<string, Coach> ReadCoaches()
+        public Dictionary<string, Coach> ReadCoaches(bool isPreseason = false)
         {
             var coaches = new Dictionary<string, Coach>();
 

@@ -76,7 +76,8 @@ namespace EA_DB_Editor
         /// Reads coach data
         /// </summary>
         /// <returns></returns>
-        Dictionary<string, Coach> ReadCoaches();
+        /// <param name="isPreseason">building the preseason magazine</param>
+        Dictionary<string, Coach> ReadCoaches(bool isPreseason = false);
 
         /// <summary>
         /// reads the historic records for a team

@@ -261,7 +261,7 @@ namespace EA_DB_Editor
             BowlChampion.Create(dataEngine);
             TeamSchedule.Create(dataEngine, isPreseason);
             ScheduledGame.Create(dataEngine, isPreseason);
-            Coach.Create(dataEngine);
+            Coach.Create(dataEngine, isPreseason);
             Stadium.Create(dataEngine);
             ConferenceChampion.Create(dataEngine);
             TeamDraftHistory.Create(dataEngine);

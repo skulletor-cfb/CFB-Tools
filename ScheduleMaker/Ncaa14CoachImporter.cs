@@ -11,8 +11,9 @@ namespace ScheduleMaker
     /// coach, offensive and defensive coordinator per team, so each NCAA 14 coach replaces the CFB 27 coach in the same job
     /// at the same school. The row keeps whether the user controls it, so the user takes over whoever lands in their seat.
     ///
-    /// A replaced coach gets the NCAA 14 name, age, alma mater and prestige, a generic coach head of the NCAA 14 skin tone
-    /// (CHGT), and their career and season records are zeroed. Playbooks, schemes, level, talent tree, contract, hometown,
+    /// A replaced coach gets the NCAA 14 name, age, alma mater, prestige, years with the team, a generic coach head of the NCAA 14 skin tone
+    /// (CHGT), and the NCAA 14 career record (wins and losses overall and at the school, bowls, titles, rivalry and top-25
+    /// games, longest streak); the CFB 27 coach's own record and this season's numbers are cleared. Playbooks, schemes, level, talent tree, contract, hometown,
     /// body and clothing stay CFB 27's. The 12 CFB 27 teams NCAA 14
     /// didn't have, and coaches without a team, are left alone. Returns the old-to-new coach id map the web page creator's
     /// continuation file uses (OldCoachId = NCAA 14 CCID, NewCoachId = CFB 27 Coach row).
@@ -62,7 +63,18 @@ namespace ScheduleMaker
         /// <summary>A CFB 27 generic coach head: Generic_####_C_T####_&lt;letter&gt;_&lt;skin 1-8&gt;_&lt;variant&gt;.</summary>
         private static readonly Regex GenericCoachHead = new Regex(@"^Generic_\d+_C_T\d+_[A-Z]_([1-8])_");
 
-        /// <summary>Coach fields holding career or season records; zeroed for a ported coach.</summary>
+        /// <summary>NCAA 14 coach column → CFB 27 CareerCoachStats field (the columns NCAA14DataEngine reads for the same stats).</summary>
+        private static readonly (string Ncaa, string Cfb)[] CareerStatMap =
+        {
+            ("CCWI", "Wins"), ("CCLO", "Losses"),
+            ("CTWN", "WinsAtCurrentSchool"), ("COTL", "LossesAtCurrentSchool"),
+            ("CBLW", "BowlWins"), ("CBLL", "BowlLosses"),
+            ("CCTW", "ConfChampWins"), ("CNTW", "NCWins"),
+            ("CRVW", "RivalWins"), ("CRVL", "RivalLosses"),
+            ("CTTW", "Top25Wins"), ("CTTL", "Top25Losses"),
+        };
+
+        /// <summary>Coach fields holding career or season records; cleared for a ported coach (the longest streak is then set from NCAA 14).</summary>
         private static readonly string[] RecordFields =
         {
             "CareerPointsAgainst", "CareerPointsFor", "CareerLongWinStreak", "CareerTies", "CareerWinSeasons", "CareerPlayoffsMade",
@@ -84,7 +96,7 @@ namespace ScheduleMaker
         private readonly List<(string Head, int Portrait)>[] headsBySkin = { new List<(string, int)>(), new List<(string, int)>(), new List<(string, int)>() };
         private readonly List<string> report = new List<string>();
         private readonly List<(int OldCoachId, int NewCoachId)> mapping = new List<(int, int)>();
-        private int ported, almaMaters, statRowsZeroed, statRowsUnlinked, facesChanged;
+        private int ported, almaMaters, careerRowsAdded, statRowsUnlinked, facesChanged;
 
         private Ncaa14CoachImporter(FranchiseFile dynasty)
         {
@@ -174,6 +186,9 @@ namespace ScheduleMaker
                 r["Name"] = shortName.Length > 18 ? shortName.Substring(0, 18) : shortName;
                 r["Age"] = c.Int("CAGE");
 
+                // both games count completed seasons at the school (the sites show one more)
+                r["SeasonsWithTeam"] = c.Int("CTYR");
+
                 if (AlmaMater(c.Int("CHFT")) is int almaMater)
                 {
                     r["AlmaMater"] = almaMater;
@@ -190,15 +205,15 @@ namespace ScheduleMaker
                 }
 
                 WriteHead(c, r);
-                ZeroRecords(r);
+                WriteRecords(c, r);
                 mapping.Add((c.Int("CCID"), r.Index));
                 ported++;
             }
 
             var user = coaches.Records.FirstOrDefault(r => !r.IsEmpty && r["IsUserControlled"] is true);
             report.Insert(0,
-                $"Ported {ported} coaches ({almaMaters} with an alma mater found, {facesChanged} given a head matching their NCAA 14 skin tone). Records zeroed: {statRowsZeroed} stat rows cleared, " +
-                $"{statRowsUnlinked} shared ones unlinked." + (user == null ? string.Empty : $" You control {user["FirstName"]} {user["LastName"]} ({user["Position"]})."));
+                $"Ported {ported} coaches ({almaMaters} with an alma mater found, {facesChanged} given a head matching their NCAA 14 skin tone). NCAA 14 records copied ({careerRowsAdded} coaches " +
+                $"needed a new career stats row, {statRowsUnlinked} shared rows unlinked)." + (user == null ? string.Empty : $" You control {user["FirstName"]} {user["LastName"]} ({user["Position"]})."));
             return report;
         }
 
@@ -218,43 +233,96 @@ namespace ScheduleMaker
             facesChanged++;
         }
 
-        private void ZeroRecords(FranchiseFileRecord coach)
+        /// <summary>
+        /// The NCAA 14 record goes into a career stats row the coach has to himself: his own, or a new one when he has none (most
+        /// coordinators) or shares it with another coach (that coach keeps the shared row). This season's stats are cleared.
+        /// </summary>
+        private void WriteRecords(NcaaCoach c, FranchiseFileRecord coach)
         {
             foreach (var field in RecordFields)
             {
                 coach[field] = 0;
             }
 
-            foreach (var field in new[] { "CareerStats", "SeasonStats" })
+            coach["CareerLongWinStreak"] = c.Int("CCLS");
+
+            var season = OwnStatsRow(coach, "SeasonStats", addIfMissing: false);
+            if (season != null)
             {
-                var reference = coach[field] as string;
-                if (reference == null || Convert.ToUInt32(reference, 2) == 0)
-                {
-                    continue;
-                }
+                ClearStats(season);
+            }
 
-                if (statOwners.TryGetValue(reference, out var owners) && owners > 1)
-                {
-                    coach[field] = BinaryUtil.GetBinaryReferenceData(0, 0);
-                    statRowsUnlinked++;
-                    continue;
-                }
+            var career = OwnStatsRow(coach, "CareerStats", addIfMissing: true)!;
+            ClearStats(career);
+            foreach (var (ncaa, cfb) in CareerStatMap)
+            {
+                career[cfb] = c.Int(ncaa);
+            }
+        }
 
-                var target = dynasty.GetTableById((int)(Convert.ToUInt32(reference, 2) >> 17));
-                if (target == null)
-                {
-                    continue;
-                }
+        /// <summary>The stats row this coach alone points to; a shared row is unlinked first, and a new one claimed if asked.</summary>
+        private FranchiseFileRecord? OwnStatsRow(FranchiseFileRecord coach, string field, bool addIfMissing)
+        {
+            var reference = coach[field] as string;
+            uint value = reference == null ? 0 : Convert.ToUInt32(reference, 2);
+            if (value != 0 && statOwners.TryGetValue(reference!, out var owners) && owners > 1)
+            {
+                coach[field] = BinaryUtil.GetBinaryReferenceData(0, 0);
+                statOwners[reference!] = owners - 1;
+                statRowsUnlinked++;
+                value = 0;
+            }
 
-                target.ReadRecords();
-                var row = target.Records[(int)(Convert.ToUInt32(reference, 2) & 0x1FFFF)];
-                foreach (var o in target.OffsetTable.Where(o => o.Enum == null && !o.IsReference && !o.ValueInSecondTable && o.Type is "int" or "s_int"))
+            if (value != 0)
+            {
+                var table = dynasty.GetTableById((int)(value >> 17));
+                if (table != null)
                 {
-                    // RecentYearNCWon uses -2 for "never"
-                    row[o.Name] = o.Name == "RecentYearNCWon" ? -2 : 0;
+                    table.ReadRecords();
+                    return table.Records[(int)(value & 0x1FFFF)];
                 }
+            }
 
-                statRowsZeroed++;
+            if (!addIfMissing)
+            {
+                return null;
+            }
+
+            var stats = dynasty.GetPrimaryTable("CareerCoachStats");
+            stats.ReadRecords();
+            var row = AddRow(stats);
+            coach[field] = BinaryUtil.GetBinaryReferenceData(stats.Header.TableId, row.Index);
+            careerRowsAdded++;
+            return row;
+        }
+
+        /// <summary>
+        /// Claims the table's next free row the way PreseasonSchedule.AddGame does: writing a field in the row's first 4 bytes takes
+        /// it off the free list, then the row is zeroed since free rows keep leftover bytes.
+        /// </summary>
+        private static FranchiseFileRecord AddRow(FranchiseFileTable table)
+        {
+            int index = table.Header.NextRecordToUse;
+            if (index >= table.Header.RecordCapacity)
+            {
+                throw new InvalidOperationException($"{table.Name} has no free rows (all {table.Header.RecordCapacity} are in use).");
+            }
+
+            var record = table.Records[index];
+            var firstWord = table.OffsetTable.FirstOrDefault(o => o.IndexOffset < 32)
+                ?? throw new InvalidOperationException($"Unexpected {table.Name} layout: no field in the row's first 4 bytes.");
+            record[firstWord.Name] = firstWord.IsReference ? BinaryUtil.GetBinaryReferenceData(0, 0) : (object)0;
+            Array.Clear(record.TableDataArray, record.ByteOffset, record.ByteLength);
+            record.ClearCachedFieldValues();
+            return record;
+        }
+
+        private static void ClearStats(FranchiseFileRecord row)
+        {
+            foreach (var o in row.Parent.OffsetTable.Where(o => o.Enum == null && !o.IsReference && !o.ValueInSecondTable && o.Type is "int" or "s_int"))
+            {
+                // RecentYearNCWon uses -2 for "never"
+                row[o.Name] = o.Name == "RecentYearNCWon" ? -2 : 0;
             }
         }
 

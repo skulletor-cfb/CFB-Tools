@@ -576,7 +576,7 @@ namespace EA_DB_Editor
             TeamSchedule.Create(this.DataEngine, isPreseason);
             PlayerDB.Create(this.DataEngine);
             Bowl.Create(this.DataEngine, isPreseason);
-            Coach.Create(this.DataEngine);
+            Coach.Create(this.DataEngine, isPreseason);
             RecruitClassRanking.Create(this.DataEngine);
             Stadium.Create(this.DataEngine);
             ConferenceChampion.Create(this.DataEngine);
