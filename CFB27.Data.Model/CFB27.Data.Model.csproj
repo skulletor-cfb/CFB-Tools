@@ -13,6 +13,8 @@
   <ItemGroup>
     <!-- the game's stadium table, extracted with CFBStadium.ExtractFromGame -->
     <EmbeddedResource Include="Resources\stadiums.csv" />
+    <!-- playbook names and styles, from MyDynasty's catalog (see CFBPlaybook) -->
+    <EmbeddedResource Include="Resources\playbooks.csv" />
   </ItemGroup>
 
 </Project>

@@ -36,6 +36,8 @@ namespace CFB27.Data.Model
             coach.CoachPrestige = record["CoachPrestige"] as string;
             coach.AlmaMater = Convert.ToInt32(record["AlmaMater"]);
             coach.Portrait = Convert.ToInt32(record["Portrait"]);
+            coach.OffensivePlaybook = CFBPlaybook.Find(record["OffensivePlaybook"] as string);
+            coach.DefensivePlaybook = CFBPlaybook.Find(record["DefensivePlaybook"] as string);
 
             var career = dynasty.Follow(record.GetReferenceDataByKey("CareerStats").Value);
             if (career != null)
@@ -88,6 +90,10 @@ namespace CFB27.Data.Model
         public const int AlmaMaterOrigIdOffset = 1100;
 
         public int Portrait { get; set; }
+
+        /// <summary>The coach's playbooks (asset references in the save), or null when he has none.</summary>
+        public CFBPlaybook OffensivePlaybook { get; set; }
+        public CFBPlaybook DefensivePlaybook { get; set; }
 
         // CareerCoachStats
         public int CareerWins { get; set; }

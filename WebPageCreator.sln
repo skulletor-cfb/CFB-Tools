@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FranchiseFile", "FranchiseF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FranchiseFile.Sample", "FranchiseFile.Sample\FranchiseFile.Sample.csproj", "{149CD0D0-B5D1-681D-7556-5D66F6FDDE27}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCAA14Utility", "NCAA14Utility\NCAA14Utility.csproj", "{434F1ED4-F60D-AA9A-7265-8F2068D72E38}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,14 @@ Global
 		{149CD0D0-B5D1-681D-7556-5D66F6FDDE27}.Release|Any CPU.Build.0 = Release|Any CPU
 		{149CD0D0-B5D1-681D-7556-5D66F6FDDE27}.Release|x86.ActiveCfg = Release|Any CPU
 		{149CD0D0-B5D1-681D-7556-5D66F6FDDE27}.Release|x86.Build.0 = Release|Any CPU
+		{434F1ED4-F60D-AA9A-7265-8F2068D72E38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{434F1ED4-F60D-AA9A-7265-8F2068D72E38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{434F1ED4-F60D-AA9A-7265-8F2068D72E38}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{434F1ED4-F60D-AA9A-7265-8F2068D72E38}.Debug|x86.Build.0 = Debug|Any CPU
+		{434F1ED4-F60D-AA9A-7265-8F2068D72E38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{434F1ED4-F60D-AA9A-7265-8F2068D72E38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{434F1ED4-F60D-AA9A-7265-8F2068D72E38}.Release|x86.ActiveCfg = Release|Any CPU
+		{434F1ED4-F60D-AA9A-7265-8F2068D72E38}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

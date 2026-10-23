@@ -155,6 +155,10 @@
       <Project>{f922292a-487c-ae99-ff85-61daa039e14a}</Project>
       <Name>FranchiseFile</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NCAA14Utility\NCAA14Utility.csproj">
+      <Project>{434f1ed4-f60d-aa9a-7265-8f2068d72e38}</Project>
+      <Name>NCAA14Utility</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WebPageCreator\EA DB Editor.csproj">
       <Project>{19be3bc4-ec8a-4378-a6a9-211d9f93e1bc}</Project>
       <Name>EA DB Editor</Name>

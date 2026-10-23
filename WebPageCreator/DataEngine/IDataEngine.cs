@@ -5,10 +5,6 @@ namespace EA_DB_Editor
     public interface IDataEngine
     {
         /// <summary>
-        /// Whether or not to skip a historic record
-        /// </summary>
-        bool SkipFirstHistoricRecord { get; }
-        /// <summary>
         /// the number of teams in dynasty
         /// </summary>
         int TeamCount { get; }

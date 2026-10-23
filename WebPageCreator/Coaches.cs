@@ -309,6 +309,12 @@ namespace EA_DB_Editor
         public int OffPlaybookId { get; set; }
         [DataMember]
         public DefensivePlaybook DefPlaybookId { get; set; }
+
+        /// <summary>The playbook names for saves that name them (CFB 27); NCAA 14 coaches only have the ids above.</summary>
+        [DataMember(EmitDefaultValue = false)]
+        public string OffPlaybookName { get; set; }
+        [DataMember(EmitDefaultValue = false)]
+        public string DefPlaybookName { get; set; }
         [DataMember(EmitDefaultValue = false)]
         public int CoachBowlWin { get; set; }
         [DataMember(EmitDefaultValue = false)]

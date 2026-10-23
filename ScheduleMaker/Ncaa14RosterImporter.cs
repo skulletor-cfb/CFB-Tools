@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using CFB27.Data.Model;
 using MaddenFranchise;
+using NCAA14Utility;
 
 namespace ScheduleMaker
 {
@@ -314,7 +315,7 @@ namespace ScheduleMaker
         }
 
         /// <summary>
-        /// A generic head of the NCAA 14 skin tone, picked by the player's NCAA 14 id so a re-run gives the same faces. The head
+        /// A random generic head of the NCAA 14 skin tone; each run picks anew. The head
         /// sets both face and skin (the CharacterVisuals skin value doesn't), and the portrait must match it. AssetName pointed
         /// at the old player's scan, so it's cleared like most generic-head players have it.
         /// </summary>
@@ -326,7 +327,7 @@ namespace ScheduleMaker
                 return;
             }
 
-            var (head, portrait, genericHead) = pool[new Random(p.Int("PGID")).Next(pool.Count)];
+            var (head, portrait, genericHead) = pool.Choose();
             r["GenericHeadAssetName"] = head;
             r["PLYR_PORTRAIT"] = portrait;
             r["PLYR_GENERICHEAD"] = genericHead;

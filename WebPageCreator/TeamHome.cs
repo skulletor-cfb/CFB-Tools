@@ -377,7 +377,7 @@ namespace EA_DB_Editor
 
             ConferenceChampion.ToCCFile("tcc.csv");
             BowlChampion.ToBCFile("tbc.csv");
-            HistoricTeamRecord.ToHistoricRecordFile(isPreseason ? "ps-thr.csv" : "thr.csv", dataEngine.SkipFirstHistoricRecord, isPreseason ? 5 : default(int?));
+            HistoricTeamRecord.ToHistoricRecordFile(isPreseason ? "ps-thr.csv" : "thr.csv", isPreseason ? 5 : default(int?));
             Team.ToJsonFile(isPreseason);
             TeamSchedule.ToAllSchedulesCsv(dataEngine, isPreseason);
 
@@ -1374,7 +1374,7 @@ namespace EA_DB_Editor
             TeamRecords = dataEngine.CreateTeamHistoricRecords();
         }
 
-        public static void ToHistoricRecordFile(string file, bool skipRecord, int? take = null)
+        public static void ToHistoricRecordFile(string file,int? take = null)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Year,Record,TeamId");
@@ -1385,14 +1385,9 @@ namespace EA_DB_Editor
                 IEnumerable<TeamSeasonRecord> records = hr.Value.Values.OrderByDescending(r => r.Year);
 
                 // preaseason uses this only, and that means we don't have a record for the current season so we go ahead and skip it
-                if (skipRecord)
-                {
-                    records = records.Skip(1);
-                }
-
                 if (take.HasValue)
                 {
-                    records = records.Take(take.Value);
+                    records = records.Skip(1).Take(take.Value);
                 }
 
                 foreach (var record in records)

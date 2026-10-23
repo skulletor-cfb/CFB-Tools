@@ -32,11 +32,6 @@ namespace EA_DB_Editor
         public Dictionary<int, string> TeamNames { get; private set; }
         public int TeamCount => 138;
 
-        /// <summary>
-        /// Team history includes the season in progress (0-0 at week 0) until the season is over; like NCAA 14, the history
-        /// files leave it out.
-        /// </summary>
-        public bool SkipFirstHistoricRecord => !this.IsSeasonOver();
 
         public CFB27DataEngine(FranchiseFile dynasty)
         {
@@ -481,8 +476,10 @@ namespace EA_DB_Editor
                     RivalLoss = record.RivalLosses,
                     LongestWinStreak = record.CareerLongWinStreak,
                     AlmaMaterId = teamIdByAlmaMater.TryGetValue(record.AlmaMater, out var almaMaterId) ? almaMaterId : 0,
-                    // TODO: Rating - COACH_RATING is always 0;
-                    // OffPlaybookId/DefPlaybookId - playbooks are references into game asset tables
+                    // TODO: Rating - COACH_RATING is always 0
+                    // playbooks are game assets rather than NCAA 14 ids, so the site gets their names
+                    OffPlaybookName = record.OffensivePlaybook?.Name,
+                    DefPlaybookName = record.DefensivePlaybook?.Name,
                 };
 
                 coaches.Add(coach.Key, coach);

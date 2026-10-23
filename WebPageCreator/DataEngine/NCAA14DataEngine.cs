@@ -41,7 +41,6 @@ namespace EA_DB_Editor
 
         public int TeamCount => 126;
 
-        public bool SkipFirstHistoricRecord => true;
 
         public int CalculateRosterSpots(RecruitClassRanking ranking)
         {

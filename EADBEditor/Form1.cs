@@ -2091,14 +2091,14 @@ namespace EA_DB_Editor
 
         static void DoHelmetChange(MaddenRecord recruit, int helmet, int[] facemasks)
         {
-            var mask = facemasks[TableUtility.Rand100() % facemasks.Length];
+            var mask = facemasks[CommonUtility.Rand100() % facemasks.Length];
             recruit["PHLM"] = helmet.ToString();
             recruit["PFMK"] = mask.ToString();
         }
 
         static int RandomHelmetType()
         {
-            var value = TableUtility.Rand100();
+            var value = CommonUtility.Rand100();
 
             if (value < 20)
                 return 3;
@@ -2273,7 +2273,7 @@ namespace EA_DB_Editor
 
         public static bool IsMatch(int pct)
         {
-            return pct > TableUtility.Rand100();
+            return pct > CommonUtility.Rand100();
         }
 
         public class NamesFile
@@ -2534,7 +2534,7 @@ namespace EA_DB_Editor
                 if (RarePlaybooks.Contains(playbook) && isNewCoach)
                 {
                     // only 10% chance of getting a rare playbook
-                    if (playbook == 119 || TableUtility.Rand100() >= 10)
+                    if (playbook == 119 || CommonUtility.Rand100() >= 10)
                     {
                         var choices = AllPlaybooks
                             .Where(pb => !RarePlaybooks.Contains(pb))

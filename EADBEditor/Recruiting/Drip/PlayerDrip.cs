@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NCAA14Utility;
+using System;
 
 namespace EA_DB_Editor
 {
@@ -129,7 +130,7 @@ FOREARM (PLFB) L, (PRFB) R
 
         protected override ArmSet FindArmSet()
         {
-            return TableUtility.Choose(ArmExtensions.Skill);
+            return CommonUtility.Choose(ArmExtensions.Skill);
         }
     }
 }

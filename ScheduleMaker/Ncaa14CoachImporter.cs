@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using CFB27.Data.Model;
 using MaddenFranchise;
 using MaddenFranchise.Util;
+using NCAA14Utility;
 using Newtonsoft.Json;
 
 namespace ScheduleMaker
@@ -12,8 +13,9 @@ namespace ScheduleMaker
     /// at the same school. The row keeps whether the user controls it, so the user takes over whoever lands in their seat.
     ///
     /// A replaced coach gets the NCAA 14 name, age, alma mater, prestige, years with the team, a generic coach head of the NCAA 14 skin tone
-    /// (CHGT), and the NCAA 14 career record (wins and losses overall and at the school, bowls, titles, rivalry and top-25
-    /// games, longest streak); the CFB 27 coach's own record and this season's numbers are cleared. Playbooks, schemes, level, talent tree, contract, hometown,
+    /// (CHGT), a random CFB 27 playbook of each NCAA 14 playbook's style (an Air Raid coach gets one of CFB 27's Air Raid
+    /// playbooks; the team takes its head coach's), and the NCAA 14 career record (wins and losses overall and at the school, bowls, titles, rivalry and top-25
+    /// games, longest streak); the CFB 27 coach's own record and this season's numbers are cleared. Schemes, level, talent tree, contract, hometown,
     /// body and clothing stay CFB 27's. The 12 CFB 27 teams NCAA 14
     /// didn't have, and coaches without a team, are left alone. Returns the old-to-new coach id map the web page creator's
     /// continuation file uses (OldCoachId = NCAA 14 CCID, NewCoachId = CFB 27 Coach row).
@@ -63,6 +65,51 @@ namespace ScheduleMaker
         /// <summary>A CFB 27 generic coach head: Generic_####_C_T####_&lt;letter&gt;_&lt;skin 1-8&gt;_&lt;variant&gt;.</summary>
         private static readonly Regex GenericCoachHead = new Regex(@"^Generic_\d+_C_T\d+_[A-Z]_([1-8])_");
 
+        /// <summary>
+        /// NCAA 14 offensive playbook ids (COCH.CPID) by the CFB 27 style they become. The style of each id is the web page
+        /// creator's OffPlaybookName (Archive\HTML\utility.js), with 162 and 163 as named from 2372 on; NCAA 14's named variants
+        /// go to the closest CFB 27 style (Power Spread, Spread Option, and One Back to Multiple, since CFB 27 has no one-back).
+        /// </summary>
+        private static readonly Dictionary<string, int[]> OffensePlaybookIdsByStyle = new Dictionary<string, int[]>
+        {
+            { "OFF_AIR_RAID", new[] { 15, 16, 23, 33, 36, 42, 54, 72, 85, 90, 92, 95, 113, 115, 133, 173 } },
+            { "OFF_MULTIPLE_OFFENSE", new[] { 2, 6, 11, 12, 13, 17, 18, 20, 21, 24, 26, 27, 35, 39, 41, 46, 48, 50, 53, 55, 60, 73, 76, 84, 88, 99, 101, 106, 109, 110, 120, 129, 164 } },
+            { "OFF_OPTION", new[] { 0, 7, 30, 59 } },
+            { "OFF_PISTOL", new[] { 19, 61, 62, 71, 130, 168 } },
+            { "OFF_POWER_SPREAD", new[] { 170 } },
+            { "OFF_PRO_STYLE", new[] { 5, 28, 31, 32, 34, 38, 40, 43, 51, 52, 66, 74, 77, 78, 80, 81, 82, 86, 87, 96, 98, 104, 105, 111, 114, 116, 117, 125, 132 } },
+            { "OFF_RUN_AND_SHOOT", new[] { 83 } },
+            { "OFF_SPREAD", new[] { 1, 3, 4, 8, 9, 10, 14, 22, 25, 29, 37, 44, 45, 47, 49, 56, 57, 58, 63, 64, 65, 67, 68, 69, 70, 75, 79, 89, 91, 93, 94, 97, 100, 102, 103, 107, 108, 112, 118, 121, 131, 134, 162, 165, 166 } },
+            { "OFF_SPREAD_OPTION", new[] { 135, 163, 167, 169, 174 } },
+        };
+
+        /// <summary>NCAA 14 defensive playbook (COCH.CDID, utility.js DefPlaybookName) → CFB 27 style.</summary>
+        private static readonly string[] DefenseStyles =
+        {
+            "DEF_BASE4_3",          // 0 4-3
+            "DEF_BASE3_4",          // 1 3-4
+            "DEF_3_3_5",            // 2 3-3-5
+            "DEF_4_2_5",            // 3 4-2-5
+            "DEF_MULTIPLE_DEFENSE", // 4 Multiple D
+            "DEF_3_4_MULTIPLE",     // 5 3-4 Multiple
+            "DEF_4_3_MULTIPLE",     // 6 4-3 Multiple
+        };
+
+        /// <summary>CFB 27 styles an NCAA 14 style may draw from when it isn't just its own: Spread covers all three spread families.</summary>
+        private static readonly Dictionary<string, string[]> CompatibleStyles = new Dictionary<string, string[]>
+        {
+            { "OFF_SPREAD", new[] { "OFF_SPREAD", "OFF_POWER_SPREAD", "OFF_VEER_AND_SHOOT" } },
+        };
+
+        /// <summary>
+        /// CFB 27 has only two Pro Style playbooks, so an NCAA 14 Pro coach gets one of them this often and a Multiple playbook
+        /// otherwise.
+        /// </summary>
+        private const int ProStyleChance = 15;
+
+        private static readonly Dictionary<int, string> OffenseStyleById =
+            OffensePlaybookIdsByStyle.SelectMany(kvp => kvp.Value.Select(id => (id, kvp.Key))).ToDictionary(x => x.id, x => x.Key);
+
         /// <summary>NCAA 14 coach column → CFB 27 CareerCoachStats field (the columns NCAA14DataEngine reads for the same stats).</summary>
         private static readonly (string Ncaa, string Cfb)[] CareerStatMap =
         {
@@ -96,7 +143,11 @@ namespace ScheduleMaker
         private readonly List<(string Head, int Portrait)>[] headsBySkin = { new List<(string, int)>(), new List<(string, int)>(), new List<(string, int)>() };
         private readonly List<string> report = new List<string>();
         private readonly List<(int OldCoachId, int NewCoachId)> mapping = new List<(int, int)>();
-        private int ported, almaMaters, careerRowsAdded, statRowsUnlinked, facesChanged;
+        private int ported, almaMaters, careerRowsAdded, statRowsUnlinked, facesChanged, playbooksChanged;
+
+        /// <summary>The save's own playbook lists (OffensivePlaybookDataType[] / DefensivePlaybookDataType[]) by style, school playbooks only.</summary>
+        private readonly Dictionary<string, List<CFBPlaybook>> offensePlaybooks;
+        private readonly Dictionary<string, List<CFBPlaybook>> defensePlaybooks;
 
         private Ncaa14CoachImporter(FranchiseFile dynasty)
         {
@@ -122,6 +173,9 @@ namespace ScheduleMaker
                     headsBySkin[SkinGroupOfHead(int.Parse(match.Groups[1].Value))].Add((head, Convert.ToInt32(r["Portrait"])));
                 }
             }
+
+            offensePlaybooks = PlaybooksByStyle(dynasty, "OffensivePlaybookDataType[]");
+            defensePlaybooks = PlaybooksByStyle(dynasty, "DefensivePlaybookDataType[]");
 
             // a stats row shared by two coaches is unlinked rather than zeroed, so the other coach keeps his record
             statOwners = all
@@ -222,19 +276,94 @@ namespace ScheduleMaker
                 }
 
                 WriteHead(c, r);
+                WritePlaybooks(c, r);
                 WriteRecords(c, r);
                 mapping.Add((c.Int("CCID"), r.Index));
                 ported++;
             }
 
+            // the team's playbooks are its head coach's (as in CFB 27's own saves)
+            var portedRows = mapping.Select(m => m.NewCoachId).ToHashSet();
+            foreach (var headCoach in coaches.Records.Where(r => !r.IsEmpty && portedRows.Contains(r.Index) && r["Position"] as string == "HeadCoach"))
+            {
+                var team = teams.Records.FirstOrDefault(t => !t.IsEmpty && Convert.ToInt32(t["TeamIndex"]) == Convert.ToInt32(headCoach["TeamIndex"]));
+                if (team != null && CFBPlaybook.Find(headCoach["OffensivePlaybook"] as string) is CFBPlaybook offense
+                    && CFBPlaybook.Find(headCoach["DefensivePlaybook"] as string) is CFBPlaybook defense)
+                {
+                    team["TEAM_OFFPLAYBOOK"] = offense.PlaybookId;
+                    team["TEAM_DEFPLAYBOOK"] = defense.PlaybookId;
+                }
+            }
+
             var user = coaches.Records.FirstOrDefault(r => !r.IsEmpty && r["IsUserControlled"] is true);
             report.Insert(0,
-                $"Ported {ported} coaches ({almaMaters} with an alma mater found, {facesChanged} given a head matching their NCAA 14 skin tone). NCAA 14 records copied ({careerRowsAdded} coaches " +
+                $"Ported {ported} coaches ({almaMaters} with an alma mater found, {facesChanged} given a head matching their NCAA 14 skin tone, {playbooksChanged} given CFB 27 playbooks of their NCAA 14 styles). NCAA 14 records copied ({careerRowsAdded} coaches " +
                 $"needed a new career stats row, {statRowsUnlinked} shared rows unlinked)." + (user == null ? string.Empty : $" You control {user["FirstName"]} {user["LastName"]} ({user["Position"]})."));
             return report;
         }
 
-        /// <summary>A generic coach head of the NCAA 14 skin tone, picked by the coach's NCAA 14 id so a re-run gives the same faces.</summary>
+        private static Dictionary<string, List<CFBPlaybook>> PlaybooksByStyle(FranchiseFile dynasty, string listTable)
+        {
+            var available = new HashSet<uint>();
+            foreach (var list in dynasty.GetAllTablesByName(listTable))
+            {
+                list.ReadRecords();
+                foreach (var record in list.Records.Where(r => !r.IsEmpty))
+                {
+                    foreach (var field in record.FieldsArray.Take(record.ArraySize ?? record.FieldsArray.Count))
+                    {
+                        if (field.Value is string bits && bits.Length == 32)
+                        {
+                            available.Add(Convert.ToUInt32(bits, 2));
+                        }
+                    }
+                }
+            }
+
+            return CFBPlaybook.Embedded
+                .Where(p => available.Contains(p.AssetId) && p.IsCollegeTeamPlaybook)
+                .GroupBy(p => p.Scheme)
+                .ToDictionary(g => g.Key, g => g.OrderBy(p => p.AssetId).ToList());
+        }
+
+        /// <summary>The playbooks of a style, plus those of the styles it's compatible with.</summary>
+        private static List<CFBPlaybook> Pool(Dictionary<string, List<CFBPlaybook>> byStyle, string style) =>
+            (CompatibleStyles.TryGetValue(style, out var styles) ? styles : new[] { style })
+                .SelectMany(s => byStyle.TryGetValue(s, out var list) ? list : new List<CFBPlaybook>())
+                .ToList();
+
+        /// <summary>
+        /// A random CFB 27 playbook of the coach's NCAA 14 style on each side; each run picks anew. A style CFB 27 has no
+        /// playbook for leaves that side as it was.
+        /// </summary>
+        private void WritePlaybooks(NcaaCoach c, FranchiseFileRecord r)
+        {
+            bool changed = false;
+            if (OffenseStyleById.TryGetValue(c.Int("CPID"), out var offense) && offense == "OFF_PRO_STYLE" && CommonUtility.Check(100-ProStyleChance))
+            {
+                offense = "OFF_MULTIPLE_OFFENSE";
+            }
+
+            if (offense != null && Pool(offensePlaybooks, offense) is var offensePool && offensePool.Count > 0)
+            {
+                r["OffensivePlaybook"] = CommonUtility.Choose(offensePool).Reference;
+                changed = true;
+            }
+
+            int defense = c.Int("CDID");
+            if (defense >= 0 && defense < DefenseStyles.Length && Pool(defensePlaybooks, DefenseStyles[defense]) is var defensePool && defensePool.Count > 0)
+            {
+                r["DefensivePlaybook"] = CommonUtility.Choose(defensePool).Reference;
+                changed = true;
+            }
+
+            if (changed)
+            {
+                playbooksChanged++;
+            }
+        }
+
+        /// <summary>A random generic coach head of the NCAA 14 skin tone; each run picks anew.</summary>
         private void WriteHead(NcaaCoach c, FranchiseFileRecord r)
         {
             var pool = headsBySkin[SkinGroup(c.Int("CHGT"))];
@@ -243,7 +372,7 @@ namespace ScheduleMaker
                 return;
             }
 
-            var (head, portrait) = pool[new Random(c.Int("CCID")).Next(pool.Count)];
+            var (head, portrait) = pool.Choose();
             r["GenericHeadAssetName"] = head;
             r["AssetName"] = head;
             r["Portrait"] = portrait;
