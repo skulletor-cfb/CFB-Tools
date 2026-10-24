@@ -38,6 +38,9 @@ namespace ScheduleMaker
         /// <summary>NCAA 14 COPS → CoachPosition.</summary>
         private static readonly string[] Jobs = { "HeadCoach", "OffensiveCoordinator", "DefensiveCoordinator" };
 
+        /// <summary>NCAA 14 coach specialty (CSPC: 0 none, 1 offense, 2 defense) → CoachSpecialtyType.</summary>
+        private static readonly string[] Specialties = { "Any", "Offense", "Defense" };
+
         /// <summary>
         /// NCAA 14 coach prestige (PHPV, 0-11: its twelve grades A+ down to D-, which track coach rating almost exactly) → the
         /// same CFB 27 letter grade. CFB 27 also has an F, which no ported coach gets.
@@ -306,12 +309,19 @@ namespace ScheduleMaker
                 var last = c["CLNM"];
                 r["FirstName"] = first;
                 r["LastName"] = last;
+                r["IsNIL"] = false;
                 var shortName = first.Length > 0 ? $"{first[0]}. {last}" : last;
                 r["Name"] = shortName.Length > 18 ? shortName.Substring(0, 18) : shortName;
                 r["Age"] = c.Int("CAGE");
 
                 // both games count completed seasons at the school (the sites show one more)
                 r["SeasonsWithTeam"] = c.Int("CTYR");
+
+                int specialty = c.Int("CSPC");
+                if (specialty >= 0 && specialty < Specialties.Length)
+                {
+                    r["SpecialtyType"] = Specialties[specialty];
+                }
 
                 if (AlmaMater(c.Int("CHFT")) is int almaMater)
                 {
