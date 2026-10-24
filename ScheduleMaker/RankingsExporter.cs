@@ -5,9 +5,9 @@ using MaddenFranchise;
 namespace ScheduleMaker
 {
     /// <summary>
-    /// The FBS teams in CFP ranking order (Team.CFPPoll_CurrentRank, 1-138) with their season record and, for conference
-    /// champions, the conference they won. CFB 27 only fills in the CFP rank once the CFP poll starts; before that it's 0 for
-    /// every team.
+    /// The FBS teams in CFP ranking order (Team.CFPPoll_CurrentRank, 1-138) with their season record and conference, marked
+    /// "**" for this season's conference champions. CFB 27 only fills in the CFP rank once the CFP poll starts; before that it's
+    /// 0 for every team.
     /// </summary>
     internal static class RankingsExporter
     {
@@ -32,31 +32,36 @@ namespace ScheduleMaker
             }
 
             var champions = ConferenceChampions(dynasty);
+            var conferences = CFBConference.Read(dynasty)
+                .SelectMany(c => c.TeamRows.Select(row => (Row: row, c.Name)))
+                .GroupBy(x => x.Row)
+                .ToDictionary(g => g.Key, g => g.First().Name ?? string.Empty);
+
             var csv = new StringBuilder();
-            csv.AppendLine("Ranking,Team,Wins,Losses,ConferenceChampion");
-            foreach (var team in fbs.Where(t => t.Wins >= 6).OrderBy(t => t.Rank == 0 ? int.MaxValue : t.Rank).ThenBy(t => t.Name))
+            csv.AppendLine("Ranking,Team,Wins,Losses,Conference");
+            void AddRows(IEnumerable<(int Row, int Rank, string Name, int Wins, int Losses)> rows)
             {
-                champions.TryGetValue(team.Row, out var conference);
-                csv.AppendLine(string.Join(",", team.Rank, Quote(team.Name), team.Wins, team.Losses, Quote(conference ?? string.Empty)));
+                foreach (var team in rows.OrderBy(t => t.Rank == 0 ? int.MaxValue : t.Rank).ThenBy(t => t.Name))
+                {
+                    var conference = (conferences.TryGetValue(team.Row, out var name) ? name : string.Empty) + (champions.Contains(team.Row) ? "**" : string.Empty);
+                    csv.AppendLine(string.Join(",", team.Rank, Quote(team.Name), team.Wins, team.Losses, Quote(conference)));
+                }
             }
 
-            foreach (var team in fbs.Where(t => t.Wins == 5).OrderBy(t => t.Rank == 0 ? int.MaxValue : t.Rank).ThenBy(t => t.Name))
-            {
-                champions.TryGetValue(team.Row, out var conference);
-                csv.AppendLine(string.Join(",", team.Rank, Quote(team.Name), team.Wins, team.Losses, Quote(conference ?? string.Empty)));
-            }
+            AddRows(fbs.Where(t => t.Wins >= 6));
+            AddRows(fbs.Where(t => t.Wins == 5));
 
             File.WriteAllText(path, csv.ToString());
             return fbs.Count;
         }
 
         /// <summary>
-        /// This season's conference champions (team row → conference name), from the season's entry in the league history
+        /// This season's conference champions (team rows), from the season's entry in the league history
         /// (LeagueHistoryManager.LeagueHistory, PeriodIndex = season - first season). It's written once the title games are played.
         /// </summary>
-        private static Dictionary<int, string> ConferenceChampions(FranchiseFile dynasty)
+        private static HashSet<int> ConferenceChampions(FranchiseFile dynasty)
         {
-            var champions = new Dictionary<int, string>();
+            var champions = new HashSet<int>();
             var seasonInfo = dynasty.GetPrimaryTable("SeasonInfo").Records.First(r => !r.IsEmpty);
             int periodIndex = Convert.ToInt32(seasonInfo["CurrentSeasonYear"]) - Convert.ToInt32(seasonInfo["BaseCalendarYear"]);
             var teamTableId = dynasty.GetPrimaryTable("Team", "DisplayName").Header.TableId;
@@ -74,7 +79,7 @@ namespace ScheduleMaker
                     var team = champion.GetReferenceDataByKey("WinningTeamIdentity");
                     if (team.HasValue && team.Value.TableId == teamTableId)
                     {
-                        champions[team.Value.RowNumber] = champion["ConferenceName"] as string ?? string.Empty;
+                        champions.Add(team.Value.RowNumber);
                     }
                 }
             }
