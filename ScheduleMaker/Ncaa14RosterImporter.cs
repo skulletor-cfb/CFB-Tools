@@ -12,9 +12,9 @@ namespace ScheduleMaker
     /// over the lowest-rated remaining CFB 27 player (same position group first) and change position. The 15+ CFB 27
     /// players not replaced stay on the team.
     ///
-    /// A replaced player gets the NCAA 14 name, jersey, height, weight, class, redshirt, ratings and hometown, and a generic
-    /// head of the same skin tone (NCAA 14 PGHE) in place of the CFB 27 player's face; the CFB 27 archetype, development
-    /// trait, abilities, body, gear and stats stay as they were.
+    /// A replaced player gets the NCAA 14 name, jersey, height, weight, class, redshirt, ratings and hometown, a generic
+    /// head of the same skin tone (NCAA 14 PGHE) in place of the CFB 27 player's face, and the announcer's audio for the new
+    /// surname; the CFB 27 archetype, development trait, abilities, body, gear and stats stay as they were.
     /// </summary>
     internal sealed class Ncaa14RosterImporter
     {
@@ -113,6 +113,11 @@ namespace ScheduleMaker
         /// <summary>A CFB 27 generic player head: Generic_&lt;portrait&gt;_P_T####_[DHMT]_&lt;skin 1-8&gt;_&lt;variant&gt;.</summary>
         private static readonly Regex GenericPlayerHead = new Regex(@"^Generic_(\d+)_P_T\d+_[DHMT]_([1-8])_");
 
+        /// <summary>Name suffixes the announcer doesn't say; "Williams Jr." and "Shelton, Jr." use the plain surname's audio.</summary>
+        private static readonly Regex NameSuffix = new Regex(@"[\s,]+(jr\.?|sr\.?|ii|iii|iv|v)$", RegexOptions.IgnoreCase);
+
+        private static string SurnameKey(string lastName) => NameSuffix.Replace(lastName.Trim(), string.Empty);
+
         private readonly FranchiseFileTable players;
         private readonly FranchiseFileTable teams;
         private readonly Dictionary<int, (string Town, int Block)> cities;
@@ -131,10 +136,16 @@ namespace ScheduleMaker
         private readonly List<(string Head, int Portrait, string GenericHead)>[] headsBySkin =
             { new List<(string, int, string)>(), new List<(string, int, string)>(), new List<(string, int, string)>() };
 
-        private readonly List<string> report = new List<string>();
-        private int ported, converted, renumbered, hometownsMatched, hometownsByState, facesChanged;
+        /// <summary>
+        /// Surname → PLYR_COMMENT, the announcer's audio clip for that surname (every Williams is 5346). A ported player
+        /// otherwise keeps the replaced player's clip and is called by the old name.
+        /// </summary>
+        private readonly Dictionary<string, int> surnameAudio = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-        private Ncaa14RosterImporter(FranchiseFile dynasty, string citiesPath)
+        private readonly List<string> report = new List<string>();
+        private int ported, converted, renumbered, hometownsMatched, hometownsByState, facesChanged, namesWithoutAudio;
+
+        private Ncaa14RosterImporter(FranchiseFile dynasty, string citiesPath, string? surnameAudioPath)
         {
             players = dynasty.GetPrimaryTable("Player", "FirstName");
             players.ReadRecords();
@@ -174,11 +185,28 @@ namespace ScheduleMaker
                 .Where(r => Convert.ToInt32(r["TeamIndex"]) != NoTeamIndex)
                 .GroupBy(r => r["Position"] as string ?? string.Empty)
                 .ToDictionary(g => g.Key, g => g.GroupBy(r => r["PlayerType"] as string).OrderByDescending(t => t.Count()).First().Key ?? string.Empty);
+
+            // only players the port never touched (it clears PLYR_ASSETNAME) are trusted: a ported player still carries the
+            // clip of whoever it replaced. cfb27_surname_audio.csv, taken from an unported save, fills in the rest.
+            foreach (var surname in rostered
+                .Where(r => (r["PLYR_ASSETNAME"] as string ?? string.Empty).Length > 0 && Convert.ToInt32(r["PLYR_COMMENT"]) != 0)
+                .GroupBy(r => SurnameKey(r["LastName"] as string ?? string.Empty), StringComparer.OrdinalIgnoreCase))
+            {
+                surnameAudio[surname.Key] = surname.GroupBy(r => Convert.ToInt32(r["PLYR_COMMENT"])).OrderByDescending(g => g.Count()).First().Key;
+            }
+
+            if (surnameAudioPath != null)
+            {
+                foreach (var (surname, comment) in ReadSurnameAudio(surnameAudioPath))
+                {
+                    surnameAudio[surname] = comment;
+                }
+            }
         }
 
         /// <summary>Ports every mapped team. Returns a report: a summary line, then anything skipped.</summary>
-        public static List<string> Import(FranchiseFile dynasty, string playCsvPath, string citiesPath) =>
-            new Ncaa14RosterImporter(dynasty, citiesPath).Run(playCsvPath);
+        public static List<string> Import(FranchiseFile dynasty, string playCsvPath, string citiesPath, string? surnameAudioPath) =>
+            new Ncaa14RosterImporter(dynasty, citiesPath, surnameAudioPath).Run(playCsvPath);
 
         private static (string Pipeline, string NearestCity) MostCommonHometown(IEnumerable<FranchiseFileRecord> group) =>
             group.GroupBy(r => (r["HomePipeline"] as string ?? string.Empty, r["NearestCity"] as string ?? string.Empty))
@@ -218,7 +246,8 @@ namespace ScheduleMaker
             report.Insert(0,
                 $"Ported {ported} players onto {teamIndexByOldId.Count} teams ({converted} changed position to fit). " +
                 $"Hometowns: {hometownsMatched} matched a CFB 27 town, {hometownsByState} used their state's usual pipeline. " +
-                $"{renumbered} remaining CFB 27 players got new jersey numbers. {facesChanged} ported players got a generic head matching their NCAA 14 skin tone.");
+                $"{renumbered} remaining CFB 27 players got new jersey numbers. {facesChanged} ported players got a generic head matching their NCAA 14 skin tone. " +
+                $"{namesWithoutAudio} ported players have a surname with no announcer audio and won't be called by name.");
             return report;
         }
 
@@ -292,8 +321,19 @@ namespace ScheduleMaker
                 converted++;
             }
 
+            r["IsNIL"] = false;
             r["FirstName"] = p["PFNA"];
             r["LastName"] = p["PLNA"];
+            if (surnameAudio.TryGetValue(SurnameKey(p["PLNA"]), out var comment))
+            {
+                r["PLYR_COMMENT"] = comment;
+            }
+            else
+            {
+                r["PLYR_COMMENT"] = 0; // as on EA's own players without a clip
+                namesWithoutAudio++;
+            }
+
             r["JerseyNum"] = Math.Clamp(p.Int("PJEN"), 0, 99);
             r["Height"] = Math.Clamp(p.Int("PHGT"), 0, 127);
             r["Weight"] = Math.Clamp(p.Int("PWGT"), 0, 255); // pounds - 160 in both games
@@ -435,6 +475,19 @@ namespace ScheduleMaker
             }
 
             return result;
+        }
+
+        /// <summary>cfb27_surname_audio.csv: "LastName,CommentId" with a header row; one line per surname, no suffixes.</summary>
+        private static IEnumerable<(string Surname, int Comment)> ReadSurnameAudio(string path)
+        {
+            foreach (var line in File.ReadAllLines(path).Skip(1))
+            {
+                var parts = line.Split(',');
+                if (parts.Length >= 2 && int.TryParse(parts[1].Trim(), out var comment) && parts[0].Trim().Length > 0)
+                {
+                    yield return (parts[0].Trim(), comment);
+                }
+            }
         }
 
         #endregion

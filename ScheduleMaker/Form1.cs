@@ -14,6 +14,7 @@ namespace ScheduleMaker
         private const int LastRegularSeasonWeek = 14;
         private const int NoTeamIndex = 255;
         private const string ContinuationFile = "continuationfile.txt";
+        private const string RankingsFile = "rankings.csv";
         private const string ScheduleModelFile =@"D:\repos\CFB-Tools\Release\schedulemodel.txt";
 
         private readonly DataGridView grid = new DataGridView();
@@ -165,8 +166,9 @@ namespace ScheduleMaker
         }
 
         /// <summary>
-        /// Ctrl+P. Ports the NCAA 14 rosters (a PLAY dump, CSV) onto the open save; hometowns come from cities.csv, looked
-        /// for next to PLAY.csv and one folder up. Nothing is written until Save as.
+        /// Ctrl+P. Ports the NCAA 14 rosters (a PLAY dump, CSV) onto the open save; hometowns come from cities.csv and
+        /// announcer surname audio from cfb27_surname_audio.csv (optional), both looked for next to PLAY.csv and one folder up.
+        /// Nothing is written until Save as.
         /// </summary>
         private void ImportNcaa14Rosters()
         {
@@ -189,10 +191,12 @@ namespace ScheduleMaker
             }
 
             var folder = Path.GetDirectoryName(dialog.FileName)!;
-            var cities = new[] { folder, Path.GetDirectoryName(folder) }
+            string? FindNearby(string name) => new[] { folder, Path.GetDirectoryName(folder) }
                 .Where(d => d != null)
-                .Select(d => Path.Combine(d!, "cities.csv"))
+                .Select(d => Path.Combine(d!, name))
                 .FirstOrDefault(File.Exists);
+            var cities = FindNearby("cities.csv");
+            var surnameAudio = FindNearby("cfb27_surname_audio.csv");
             if (cities == null)
             {
                 using var citiesDialog = new OpenFileDialog { Title = "NCAA 14 hometowns (cities.csv)", Filter = "CSV files|*.csv|All files|*.*", CheckFileExists = true };
@@ -207,7 +211,7 @@ namespace ScheduleMaker
             try
             {
                 Cursor = Cursors.WaitCursor;
-                var report = Ncaa14RosterImporter.Import(dynasty, dialog.FileName, cities);
+                var report = Ncaa14RosterImporter.Import(dynasty, dialog.FileName, cities, surnameAudio);
                 isDirty = true;
                 UpdateStatus();
                 MessageBox.Show(this, string.Join("\n\n", report.Take(1)) +
@@ -221,6 +225,56 @@ namespace ScheduleMaker
             finally
             {
                 Cursor = Cursors.Default;
+            }
+        }
+
+        /// <summary>
+        /// Ctrl+B. Writes rankings.csv (CFP rank, team, record, conference title) to the current directory. CFP rankings only
+        /// exist in season saves, which Ctrl+O can't open, so without an open save this asks for one.
+        /// </summary>
+        private void ReadRankings()
+        {
+            var file = dynasty;
+            if (file == null)
+            {
+                using var dialog = new OpenFileDialog
+                {
+                    Title = "Read rankings from a dynasty save",
+                    Filter = "Dynasty saves|DYNASTY-*|All files|*.*",
+                    CheckFileExists = true,
+                };
+
+                if (dialog.ShowDialog(this) != DialogResult.OK)
+                {
+                    return;
+                }
+
+                try
+                {
+                    Cursor = Cursors.WaitCursor;
+                    file = FranchiseFile.Load(dialog.FileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(this, ex.Message, "Read rankings", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                finally
+                {
+                    Cursor = Cursors.Default;
+                }
+            }
+
+            try
+            {
+                var path = Path.Combine(Environment.CurrentDirectory, RankingsFile);
+                int teams = RankingsExporter.Write(file, path);
+                status.Text = teams == 0 ? "This save has no CFP rankings yet (the CFP poll hasn't started)." : $"Wrote {path} ({teams} teams).";
+                Clipboard.SetText(path);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "Read rankings", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -399,8 +453,12 @@ namespace ScheduleMaker
             games.DropDownItems.Add(new ToolStripMenuItem("Re&fresh grid", null, (s, e) => { grid.EndEdit(); RefreshGrid(); }, Keys.Control | Keys.H));
             games.DropDownItems.Add(new ToolStripMenuItem("&Validate", null, (s, e) => ShowValidation()));
 
+            var functions = new ToolStripMenuItem("F&unctions");
+            functions.DropDownItems.Add(new ToolStripMenuItem("Read &Rankings", null, (s, e) => ReadRankings(), Keys.Control | Keys.B));
+
             menu.Items.Add(file);
             menu.Items.Add(games);
+            menu.Items.Add(functions);
             MainMenuStrip = menu;
             Controls.Add(menu);
         }
