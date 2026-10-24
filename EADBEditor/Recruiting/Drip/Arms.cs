@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NCAA14Utility;
+using System;
 
 namespace EA_DB_Editor
 {
@@ -27,7 +28,7 @@ namespace EA_DB_Editor
         public void AssignSweatbands()
         {
             // about a third don't wear them
-            if (TableUtility.Check(30))
+            if (CommonUtility.Check(30))
             {
                 return;
             }
@@ -37,7 +38,7 @@ namespace EA_DB_Editor
             var sweatBand = new[] { ElbowGear.SweatbandFullWhite, ElbowGear.SweatbandThinWhite, ElbowGear.SweatbandMediumWhite }.Choose() + (bandColor * 3);
 
             // 90 % of the time it's both
-            if (TableUtility.Check(90))
+            if (CommonUtility.Check(90))
             {
                 this.Left.CheckElbow(sweatBand);
                 this.Right.CheckElbow(sweatBand);
@@ -45,13 +46,13 @@ namespace EA_DB_Editor
             else
             {
                 //otherwise its a 50/50 split, but not qutie
-                if (TableUtility.Check(50))
+                if (CommonUtility.Check(50))
                 {
                     this.Right.CheckElbow(sweatBand);
                     this.Left.CheckElbow(ElbowGear.None);
                 }
 
-                if (TableUtility.Check(50))
+                if (CommonUtility.Check(50))
                 {
                     this.Right.CheckElbow(ElbowGear.None);
                     this.Left.CheckElbow(sweatBand);
@@ -84,7 +85,7 @@ namespace EA_DB_Editor
             // get the gear we want
             var wristColor = ArmExtensions.PickColor(white: 35, black: 35, color: 30);
 
-            var gearType = TableUtility.Check(
+            var gearType = CommonUtility.Check(
                 new[] { 25, 15, 3, 5, 5, 5, 10, 10, 10, 10, 2 },
                 NoWristGear, WhiteWristband, DblWhiteWristBand, TapedWristLite, TapedWristNormal, TapedWristMax, TapedGloveHeavyBlack, TapedGloveHeavyWhite, TapedGloveNormalBlack, TapedGloveNormalWhite, WristBrace);
 
@@ -104,7 +105,7 @@ namespace EA_DB_Editor
             else
             {
                 // wrist brace only goes one
-                var wrist = TableUtility.Check(50) ? Left : Right;
+                var wrist = CommonUtility.Check(50) ? Left : Right;
                 wrist.CheckWristBand(gearType, true);
             }
         }
@@ -134,7 +135,7 @@ namespace EA_DB_Editor
 
             // get the gear we want
             var wristColor = ArmExtensions.PickColor(white: 40, black: 20, color: 40);
-            var gearType = TableUtility.Check(new[] { 40, 40, 3, 9, 8 }, NoWristGear, WhiteWristband, DblWhiteWristBand, TapedWristLite, TapedWristNormal);
+            var gearType = CommonUtility.Check(new[] { 40, 40, 3, 9, 8 }, NoWristGear, WhiteWristband, DblWhiteWristBand, TapedWristLite, TapedWristNormal);
             var applyNoMatterWhat = true;
 
             if (gearType == WhiteWristband || gearType == DblWhiteWristBand)
@@ -161,7 +162,7 @@ namespace EA_DB_Editor
 
             // all qbs wear a qb wristband, colors match
             offHand.Wrist = WhiteQBWristBand + colorMod;
-            var throwingWrist = TableUtility.Check(new[] { 40, 50, 10 }, NoWristGear, WhiteWristband, DblWhiteWristBand);
+            var throwingWrist = CommonUtility.Check(new[] { 40, 50, 10 }, NoWristGear, WhiteWristband, DblWhiteWristBand);
             throwingWrist += throwingWrist == 0 ? 0 : colorMod;
             throwingHand.Wrist = throwingWrist;
         }
@@ -273,7 +274,7 @@ namespace EA_DB_Editor
 
         public (Arm left, Arm right) Create()
         {
-            var color = TableUtility.Check(
+            var color = CommonUtility.Check(
                 new int[] { team, white, black },
                 ColorKind.TeamColor, ColorKind.White, ColorKind.Black
                 );

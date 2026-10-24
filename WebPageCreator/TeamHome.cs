@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Configuration;
+using CFB27.Data.Model;
 
 namespace EA_DB_Editor
 {
@@ -252,56 +253,34 @@ namespace EA_DB_Editor
             return file.FromJsonFile<Team[]>();
         }
 
-        public static void Prep(MaddenDatabase db, bool isPreseason)
+        public static void Prep(IDataEngine dataEngine, bool isPreseason)
         {
             // need historic records
-            Bowl.Create(db, isPreseason);
-            HistoricTeamRecord.Create(db);
-            BowlChampion.Create(db);
-            TeamSchedule.Create(db, isPreseason);
-            ScheduledGame.Create(db, isPreseason);
-            Coach.Create(db);
-            Stadium.Create(db);
-            ConferenceChampion.Create(db);
-            TeamDraftHistory.Create(db);
+            Bowl.Create(dataEngine, isPreseason);
+            HistoricTeamRecord.Create(dataEngine);
+            BowlChampion.Create(dataEngine);
+            TeamSchedule.Create(dataEngine, isPreseason);
+            ScheduledGame.Create(dataEngine, isPreseason);
+            Coach.Create(dataEngine, isPreseason);
+            Stadium.Create(dataEngine);
+            ConferenceChampion.Create(dataEngine);
+            TeamDraftHistory.Create(dataEngine);
         }
 
-        public static void Create(MaddenDatabase db, bool isPreseason)
+        public static void Create(IDataEngine dataEngine, bool isPreseason)
         {
-            Prep(db, isPreseason);
+            Prep(dataEngine, isPreseason);
 
             if (Teams != null)
                 return;
 
-            Teams = new Dictionary<int, Team>();
-            var table = db.lTables[167];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var teamId = table.lRecords[i].lEntries[40].Data.ToInt32().GetRealTeamId();
-
-                // don't look at any team with an id greater than 235 and less than 901 which is the first teambuilder team id
-                if (teamId > 235 && teamId < 901)
-                    continue;
-
-                var team = new Team(table.lRecords[i], db, isPreseason);
-                Teams.Add(team.Id, team);
-            }
-
-
-            if( !Teams.ContainsKey(61))
-                Teams.Add(61, new Team(61, "New Mexico State") { ToughestPlaceToPlayRank = 1000});
-
-            if (!Teams.ContainsKey(100))
-                Teams.Add(100, new Team(100, "Connecticut") { ToughestPlaceToPlayRank = 1000 });
-
-            if(!Teams.ContainsKey(230))
-                Teams.Add(230, new Team(230, "FIU") { ToughestPlaceToPlayRank = 1000 });
+            Teams = dataEngine.ReadTeams(isPreseason);
         }
 
-        public static void TopPrograms(MaddenDatabase db, bool isPreseason)
+        public static void TopPrograms(IDataEngine dataEngine, bool isPreseason)
         {
-            Conference.Create(db);
-            Team.Create(db, isPreseason);
+            Conference.Create(dataEngine);
+            Team.Create(dataEngine, isPreseason);
             TextWriter tw = null;
 
             // top programs
@@ -391,16 +370,16 @@ namespace EA_DB_Editor
             return total == 0 ? 1 : total;
         }
 
-        public static void CreateMainPage(MaddenDatabase db, bool isPreseason = false)
+        public static void CreateMainPage(IDataEngine dataEngine, bool isPreseason = false)
         {
-            Team.Create(db, isPreseason);
+            Team.Create(dataEngine, isPreseason);
             TextWriter tw = null;
 
             ConferenceChampion.ToCCFile("tcc.csv");
             BowlChampion.ToBCFile("tbc.csv");
             HistoricTeamRecord.ToHistoricRecordFile(isPreseason ? "ps-thr.csv" : "thr.csv", isPreseason ? 5 : default(int?));
             Team.ToJsonFile(isPreseason);
-            TeamSchedule.ToAllSchedulesCsv(isPreseason);
+            TeamSchedule.ToAllSchedulesCsv(dataEngine, isPreseason);
 
             // get the 4 year recruiting class average
             if (isPreseason)
@@ -408,7 +387,7 @@ namespace EA_DB_Editor
                 LoadLast5Years();
                 foreach (var team in Team.Teams.Values)
                 {
-                    if (team.Id.IsFCS() || team.Id.TeamNoLongerFBS())
+                    if (team.Id.IsFCS() || team.Id.TeamNoLongerFBS(dataEngine))
                         continue;
 
                     var sum = Last5TeamFiles.Select(dict => dict.ContainsKey(team.Id) ? dict[team.Id].RecruitClassRating : 0).Sum();
@@ -1096,17 +1075,88 @@ namespace EA_DB_Editor
         }
         public int MainRival { get; set; }
 
-        private Team(int id, string name)
+        public Team(int id, string name)
         {
             this.Id = id;
             this.Name = name;
             BCSRank = CoachesPollRank = MediaPollRank = 200;
         }
 
+        public Team(CFBTeam team, bool isPreseason)
+        {
+            Id = team.TeamId;
+            Name = team.DisplayName;
+            Mascot = team.NickName;
+            var atw = team.HistoricalData.Wins;
+            var atl = team.HistoricalData.Losses;
+            var att = team.HistoricalData.Ties;
+            var bw = team.HistoricalData.BowlsWon;
+            var bl = team.HistoricalData.BowlsMade - team.HistoricalData.BowlsWon;
+            var bt = 0;
+            Win = team.Win;
+            Loss = team.Loss;
+            Streak = team.SeasonWinLossStreak;
+            BCSRank = team.CFPPoll_CurrentRank;
+            BCSPrevious = team.CFPPoll_LastWeeksRank;
+            MediaPollRank = team.MediaPoll_CurrentRank;
+            MediaPollFirstPlaceVotes = team.MediaPoll_FirstPlaceVotes;
+            MediaPollPoints = team.MediaPoll_CurrentPoints;
+            MediaPollPrevious = team.MediaPoll_LastWeeksRank;
+            CoachesPollRank = team.CoachesPoll_CurrentRank;
+            CoachesPollFirstPlaceVotes = team.CoachesPoll_FirstPlaceVotes;
+            CoachesPollPoints = team.CoachesPoll_CurrentPoints;
+            CoachesPollPrevious = team.CoachesPoll_LastWeeksRank;
+            var nts = team.HistoricalData.NationalChampionshipsWon;
+            var cts = team.HistoricalData.ConferenceChampionshipsWon;
+            ConferenceWin = team.ConfWin;
+            ConferenceLoss = team.ConfLoss;
+            DivisionWin = team.DivisionWin;
+            DivisionLoss = team.DivisionLoss;
+            AverageAttendance = team.AverageAttendance;
+            RecordAttendance = team.HighestGameAttendance;
+            HomeWin = team.HistoricalData.HomeWins;
+            HomeLoss = team.HistoricalData.HomeLosses;
+            HomeTie = team.HistoricalData.HomeTies;
+            HomeStreakRaw = team.HistoricalData.CurrentHomeWinStreak;
+
+            if(HomeStreakRaw < 0 )
+            {
+                HomeStreak = $"L{-HomeStreakRaw}";
+            }
+            else
+            {
+                HomeStreak = $"W{HomeStreakRaw}";
+            }
+
+            TeamRatingOVR = team.TEAM_RATINGOVR;
+            TeamRatingOFF = team.TEAM_RATINGOFF;
+            TeamRatingDEF = team.TEAM_RATINGDEF;
+            TeamRatingST = team.TEAM_RATINGST;
+            TeamRatingQB = team.TEAM_RATINGQB;
+            TeamRatingRB = team.TEAM_RATINGRB;
+            TeamRatingWR = team.TEAM_RATINGWR;
+            TeamRatingOL = team.TEAM_RATINGOL;
+            TeamRatingDL = team.TEAM_RATINGDL;
+            TeamRatingLB = team.TEAM_RATINGLB;
+            TeamRatingDB = team.TEAM_RATINGDB;
+
+
+            // generic FCS teams have no stadium; 0 is ReadStadiums' placeholder for them
+            StadiumId = string.Equals(team.Stadium, BaseRecord.NoRefString) ? 0 : CFBStadium.ToStadiumId(team.Stadium);
+
+            // CFB-TODO Need to parse this out
+            //MainRival = record["TRIV"].ToInt32();
+            //LastConferenceChampionshipYear = //need to figure this out
+            //    LastNationalChampionshipYear = // need to figure this out
+            // bt = // need to figure this out, this is static data
+            this.Process(isPreseason, atw, atl, att, bw , bl, bt , nts, cts);
+            this.ToughestPlaceToPlayRank = team.ToughestPlacesRank;
+        }
+
         public Team(MaddenRecord record, MaddenDatabase db, bool isPreseason)
         {
             OffPlayBookId = record["TOPB"].ToInt32();
-            Id = record.lEntries[40].Data.ToInt32().GetRealTeamId();
+            Id = record.lEntries[40].Data.ToInt32().GetRealTeamId(true);
             Name = record.lEntries[7].Data;
             Mascot = record.lEntries[9].Data;
             ConferenceId = record.lEntries[36].Data.ToInt32();
@@ -1193,6 +1243,42 @@ namespace EA_DB_Editor
             TeamRatingLB = record.GetInt(20);
             TeamRatingDB = record.GetInt(18);
 
+            // last conference chanmp years
+            var startYear = ConfigurationManager.AppSettings["StartingYear"].ToInt32();
+            var yr = record["FCYR"].ToInt32();
+            if (yr > 0)
+                this.LastConferenceChampionshipYear = yr - 263 + startYear;
+
+            // last championship is this determined if have a year greater than 262
+            if (yr > 262)
+                this.LastConferenceChampionshipYear = this.LastConferenceChampionshipYear.Value + ContinuationData.ContinuationYear;
+
+            yr = record["NCYR"].ToInt32();
+            if (yr > 0)
+                this.LastNationalChampionshipYear = yr - 263 + startYear;
+
+            if (yr > 262)
+                this.LastNationalChampionshipYear = this.LastNationalChampionshipYear.Value + ContinuationData.ContinuationYear;
+
+            this.Process(isPreseason, atw, atl, att, bw, bl, 0, nts, cts);
+
+            // finally get the toughest place to play rank
+            var stadium = db.GetTable("STAD").lRecords.Where(mr => mr["SGID"].ToInt32() == record["SGID"].ToInt32()).SingleOrDefault();
+
+            if (stadium != null)
+            {
+                this.ToughestPlaceToPlayRank = stadium["STDR"].ToInt32();
+            }
+
+            if (this.Id.TeamNoLongerFBS(true))
+            {
+                this.ToughestPlaceToPlayRank = 1000;
+            }
+        }
+
+        private void Process(bool isPreseason, int atw, int atl, int att, int bw, int bl , int bt, int nts, int cts)
+        {
+
             if (ContinuationData.UsingContinuationData)
             {
                 if (ContinuationData.Instance.TeamData.ContainsKey(Id))
@@ -1236,12 +1322,15 @@ namespace EA_DB_Editor
                 ConferenceTitles = cts;
             }
 
-            // data about Championships
-            this.IsNationalChampion = BowlChampion.IsNationalChampionshipYear(this.Id, BowlChampion.CurrentYear);
-            this.BowlWinsThisYear = string.Join(", ", BowlChampion.GetBowlChampionships(this.Id, BowlChampion.CurrentYear).Select(bc => bc + " Champions"));
+            if (!isPreseason)
+            {
+                // data about Championships
+                this.IsNationalChampion = BowlChampion.IsNationalChampionshipYear(this.Id, BowlChampion.CurrentYear);
+                this.BowlWinsThisYear = string.Join(", ", BowlChampion.GetBowlChampionships(this.Id, BowlChampion.CurrentYear).Select(bc => bc + " Champions"));
 
-            // check if we are Conference champion
-            this.ConferenceOrDivisionChampionship = ConferenceChampion.GetConferenceChampionship(this.Id, BowlChampion.CurrentYear);
+                // check if we are Conference champion
+                this.ConferenceOrDivisionChampionship = ConferenceChampion.GetConferenceChampionship(this.Id, BowlChampion.CurrentYear);
+            }
 
             TeamSchedule schedule = null;
 
@@ -1259,24 +1348,6 @@ namespace EA_DB_Editor
                 }
             }
 
-
-            // last conference chanmp years
-            var startYear = ConfigurationManager.AppSettings["StartingYear"].ToInt32();
-            var yr = record["FCYR"].ToInt32();
-            if (yr > 0)
-                this.LastConferenceChampionshipYear = yr - 263 + startYear;
-
-            // last championship is this determined if have a year greater than 262
-            if (yr > 262)
-                this.LastConferenceChampionshipYear = this.LastConferenceChampionshipYear.Value + ContinuationData.ContinuationYear;
-
-            yr = record["NCYR"].ToInt32();
-            if (yr > 0)
-                this.LastNationalChampionshipYear = yr - 263 + startYear;
-
-            if (yr > 262)
-                this.LastNationalChampionshipYear = this.LastNationalChampionshipYear.Value + ContinuationData.ContinuationYear;
-
             if (ContinuationData.UsingContinuationData)
             {
                 var a = this.LastConferenceChampionshipYear.HasValue ? this.LastConferenceChampionshipYear.Value : 0;
@@ -1289,70 +1360,21 @@ namespace EA_DB_Editor
             }
 
             this.DraftHistory = TeamDraftHistory.Rollup(this.Id);
-
-            // finally get the toughest place to play rank
-            var stadium = db.GetTable("STAD").lRecords.Where(mr => mr["SGID"].ToInt32() == record["SGID"].ToInt32()).SingleOrDefault();
-
-            if (stadium != null)
-            {
-                this.ToughestPlaceToPlayRank = stadium["STDR"].ToInt32();
-            }
-
-            if (this.Id.TeamNoLongerFBS())
-            {
-                this.ToughestPlaceToPlayRank = 1000;
-            }
         }
     }
 
     public class HistoricTeamRecord
     {
         public static Dictionary<int, Dictionary<int, TeamSeasonRecord>> TeamRecords { get; set; }
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
             if (TeamRecords != null)
                 return;
 
-            TeamRecords = new Dictionary<int, Dictionary<int, TeamSeasonRecord>>();
-            var table = db.lTables[114];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var record = table.lRecords[i];
-                var teamId = record.GetInt(0).GetRealTeamId();
-                Dictionary<int, TeamSeasonRecord> teamSeasonRecords;
-                if (TeamRecords.TryGetValue(teamId, out teamSeasonRecords) == false)
-                {
-                    // load the records from the continuation file
-                    if (ContinuationData.UsingContinuationData && ContinuationData.Instance != null && ContinuationData.Instance.TeamHistoricRecords.ContainsKey(teamId))
-                    {
-                        teamSeasonRecords = ContinuationData.Instance.TeamHistoricRecords[teamId];
-                    }
-                    else
-                    {
-                        teamSeasonRecords = new Dictionary<int, TeamSeasonRecord>();
-                    }
-
-                    TeamRecords[teamId] = teamSeasonRecords;
-                }
-
-                var seasonRecord = new TeamSeasonRecord
-                {
-                    Year = record.GetInt(2) + ContinuationData.ContinuationYear,
-                    Win = record.GetInt(3),
-                    Loss = record.GetInt(1)
-                };
-
-                // check to see if the team went 16-0
-                if (seasonRecord.Win < 4)
-                {
-                    seasonRecord.Win += BowlChampion.IsNationalChampionshipYear(teamId, seasonRecord.Year) ? 16 : 0;
-                }
- 
-                teamSeasonRecords.Add(seasonRecord.Year, seasonRecord);
-            }
+            TeamRecords = dataEngine.CreateTeamHistoricRecords();
         }
 
-        public static void ToHistoricRecordFile(string file, int? take = null)
+        public static void ToHistoricRecordFile(string file,int? take = null)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Year,Record,TeamId");
@@ -1419,61 +1441,12 @@ namespace EA_DB_Editor
     {
         public static Dictionary<int, TeamStat> TeamStats { get; set; }
 
-        public static void Create(MaddenDatabase db)
+        public static void Create(IDataEngine dataEngine)
         {
             if (TeamStats != null)
                 return;
 
-            TeamStats = new Dictionary<int, TeamStat>();
-
-            var table = db.lTables[168];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var row = table.lRecords[i];
-                var teamId = row.GetInt(0).GetRealTeamId();
-
-                var stats = new TeamStat
-                {
-                    TeamId = teamId,
-                    TwoPointConversionAttempts = row.GetInt(1),
-                    Turnovers = row.GetInt(2),
-                    PassAttempts = row.GetInt(3),
-                    RushAttempts = row.GetInt(4),
-                    Tssa = row.GetInt(5),
-                    Tsta = row.GetInt(6),
-                    TwoPointConversions = row.GetInt(7),
-                    ThirdDownConversions = row.GetInt(8),
-                    FourthDownConversions = row.GetInt(9),
-                    FirstDowns = row.GetInt(10),
-                    ThirdDownAttempts = row.GetInt(11),
-                    FourthDownAttempts = row.GetInt(12),
-                    Penalties = row.GetInt(14),
-                    RedZoneFG = row.GetInt(16),
-                    Tsdi = row.GetInt(17),
-                    IntThrown = row.GetInt(19),
-                    RedZoneFGAllowed = row.GetInt(15),
-                    InterceptionsByDefense = row.GetInt(18),
-                    Sacks = row.GetInt(20),
-                    FumblesLost = row.GetInt(21),
-                    PassYardsAllowed = row.GetInt(22),
-                    PassYards = row.GetInt(23),
-                    OpponentsInRedZone = row.GetInt(24),
-                    FumblesRecovered = row.GetInt(25),
-                    RushYards = row.GetInt(26),
-                    PassTD = row.GetInt(27),
-                    RedZoneTDAllowed = row.GetInt(28),
-                    RedZoneTD = row.GetInt(29),
-                    RushTD = row.GetInt(30),
-                    PenaltyYards = row.GetInt(31),
-                    TotalYards = row.GetInt(32),
-                    RushingYardsAllowed = row.GetInt(33),
-                    OffensiveYards = row.GetInt(34),
-                    RedZoneVisits = row.GetInt(36),
-                    SpecialTeamYards = row.GetInt(35),
-                };
-
-                TeamStats.Add(teamId, stats);
-            }
+            TeamStats = dataEngine.ReadTeamStats();
         }
     }
 }

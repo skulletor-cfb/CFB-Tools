@@ -1,4 +1,6 @@
-﻿namespace EA_DB_Editor
+﻿using NCAA14Utility;
+
+namespace EA_DB_Editor
 {
     public class SkillPlayer : StandardPlayer
     {
@@ -9,7 +11,7 @@
         public override void SetHands()
         {
             // hands
-            if (TableUtility.Check(5))
+            if (CommonUtility.Check(5))
             {
                 PlayerRecord.SetHands(GenericGloves);
             }
@@ -24,13 +26,13 @@
             var splat = NoAnkleGear;
 
             // about a third are splatting
-            if (TableUtility.Check(35))
+            if (CommonUtility.Check(35))
             {
                 // a fourth of the splats are bulky
-                var bulkyMod = TableUtility.Check(25) ? 1 : 0;
+                var bulkyMod = CommonUtility.Check(25) ? 1 : 0;
 
                 // most are using white splats
-                if (TableUtility.Check(65))
+                if (CommonUtility.Check(65))
                 {
                     splat = WhiteSplat + bulkyMod;
                 }
@@ -101,7 +103,7 @@
         public override void SetKnee()
         {
             // small percentage has a brace for stability
-            if (TableUtility.Check(3))
+            if (CommonUtility.Check(3))
             {
                 var left = NoKneeBrace;
                 var right = NoKneeBrace;
@@ -126,7 +128,7 @@
         public override void SetHands()
         {
             // some qbs like to wear 1 glove
-            if (TableUtility.Check(8))
+            if (CommonUtility.Check(8))
             {
                 var gloves = new[] { NikeGloves, UAGloves, AdidasGloves }.Choose();
 

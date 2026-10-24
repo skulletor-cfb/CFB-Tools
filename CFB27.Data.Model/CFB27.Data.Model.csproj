@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net10.0</TargetFrameworks>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FranchiseFile\FranchiseFile.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- the game's stadium table, extracted with CFBStadium.ExtractFromGame -->
+    <EmbeddedResource Include="Resources\stadiums.csv" />
+    <!-- playbook names and styles, from MyDynasty's catalog (see CFBPlaybook) -->
+    <EmbeddedResource Include="Resources\playbooks.csv" />
+  </ItemGroup>
+
+</Project>

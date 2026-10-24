@@ -445,7 +445,9 @@ function loadPreSeasonReviewData(year) {
 
                 var team = teams[i];
                 var record = team.PriorSeasonWin + "-" + team.PriorSeasonLoss;
-                var cells = [1 + i, createTeamLogoLinkToTeams(team.Id, 55, "PreSeasonTeam.html"), record, team.MediaCoverage[randNext(0, team.MediaCoverage.length)].Content];
+                // CFB27 doesn't write a preview story for every team
+                var coverage = team.MediaCoverage != null && team.MediaCoverage.length > 0 ? team.MediaCoverage[randNext(0, team.MediaCoverage.length)].Content : "";
+                var cells = [1 + i, createTeamLogoLinkToTeams(team.Id, 55, "PreSeasonTeam.html"), record, coverage];
 
                 // insert the rows
                 addBasicRowsToTable(table, cells, "c3");
@@ -4516,11 +4518,19 @@ function loadTeamPageTemplate(team, face) {
     // check to see if we have a headline element
     var headline = document.getElementById("headlineContent");
     var headlineText = document.getElementById("headlineText");
-    if (headline != null && team.MediaCoverage != undefined && team.MediaCoverage != null) {
-        var randIdx = randNext(0, team.MediaCoverage.length);
-        var mc = team.MediaCoverage[randIdx];
-        headline.innerText = mc.Headline;
-        headlineText.innerHTML = mc.Content + "<br/><br/>" + team.Article;
+    if (headline != null) {
+        var article = team.Article != undefined && team.Article != null ? team.Article : "";
+
+        if (team.MediaCoverage != undefined && team.MediaCoverage != null && team.MediaCoverage.length > 0) {
+            var randIdx = randNext(0, team.MediaCoverage.length);
+            var mc = team.MediaCoverage[randIdx];
+            headline.innerText = mc.Headline;
+            headlineText.innerHTML = mc.Content + "<br/><br/>" + article;
+        }
+        else {
+            // CFB27 has few media stories; show the team article on its own
+            headlineText.innerHTML = article;
+        }
     }
 
     document.getElementById("teamScheduleLink").href += "?id=" + teamId;
@@ -5160,16 +5170,16 @@ function addTeamData(team, isPreseason) {
     addRecordRow(recordTable, "Bowl Wins", team.HeadCoach.BowlWins);
     addRecordRow(recordTable, "Conference Championships", team.HeadCoach.ConferenceChampionships);
     addRecordRow(recordTable, "National Championships", team.HeadCoach.NationalChampionships);
-    addRecordRow(recordTable, "Offensive Playbook", OffPlaybookName(team.HeadCoach.OffPlaybookId));
-    addRecordRow(recordTable, "Defensive Playbook", DefPlaybookName(team.HeadCoach.DefPlaybookId));
+    addRecordRow(recordTable, "Offensive Playbook", coachOffPlaybook(team.HeadCoach));
+    addRecordRow(recordTable, "Defensive Playbook", coachDefPlaybook(team.HeadCoach));
 
     addHeaderRow(recordTable, "<a href='../CoachCareer.html?yr=" + (yearMod + getCurrentYear()) + "&name=" + escape(team.OffensiveCoordinator.Name) + "&id=" + team.OffensiveCoordinator.Id + "'> Offensive Coordinator " + team.OffensiveCoordinator.Name + "</a>");
     addRecordRow(recordTable, "Seasons", seasonsWithTeam(team.OffensiveCoordinator.YearsWithTeam, isPreseason));
-    addRecordRow(recordTable, "Offensive Playbook", OffPlaybookName(team.OffensiveCoordinator.OffPlaybookId));
+    addRecordRow(recordTable, "Offensive Playbook", coachOffPlaybook(team.OffensiveCoordinator));
 
     addHeaderRow(recordTable, "<a href='../CoachCareer.html?yr=" + (yearMod + getCurrentYear()) + "&name=" + escape(team.DefensiveCoordinator.Name) + "&id=" + team.DefensiveCoordinator.Id + "'> Defensive Coordinator " + team.DefensiveCoordinator.Name + "</a>");
     addRecordRow(recordTable, "Seasons", seasonsWithTeam(team.DefensiveCoordinator.YearsWithTeam, isPreseason));
-    addRecordRow(recordTable, "Defensive Playbook", DefPlaybookName(team.DefensiveCoordinator.DefPlaybookId));
+    addRecordRow(recordTable, "Defensive Playbook", coachDefPlaybook(team.DefensiveCoordinator));
 
     var header = document.getElementById("yearlyHistory");
     header.innerHTML = "<a href='../TeamHistory.html?yr=" + (currentYear + yearMod) + "&id=" + team.Id + "'>Team History</a>";
@@ -5185,6 +5195,15 @@ function DefPlaybookName(id) {
         case 5: return "3-4 Multiple";
         case 6: return "4-3 Multiple";
     }
+}
+
+// CFB 27 coaches carry their playbook names; NCAA 14 coaches only have ids
+function coachOffPlaybook(coach) {
+    return coach.OffPlaybookName ? coach.OffPlaybookName : OffPlaybookName(coach.OffPlaybookId);
+}
+
+function coachDefPlaybook(coach) {
+    return coach.DefPlaybookName ? coach.DefPlaybookName : DefPlaybookName(coach.DefPlaybookId);
 }
 
 function OffPlaybookName(id) {

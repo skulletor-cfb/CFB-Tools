@@ -1,4 +1,5 @@
 ﻿using EA_DB_Editor;
+using NCAA14Utility;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -30,6 +31,7 @@ namespace RefreshRunner
         static int StartContinuation8 = 379; // this is 2429, after this we need continuation 8
         static int StartContinuation9 = 437; // this is 2487, after this we need continuation 9
         static int StartContinuation10 = 437+52; // this is 2539, after this we need continuation 10
+        static int StartContinuation11 = StartContinuation10 + 47; // this is 2586, after this we need continuation 11
         static int ContinuationConfig1 = 55; //this is 2068-2125
         static int ContinuationConfig2 = 113; //this is 2126-2183
         static int ContinuationConfig3 = 171; //this is 2184-2197
@@ -39,7 +41,8 @@ namespace RefreshRunner
         static int ContinuationConfig7 = 359; //this is 2372-2429
         static int ContinuationConfig8 = 417; //this is 2430-2487
         static int ContinuationConfig9 = 475; //this is 2488-2539
-        static int ContinuationConfig10 = ContinuationConfig9 + 52; //this is 2540-2597
+        static int ContinuationConfig10 = ContinuationConfig9 + 52; //this is 2540-2586
+        static int ContinuationConfig11 = ContinuationConfig10 + 47; // this is 2587 - 2614
         static string ContinationDir1 = @"d:\NCAA_2014\Archive\2067_Miami_HC_(15-0)_Week_EOY";
         static string ContinationDir2 = @"d:\NCAA_2014\Archive\2125_Season";
         static string ContinationDir3 = @"d:\NCAA_2014\Archive\2183_Season";
@@ -50,6 +53,7 @@ namespace RefreshRunner
         static string ContinationDir8 = @"d:\NCAA_2014\Archive\2429_Season";
         static string ContinationDir9 = @"d:\NCAA_2014\Archive\2487_Season";
         static string ContinationDir10 = @"d:\NCAA_2014\Archive\2539_Season";
+        static string ContinationDir11 = @"d:\NCAA_2014\Archive\2586_Season";
         static string CF1 = @"d:\NCAA_2014\Archive\Continuation68to125\continuationfile.txt";
         static string CF2 = @"d:\NCAA_2014\Archive\Continuation126to183\continuationfile.txt";
         static string CF3 = @"d:\NCAA_2014\Archive\Continuation184to197\continuationfile.txt";
@@ -59,7 +63,8 @@ namespace RefreshRunner
         static string CF7 = @"d:\NCAA_2014\Archive\Continuation372to429\continuationfile.txt";
         static string CF8 = @"d:\NCAA_2014\Archive\Continuation430to487\continuationfile.txt";
         static string CF9 = @"d:\NCAA_2014\Archive\Continuation488to539\continuationfile.txt";
-        static string CF10 = @"d:\NCAA_2014\Archive\continuationfile.txt";
+        static string CF10 = @"d:\NCAA_2014\Archive\Continuation540to586\continuationfile.txt";
+        static string CF11 = @"d:\NCAA_2014\Archive\continuationfile.txt";
         static int SetNeutralSiteYear = 156; // the year 2206 in dynasty before this we need
         const string OldNeutralSiteValue = "271,272,276,273,{150;150},{275;277;186},{147;169;153;168},182,184,183";
         const string OldStadiumNickNameOverride = "Stadium=271,BeforeWeek=2,NickName=Cowboys Classic;Stadium=184,BeforeWeek=3,NickName=Rocky Mountain Showdown;Stadium=276,BeforeWeek=3,NickName=Chicago Kickoff;Stadium=183,BeforeWeek=16,NickName=World's Largest Outdoor Cocktail Party;Stadium=182,BeforeWeek=16,NickName=Red River Shootout;Stadium=150,BeforeWeek=2,NickName=Fiesta Kickoff;Stadium=275,BeforeWeek=2,NickName=Atlantic Kickoff;Stadium=186,BeforeWeek=2,NickName=Atlantic Kickoff;Stadium=277,BeforeWeek=2,NickName=Atlantic Kickoff;Stadium=147,BeforeWeek=2,NickName=Sunshine State Kickoff;Stadium=169,BeforeWeek=2,NickName=Sunshine State Kickoff;Stadium=153,BeforeWeek=2,NickName=Sunshine State Kickoff;Stadium=168,BeforeWeek=2,NickName=Sunshine State Kickoff;";
@@ -104,10 +109,15 @@ namespace RefreshRunner
         const string Phase9Override = "Stadium=272,BeforeWeek=2,NickName=Texas Kickoff;RivalryGame=33-79,Stadium=272,BeforeWeek=16,NickName=Bayou Bucket Classic;Stadium=271,BeforeWeek=2,NickName=Allstate Kickoff Classic;Stadium=184,BeforeWeek=4,NickName=Rocky Mountain Showdown;Stadium=276,BeforeWeek=3,NickName=Windy City Classic;Stadium=183,BeforeWeek=16,NickName=World's Largest Outdoor Cocktail Party;Stadium=182,BeforeWeek=16,NickName=Red River Shootout;Stadium=258,BeforeWeek=2,NickName=Cactus Kickoff Classic;Stadium=268,BeforeWeek=3,NickName=Duke's Mayo Classic;Stadium=267,BeforeWeek=3,NickName=Orlando Kickoff;Stadium=259,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=264,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=265,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=275,BeforeWeek=3,NickName=Pigskin Classic;Stadium=277,BeforeWeek=2,NickName=The Kickoff Classic;Stadium=144,BeforeWeek=2,NickName=Pigskin Classic;Stadium=185,BeforeWeek=2,NickName=Pigskin Classic;Stadium=180,BeforeWeek=2,NickName=Pigskin Classic;Stadium=176,BeforeWeek=2,NickName=Pigskin Classic;Stadium=251,BeforeWeek=2,NickName=Pigskin Classic;Stadium=165,BeforeWeek=3,NickName=Pigskin Classic;Stadium=173,BeforeWeek=2,NickName=Pigskin Classic;Stadium=163,BeforeWeek=2,NickName=Pigskin Classic;Stadium=145,BeforeWeek=2,NickName=Pigskin Classic;Stadium=253,BeforeWeek=2,NickName=Pigskin Classic;Stadium=254,BeforeWeek=2,NickName=Pigskin Classic;Stadium=160,BeforeWeek=2,NickName=Pigskin Classic;Stadium=164,BeforeWeek=2,NickName=Pigskin Classic;Stadium=159,BeforeWeek=2,NickName=Pigskin Classic;Stadium=266,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=242,BeforeWeek=2,NickName=Kickoff in the Capital;Stadium=158,BeforeWeek=2,NickName=Pigskin Classic;Stadium=262,BeforeWeek=8,NickName=Pigskin Classic;Stadium=263,BeforeWeek=3,NickName=Patriot Bowl;Stadium=261,BeforeWeek=13,NickName=Aer Lingus College Football Classic;Stadium=279,BeforeWeek=2,NickName=Louisiana Kickoff;Stadium=274,BeforeWeek=2,NickName=Vegas Kickoff Classic;Stadium=250,BeforeWeek=2,NickName=Mile High Classic;";
         const string Phase9NeutralSiteValue = "250,{274;274},{279;279},{268;268},{258;258},163,262,261,263,271,272,276,273,184,183,182,{267;267},{277;277},{150;150},{264;265;266;259},{186;186},{275;158;144;185;180;176;251;165;173;145;253;254;160;164;159},{242;242}";
 
-        //2536 to ??
-        static Tuple<int, int> NeutralSitesPhase10 = new Tuple<int, int>(485, 999);
-        const string Phase10Override = "fill in from app.config";
-        const string Phase10NeutralSiteValue = "fill in from app.config";
+        //2536 to 2586
+        static Tuple<int, int> NeutralSitesPhase10 = new Tuple<int, int>(485, 535);
+        const string Phase10Override = "Stadium=272,BeforeWeek=3,NickName=Texas Kickoff;RivalryGame=33-79,Stadium=272,BeforeWeek=16,NickName=Bayou Bucket Classic;Stadium=271,BeforeWeek=2,NickName=Allstate Kickoff Classic;Stadium=184,BeforeWeek=4,NickName=Rocky Mountain Showdown;Stadium=276,BeforeWeek=3,NickName=Windy City Classic;Stadium=183,BeforeWeek=16,NickName=World's Largest Outdoor Cocktail Party;Stadium=182,BeforeWeek=16,NickName=Red River Shootout;Stadium=258,BeforeWeek=3,NickName=Cactus Kickoff Classic;Stadium=268,BeforeWeek=3,NickName=Duke's Mayo Classic;Stadium=259,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=264,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=265,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=275,BeforeWeek=3,NickName=Pigskin Classic;Stadium=277,BeforeWeek=2,NickName=The Kickoff Classic;Stadium=144,BeforeWeek=2,NickName=Pigskin Classic;Stadium=185,BeforeWeek=2,NickName=Pigskin Classic;Stadium=180,BeforeWeek=2,NickName=Pigskin Classic;Stadium=176,BeforeWeek=2,NickName=Pigskin Classic;Stadium=251,BeforeWeek=2,NickName=Pigskin Classic;Stadium=165,BeforeWeek=3,NickName=Pigskin Classic;Stadium=173,BeforeWeek=2,NickName=Pigskin Classic;Stadium=163,BeforeWeek=2,NickName=Pigskin Classic;Stadium=145,BeforeWeek=2,NickName=Pigskin Classic;Stadium=253,BeforeWeek=2,NickName=Pigskin Classic;Stadium=254,BeforeWeek=2,NickName=Pigskin Classic;Stadium=160,BeforeWeek=2,NickName=Pigskin Classic;Stadium=164,BeforeWeek=2,NickName=Pigskin Classic;Stadium=159,BeforeWeek=2,NickName=Pigskin Classic;Stadium=266,BeforeWeek=2,NickName=Camping World Kickoff;Stadium=242,BeforeWeek=2,NickName=Kickoff in the Capital;Stadium=158,BeforeWeek=2,NickName=Pigskin Classic;Stadium=261,BeforeWeek=13,NickName=Aer Lingus College Football Classic;Stadium=279,BeforeWeek=2,NickName=Louisiana Kickoff;Stadium=274,BeforeWeek=2,NickName=Vegas Kickoff Classic;Stadium=250,BeforeWeek=2,NickName=Mile High Classic;";
+        const string Phase10NeutralSiteValue = "250,{274;274},{279;279},{268;268},{258;258},163,262,261,271,272,276,273,184,183,182,{277;277},{150;150},{264;265;266;259},{186;186},{275;158;144;185;180;176;251;165;173;145;253;254;160;164;159},{242;242}";
+
+        //2587 to ???
+        static Tuple<int, int> NeutralSitesPhase11 = new Tuple<int, int>(536, 999);
+        const string Phase11Override = "fiill from app.coinfig";
+        const string Phase11NeutralSiteValue = "fiill from app.coinfig";
 
         static string GetPreseasonFileName(string dir)
         {
@@ -251,11 +261,17 @@ namespace RefreshRunner
                         continuationYear = ContinuationConfig9;
                         cf = CF9;
                     }
-                    else
+                    else if(i<=StartContinuation11)
                     {
                         continuationDir = ContinationDir10;
                         continuationYear = ContinuationConfig10;
                         cf = CF10;
+                    }
+                    else
+                    {
+                        continuationDir = ContinationDir11;
+                        continuationYear = ContinuationConfig11;
+                        cf = CF11;
                     }
                 }
 
@@ -560,6 +576,10 @@ namespace RefreshRunner
                     form.NeutralSiteGamesForRecords(Phase9NeutralSiteValue, Phase9Override);
                 }
                 else if (year >= NeutralSitesPhase10.Item1 && year <= NeutralSitesPhase10.Item2)
+                {
+                    form.NeutralSiteGamesForRecords(Phase10NeutralSiteValue, Phase10Override);
+                }
+                else if (year >= NeutralSitesPhase11.Item1 && year <= NeutralSitesPhase11.Item2)
                 {
                     // use app.config
                 }

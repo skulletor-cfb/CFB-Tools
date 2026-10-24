@@ -1,4 +1,5 @@
 ﻿using EA_DB_Editor.CAPGen;
+using NCAA14Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -113,7 +114,7 @@ namespace EA_DB_Editor
             var set = new HashSet<string>(PlayerSkills);
 
             // add a modifier to unscouted OVR of 1 to 3 because JUCOs have some game tape
-            dict["RCOV"] = (dict["POVR"].ToInt32() + (TableUtility.Rand100() % 3) + 1).ToString();
+            dict["RCOV"] = (dict["POVR"].ToInt32() + (CommonUtility.Rand100() % 3) + 1).ToString();
             var keys = dict.Keys.ToArray();
 
             foreach (var key in keys)
@@ -126,7 +127,7 @@ namespace EA_DB_Editor
                 else if (set.Contains(key))
                 {
                     // add 1-3 points for offseason progression
-                    var mod = 1 + TableUtility.Rand100() % 3;
+                    var mod = 1 + CommonUtility.Rand100() % 3;
                     var newValue = Math.Min(99, dict[key].ToInt32() + mod);
                     dict[key] = newValue.ToString();
                 }
@@ -179,7 +180,7 @@ namespace EA_DB_Editor
 
                     if (mr.RecruitRank() < 400)
                     {
-                        mr["RCRK"] = (TableUtility.Rand100() + 400).ToString();
+                        mr["RCRK"] = (CommonUtility.Rand100() + 400).ToString();
                     }
                 }
 

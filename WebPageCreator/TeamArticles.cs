@@ -9,7 +9,7 @@ namespace EA_DB_Editor
 {
     public class TeamArticles
     {
-        public static void Create()
+        public static void Create(IDataEngine dataEngine)
         {
             var articles = Articles.Deserialize();
             foreach (var team in Team.Teams.Where(kvp => kvp.Key.IsValidTeam()))
@@ -17,7 +17,7 @@ namespace EA_DB_Editor
                 if (team.Key >= 160 && team.Key <= 165)
                     continue;
 
-                articles.AssignArticle(team.Value);
+                articles.AssignArticle(team.Value, dataEngine);
             }
         }
     }
@@ -38,9 +38,9 @@ namespace EA_DB_Editor
         [XmlElement]
         public Article[] Article { get; set; }
 
-        public void AssignArticle(Team team)
+        public void AssignArticle(Team team, IDataEngine dataEngine)
         {
-            if(team.Id.TeamNoLongerFBS())
+            if(team.Id.TeamNoLongerFBS(dataEngine))
             {
                 return;
             }

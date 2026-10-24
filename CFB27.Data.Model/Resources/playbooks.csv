@@ -1,0 +1,200 @@
+Side,PlaybookID,AssetId,Name,Scheme,IsEnabled
+Offense,200,0x80640CB4,Test Playbook 1,OFF_PRO_STYLE,True
+Offense,200,0x80640CB6,CHI - M. Nagy,OFF_WEST_COAST_ZONE_RUN,True
+Offense,200,0x80640CD8,Test Playbook 2,OFF_PRO_STYLE,True
+Offense,200,0x808F1EC1,FCS East - Option,OFF_OPTION,True
+Offense,200,0x80915CAD,Air Force - Option,OFF_OPTION,True
+Offense,201,0x80915CAE,Akron - Spread,OFF_SPREAD,True
+Offense,202,0x80915CAF,Alabama - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,203,0x80915CB0,App St  - Spread,OFF_SPREAD,True
+Offense,204,0x80915CB1,Arizona St - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,205,0x80915CB2,Arizona - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,206,0x80915CB4,ARST - Power Spread,OFF_POWER_SPREAD,True
+Offense,207,0x80915CB3,Arkansas - Spread,OFF_SPREAD,True
+Offense,208,0x80915CB5,Army - Option,OFF_OPTION,True
+Offense,209,0x80915CB6,Auburn - Veer & Shoot,OFF_VEER_AND_SHOOT,True
+Offense,210,0x80915CB7,Ball St - Spread,OFF_SPREAD,True
+Offense,211,0x80915CB8,Baylor - Air Raid,OFF_AIR_RAID,True
+Offense,212,0x80915CB9,Boise St - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,213,0x80915CBA,BC - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,214,0x80915CBB,Bowling Green - Spread,OFF_SPREAD,True
+Offense,215,0x80915CBC,Buffalo - Spread,OFF_SPREAD,True
+Offense,216,0x80915CBD,BYU - Power Spread,OFF_POWER_SPREAD,True
+Offense,217,0x80915CBE,Cal - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,218,0x80915CBF,CMU - Power Spread,OFF_POWER_SPREAD,True
+Offense,219,0x80915CC0,Charlotte - Spread,OFF_SPREAD,True
+Offense,220,0x80915CC1,Cincinnati - Pistol,OFF_PISTOL,True
+Offense,221,0x80915CC2,Clemson - Power Spread,OFF_POWER_SPREAD,True
+Offense,222,0x80915CC3,CCU - Spread,OFF_SPREAD,True
+Offense,223,0x80915CC5,Colorado St - Spread,OFF_SPREAD,True
+Offense,224,0x80915CC4,Colorado - Power Spread,OFF_POWER_SPREAD,True
+Offense,225,0x80915CC6,Duke - Veer & Shoot,OFF_VEER_AND_SHOOT,True
+Offense,226,0x80915CC7,ECU - Air Raid,OFF_AIR_RAID,True
+Offense,227,0x80915CC8,Eastern Michigan - Spread,OFF_SPREAD,True
+Offense,228,0x80915CCA,Fla Atlantic - Air Raid,OFF_AIR_RAID,True
+Offense,229,0x80915CC9,FIU - Power Spread,OFF_POWER_SPREAD,True
+Offense,230,0x80915CCC,Florida State - Spread,OFF_SPREAD,True
+Offense,231,0x80915CCB,Florida - Power Spread,OFF_POWER_SPREAD,True
+Offense,232,0x80915CCD,Fresno State - Spread,OFF_SPREAD,True
+Offense,233,0x80915CCF,Ga Southern - Spread,OFF_SPREAD,True
+Offense,234,0x80915CD0,Georgia St - Spread,OFF_SPREAD,True
+Offense,235,0x80915CD1,GT - Power Spread,OFF_POWER_SPREAD,True
+Offense,236,0x80915CCE,Georgia - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,237,0x80915CD2,Hawai'i - Run & Shoot,OFF_RUN_AND_SHOOT,True
+Offense,238,0x80915CD3,Houston - Power Spread,OFF_POWER_SPREAD,True
+Offense,239,0x80915CD4,Illinois - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,240,0x80915CD5,Indiana - Power Spread,OFF_POWER_SPREAD,True
+Offense,241,0x80915CD7,Iowa St - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,242,0x80915CD6,Iowa - Pro Style,OFF_PRO_STYLE,True
+Offense,243,0x80915CD8,Jax St - Spread,OFF_SPREAD,True
+Offense,244,0x80915CD9,James Madison - Pistol,OFF_PISTOL,True
+Offense,245,0x80915CDB,Kansas St - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,246,0x80915CDA,Kansas - Spread Option,OFF_SPREAD_OPTION,True
+Offense,247,0x80915CDD,Kent St - Spread,OFF_SPREAD,True
+Offense,248,0x80915CDE,Kentucky - Spread,OFF_SPREAD,True
+Offense,249,0x808F1F16,FCS SE- Spread Option,OFF_SPREAD_OPTION,True
+Offense,249,0x80915CDF,Liberty - Spread Option,OFF_SPREAD_OPTION,True
+Offense,250,0x80915CE1,Louisiana Tech - Air Raid,OFF_AIR_RAID,True
+Offense,251,0x80915CE0,Louisiana - Power Spread,OFF_POWER_SPREAD,True
+Offense,252,0x80915CE3,Louisville - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,253,0x80915CE4,LSU - Veer & Shoot,OFF_VEER_AND_SHOOT,True
+Offense,254,0x80915CE5,Marshall - Power Spread,OFF_POWER_SPREAD,True
+Offense,255,0x80915CE6,Maryland - Spread,OFF_SPREAD,True
+Offense,256,0x80915CE7,Memphis - Veer & Shoot,OFF_VEER_AND_SHOOT,True
+Offense,257,0x80915CE9,Miami (OH) - Spread,OFF_SPREAD,True
+Offense,258,0x80915CE8,Miami (FL) - Air Raid,OFF_AIR_RAID,True
+Offense,259,0x80915CEA,Michigan St - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,260,0x80915CEB,Michigan - Power Spread,OFF_POWER_SPREAD,True
+Offense,261,0x80915CEC,Middle Tenn - Spread,OFF_SPREAD,True
+Offense,262,0x80915CED,Minnesota - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,263,0x80915CEE,Miss St - Veer & Shoot,OFF_VEER_AND_SHOOT,True
+Offense,264,0x80915CEF,Missouri - Power Spread,OFF_POWER_SPREAD,True
+Offense,265,0x80915CF0,Navy - Option,OFF_OPTION,True
+Offense,266,0x80915CF1,NCST - Power Spread,OFF_POWER_SPREAD,True
+Offense,267,0x80915CF2,Nebraska - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,268,0x80915CF3,Nevada - Spread,OFF_SPREAD,True
+Offense,269,0x80915CF5,NMSU - Power Spread,OFF_POWER_SPREAD,True
+Offense,270,0x80915CF4,New Mexico - Spread,OFF_SPREAD,True
+Offense,271,0x80915CF6,North Carolina - Spread,OFF_SPREAD,True
+Offense,272,0x80915CF7,North Texas - Spread,OFF_SPREAD,True
+Offense,273,0x80915CF8,Northern Ill - Spread,OFF_SPREAD,True
+Offense,274,0x80915CF9,Northwestern - Spread,OFF_SPREAD,True
+Offense,275,0x80915CFA,Notre Dame - Power Spread,OFF_POWER_SPREAD,True
+Offense,276,0x80915CFC,Ohio State - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,277,0x80915CFB,Ohio - Pistol,OFF_PISTOL,True
+Offense,278,0x80915CFE,OKST - Air Raid,OFF_AIR_RAID,True
+Offense,279,0x80915CFD,Oklahoma - Spread,OFF_SPREAD,True
+Offense,280,0x80915CFF,ODU - Veer & Shoot,OFF_VEER_AND_SHOOT,True
+Offense,281,0x80915D00,Ole Miss - Veer & Shoot,OFF_VEER_AND_SHOOT,True
+Offense,282,0x80915D02,Oregon St - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,283,0x80915D01,Oregon - Spread,OFF_SPREAD,True
+Offense,284,0x80915D03,Penn St - Power Spread,OFF_POWER_SPREAD,True
+Offense,285,0x80915D04,Pittsburgh - Spread,OFF_SPREAD,True
+Offense,286,0x80915D05,Purdue - Air Raid,OFF_AIR_RAID,True
+Offense,287,0x80915D06,Rice - Spread Option,OFF_SPREAD_OPTION,True
+Offense,288,0x80915D07,Rutgers  - Spread,OFF_SPREAD,True
+Offense,289,0x80915D08,SHSU - Air Raid,OFF_AIR_RAID,True
+Offense,290,0x80915D09,SDSU - Spread,OFF_SPREAD,True
+Offense,291,0x808F1F40,FCS W - Spread,OFF_SPREAD,True
+Offense,291,0x80915D0A,San Jose St - Run & Shoot,OFF_RUN_AND_SHOOT,True
+Offense,292,0x80915D0B,SMU - Spread,OFF_SPREAD,True
+Offense,293,0x80915D0C,South Alabama - Spread,OFF_SPREAD,True
+Offense,294,0x80915D0D,SCAR - Air Raid,OFF_AIR_RAID,True
+Offense,295,0x80915D0F,USM - Power Spread,OFF_POWER_SPREAD,True
+Offense,296,0x80915D10,Stanford - Power Spread,OFF_POWER_SPREAD,True
+Offense,297,0x80915D11,Syracuse - Spread,OFF_SPREAD,True
+Offense,298,0x80915D12,TCU - Spread,OFF_SPREAD,True
+Offense,299,0x80915D13,Temple - Spread,OFF_SPREAD,True
+Offense,300,0x80915D14,Tennessee - Veer & Shoot,OFF_VEER_AND_SHOOT,True
+Offense,301,0x80915D15,Texas A&M - Power Spread,OFF_POWER_SPREAD,True
+Offense,302,0x80915D17,Texas St - Veer & Shoot,OFF_VEER_AND_SHOOT,True
+Offense,303,0x808F1EEC,FCS MW - Air Raid,OFF_AIR_RAID,True
+Offense,303,0x80915D18,Texas Tech - Veer & Shoot,OFF_VEER_AND_SHOOT,True
+Offense,304,0x80915D16,Texas - Spread,OFF_SPREAD,True
+Offense,305,0x80915D19,Toledo - Spread,OFF_SPREAD,True
+Offense,306,0x80915D1A,Troy - Veer & Shoot,OFF_VEER_AND_SHOOT,True
+Offense,307,0x80915D1B,Tulane - Power Spread,OFF_POWER_SPREAD,True
+Offense,308,0x80915D1C,Tulsa - Spread,OFF_SPREAD,True
+Offense,309,0x80915D1D,UAB - Power Spread,OFF_POWER_SPREAD,True
+Offense,310,0x80915D1E,UCF - Spread,OFF_SPREAD,True
+Offense,311,0x80915D1F,UCLA - Spread,OFF_SPREAD,True
+Offense,312,0x80915D20,UConn - Spread,OFF_SPREAD,True
+Offense,313,0x80915CE2,ULM - Spread,OFF_SPREAD,True
+Offense,314,0x80915D21,UMass - Spread,OFF_SPREAD,True
+Offense,315,0x80915D22,UNLV - Spread,OFF_SPREAD,True
+Offense,316,0x80915D23,USC - Air Raid,OFF_AIR_RAID,True
+Offense,317,0x80915D0E,USF - Spread,OFF_SPREAD,True
+Offense,318,0x80915D24,Utah St - Power Spread,OFF_POWER_SPREAD,True
+Offense,319,0x80915D25,Utah - Spread,OFF_SPREAD,True
+Offense,320,0x80915D26,UTEP - Spread,OFF_SPREAD,True
+Offense,321,0x80915D27,UTSA - Spread,OFF_SPREAD,True
+Offense,322,0x80915D28,Vanderbilt - Pistol,OFF_PISTOL,True
+Offense,323,0x80915D2A,VT - Power Spread,OFF_POWER_SPREAD,True
+Offense,324,0x80915D29,Virginia - Power Spread,OFF_POWER_SPREAD,True
+Offense,325,0x80915D2B,Wake Forest - Spread,OFF_SPREAD,True
+Offense,326,0x80915D2D,WAZZU - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,327,0x80915D2C,Washington - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,328,0x80915D2E,WVU - Spread Option,OFF_SPREAD_OPTION,True
+Offense,329,0x80915D2F,W. Kentucky - Air Raid,OFF_AIR_RAID,True
+Offense,330,0x80915D30,W. Michigan - Spread,OFF_SPREAD,True
+Offense,331,0x80915D31,Wisconsin - Power Spread,OFF_POWER_SPREAD,True
+Offense,332,0x808F1F6A,FCS NW - Pro Style,OFF_PRO_STYLE,True
+Offense,332,0x80915D32,Wyoming - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,333,0x80915CDC,KENN - Veer & Shoot,OFF_VEER_AND_SHOOT,True
+Offense,334,0x80A8A196,Delaware - Spread,OFF_SPREAD,True
+Offense,335,0x80A8A19B,Missouri State - Spread,OFF_SPREAD,True
+Offense,386,0x80D7647A,NDSU - Multiple,OFF_MULTIPLE_OFFENSE,True
+Offense,387,0x80D76477,Sacramento State - Spread,OFF_SPREAD,True
+Offense,400,0x808EE5A4,Air Raid - Generic,OFF_AIR_RAID,True
+Offense,401,0x808EE5A5,Multiple Offense,OFF_MULTIPLE_OFFENSE,True
+Offense,402,0x808EE5A6,Option - Generic,OFF_OPTION,True
+Offense,403,0x808EE5A7,Pistol - Generic,OFF_PISTOL,True
+Offense,404,0x808EE5A8,Power Spread - Generic,OFF_POWER_SPREAD,True
+Offense,405,0x808EE5A9,Pro Style - Generic,OFF_PRO_STYLE,True
+Offense,406,0x808EE5AA,Run & Shoot - Generic,OFF_RUN_AND_SHOOT,True
+Offense,407,0x808EE5AC,Spread Option - Generic,OFF_SPREAD_OPTION,True
+Offense,408,0x808EE5AB,Spread - Generic,OFF_SPREAD,True
+Offense,409,0x808EE5AD,Veer & Shoot - Generic,OFF_VEER_AND_SHOOT,True
+Offense,410,0x80A55333,High School Team 1,OFF_MULTIPLE_OFFENSE,True
+Offense,420,0x80B6BCDC,Gadget Offense,OFF_SPREAD_OPTION,True
+Defense,412,0x80A55348,College Multiple Aggressive Defense,DEF_UNUSED,True
+Defense,413,0x80A55349,College Multiple Press Defense,DEF_UNUSED,True
+Defense,414,0x80A5534A,College Multiple Zone Defense,DEF_UNUSED,True
+Defense,415,0x80B67946,College Double Bracket Defense,DEF_UNUSED,True
+Defense,416,0x80CF2F96,College Multiple Nickel Defense,DEF_UNUSED,True
+Defense,418,0x80B6BCDD,College Stacked Box Defense,DEF_UNUSED,True
+Defense,419,0x80B6BCDE,College CB2 Defense,DEF_UNUSED,True
+Defense,500,0x80640C98,3-2-6 Defense,DEF_3_2_6,True
+Defense,500,0x808EE593,Test Defense 2,DEF_MULTIPLE_DEFENSE,True
+Defense,500,0x808EE594,Test Defense 1,DEF_MULTIPLE_DEFENSE,True
+Defense,501,0x80640C92,3-3-5 Defense,DEF_3_3_5,True
+Defense,502,0x80640C97,3-3-5 Tite Defense,DEF_3_3_5_TITE,True
+Defense,503,0x80640C93,Base 3-4 Defense,DEF_BASE3_4,True
+Defense,504,0x80640C96,3-4 Multiple Defense,DEF_3_4_MULTIPLE,True
+Defense,504,0x80640CA4,Multiple D,DEF_MULTIPLE_DEFENSE,True
+Defense,505,0x80640C91,Base 4-3 Defense,DEF_BASE4_3,True
+Defense,506,0x80640C95,4-3 Multiple,DEF_4_3_MULTIPLE,True
+Defense,507,0x80640C94,4-2-5 Defense,DEF_4_2_5,True
+Defense,508,0x80640C8C,Multiple Defense,DEF_MULTIPLE_DEFENSE,True
+Defense,508,0x80C4E14A,3-4 Zone Pressure,DEF_BASE3_4,True
+Defense,512,0x80C4E140,3-3-5 Man,DEF_3_3_5,True
+Defense,513,0x80C4E141,3-3-5 Man Pressure,DEF_3_3_5,True
+Defense,514,0x80C4E142,3-3-5 Shell,DEF_3_3_5,True
+Defense,515,0x80C4E143,3-3-5 Three High,DEF_3_3_5,True
+Defense,516,0x80C4E144,3-3-5 Zone,DEF_3_3_5,True
+Defense,517,0x80C4E145,3-3-5 Zone Pressure,DEF_3_3_5,True
+Defense,518,0x80C4E146,3-4 Man,DEF_BASE3_4,True
+Defense,519,0x80C4E147,3-4 Man Pressure,DEF_BASE3_4,True
+Defense,520,0x80C4E148,3-4 Shell,DEF_3_4_MULTIPLE,True
+Defense,521,0x80C4E149,3-4 Zone,DEF_BASE3_4,True
+Defense,523,0x80C4E14F,4-2-5 Man,DEF_4_2_5,True
+Defense,524,0x80C4E14B,4-2-5 Man Pressure,DEF_4_2_5,True
+Defense,525,0x80C4E14C,4-2-5 Shell,DEF_4_2_5,True
+Defense,526,0x80C4E14D,4-2-5 Zone,DEF_4_2_5,True
+Defense,527,0x80C4E14E,4-2-5 Zone Pressure,DEF_4_2_5,True
+Defense,528,0x80C4E150,4-3 Man,DEF_BASE4_3,True
+Defense,529,0x80C4E151,4-3 Man Pressure,DEF_BASE4_3,True
+Defense,530,0x80C4E152,4-3 Press Quarters,DEF_BASE4_3,True
+Defense,531,0x80C4E153,4-3 Shell,DEF_4_3_MULTIPLE,True
+Defense,532,0x80C4E156,4-3 Zone,DEF_BASE4_3,True
+Defense,533,0x80C4E157,4-3 Zone Pressure,DEF_BASE4_3,True

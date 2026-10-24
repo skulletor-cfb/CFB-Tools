@@ -1,4 +1,6 @@
-﻿namespace EA_DB_Editor
+﻿using NCAA14Utility;
+
+namespace EA_DB_Editor
 {
     public static class RecruitExtensions
     {
@@ -64,7 +66,7 @@
         /// <param name="mr"></param>
         public static void SetVisor(this MaddenRecord mr)
         {
-            if (TableUtility.Check(8))
+            if (CommonUtility.Check(8))
             {
                 mr.Update("PVIS", Visors.Choose());
             }
@@ -73,13 +75,13 @@
         public static void SetJerseySleeves(this MaddenRecord mr)
         {
             // tight is the usual pick
-            var jersey = TableUtility.Check(92) ? 0 : 1;
+            var jersey = CommonUtility.Check(92) ? 0 : 1;
             mr.Update("PJER", jersey);
         }
 
         public static void SetShoes(this MaddenRecord mr)
         {
-            var rand = TableUtility.Rand100();
+            var rand = CommonUtility.Rand100();
             var shoe = 3; // low cut shoe
 
             if (rand < 5)
@@ -97,12 +99,12 @@
 
         public static void SetFlakJacket(this MaddenRecord mr, int threshold)
         {
-            var value = TableUtility.Check(threshold) ? 1 : 0;
+            var value = CommonUtility.Check(threshold) ? 1 : 0;
             mr.Update("PFLK", value);
         }
         public static void SetBackPlate(this MaddenRecord mr, int threshold)
         {
-            var value = TableUtility.Check(threshold) ? 1 : 0;
+            var value = CommonUtility.Check(threshold) ? 1 : 0;
             mr.Update("PBAK", value);
         }
 

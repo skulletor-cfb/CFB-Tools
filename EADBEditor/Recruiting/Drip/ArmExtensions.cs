@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NCAA14Utility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -37,7 +38,7 @@ namespace EA_DB_Editor
         public static (ElbowGear lElbow, ElbowGear rElbow) ChooseElbowPads()
         {
             var elbowPad = new[] { ElbowGear.ElbowPadBlack, ElbowGear.ElbowPadBlackStripe, ElbowGear.ElbowPadWhite, ElbowGear.ElbowPadWhiteStripe, ElbowGear.ElbowPadTeamColor }.Choose();
-            return TableUtility.Check(
+            return CommonUtility.Check(
                 new[] { 34, 33, 33 },
                 (elbowPad, elbowPad), (elbowPad, ElbowGear.None), (ElbowGear.None, elbowPad)
                 );
@@ -142,7 +143,7 @@ namespace EA_DB_Editor
         /// <returns></returns>
         public static int PickColor(int white = 50, int black = 15, int color = 35)
         {
-            var result = TableUtility.Check(new[] { white, black, color }, ColorKind.White, ColorKind.Black, ColorKind.TeamColor);
+            var result = CommonUtility.Check(new[] { white, black, color }, ColorKind.White, ColorKind.Black, ColorKind.TeamColor);
             return (int)result;
         }
 

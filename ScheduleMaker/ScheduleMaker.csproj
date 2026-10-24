@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
+    <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FranchiseFile\FranchiseFile.csproj" />
+    <!-- stadium names (CFBStadium) -->
+    <ProjectReference Include="..\CFB27.Data.Model\CFB27.Data.Model.csproj" />
+    <ProjectReference Include="..\NCAA14Utility\NCAA14Utility.csproj" />
+  </ItemGroup>
+
+
+</Project>
