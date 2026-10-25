@@ -20,7 +20,7 @@ namespace StatusPage
             var save = FindSave(target);
             if (save == null)
             {
-                Console.Error.WriteLine($"No DYNASTY-* save found in {target ?? DefaultSavesFolder}.");
+                Console.Error.WriteLine($"No DYNASTY-* save found in {target ?? AppContext.BaseDirectory + " or " + DefaultSavesFolder}.");
                 return 1;
             }
 
@@ -41,7 +41,10 @@ namespace StatusPage
         private static string DefaultSavesFolder =>
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "EA SPORTS College Football 27", "saves");
 
-        /// <summary>The save file given, or the most recently written DYNASTY-* save in the folder given (default: the game's saves folder).</summary>
+        /// <summary>
+        /// The save file given, or the most recently written DYNASTY-* save in the folder given. With neither, the folder the
+        /// program sits in (published into the saves folder, as on a Mac reading the synced saves), then the game's saves folder.
+        /// </summary>
         private static string? FindSave(string? target)
         {
             if (target != null && File.Exists(target))
@@ -49,7 +52,12 @@ namespace StatusPage
                 return target;
             }
 
-            var folder = target ?? DefaultSavesFolder;
+            var folders = target != null ? new[] { target } : new[] { AppContext.BaseDirectory, DefaultSavesFolder };
+            return folders.Select(NewestSave).FirstOrDefault(save => save != null);
+        }
+
+        private static string? NewestSave(string folder)
+        {
             if (!Directory.Exists(folder))
             {
                 return null;
