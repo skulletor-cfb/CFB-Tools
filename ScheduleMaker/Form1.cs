@@ -103,7 +103,7 @@ namespace ScheduleMaker
             try
             {
                 Cursor = Cursors.WaitCursor;
-                LoadSchedule(FranchiseFile.Load(this.saveFile), this.saveFile);
+                LoadSchedule(this.dynasty, this.saveFile);
                 scheduleLoaded = true;
             }
             catch (Exception ex)
