@@ -581,6 +581,7 @@ namespace EA_DB_Editor
                 var game = new ScheduledGame
                 {
                     PostSeason = sg.SeasonWeekType == "RegularSeason" ? 0 : 1,
+                    IsPlayoffGame = sg.IsPlayoffGame(this.Bowls),
                     AwayScore = sg.AwayScore,
                     HomeScore = sg.HomeScore,
                     AwayTeamId = sg.RealAwayTeamId,
@@ -1096,19 +1097,86 @@ namespace EA_DB_Editor
             return awards;
         }
 
+        private const int RosterLimit = 85;
+
         public int CalculateRosterSpots(RecruitClassRanking ranking)
         {
-            throw new NotImplementedException();
+            return RosterLimit - this.Players.Records.Count(p => p.IsOnTeam && p.TeamId == ranking.TeamId);
         }
 
+        /// <summary>
+        /// This season's team totals: Team.TeamSeasonStats -> TeamStats[] -> TeamStats. Entry 0 is the season in progress
+        /// (its wins and losses track the team's record); entries 1-4 are earlier seasons, which only keep the record and
+        /// postseason counts.
+        /// </summary>
         public Dictionary<int, TeamStat> ReadTeamStats()
         {
-            return new Dictionary<int, TeamStat>();
+            var teamStats = new Dictionary<int, TeamStat>();
+
+            foreach (var team in this.Teams.Records.Where(t => !t.IsEmpty && t.TeamIndex != CFBPlayer.NoTeamIndex))
+            {
+                var seasons = dynasty.Follow(this.Teams.RawTable.Records[team.Row].GetReferenceDataByKey("TeamSeasonStats").Value);
+                var current = seasons?.FieldsArray[0].ReferenceData;
+                var row = current.HasValue ? dynasty.Follow(current.Value) : null;
+                if (row == null)
+                {
+                    continue;
+                }
+
+                int Stat(string field) => Convert.ToInt32(row[field]);
+                teamStats.Add(team.TeamId, new TeamStat
+                {
+                    TeamId = team.TeamId,
+                    TwoPointConversionAttempts = Stat("TWOPOINTCONVATTEMPTS"),
+                    TwoPointConversions = Stat("TWOPOINTCONVMADE"),
+                    Turnovers = Stat("GIVEAWAYS"),
+                    PassAttempts = Stat("PASSATTEMPTS"),
+                    PassCompletions = Stat("PASSCOMPLETIONS"),
+                    RushAttempts = Stat("RUSHATTEMPTS"),
+                    Tssa = Stat("SACKSALLOWED"),
+                    Tsta = Stat("TAKEAWAYS"),
+                    ThirdDownConversions = Stat("THIRDDOWNCONV"),
+                    FourthDownConversions = Stat("FOURTHDOWNCONV"),
+                    FirstDowns = Stat("FIRSTDOWNS"),
+                    ThirdDownAttempts = Stat("THIRDDOWNS"),
+                    FourthDownAttempts = Stat("FOURTHDOWNS"),
+                    Penalties = Stat("PENALTIES"),
+                    PenaltyYards = Stat("PENALTYYARDS"),
+                    RedZoneVisits = Stat("OFFREDZONES"),
+                    RedZoneTD = Stat("OFFREDZONETDS"),
+                    RedZoneFG = Stat("OFFREDZONEFGS"),
+                    OpponentsInRedZone = Stat("DEFREDZONES"),
+                    RedZoneTDAllowed = Stat("DEFREDZONETDS"),
+                    RedZoneFGAllowed = Stat("DEFREDZONEFGS"),
+                    IntThrown = Stat("PASSINTS"),
+                    FumblesLost = Stat("FUMBLESLOST"),
+                    InterceptionsByDefense = Stat("DEFINTS"),
+                    FumblesRecovered = Stat("FUMBLEREC"),
+                    Sacks = Stat("SACKS"),
+                    PassYards = Stat("OFFPASSYARDS"),
+                    PassTD = Stat("PASSTDS"),
+                    RushYards = Stat("OFFRUSHYARDS"),
+                    RushTD = Stat("RUSHTDS"),
+                    OffensiveYards = Stat("OFFYARDS"),
+                    TotalYards = Stat("TOTALYARDS"),
+                    PassYardsAllowed = Stat("DEFPASSYARDS"),
+                    RushingYardsAllowed = Stat("DEFRUSHYARDS"),
+                    KRYards = Stat("KICKRETURNYARDS"),
+                    PRYards = Stat("PUNTRETURNYARDS"),
+                    // SPECIALTEAMYARDS is almost never filled in; TOTALYARDS is offense plus kick and punt returns
+                    SpecialTeamYards = Stat("KICKRETURNYARDS") + Stat("PUNTRETURNYARDS"),
+                    Punts = Stat("PUNTS"),
+                    PuntYards = Stat("PUNTYARDS"),
+                    TimeOfPossesion = Stat("POSSESSIONTIME"),
+                });
+            }
+
+            return teamStats;
         }
 
         public void CommitTeamRecords()
         {
-            throw new NotImplementedException();
+            // todo
         }
 
         /// <summary>

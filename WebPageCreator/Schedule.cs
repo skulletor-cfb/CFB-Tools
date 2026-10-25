@@ -955,6 +955,10 @@ namespace EA_DB_Editor
         [DataMember(EmitDefaultValue = false)]
         public bool IsClassicGame { get; set; }
 
+        /// <summary>a CFP game (first round through the title game); set by the CFB27 engine, NCAA 14 leaves it false</summary>
+        [DataMember(EmitDefaultValue = false)]
+        public bool IsPlayoffGame { get; set; }
+
         [DataMember]
         public int AwayScore { get; set; }
         [DataMember]
@@ -1104,12 +1108,6 @@ namespace EA_DB_Editor
             return sb.ToString();
             File.AppendAllText(file, sb.ToString());
             //File.WriteAllText(@".\archive\reports\box" + this.Key + ".csv", sb.ToString());
-        }
-
-        public bool IsPlayoffGame(int highestRank)
-        {
-            return false;
-            return this.HomeTeam.BCSPrevious <= highestRank && this.AwayTeam.BCSPrevious <= highestRank && this.HomeTeam.BCSPrevious >= 1 && this.AwayTeam.BCSPrevious >= 1;
         }
     }
 

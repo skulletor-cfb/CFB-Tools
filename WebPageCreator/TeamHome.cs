@@ -594,7 +594,20 @@ namespace EA_DB_Editor
         public string Mascot { get; set; }
         [DataMember]
         public int ConferenceId { get; set; }
-        public Conference Conference { get { return Conference.Conferences[this.ConferenceId]; } }
+        public Conference Conference
+        {
+            get
+            {
+                // fcs teams don't need a conference
+                if (this.ConferenceId == 17)
+                {
+                    return new Conference { LeagueId = 1 };
+                }
+
+                return Conference.Conferences[this.ConferenceId];
+            }
+        }
+
         [DataMember]
         public int DivisionId { get; set; }
         public Division Division { get { return this.Conference.FindDivision(this.DivisionId); } }

@@ -84,6 +84,12 @@ namespace CFB27.Data.Model
         [JsonIgnore]
         public int BowlId => this.BowlGame.ToRowId();
 
+        /// <summary>
+        /// One of the 11 CFP games. SeasonGame has no playoff flag (BowlSeason1/2 weeks mix bowls and playoff games), so
+        /// it's the BowlGame row's IsPlayoffBowl.
+        /// </summary>
+        public bool IsPlayoffGame(CFBTable<CFBBowl> bowls) => this.IsBowlGame && bowls.Records[this.BowlId].IsPlayoffBowl;
+
         [JsonIgnore]
         public int HomeTeamId => this.HomeTeam.ToRowId();
 

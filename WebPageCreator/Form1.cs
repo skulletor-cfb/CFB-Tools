@@ -432,12 +432,13 @@ namespace EA_DB_Editor
             return false;
         }
 
-        const string DynastyFilePrefix = "DYNASTY-Y";
+        const string DynastyFilePrefix = "EndOfY";
 
         public void OpenDynastyFile(string file)
         {
             // file names should be DYNASTY-YXXX where XXX is a year.  2026 = 26, 2577 = 577
-            var year = file.Substring(file.IndexOf(DynastyFilePrefix) + DynastyFilePrefix.Length).ToInt32();
+            var directoryName = Directory.GetParent(file).FullName;
+            var year = directoryName.Substring(directoryName.IndexOf(DynastyFilePrefix) + DynastyFilePrefix.Length).ToInt32();
             if (year >= CFB27StartingYear)
             {
                 this.SetBowlIdOverrides(dict => dict[15] = new Tuple<int, int>(7015, 194));

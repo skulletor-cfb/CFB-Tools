@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>College Football Status</title>
+<style>
+  :root{
+    /* the user's team colors replace these (see applyTheme) */
+    --accent:#0d7f41;
+    --on-accent:#ffffff;
+    --accent-ink:#0a6535;
+    --secondary:#0d7f41;
+    --bar-dark:#1a1a1a;
+    --bar-dark2:#242424;
+    --stripe:#f2f2f2;
+    --border:#e0e0e0;
+    --text:#1a1a1a;
+    --text-muted:#666;
+    --bg:#ffffff;
+    --page-bg:#f5f5f5;
+    --hover:#e8f3ec;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--page-bg);
+    color:var(--text);
+    font-family:Helvetica,Arial,sans-serif;
+    font-size:14px;
+    line-height:1.4;
+  }
+  .topbar{
+    background:var(--bar-dark);
+    color:#fff;
+    padding:14px 20px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    border-bottom:4px solid var(--secondary);
+  }
+  .topbar .logo{font-weight:800;font-size:20px;letter-spacing:.3px;display:flex;align-items:center;gap:8px;}
+  .topbar .season{
+    margin-left:auto;
+    background:var(--accent);
+    color:var(--on-accent);
+    font-weight:700;
+    font-size:12px;
+    padding:4px 10px;
+    border-radius:12px;
+    letter-spacing:.5px;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:20px 16px 60px;}
+  h1{font-size:22px;margin:4px 0 8px;}
+  .intro{color:var(--text-muted);font-size:13px;margin-bottom:18px;}
+  .controls{
+    background:var(--bg);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:14px;
+    margin-bottom:18px;
+  }
+  .label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted);margin:0 0 6px;}
+  .pillrow{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+  .pillrow:last-child{margin-bottom:0;}
+  .pill{
+    border:1px solid var(--border);
+    background:#fafafa;
+    color:var(--text);
+    font:inherit;
+    font-size:12px;
+    font-weight:600;
+    padding:6px 11px;
+    border-radius:14px;
+    cursor:pointer;
+  }
+  .pill:hover{background:#eee;}
+  .pill.active{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+  .pill.latest:not(.active){border-color:var(--accent-ink);color:var(--accent-ink);}
+
+  .schedule-title{
+    background:var(--bar-dark2);
+    color:#fff;
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:.4px;
+    padding:10px 14px;
+    margin-top:22px;
+    border-radius:4px 4px 0 0;
+    text-transform:uppercase;
+  }
+  .day-block{border:1px solid var(--border);border-top:none;background:var(--bg);}
+  .day-header{background:var(--accent);color:var(--on-accent);font-weight:700;font-size:13px;padding:8px 14px;}
+  table.games{width:100%;border-collapse:collapse;}
+  table.games th{
+    background:#e9e9e9;
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+    color:var(--text-muted);
+    padding:7px 14px;
+    font-weight:700;
+  }
+  table.games td{padding:9px 14px;border-top:1px solid var(--border);vertical-align:middle;font-size:13px;}
+  table.games th.time, table.games td.time{width:96px;}
+  table.games th.score, table.games td.score{width:132px;text-align:right;}
+  table.games tr.odd td{background:var(--stripe);}
+  table.games tr:hover td{background:var(--hover);}
+  .rank{color:var(--text-muted);font-size:11px;font-weight:700;margin-right:2px;}
+  .rec{color:var(--text-muted);font-size:12px;font-weight:400;margin-left:4px;}
+  .at{color:var(--text-muted);font-size:11px;margin:0 6px;text-transform:uppercase;}
+  .team.home{font-weight:700;}
+  .team.winner{color:var(--accent-ink);}
+  .team.loser{color:var(--text-muted);}
+  .note{display:block;color:var(--text-muted);font-size:11px;margin-top:2px;}
+  .note .bowl{color:var(--accent-ink);font-weight:700;}
+  .note.rivalry{color:var(--accent-ink);font-style:italic;font-weight:700;}
+  .time{white-space:nowrap;color:var(--text-muted);font-weight:600;}
+  .final{font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  .final .tag{color:var(--text-muted);font-size:11px;font-weight:700;margin-left:6px;}
+  .upcoming{color:var(--text-muted);}
+  .reveal{
+    padding:5px 10px;
+    border:1px solid var(--accent-ink);
+    background:#fff;
+    color:var(--accent-ink);
+    border-radius:4px;
+    font:inherit;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .reveal:hover{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+  .empty{
+    padding:30px;
+    text-align:center;
+    color:var(--text-muted);
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:4px;
+    margin-top:22px;
+  }
+  footer{text-align:center;color:var(--text-muted);font-size:11px;margin-top:30px;}
+  @media (max-width:560px){
+    table.games th, table.games td{padding:8px 10px;}
+    table.games th.time, table.games td.time{width:72px;}
+    table.games th.score, table.games td.score{width:auto;}
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo"><span aria-hidden="true">🏈</span> College Football Status</div>
+  <div class="season" id="season"></div>
+</div>
+<div class="wrap">
+  <h1 id="heading">Games by conference</h1>
+  <div class="intro" id="intro"></div>
+  <div class="controls">
+    <div class="label">Week</div>
+    <div class="pillrow" id="weeks"></div>
+    <div class="label">Conference</div>
+    <div class="pillrow" id="conferences"></div>
+  </div>
+  <div id="schedule"></div>
+  <footer id="footer"></footer>
+</div>
+<script>
+const DATA = /*PAGE_DATA*/null;
+const ALL = "All";
+const storeKey = "cfb27-status:" + DATA.save;
+
+// revealed scores stay revealed across conference/week switches (and reloads of the same save)
+const revealed = new Set(load("revealed", []));
+const state = {
+  week: DATA.latestWeek >= 0 ? DATA.latestWeek : (DATA.weeks[0] ? DATA.weeks[0].week : 0),
+  conference: load("conference", ALL),
+};
+if (state.conference !== ALL && !DATA.conferences.includes(state.conference)) state.conference = ALL;
+
+function load(key, fallback) {
+  try { const v = localStorage.getItem(storeKey + ":" + key); return v === null ? fallback : JSON.parse(v); }
+  catch (e) { return fallback; }
+}
+function save(key, value) {
+  try { localStorage.setItem(storeKey + ":" + key, JSON.stringify(value)); } catch (e) {}
+}
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+function weekLabel(week) {
+  const w = DATA.weeks.find(x => x.week === week);
+  return w ? w.label : "Week " + week;
+}
+
+function isHidden(game) {
+  return game.played && game.week === DATA.latestWeek && !revealed.has(game.id);
+}
+
+// each team's games in date order (DATA.games is sorted), for records
+const gamesByTeam = new Map();
+for (const g of DATA.games) {
+  for (const t of [g.away, g.home]) {
+    if (!gamesByTeam.has(t.row)) gamesByTeam.set(t.row, []);
+    gamesByTeam.get(t.row).push(g);
+  }
+}
+
+// the team's record through this game: its earlier results, plus this one once the score is showing; a hidden score
+// counts nowhere, so later weeks can't give it away
+function record(team, game) {
+  let wins = 0, losses = 0;
+  for (const g of gamesByTeam.get(team.row)) {
+    if (g.played && !isHidden(g)) {
+      const homeWon = g.homeScore > g.awayScore;
+      if ((g.home.row === team.row) === homeWon) wins++; else losses++;
+    }
+    if (g === game) break;
+  }
+  return wins + "-" + losses;
+}
+
+function renderPills() {
+  const weeks = document.getElementById("weeks");
+  weeks.replaceChildren(...DATA.weeks.map(w => {
+    const b = el("button", "pill" + (w.week === state.week ? " active" : "") + (w.week === DATA.latestWeek ? " latest" : ""), w.label);
+    b.type = "button";
+    if (w.week === DATA.latestWeek) b.title = "Latest simulated week";
+    b.onclick = () => { state.week = w.week; render(); };
+    return b;
+  }));
+
+  const confs = document.getElementById("conferences");
+  confs.replaceChildren(...[ALL, ...DATA.conferences].map(c => {
+    const b = el("button", "pill" + (c === state.conference ? " active" : ""), c);
+    b.type = "button";
+    b.onclick = () => { state.conference = c; save("conference", c); render(); };
+    return b;
+  }));
+}
+
+function teamSpan(team, side, game) {
+  const span = el("span", "team " + side);
+  if (team.rank) span.append(el("span", "rank", "#" + team.rank));
+  span.append(document.createTextNode(team.name));
+  if (!team.fcs) span.append(el("span", "rec", "(" + record(team, game) + ")"));
+  span.dataset.side = side;
+  return span;
+}
+
+function fillResult(row, game) {
+  const cell = row.querySelector("td.score");
+  const away = row.querySelector(".team.away"), home = row.querySelector(".team.home");
+  away.classList.remove("winner", "loser");
+  home.classList.remove("winner", "loser");
+  cell.replaceChildren();
+
+  if (!game.played) {
+    cell.append(el("span", "upcoming", "—"));
+    return;
+  }
+  if (isHidden(game)) {
+    const b = el("button", "reveal", "Show score");
+    b.type = "button";
+    b.onclick = () => {
+      revealed.add(game.id);
+      save("revealed", [...revealed]);
+      // redraw: the result moves both teams' records here and in their later games
+      render();
+    };
+    cell.append(b);
+    return;
+  }
+
+  const awayWon = game.awayScore > game.homeScore;
+  (awayWon ? away : home).classList.add("winner");
+  (awayWon ? home : away).classList.add("loser");
+  const final = el("span", "final", game.awayScore + " – " + game.homeScore);
+  final.append(el("span", "tag", game.overtime ? "F/OT" : "F"));
+  cell.append(final);
+}
+
+function gameRow(game, odd) {
+  const tr = el("tr", odd ? "odd" : "");
+  tr.dataset.game = game.id;
+
+  const matchup = el("td", "matchup");
+  matchup.append(teamSpan(game.away, "away", game), el("span", "at", game.neutral ? "vs" : "at"), teamSpan(game.home, "home", game));
+  if (game.bowl || game.site) {
+    const note = el("span", "note");
+    if (game.bowl) note.append(el("span", "bowl", game.bowl));
+    if (game.bowl && game.site) note.append(document.createTextNode(" · "));
+    if (game.site) note.append(document.createTextNode(game.site));
+    matchup.append(note);
+  }
+  if (game.rivalry) matchup.append(el("span", "note rivalry", game.rivalry));
+
+  tr.append(matchup, el("td", "time", game.time), el("td", "score"));
+  fillResult(tr, game);
+  return tr;
+}
+
+function conferenceSection(title, games) {
+  const frag = document.createDocumentFragment();
+  frag.append(el("div", "schedule-title", title + " — " + weekLabel(state.week)));
+
+  const byDate = new Map();
+  for (const g of games) {
+    if (!byDate.has(g.date)) byDate.set(g.date, []);
+    byDate.get(g.date).push(g);
+  }
+  for (const [date, dayGames] of byDate) {
+    const block = el("div", "day-block");
+    block.append(el("div", "day-header", date));
+    const table = el("table", "games");
+    const head = el("tr");
+    head.append(el("th", "", "Matchup"), el("th", "time", "Time (ET)"), el("th", "score", "Score"));
+    const thead = el("thead"); thead.append(head);
+    const tbody = el("tbody");
+    dayGames.forEach((g, i) => tbody.append(gameRow(g, i % 2 === 1)));
+    table.append(thead, tbody);
+    block.append(table);
+    frag.append(block);
+  }
+  return frag;
+}
+
+function render() {
+  renderPills();
+  const week = DATA.games.filter(g => g.week === state.week);
+  const schedule = document.getElementById("schedule");
+  schedule.replaceChildren();
+
+  // All: the week's games once each, by date; a conference: only the games its teams play
+  const games = state.conference === ALL ? week : week.filter(g => g.conferences.includes(state.conference));
+  if (games.length) {
+    schedule.append(conferenceSection(state.conference === ALL ? "All games" : state.conference, games));
+  } else {
+    schedule.append(el("div", "empty", "No " + (state.conference === ALL ? "" : state.conference + " ") + "games in " + weekLabel(state.week) + "."));
+  }
+}
+
+function applyTheme(theme) {
+  if (!theme) return;
+  const root = document.documentElement.style;
+  root.setProperty("--accent", theme.accent);
+  root.setProperty("--on-accent", theme.onAccent);
+  root.setProperty("--accent-ink", theme.accentInk);
+  root.setProperty("--hover", theme.hover);
+  root.setProperty("--secondary", theme.secondary);
+}
+
+applyTheme(DATA.theme);
+document.getElementById("season").textContent = (DATA.theme ? DATA.theme.team + " · " : "") + DATA.season + " SEASON";
+document.getElementById("intro").textContent = DATA.latestWeek >= 0
+  ? weekLabel(DATA.latestWeek) + " has been simulated; its scores stay hidden until you press Show score."
+  : "No games have been played yet.";
+document.getElementById("footer").textContent = "From " + DATA.save + ". Times are Eastern. Rankings are the current AP poll.";
+render();
+</script>
+</body>
+</html>
