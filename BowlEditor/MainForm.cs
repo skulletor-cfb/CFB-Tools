@@ -234,14 +234,14 @@ namespace BowlEditor
             SetupGrid(grid);
             grid.EditMode = DataGridViewEditMode.EditOnEnter;
 
-            grid.Columns.Add(TextColumn("Week", 50));
-            grid.Columns.Add(TextColumn("Date", 80));
-            grid.Columns.Add(TextColumn("Game", 190));
-            grid.Columns.Add(TextColumn("Seeds", 80));
             awayColumn = TeamColumn("Away");
             homeColumn = TeamColumn("Home");
-            grid.Columns.Add(awayColumn);
+            grid.Columns.Add(TextColumn("Game", 190));
             grid.Columns.Add(homeColumn);
+            grid.Columns.Add(awayColumn);
+            grid.Columns.Add(TextColumn("Week", 50));
+            grid.Columns.Add(TextColumn("Date", 80));
+            grid.Columns.Add(TextColumn("Seeds", 80));
 
             // commit a team pick right away, so the row colors and status update as you choose
             grid.CurrentCellDirtyStateChanged += (s, e) =>
@@ -305,13 +305,13 @@ namespace BowlEditor
                     return;
                 }
 
-                awayColumn.DataSource = matchups.Teams;
-                homeColumn.DataSource = matchups.Teams;
+                awayColumn.DataSource = matchups.BowlTeams;
+                homeColumn.DataSource = matchups.BowlTeams;
                 bool readOnly = matchups.NotEditableReason != null;
 
                 foreach (var game in matchups.Games)
                 {
-                    int index = grid.Rows.Add($"{game.Week}", game.Date, game.Bowl, game.Seeds, (object?)game.Away ?? DBNull.Value, (object?)game.Home ?? DBNull.Value);
+                    int index = grid.Rows.Add(game.Bowl, (object?)game.Home ?? DBNull.Value, (object?)game.Away ?? DBNull.Value, $"{game.Week}", game.Date, game.Seeds);
                     var row = grid.Rows[index];
                     row.Tag = game;
                     row.ReadOnly = readOnly;

@@ -41,6 +41,13 @@ namespace ScheduleMaker
         /// <summary>NCAA 14 coach specialty (CSPC: 0 none, 1 offense, 2 defense) → CoachSpecialtyType.</summary>
         private static readonly string[] Specialties = { "Any", "Offense", "Defense" };
 
+        /// <summary>The position groups (COACH_SPECIALTY) on each side of the ball.</summary>
+        private static readonly Dictionary<string, string[]> PositionGroups = new Dictionary<string, string[]>
+        {
+            ["Offense"] = new[] { "Quarterbacks", "RunningBacks", "Receivers", "OffensiveLine" },
+            ["Defense"] = new[] { "DefensiveLine", "Linebackers", "Secondary" },
+        };
+
         /// <summary>
         /// NCAA 14 coach prestige (PHPV, 0-11: its twelve grades A+ down to D-, which track coach rating almost exactly) → the
         /// same CFB 27 letter grade. CFB 27 also has an F, which no ported coach gets.
@@ -321,6 +328,7 @@ namespace ScheduleMaker
                 if (specialty >= 0 && specialty < Specialties.Length)
                 {
                     r["SpecialtyType"] = Specialties[specialty];
+                    MatchPositionGroup(r);
                 }
 
                 if (AlmaMater(c.Int("CHFT")) is int almaMater)
@@ -449,6 +457,19 @@ namespace ScheduleMaker
             if (changed)
             {
                 playbooksChanged++;
+            }
+        }
+
+        /// <summary>
+        /// Keeps the coach's position group (COACH_SPECIALTY) on his SpecialtyType's side of the ball. NCAA 14 has no
+        /// position group to port and CFB 27 pairs the two loosely, so a group from the other side is replaced with a
+        /// random one from his (each run picks anew). An Any specialty keeps its group.
+        /// </summary>
+        internal static void MatchPositionGroup(FranchiseFileRecord coach)
+        {
+            if (PositionGroups.TryGetValue(coach["SpecialtyType"] as string ?? string.Empty, out var groups) && !groups.Contains(coach["COACH_SPECIALTY"] as string))
+            {
+                coach["COACH_SPECIALTY"] = groups.Choose();
             }
         }
 

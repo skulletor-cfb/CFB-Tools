@@ -43,6 +43,37 @@ namespace BowlEditor
             "AwayScoreQuarter1", "AwayScoreQuarter2", "AwayScoreQuarter3", "AwayScoreQuarter4",
         };
 
+        /// <summary>
+        /// The grid's order: the CFP first round by seeds, the New Year's Six (the quarterfinal hosts), then the bowls.
+        /// Names are matched ignoring case and punctuation (the save spells it "Hawaii Bowl"); any bowl not listed goes
+        /// after these, by date.
+        /// </summary>
+        private static readonly string[] DisplayOrder =
+        {
+            "CFP 5 v 12", "CFP 6 v 11", "CFP 7 v 10", "CFP 8 v 9",
+            "Rose Bowl", "Sugar Bowl", "Orange Bowl", "Cotton Bowl", "Peach Bowl", "Fiesta Bowl",
+            "Citrus Bowl", "Alamo Bowl", "Reliaquest Bowl", "Pop-Tarts Bowl", "Las Vegas Bowl", "Gator Bowl",
+            "Duke's Mayo Bowl", "Music City Bowl", "Texas Bowl", "Liberty Bowl", "Holiday Bowl", "Sun Bowl", "Rate Bowl",
+            "Military Bowl", "Birmingham Bowl", "Independence Bowl", "Gasparilla Bowl", "First Responder Bowl",
+            "Fenway Bowl", "Hawai'i Bowl", "Armed Forces Bowl", "New Orleans Bowl", "Boca Raton Bowl", "New Mexico Bowl",
+            "Famous Idaho Potato Bowl", "Cure Bowl", "Myrtle Beach Bowl", "Arizona Bowl", "68 Ventures Bowl",
+            "Salute to Veterans Bowl", "Xbox Bowl", "Frisco Bowl",
+        };
+
+        /// <summary>
+        /// A CFP quarterfinal row is a bracket slot ("CFP Quarterfinal"); the New Year's Six bowl hosting it is only known
+        /// from the game's stadium.
+        /// </summary>
+        private static readonly Dictionary<uint, string> NewYearsSixBowls = new Dictionary<uint, string>
+        {
+            { 0x806385CF, "Sugar Bowl" },
+            { 0x80654CDE, "Rose Bowl" },
+            { 0x80638637, "Peach Bowl" },
+            { 0x80638607, "Orange Bowl" },
+            { 0x80639DE7, "Fiesta Bowl" },
+            { 0x806385D0, "Cotton Bowl" },
+        };
+
         private static readonly string[] MonthNames =
             { "", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
@@ -53,6 +84,9 @@ namespace BowlEditor
 
         /// <summary>FBS teams, by name.</summary>
         public List<TeamChoice> Teams { get; } = new List<TeamChoice>();
+
+        /// <summary>The teams a bowl can take: the FBS teams not in a CFP game (those come from the poll).</summary>
+        public List<TeamChoice> BowlTeams { get; } = new List<TeamChoice>();
 
         /// <summary>Why nothing can be edited (bowl week already under way, or no bowls yet); null when the games are editable.</summary>
         public string? NotEditableReason { get; }
@@ -140,7 +174,8 @@ namespace BowlEditor
                     Week = Convert.ToInt32(game["SeasonWeek"]),
                     Date = $"{game["DayOfWeek"]?.ToString()?.Substring(0, 3)} {(month >= 1 && month <= 12 ? MonthNames[month] : "?")} {game["GameDateDay"]}",
                     SortKey = ((month < 7 ? month + 12 : month) * 100 + Convert.ToInt32(game["GameDateDay"])) * 10000 + Convert.ToInt32(game["TimeOfDay"]),
-                    Bowl = bowl["Name"] as string ?? string.Empty,
+                    Bowl = BowlName(game, bowl, quarterfinal),
+                    OrderName = OrderName(game, bowl, playoff, quarterfinal),
                     PlayoffSlot = slot,
                     Seeds = playoff ? Seeds(bowl, quarterfinal) : string.Empty,
                     WasSimulated = Played(game),
@@ -155,11 +190,41 @@ namespace BowlEditor
                 });
             }
 
-            Games.Sort((a, b) => a.Week != b.Week ? a.Week.CompareTo(b.Week)
-                : a.IsPlayoff != b.IsPlayoff ? a.IsPlayoff.CompareTo(b.IsPlayoff)
-                : a.IsPlayoff ? a.PlayoffSlot.CompareTo(b.PlayoffSlot)
+            var playoffTeams = Games.Where(g => g.IsPlayoff).SelectMany(g => new[] { g.Home, g.Away }).Where(r => r != null).ToHashSet();
+            BowlTeams.AddRange(Teams.Where(t => !playoffTeams.Contains(t.Row)));
+
+            var order = DisplayOrder.Select((name, i) => (Key: Normalize(name), Index: i)).ToDictionary(x => x.Key, x => x.Index);
+            int Position(BowlSlot game) => order.TryGetValue(Normalize(game.OrderName), out var i) ? i : DisplayOrder.Length;
+            Games.Sort((a, b) => Position(a) != Position(b) ? Position(a).CompareTo(Position(b))
+                : a.Week != b.Week ? a.Week.CompareTo(b.Week)
                 : a.SortKey.CompareTo(b.SortKey));
         }
+
+        /// <summary>The grid's name for a game: a quarterfinal also names the bowl hosting it.</summary>
+        private static string BowlName(FranchiseFileRecord game, FranchiseFileRecord bowl, bool quarterfinal)
+        {
+            var name = bowl["Name"] as string ?? string.Empty;
+            return quarterfinal && HostBowl(game) is string host ? $"{host} ({name})" : name;
+        }
+
+        /// <summary>The game's name in <see cref="DisplayOrder"/>: "CFP 5 v 12" for a first-round game, the host for a quarterfinal.</summary>
+        private static string OrderName(FranchiseFileRecord game, FranchiseFileRecord bowl, bool playoff, bool quarterfinal)
+        {
+            if (playoff && !quarterfinal)
+            {
+                return $"CFP {Convert.ToInt32(bowl["Conference1Rank"]) + 1} v {Convert.ToInt32(bowl["Conference2Rank"]) + 1}";
+            }
+
+            return quarterfinal ? HostBowl(game) ?? string.Empty : bowl["Name"] as string ?? string.Empty;
+        }
+
+        private static string? HostBowl(FranchiseFileRecord game)
+        {
+            var stadium = game["Stadium"] as string ?? NoRef;
+            return stadium != NoRef && NewYearsSixBowls.TryGetValue(Convert.ToUInt32(stadium, 2), out var host) ? host : null;
+        }
+
+        private static string Normalize(string name) => new string(name.Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
 
         public string TeamName(int? row) => row == null ? string.Empty : teams.Records[row.Value]["DisplayName"] as string ?? "?";
 
@@ -318,6 +383,8 @@ namespace BowlEditor
         public string Date { get; init; } = string.Empty;
         public int SortKey { get; init; }
         public string Bowl { get; init; } = string.Empty;
+        /// <summary>the name the grid is ordered by (see BowlMatchups.DisplayOrder)</summary>
+        public string OrderName { get; init; } = string.Empty;
         /// <summary>PlayoffBracketSlot, -1 for a bowl</summary>
         public int PlayoffSlot { get; init; }
         public bool IsPlayoff => PlayoffSlot >= 0;
