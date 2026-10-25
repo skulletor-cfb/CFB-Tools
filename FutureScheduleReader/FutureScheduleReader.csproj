@@ -85,6 +85,13 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <PropertyGroup>
+    <!-- the player-and-calendar art on black; also the window icon (Form1) -->
+    <ApplicationIcon>schedule.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="schedule.ico" />
+  </ItemGroup>
   <ItemGroup>
     <COMReference Include="Microsoft.Office.Core">
       <Guid>{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}</Guid>

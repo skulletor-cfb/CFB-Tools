@@ -34,6 +34,8 @@ namespace BowlEditor
         {
             Text = "CFB 27 Bowl Editor";
             ClientSize = new Size(1000, 760);
+            // the exe's icon (ApplicationIcon) for the title bar too
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
 
             BuildGrid();
             BuildPollGrid();

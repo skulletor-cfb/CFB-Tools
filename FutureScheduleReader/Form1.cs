@@ -23,6 +23,8 @@ namespace FutureScheduleReader
         {
             this.excelSheet = ConfigurationManager.AppSettings["worksheet"];
             InitializeComponent();
+            // the exe's icon (ApplicationIcon) for the title bar too
+            this.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             excelApp = new ExcelApp.Application();
             this.FormClosing += Form1_FormClosing;
             this.ReadExcel();

@@ -8,6 +8,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
     <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
+    <!-- the CFB Dynasty badge; also the window icon (Form1) -->
+    <ApplicationIcon>dynasty.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

@@ -42,6 +42,8 @@ namespace ScheduleMaker
             InitializeComponent();
             Text = "CFB 27 Schedule Maker";
             ClientSize = new Size(1200, 800);
+            // the exe's icon (ApplicationIcon) for the title bar too
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
 
             BuildGrid();
             BuildMenu();
