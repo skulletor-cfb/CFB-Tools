@@ -48,8 +48,13 @@ namespace ScheduleMaker
                 }
             }
 
-            AddRows(fbs.Where(t => t.Wins >= 6));
-            AddRows(fbs.Where(t => t.Wins == 5));
+            var bowlEligbleTeams = fbs.Where(t => t.Wins >= 6).ToList();
+
+            if (bowlEligbleTeams.Count < 76)
+            {
+                bowlEligbleTeams.AddRange(fbs.Where(t => t.Wins == 5));
+            }
+            AddRows(bowlEligbleTeams);
 
             File.WriteAllText(path, csv.ToString());
             return fbs.Count;

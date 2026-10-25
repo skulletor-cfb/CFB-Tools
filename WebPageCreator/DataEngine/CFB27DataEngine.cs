@@ -356,7 +356,7 @@ namespace EA_DB_Editor
                     // CFB27 keeps the hometown as text, not an NCAA 14 cities.csv id (City); the roster csv is unquoted, so no commas
                     HomeTown = record.HomeTown?.Replace(",", string.Empty),
                     HomeState = record.HomeStateAbbreviation,
-                    // TODO: GamesPlayed comes from the player's stats, see ReadStats
+                    // GamesPlayed comes from the player's season stats, see ReadStats
                 };
 
                 Players[player.Id] = player;
@@ -371,10 +371,186 @@ namespace EA_DB_Editor
             }
         }
 
+        #region Player stats
+        /// <summary>A PlayerStats key and the season stat field(s) that make it (added up when there are several).</summary>
+        private static (string Key, string[] Fields) Stat(string key, params string[] fields) => (key, fields);
+
+        /// <summary>NCAA 14 PSOF</summary>
+        private static readonly (string Key, string[] Fields)[] OffensiveStats =
+        {
+            Stat(PlayerStats.LongestPass, "PASSLONGEST"),
+            Stat(PlayerStats.LongestRush, "RUSHLONGEST"),
+            Stat(PlayerStats.LongestReception, "RECEIVELONGEST"),
+            Stat(PlayerStats.Receptions, "RECEIVECATCHES"),
+            Stat(PlayerStats.SacksTaken, "PASSSACKED"),
+            // CFB27 keeps yards signed, so NCAA 14's yard transforms aren't needed
+            Stat(PlayerStats.PassingYards, "PASSYARDS"),
+            Stat(PlayerStats.RushingYards, "RUSHYARDS"),
+            Stat(PlayerStats.ReceivingYards, "RECEIVEYARDS"),
+            Stat(PlayerStats.ReceivingYAC, "RECEIVEYARDSAFTER"),
+            Stat(PlayerStats.PassingTD, "PASSTDS"),
+            Stat(PlayerStats.ReceivingTD, "RECEIVETDS"),
+            Stat(PlayerStats.RushingTD, "RUSHTDS"),
+            Stat(PlayerStats.RushingYdsAfterContact, "RUSHYARDSAFTER1STHIT"),
+            Stat(PlayerStats.Completions, "PASSCOMPLETED"),
+            Stat(PlayerStats.IntThrown, "PASSINTS"),
+            Stat(PlayerStats.OffGamesPlayed, "GAMESPLAYED"),
+            Stat(PlayerStats.PassAttempts, "PASSATTEMPTS"),
+            Stat(PlayerStats.RushAttempts, "RUSHATTEMPTS"),
+            Stat(PlayerStats.BrokenTackles, "RUSHBROKENTACKLES"),
+            Stat(PlayerStats.Fumbles, "RUSHFUMBLES"),
+            Stat(PlayerStats.RushOver20, "RUSH20YARDRUNS"),
+        };
+
+        /// <summary>NCAA 14 PSDE</summary>
+        private static readonly (string Key, string[] Fields)[] DefensiveStats =
+        {
+            // whole sacks; the half sack adds 0.5 (Player.Add keeps sacks in tenths)
+            Stat(PlayerStats.Sacks, "DLINESACKS"),
+            Stat(PlayerStats.HalfSacks, "DLINEHALFSACK"),
+            Stat(PlayerStats.Tackles, "DEFTACKLES"),
+            Stat(PlayerStats.AssistedTackles, "ASSDEFTACKLES"),
+            Stat(PlayerStats.Interceptions, "DSECINTS"),
+            Stat(PlayerStats.IntRetYds, "DSECINTRETURNYARDS"),
+            Stat(PlayerStats.LongIntRet, "DSECINTLONGESTRETURN"),
+            Stat(PlayerStats.FumbleRec, "DLINEFUMBLERECOVERIES"),
+            Stat(PlayerStats.FumRecYds, "DLINEFUMBLERECOVERYYARDS"),
+            Stat(PlayerStats.IntReturnedForTD, "DSECINTTDS"),
+            Stat(PlayerStats.FumblesReturnedForTD, "DLINEFUMBLETDS"),
+            Stat(PlayerStats.DefTD, "DSECINTTDS", "DLINEFUMBLETDS"),
+            Stat(PlayerStats.DefGP, "GAMESPLAYED"),
+            Stat(PlayerStats.Safeties, "DLINESAFETIES"),
+            Stat(PlayerStats.PassDeflections, "DEFPASSDEFLECTIONS"),
+            Stat(PlayerStats.ForcedFumble, "DLINEFORCEDFUMBLES"),
+            Stat(PlayerStats.BlockedKicks, "DLINEBLOCKS"),
+            Stat(PlayerStats.TackleForLoss, "DEFTACKLESFORLOSS"),
+        };
+
+        /// <summary>NCAA 14 PSKI</summary>
+        private static readonly (string Key, string[] Fields)[] KickingStats =
+        {
+            Stat(PlayerStats.FGLong, "KICKFGLONGEST"),
+            Stat(PlayerStats.PuntLong, "PUNTLONGEST"),
+            Stat(PlayerStats.XPAtt, "KICKEPATTEMPTS"),
+            Stat(PlayerStats.XPMade, "KICKEPMADE"),
+            Stat(PlayerStats.XPBlocked, "KICKEPBLOCKED"),
+            Stat(PlayerStats.FGAtt, "KICKFGATTEMPTS"),
+            Stat(PlayerStats.FGMade, "KICKFGMADE"),
+            Stat(PlayerStats.FGBlocked, "KICKFGBLOCKED"),
+            Stat(PlayerStats.FGUnder30Att, "KICKFGATTEMPTS29ORLESS"),
+            Stat(PlayerStats.FGUnder30Made, "KICKFGMADE29ORLESS"),
+            Stat(PlayerStats.FG30to39Att, "KICKFGATTEMPTS30TO39"),
+            Stat(PlayerStats.FG30to39Made, "KICKFGMADE30TO39"),
+            Stat(PlayerStats.FG40to49Att, "KICKFGATTEMPTS40TO49"),
+            Stat(PlayerStats.FG40to49Made, "KICKFGMADE40TO49"),
+            Stat(PlayerStats.FGOver50Att, "KICKFGATTEMPTS50ORMORE"),
+            Stat(PlayerStats.FGOver50Made, "KICKFGMADE50ORMORE"),
+            Stat(PlayerStats.Kickoffs, "KICKNUMKICKOFFS"),
+            Stat(PlayerStats.KickOffTouchBack, "KICKTOUCHBACKS"),
+            // NCAA 14's spat is the number of punts
+            Stat(PlayerStats.Spat, "PUNTATTEMPTS"),
+            Stat(PlayerStats.PuntYds, "PUNTYARDS"),
+            Stat(PlayerStats.NetPuntYards, "PUNTNETYARDS"),
+            Stat(PlayerStats.DownInside20, "PUNTIN20"),
+            Stat(PlayerStats.PuntTouchback, "PUNTTOUCHBACKS"),
+            Stat(PlayerStats.PuntsBlocked, "PUNTBLOCKED"),
+            Stat(PlayerStats.KickGamesPlayed, "GAMESPLAYED"),
+        };
+
+        /// <summary>NCAA 14 PSKP</summary>
+        private static readonly (string Key, string[] Fields)[] ReturnStats =
+        {
+            Stat(PlayerStats.LongestKR, "KRETLONGEST"),
+            Stat(PlayerStats.LongestPR, "PRETLONGEST"),
+            Stat(PlayerStats.KickReturns, "KRETATTEMPTS"),
+            Stat(PlayerStats.PuntReturns, "PRETATTEMPTS"),
+            Stat(PlayerStats.KRYds, "KRETYARDS"),
+            Stat(PlayerStats.PRYds, "PRETYARDS"),
+            Stat(PlayerStats.KRTD, "KRETTDS"),
+            Stat(PlayerStats.PRTD, "PRETTDS"),
+            Stat(PlayerStats.ReturnGamesPlayed, "GAMESPLAYED"),
+        };
+
+        /// <summary>NCAA 14 PSOL</summary>
+        private static readonly (string Key, string[] Fields)[] OLineStats =
+        {
+            Stat(PlayerStats.Pancakes, "OLINEPANCAKES"),
+            Stat(PlayerStats.SacksAllowed, "OLINESACKSALLOWED"),
+            Stat(PlayerStats.OLGamesplayed, "GAMESPLAYED"),
+        };
+
+        private static void AddPancakeLeaders(Player player)
+        {
+            if (player[PlayerStats.Pancakes] > 0)
+                PlayerDB.PancakesLeaders.Add(player);
+        }
+
+        /// <summary>
+        /// The season stat tables a player's SeasonStats can point to. A player keeps one kind; kick and punt returners get a
+        /// table that has their offensive or defensive stats along with the returns.
+        /// </summary>
+        private static readonly Dictionary<string, ((string Key, string[] Fields)[] Stats, Action<Player> Leaders)[]> SeasonStatTables =
+            new Dictionary<string, ((string Key, string[] Fields)[] Stats, Action<Player> Leaders)[]>
+            {
+                ["SeasonOffensiveStats"] = new[] { (OffensiveStats, (Action<Player>)PlayerDB.AddOffensiveLeaders) },
+                ["SeasonDefensiveStats"] = new[] { (DefensiveStats, (Action<Player>)PlayerDB.AddDefensiveLeaders) },
+                ["SeasonKickingStats"] = new[] { (KickingStats, (Action<Player>)PlayerDB.AddKickingLeaders) },
+                ["SeasonOLineStats"] = new[] { (OLineStats, (Action<Player>)AddPancakeLeaders) },
+                ["SeasonOffensiveKPReturnStats"] = new[]
+                {
+                    (OffensiveStats, (Action<Player>)PlayerDB.AddOffensiveLeaders),
+                    (ReturnStats, (Action<Player>)PlayerDB.AddReturnLeaders),
+                },
+                ["SeasonDefensiveKPReturnStats"] = new[]
+                {
+                    (DefensiveStats, (Action<Player>)PlayerDB.AddDefensiveLeaders),
+                    (ReturnStats, (Action<Player>)PlayerDB.AddReturnLeaders),
+                },
+            };
+
+        /// <summary>
+        /// Every season's stats for the players in PlayerDB: Player.SeasonStats -> SeasonStats[] (one entry per season) ->
+        /// a Season*Stats record, whose SEAS_YEAR is the dynasty year (as SeasonGame.SeasonYear). The current season's also
+        /// feed the stat leaders and the player's GamesPlayed.
+        /// </summary>
         public void ReadStats()
         {
-            // no-op for now, not needed for preseason
+            foreach (var player in PlayerDB.Players.Values)
+            {
+                foreach (var season in dynasty.FollowArray(this.Players.RawTable.Records[player.Id], "SeasonStats"))
+                {
+                    if (!SeasonStatTables.TryGetValue(season.Parent.Name, out var tables))
+                    {
+                        continue;
+                    }
+
+                    int seasonYear = Convert.ToInt32(season["SEAS_YEAR"]);
+                    if (seasonYear < 0)
+                    {
+                        continue;
+                    }
+
+                    var year = seasonYear + ContinuationData.ContinuationYear;
+                    foreach (var (stats, _) in tables)
+                    {
+                        foreach (var (key, fields) in stats)
+                        {
+                            player.Add(year, key, fields.Sum(f => Convert.ToInt32(season[f])));
+                        }
+                    }
+
+                    if (year == PlayerDB.CurrentYear)
+                    {
+                        player.GamesPlayed = Convert.ToInt32(season["GAMESPLAYED"]);
+                        foreach (var (_, leaders) in tables)
+                        {
+                            leaders(player);
+                        }
+                    }
+                }
+            }
         }
+        #endregion
 
         /// <summary>Conferences keyed by classic id; only the Sun Belt still has divisions (West 16, East 17).</summary>
         public Dictionary<int, Conference> ReadConferenceMetadata()
@@ -596,6 +772,7 @@ namespace EA_DB_Editor
                     StadiumId = stadiumId,
                     GameSite = ReadStadiumName(stadiumId),
                     IsKickoffGame  = sg.IsKickoffGame,
+                    GameDateDay = sg.GameDateDay,
                 };
 
                 // regular-season games (including conference title games) away from the home team's stadium
@@ -794,9 +971,137 @@ namespace EA_DB_Editor
             return records;
         }
 
+        /// <summary>The per-game player stat tables (Game*Stats) and the PlayerStats keys they fill, as the season tables'.</summary>
+        private static readonly Dictionary<string, (string Key, string[] Fields)[][]> GameStatTables = new Dictionary<string, (string Key, string[] Fields)[][]>
+        {
+            ["GameOffensiveStats"] = new[] { OffensiveStats },
+            ["GameDefensiveStats"] = new[] { DefensiveStats },
+            ["GameKickingStats"] = new[] { KickingStats },
+            ["GameOLineStats"] = new[] { OLineStats },
+            ["GameOffensiveKPReturnStats"] = new[] { OffensiveStats, ReturnStats },
+            ["GameDefensiveKPReturnStats"] = new[] { DefensiveStats, ReturnStats },
+        };
+
+        /// <summary>
+        /// Box scores and player stats for each played game. The team box score is SeasonGame.HomeTeamStatCache /
+        /// AwayTeamStatCache (a TeamStats record, like the season totals). Player stats are Game*Stats records, each naming
+        /// its SeasonGame; a player's are under Player.GameStats, except the newest games', which are still in
+        /// UnpublishedGameStats (Player, GameStats). The save has no scoring plays (SeasonGame.ScoringSummaries is empty),
+        /// so Scores stays empty.
+        /// </summary>
         public void ReadGameStats(Dictionary<string, ScheduledGame> games)
         {
-            return;
+            // the played games by SeasonGame row; a stat record pointing at any other game is left over
+            var playedGames = new Dictionary<int, ScheduledGame>();
+            foreach (var sg in this.SeasonGames.Records.Where(g => !g.IsEmpty && (g.GameStatus == "HomeWon" || g.GameStatus == "AwayWon")))
+            {
+                if (!games.TryGetValue(ScheduledGame.CreateKey(sg.SeasonWeek, sg.SeasonGameNum), out var game))
+                {
+                    continue;
+                }
+
+                playedGames[sg.Row] = game;
+                var record = this.SeasonGames.RawTable.Records[sg.Row];
+                game.HomeTeamBoxScore = ReadBoxScore(record, "HomeTeamStatCache", game.HomeTeamId) ?? game.HomeTeamBoxScore;
+                game.AwayTeamBoxScore = ReadBoxScore(record, "AwayTeamStatCache", game.AwayTeamId) ?? game.AwayTeamBoxScore;
+            }
+
+            var counted = new HashSet<(int Table, int Row)>();
+            void Add(int playerRow, FranchiseFileRecord stats)
+            {
+                if (stats == null || !GameStatTables.TryGetValue(stats.Parent.Name, out var tables) || !counted.Add((stats.Parent.Header.TableId, stats.Index)))
+                {
+                    return;
+                }
+
+                var seasonGame = stats.GetReferenceDataByKey("SeasonGame");
+                if (seasonGame == null || seasonGame.Value.TableId != this.SeasonGames.RawTable.Header.TableId || !playedGames.TryGetValue(seasonGame.Value.RowNumber, out var game))
+                {
+                    return;
+                }
+
+                AddGameStats(game, playerRow, stats, tables);
+            }
+
+            foreach (var player in this.Players.RawTable.Records.Where(p => !p.IsEmpty))
+            {
+                foreach (var stats in dynasty.FollowArray(player, "GameStats"))
+                {
+                    Add(player.Index, stats);
+                }
+            }
+
+            var playerTableId = this.Players.RawTable.Header.TableId;
+            foreach (var unpublished in dynasty.GetPrimaryTable("UnpublishedGameStats").Records.Where(r => !r.IsEmpty))
+            {
+                var player = unpublished.GetReferenceDataByKey("Player");
+                var stats = unpublished.GetReferenceDataByKey("GameStats");
+                if (player?.TableId == playerTableId && stats.HasValue)
+                {
+                    Add(player.Value.RowNumber, dynasty.Follow(stats.Value));
+                }
+            }
+        }
+
+        private TeamStat ReadBoxScore(FranchiseFileRecord seasonGame, string field, int teamId)
+        {
+            var reference = seasonGame.GetReferenceDataByKey(field);
+            var row = reference.HasValue ? dynasty.Follow(reference.Value) : null;
+            return row == null ? null : ToTeamStat(teamId, row);
+        }
+
+        /// <summary>
+        /// One player's line in one game. As in NCAA 14 the values are the game's own (sacks and half sacks apart, no total
+        /// tackles; the box score adds those up), and the game can set the school's single-game records.
+        /// </summary>
+        private static void AddGameStats(ScheduledGame game, int playerRow, FranchiseFileRecord stats, (string Key, string[] Fields)[][] tables)
+        {
+            if (!game.GamePlayerStats.TryGetValue(playerRow, out var player))
+            {
+                player = new PlayerStats { PlayerId = playerRow, GameKey = game.Key };
+                game.GamePlayerStats.Add(playerRow, player);
+            }
+
+            bool offense = false;
+            foreach (var table in tables)
+            {
+                offense |= table == OffensiveStats;
+                // games have no GAMESPLAYED
+                foreach (var (key, fields) in table.Where(s => s.Fields.All(f => stats.Fields.ContainsKey(f))))
+                {
+                    player[key] = fields.Sum(f => Convert.ToInt32(stats[f]));
+                }
+            }
+
+            if (offense)
+            {
+                PlayerStats.OffensiveGamePerformances.Add(player);
+            }
+
+            if (player.Player == null)
+            {
+                return;
+            }
+
+            if (offense)
+            {
+                TeamRecord.SetNewRecord(TeamRecordKeys.PassTD, player.GetIntValue(PlayerStats.PassingTD), player.Player, game);
+                TeamRecord.SetNewRecord(TeamRecordKeys.RushingTD, player.GetIntValue(PlayerStats.RushingTD), player.Player, game);
+                TeamRecord.SetNewRecord(TeamRecordKeys.RecTD, player.GetIntValue(PlayerStats.ReceivingTD), player.Player, game);
+                TeamRecord.SetNewRecord(TeamRecordKeys.PassYds, player.GetIntValue(PlayerStats.PassingYards), player.Player, game);
+                TeamRecord.SetNewRecord(TeamRecordKeys.RushingYds, player.GetIntValue(PlayerStats.RushingYards), player.Player, game);
+                TeamRecord.SetNewRecord(TeamRecordKeys.RecYds, player.GetIntValue(PlayerStats.ReceivingYards), player.Player, game);
+                TeamRecord.SetNewRecord(TeamRecordKeys.Receptions, player.GetIntValue(PlayerStats.Receptions), player.Player, game);
+            }
+
+            if (tables.Contains(DefensiveStats))
+            {
+                // as NCAA 14 counts them for the record book
+                var halfSacks = player.GetIntValue(PlayerStats.HalfSacks);
+                var sacks = player.GetIntValue(PlayerStats.Sacks) + (halfSacks > 0 ? 1 + halfSacks / 2 : 0);
+                TeamRecord.SetNewRecord(TeamRecordKeys.Sacks, sacks, player.Player, game);
+                TeamRecord.SetNewRecord(TeamRecordKeys.INT, player.GetIntValue(PlayerStats.Interceptions), player.Player, game);
+            }
         }
 
         /// <summary>
@@ -1123,55 +1428,61 @@ namespace EA_DB_Editor
                     continue;
                 }
 
-                int Stat(string field) => Convert.ToInt32(row[field]);
-                teamStats.Add(team.TeamId, new TeamStat
-                {
-                    TeamId = team.TeamId,
-                    TwoPointConversionAttempts = Stat("TWOPOINTCONVATTEMPTS"),
-                    TwoPointConversions = Stat("TWOPOINTCONVMADE"),
-                    Turnovers = Stat("GIVEAWAYS"),
-                    PassAttempts = Stat("PASSATTEMPTS"),
-                    PassCompletions = Stat("PASSCOMPLETIONS"),
-                    RushAttempts = Stat("RUSHATTEMPTS"),
-                    Tssa = Stat("SACKSALLOWED"),
-                    Tsta = Stat("TAKEAWAYS"),
-                    ThirdDownConversions = Stat("THIRDDOWNCONV"),
-                    FourthDownConversions = Stat("FOURTHDOWNCONV"),
-                    FirstDowns = Stat("FIRSTDOWNS"),
-                    ThirdDownAttempts = Stat("THIRDDOWNS"),
-                    FourthDownAttempts = Stat("FOURTHDOWNS"),
-                    Penalties = Stat("PENALTIES"),
-                    PenaltyYards = Stat("PENALTYYARDS"),
-                    RedZoneVisits = Stat("OFFREDZONES"),
-                    RedZoneTD = Stat("OFFREDZONETDS"),
-                    RedZoneFG = Stat("OFFREDZONEFGS"),
-                    OpponentsInRedZone = Stat("DEFREDZONES"),
-                    RedZoneTDAllowed = Stat("DEFREDZONETDS"),
-                    RedZoneFGAllowed = Stat("DEFREDZONEFGS"),
-                    IntThrown = Stat("PASSINTS"),
-                    FumblesLost = Stat("FUMBLESLOST"),
-                    InterceptionsByDefense = Stat("DEFINTS"),
-                    FumblesRecovered = Stat("FUMBLEREC"),
-                    Sacks = Stat("SACKS"),
-                    PassYards = Stat("OFFPASSYARDS"),
-                    PassTD = Stat("PASSTDS"),
-                    RushYards = Stat("OFFRUSHYARDS"),
-                    RushTD = Stat("RUSHTDS"),
-                    OffensiveYards = Stat("OFFYARDS"),
-                    TotalYards = Stat("TOTALYARDS"),
-                    PassYardsAllowed = Stat("DEFPASSYARDS"),
-                    RushingYardsAllowed = Stat("DEFRUSHYARDS"),
-                    KRYards = Stat("KICKRETURNYARDS"),
-                    PRYards = Stat("PUNTRETURNYARDS"),
-                    // SPECIALTEAMYARDS is almost never filled in; TOTALYARDS is offense plus kick and punt returns
-                    SpecialTeamYards = Stat("KICKRETURNYARDS") + Stat("PUNTRETURNYARDS"),
-                    Punts = Stat("PUNTS"),
-                    PuntYards = Stat("PUNTYARDS"),
-                    TimeOfPossesion = Stat("POSSESSIONTIME"),
-                });
+                teamStats.Add(team.TeamId, ToTeamStat(team.TeamId, row));
             }
 
             return teamStats;
+        }
+
+        /// <summary>A TeamStats record (season totals, or one game's box score) as a TeamStat.</summary>
+        private static TeamStat ToTeamStat(int teamId, FranchiseFileRecord row)
+        {
+            int Stat(string field) => Convert.ToInt32(row[field]);
+            return new TeamStat
+            {
+                TeamId = teamId,
+                TwoPointConversionAttempts = Stat("TWOPOINTCONVATTEMPTS"),
+                TwoPointConversions = Stat("TWOPOINTCONVMADE"),
+                Turnovers = Stat("GIVEAWAYS"),
+                PassAttempts = Stat("PASSATTEMPTS"),
+                PassCompletions = Stat("PASSCOMPLETIONS"),
+                RushAttempts = Stat("RUSHATTEMPTS"),
+                Tssa = Stat("SACKSALLOWED"),
+                Tsta = Stat("TAKEAWAYS"),
+                ThirdDownConversions = Stat("THIRDDOWNCONV"),
+                FourthDownConversions = Stat("FOURTHDOWNCONV"),
+                FirstDowns = Stat("FIRSTDOWNS"),
+                ThirdDownAttempts = Stat("THIRDDOWNS"),
+                FourthDownAttempts = Stat("FOURTHDOWNS"),
+                Penalties = Stat("PENALTIES"),
+                PenaltyYards = Stat("PENALTYYARDS"),
+                RedZoneVisits = Stat("OFFREDZONES"),
+                RedZoneTD = Stat("OFFREDZONETDS"),
+                RedZoneFG = Stat("OFFREDZONEFGS"),
+                OpponentsInRedZone = Stat("DEFREDZONES"),
+                RedZoneTDAllowed = Stat("DEFREDZONETDS"),
+                RedZoneFGAllowed = Stat("DEFREDZONEFGS"),
+                IntThrown = Stat("PASSINTS"),
+                FumblesLost = Stat("FUMBLESLOST"),
+                InterceptionsByDefense = Stat("DEFINTS"),
+                FumblesRecovered = Stat("FUMBLEREC"),
+                Sacks = Stat("SACKS"),
+                PassYards = Stat("OFFPASSYARDS"),
+                PassTD = Stat("PASSTDS"),
+                RushYards = Stat("OFFRUSHYARDS"),
+                RushTD = Stat("RUSHTDS"),
+                OffensiveYards = Stat("OFFYARDS"),
+                TotalYards = Stat("TOTALYARDS"),
+                PassYardsAllowed = Stat("DEFPASSYARDS"),
+                RushingYardsAllowed = Stat("DEFRUSHYARDS"),
+                KRYards = Stat("KICKRETURNYARDS"),
+                PRYards = Stat("PUNTRETURNYARDS"),
+                // SPECIALTEAMYARDS is almost never filled in; TOTALYARDS is offense plus kick and punt returns
+                SpecialTeamYards = Stat("KICKRETURNYARDS") + Stat("PUNTRETURNYARDS"),
+                Punts = Stat("PUNTS"),
+                PuntYards = Stat("PUNTYARDS"),
+                TimeOfPossesion = Stat("POSSESSIONTIME"),
+            };
         }
 
         public void CommitTeamRecords()
@@ -1291,7 +1602,7 @@ namespace EA_DB_Editor
 
         public Dictionary<int, int> FindCoachesOnHotSeat()
         {
-            return new Dictionary<int, int>();
+            throw new Exception();
         }
 
         public string ReadStadiumName(int siteId)

@@ -288,7 +288,7 @@ namespace RefreshRunner
                 string dynastyFile = null;
 
                 dynastyFile = Path.Combine(dirs[i], GetPreseasonFileName(dirs[i]));
-                if (File.Exists(dynastyFile))
+                if (false && File.Exists(dynastyFile))
                 {
                     Console.WriteLine("Preseason");
                     appDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString());

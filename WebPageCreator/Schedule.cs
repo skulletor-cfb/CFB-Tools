@@ -1016,6 +1016,8 @@ namespace EA_DB_Editor
         public int TimeOfDay { get; set; }
         public Dictionary<int, PlayerStats> GamePlayerStats { get; set; }
         public bool IsKickoffGame { get; set; }
+        // the day of the month
+        public int GameDateDay { get; set; }
 
         public ScheduledGame()
         {

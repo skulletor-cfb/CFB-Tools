@@ -93,7 +93,7 @@ namespace EA_DB_Editor
         public int Game { get; set; }
         public int Day { get; set; }
         public ScheduledGame ScheduleGame { get { return ScheduledGame.Schedule[this.Key]; } }
-        public string Key => $"{Week}-{Game}{(Day == 0 ? string.Empty : Day.ToString())}";
+        public string Key => $"{Week}-{Game}";
 
         // Order the bowl games will show up in on the bowls.html page
         public static int[] PlayoffBowlOrder = ConfigurationManager.AppSettings["BowlOrder"]?.Split(',').Select(s => Convert.ToInt32(s.Trim())).ToArray();
