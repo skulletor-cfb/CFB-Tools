@@ -11,6 +11,8 @@ namespace TVSlots
         public Form1()
         {
             InitializeComponent();
+            // the exe's icon (ApplicationIcon) for the title bar too
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             dataGridView1.AllowUserToAddRows = false;
             // widen each column to fit its longest game text (and header)
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;

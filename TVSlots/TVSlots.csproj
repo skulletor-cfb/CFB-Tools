@@ -8,6 +8,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
     <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
+    <!-- the video-camera art on black; also the window icon (Form1) -->
+    <ApplicationIcon>tv.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
