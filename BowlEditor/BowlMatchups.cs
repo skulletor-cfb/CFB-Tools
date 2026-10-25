@@ -18,6 +18,13 @@ namespace BowlEditor
     /// wrote a final score instead, so the game never simulated its edited bowls and they kept no box score or stats.)
     /// </para>
     /// <para>
+    /// The user's own game this week also carries the user's "play your game" request (a SeasonGameRequest with a
+    /// TargetUser), which is tied to the game, not the team. Moving the user's team out of it leaves the request on a
+    /// game the team isn't in, so the request is closed the way the game closes an answered one, and the vacated game
+    /// gets a written final score, as MyDynasty does: the game only plays the user's game through that request, so left
+    /// unplayed it would never be played (game-verified). Its two teams get the result but no box score.
+    /// </para>
+    /// <para>
     /// The CFP bracket is the BowlGame rows with IsPlayoffBowl (PlayoffBracketSlot 0-3 first round, 4-7 quarterfinals,
     /// 8-9 semifinals, 10 title game), whose Conference1Rank / Conference2Rank hold the 0-based seeds. Seeds 1-4 wait at
     /// home in quarterfinals 4-7 for the winner of first-round slot 0-3. Nothing stores which team holds a seed: the
@@ -79,6 +86,20 @@ namespace BowlEditor
 
         private readonly FranchiseFileTable teams;
         private readonly FranchiseFileTable seasonGames;
+        private readonly FranchiseFileTable requests;
+        private readonly int currentWeek;
+
+        /// <summary>RequestId of a request that's no longer open (int.MaxValue - 100), as the game writes it.</summary>
+        private const long ClosedRequestId = 2147483547;
+
+        /// <summary>The user-controlled teams (Team.UserCharacter set, or the team of a user-controlled coach).</summary>
+        public HashSet<int> UserTeams { get; } = new HashSet<int>();
+
+        /// <summary>Whether the last <see cref="Apply"/> closed the user's play-your-game request.</summary>
+        public bool ClosedUserRequest { get; private set; }
+
+        /// <summary>The final scores the last <see cref="Apply"/> wrote into games the user's team left, e.g. "Independence Bowl: UNLV 17, Nebraska 42".</summary>
+        public List<string> WrittenResults { get; } = new List<string>();
 
         public List<BowlSlot> Games { get; } = new List<BowlSlot>();
 
@@ -100,7 +121,24 @@ namespace BowlEditor
             seasonGames = dynasty.GetPrimaryTable("SeasonGame");
             seasonGames.ReadRecords();
             var seasonInfo = dynasty.GetPrimaryTable("SeasonInfo").Records.First(r => !r.IsEmpty);
-            int currentWeek = Convert.ToInt32(seasonInfo["CurrentWeek"]);
+            currentWeek = Convert.ToInt32(seasonInfo["CurrentWeek"]);
+            requests = dynasty.GetPrimaryTable("SeasonGameRequest");
+            requests.ReadRecords();
+
+            foreach (var team in teams.Records.Where(t => !t.IsEmpty && (t["UserCharacter"] as string ?? NoRef) != NoRef))
+            {
+                UserTeams.Add(team.Index);
+            }
+
+            if (UserTeams.Count == 0)
+            {
+                var userCoach = dynasty.GetPrimaryTable("Coach").Records.FirstOrDefault(c => !c.IsEmpty && c["IsUserControlled"] is true);
+                var userTeam = userCoach == null ? null : teams.Records.FirstOrDefault(t => !t.IsEmpty && Convert.ToInt32(t["TeamIndex"]) == Convert.ToInt32(userCoach["TeamIndex"]));
+                if (userTeam != null)
+                {
+                    UserTeams.Add(userTeam.Index);
+                }
+            }
 
             var allTeams = teams.Records.Where(t => !t.IsEmpty && Convert.ToInt32(t["TeamIndex"]) != NoTeamIndex).ToArray();
 
@@ -303,14 +341,24 @@ namespace BowlEditor
         }
 
         /// <summary>
-        /// Writes the changed matchups into the save (in memory), putting an already simulated one back to Unplayed; returns
-        /// how many games changed.
+        /// Writes the changed matchups into the save (in memory), putting an already simulated one back to Unplayed, and
+        /// closes the user's play-your-game request if the user's team left this week's game; returns how many games changed.
         /// </summary>
         public int Apply()
         {
             int changed = 0;
+            ClosedUserRequest = false;
+            WrittenResults.Clear();
+            var vacated = new List<BowlSlot>();
             foreach (var game in Games.Where(g => g.IsChanged && !g.Locked))
             {
+                bool wasUserGame = UserTeams.Contains(game.OriginalHome ?? -1) || UserTeams.Contains(game.OriginalAway ?? -1);
+                bool isUserGame = UserTeams.Contains(game.Home ?? -1) || UserTeams.Contains(game.Away ?? -1);
+                if (game.Week == currentWeek && !game.WasSimulated && wasUserGame && !isUserGame)
+                {
+                    vacated.Add(game);
+                }
+
                 game.Record["HomeTeam"] = BinaryUtil.GetBinaryReferenceData(teams.Header.TableId, game.Home!.Value);
                 game.Record["AwayTeam"] = BinaryUtil.GetBinaryReferenceData(teams.Header.TableId, game.Away!.Value);
                 game.Record["IsRematch"] = MetBefore(game.Home.Value, game.Away.Value);
@@ -325,7 +373,84 @@ namespace BowlEditor
                 changed++;
             }
 
+            if (vacated.Count > 0)
+            {
+                ClosedUserRequest = CloseUserRequests() > 0;
+                foreach (var game in vacated)
+                {
+                    WriteFinalScore(game);
+                }
+            }
+
             return changed;
+        }
+
+        /// <summary>
+        /// A final score for a game the game itself won't play (the user's vacated game), written as MyDynasty does: quarter
+        /// scores, the winner as ForceWin, IsSimmed. The stronger team (TEAM_RATINGOVR) is more likely to win.
+        /// </summary>
+        private void WriteFinalScore(BowlSlot game)
+        {
+            var home = teams.Records[game.Home!.Value];
+            var away = teams.Records[game.Away!.Value];
+            int ratingGap = Convert.ToInt32(home["TEAM_RATINGOVR"]) - Convert.ToInt32(away["TEAM_RATINGOVR"]);
+            // about 4 in 5 for a 10-point better team, 19 in 20 for 20 points
+            bool homeWins = Random.Shared.NextDouble() < 1 / (1 + Math.Exp(-ratingGap / 7.0));
+
+            int[] homeQuarters = Quarters(), awayQuarters = Quarters();
+            int homeTotal = homeQuarters.Sum(), awayTotal = awayQuarters.Sum();
+            if ((homeTotal > awayTotal) != homeWins || homeTotal == awayTotal)
+            {
+                // give the winner the better line; a tie gets a late field goal
+                if (homeTotal != awayTotal)
+                {
+                    (homeQuarters, awayQuarters) = (awayQuarters, homeQuarters);
+                }
+                else
+                {
+                    (homeWins ? homeQuarters : awayQuarters)[3] += 3;
+                }
+            }
+
+            var record = game.Record;
+            for (int q = 0; q < 4; q++)
+            {
+                record[$"HomeScoreQuarter{q + 1}"] = homeQuarters[q];
+                record[$"AwayScoreQuarter{q + 1}"] = awayQuarters[q];
+            }
+
+            record["HomeScore"] = homeQuarters.Sum();
+            record["AwayScore"] = awayQuarters.Sum();
+            record["GameStatus"] = homeWins ? "HomeWon" : "AwayWon";
+            record["ForceWin"] = homeWins ? "Home" : "Away";
+            record["IsSimmed"] = true;
+            WrittenResults.Add($"{game.Bowl}: {away["DisplayName"]} {awayQuarters.Sum()}, {home["DisplayName"]} {homeQuarters.Sum()}");
+        }
+
+        /// <summary>One team's quarter-by-quarter points, from ordinary scoring drives.</summary>
+        private static int[] Quarters()
+        {
+            int[] drives = { 0, 0, 0, 3, 3, 7, 7, 7, 10, 14 };
+            return Enumerable.Range(0, 4).Select(_ => drives[Random.Shared.Next(drives.Length)]).ToArray();
+        }
+
+        /// <summary>
+        /// Closes the user's open game requests the way the game closes an answered one: no TargetUser, the closed RequestId,
+        /// ResolveTime = IssueTime, Resolution 1. Returns how many were closed.
+        /// </summary>
+        private int CloseUserRequests()
+        {
+            int closed = 0;
+            foreach (var request in requests.Records.Where(r => !r.IsEmpty && (r["TargetUser"] as string ?? NoRef) != NoRef && Convert.ToInt32(r["Resolution"]) == 0))
+            {
+                request["TargetUser"] = NoRef;
+                request["RequestId"] = Convert.ChangeType(ClosedRequestId, request["RequestId"]!.GetType());
+                request["ResolveTime"] = request["IssueTime"];
+                request["Resolution"] = Convert.ChangeType(1, request["Resolution"]!.GetType());
+                closed++;
+            }
+
+            return closed;
         }
 
         /// <summary>

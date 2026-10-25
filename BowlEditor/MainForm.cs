@@ -174,7 +174,9 @@ namespace BowlEditor
 
                 status.Text = poll != null
                     ? $"Saved the CFP poll ({changed} team(s) moved) to {result.Destination}. Advance to bowl week to build the playoff from it."
-                    : $"Saved {changed} changed game(s) to {result.Destination}. Changed games are unplayed again; advancing simulates them.";
+                    : $"Saved {changed} changed game(s) to {result.Destination}. Changed games are unplayed again; advancing simulates them." +
+                      (matchups!.ClosedUserRequest ? "  Your team left this week's game, so its play-your-game request was closed." : string.Empty) +
+                      (matchups.WrittenResults.Count > 0 ? $"  Final score written (no box score): {string.Join("; ", matchups.WrittenResults)}." : string.Empty);
             }
             catch (Exception ex)
             {
