@@ -24,6 +24,8 @@ namespace ScheduleMaker
         private PreseasonSchedule? schedule;
         private string? savePath;
         private bool isDirty;
+        private string saveFile;
+        private bool scheduleLoaded=false;
 
         // grid columns
         private DataGridViewComboBoxColumn weekColumn = null!;
@@ -84,10 +86,25 @@ namespace ScheduleMaker
                 return;
             }
 
+            this.saveFile = dialog.FileName;
+            dynasty = FranchiseFile.Load(this.saveFile); 
+            savePath = this.saveFile;
+
+        }
+
+        private void LoadSchedule()
+        { 
+            // only run this once
+            if (scheduleLoaded)
+            {
+                return; 
+            }
+
             try
             {
                 Cursor = Cursors.WaitCursor;
-                LoadSchedule(FranchiseFile.Load(dialog.FileName), dialog.FileName);
+                LoadSchedule(FranchiseFile.Load(this.saveFile), this.saveFile);
+                scheduleLoaded = true;
             }
             catch (Exception ex)
             {
@@ -102,6 +119,7 @@ namespace ScheduleMaker
         /// <summary>Ctrl+R. Writes the schedule as it stands (schedulemodel.txt, the ScheduleDisplay format) to the current directory.</summary>
         private void ReadSave()
         {
+            LoadSchedule();
             if (dynasty == null || schedule == null)
             {
                 status.Text = "Ctrl+O to open a save first.";
@@ -377,9 +395,7 @@ namespace ScheduleMaker
         {
             var loaded = PreseasonSchedule.Load(file);
 
-            dynasty = file;
             schedule = loaded;
-            savePath = path;
             isDirty = false;
 
             SetColumnChoices();
@@ -394,12 +410,15 @@ namespace ScheduleMaker
             }
 
             grid.EndEdit();
-            var problems = schedule!.Validate();
-            if (problems.Count > 0 &&
-                MessageBox.Show(this, "The schedule has problems:\n\n" + string.Join("\n", problems.Take(20)) + "\n\nSave anyway?",
-                    "Save", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+            if (schedule != null)
             {
-                return;
+                var problems = schedule!.Validate();
+                if (problems.Count > 0 &&
+                    MessageBox.Show(this, "The schedule has problems:\n\n" + string.Join("\n", problems.Take(20)) + "\n\nSave anyway?",
+                        "Save", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+                {
+                    return;
+                }
             }
 
             using var dialog = new SaveFileDialog
