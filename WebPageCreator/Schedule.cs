@@ -959,6 +959,17 @@ namespace EA_DB_Editor
         [DataMember(EmitDefaultValue = false)]
         public bool IsPlayoffGame { get; set; }
 
+        /// <summary>
+        /// a conference title game; set by the CFB27 engine (week 15, the week before the bowls), NCAA 14 leaves it false
+        /// since its title games are week 16 bowl games
+        /// </summary>
+        [DataMember(EmitDefaultValue = false)]
+        public bool IsConferenceChampionshipGame { get; set; }
+
+        /// <summary>the title game's NCAA 14 bowl id (ACC 36, SEC 35, ...), so its history continues; 0 for other games</summary>
+        [DataMember(EmitDefaultValue = false)]
+        public int ConferenceChampionshipGameId { get; set; }
+
         [DataMember]
         public int AwayScore { get; set; }
         [DataMember]
@@ -976,7 +987,8 @@ namespace EA_DB_Editor
         [DataMember]
         public string AwayTeamMascot { get { return AwayTeam.Mascot; } set { } }
 
-        public bool GameHasRecordBook => IsNeutralSite || IsClassicGame;
+        // a CFB27 title game is played at a kickoff game's stadium, so it would share that game's record book
+        public bool GameHasRecordBook => (IsNeutralSite || IsClassicGame) && !IsConferenceChampionshipGame;
 
         public Team WinningTeam
         {

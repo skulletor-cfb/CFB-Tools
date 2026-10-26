@@ -114,6 +114,10 @@ namespace EA_DB_Editor
                 {
                     return Bowl.FindByKey(this.Week, this.GameNumber).Id;
                 }
+                else if (this.Week < 16 && this.ScheduledGame.ConferenceChampionshipGameId != 0)
+                {
+                    return this.ScheduledGame.ConferenceChampionshipGameId;
+                }
                 else if (this.Week < 16 && this.ScheduledGame.GameHasRecordBook)
                 {
                     return this.ScheduledGame.SiteId;
@@ -131,7 +135,7 @@ namespace EA_DB_Editor
                     return Bowl.FindByKey(this.Week, this.GameNumber).Name;
                 }
 
-                if (this.ScheduledGame.GameHasRecordBook)
+                if (this.ScheduledGame.GameHasRecordBook || this.ScheduledGame.IsConferenceChampionshipGame)
                 {
                     return this.ScheduledGame.GameSite;
                 }
@@ -1157,10 +1161,17 @@ namespace EA_DB_Editor
             // generic FCS teams have no stadium; 0 is ReadStadiums' placeholder for them
             StadiumId = string.Equals(team.Stadium, BaseRecord.NoRefString) ? 0 : CFBStadium.ToStadiumId(team.Stadium);
 
+            // the save keeps title counts but not years; the champion lists (which include the continuation's) have them
+            var lastConferenceTitle = ConferenceChampion.GetTeamConferenceChampionships(this.Id).FirstOrDefault();
+            if (lastConferenceTitle != null)
+                this.LastConferenceChampionshipYear = lastConferenceTitle.Year + Utility.StartingYear;
+
+            var lastNationalTitle = BowlChampion.GetTeamBowlChampionships(this.Id).FirstOrDefault(bc => bc.BowlId == BowlChampion.NationalChampionshipGameId);
+            if (lastNationalTitle != null)
+                this.LastNationalChampionshipYear = lastNationalTitle.Year + Utility.StartingYear;
+
             // CFB-TODO Need to parse this out
             //MainRival = record["TRIV"].ToInt32();
-            //LastConferenceChampionshipYear = //need to figure this out
-            //    LastNationalChampionshipYear = // need to figure this out
             // bt = // need to figure this out, this is static data
             this.Process(isPreseason, atw, atl, att, bw , bl, bt , nts, cts);
             this.ToughestPlaceToPlayRank = team.ToughestPlacesRank;
@@ -1351,10 +1362,10 @@ namespace EA_DB_Editor
             if (!isPreseason &&
                 this.ConferenceOrDivisionChampionship == null &&
                 TeamSchedule.TeamSchedules.TryGetValue(this.Id, out schedule) &&
-                schedule.FlattenedListOfGames.Where(g => g.Week == 16 && g.GameNumber != 127).Any())
+                schedule.FlattenedListOfGames.Where(g => (g.Week == 16 && g.GameNumber != 127) || g.ScheduledGame.IsConferenceChampionshipGame).Any())
             {
-                // only conferences with 12+ teams have divisions
-                if (!PredictionEngine.ConferenceHasNoDivisions(this.ConferenceId))
+                // only conferences with 12+ teams have divisions (in CFB27 only the Sun Belt)
+                if (!PredictionEngine.ConferenceHasNoDivisions(this.ConferenceId) && this.Division != null)
                 {
                     // Console.WriteLine(string.Format("{0} {1} {2}", Conference.Conferences[this.ConferenceId].Name, Conference.FindDivision(this.DivisionId).SubName, "Champions"));
                     this.ConferenceOrDivisionChampionship = string.Format("{0} {1} {2}", Conference.Conferences[this.ConferenceId].Name, Conference.FindDivision(this.DivisionId).SubName, "Champions");

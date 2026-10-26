@@ -742,6 +742,9 @@ namespace EA_DB_Editor
         public Dictionary<string, ScheduledGame> ReadSchedule(bool isPreseason)
         {
             var schedule = new Dictionary<string, ScheduledGame>();
+            var seasonInfo = dynasty.GetPrimaryTable("SeasonInfo").Records.First(r => !r.IsEmpty);
+            var titleGameWeek = Convert.ToInt32(seasonInfo["RegularSeasonWeekConferenceChampionship"]);
+            var conferenceByTeamRow = this.ReadConferenceByTeamRow();
 
             // unscheduled bowls and conference title games don't have their teams yet
             foreach (var sg in this.SeasonGames.Records.Where(g => !g.IsEmpty
@@ -775,18 +778,33 @@ namespace EA_DB_Editor
                     GameDateDay = sg.GameDateDay,
                 };
 
-                // regular-season games (including conference title games) away from the home team's stadium
-                if (game.IsKickoffGame)
+                // regular-season games (including conference title games) away from the home team's stadium. A kickoff game
+                // (the save flags them) or a neutral-site rivalry takes the name and NCAA 14 id of the game played there, so
+                // its history continues; any other game there (Army-Navy at MetLife) keeps the stadium.
+                if (game.IsKickoffGame || (!playedAtHome && game.PostSeason == 0))
                 {
                     game.IsNeutralSite = true;
                     game.SiteId = stadiumId;
-                    game.GameSite = KickoffGames.TryGetValue((uint)game.StadiumId, out var kickoff) ? kickoff.Name : game.GameSite;
+
+                    var siteGames = game.IsKickoffGame ? KickoffGames : NeutralSiteRivalries;
+                    if (siteGames.TryGetValue((uint)game.StadiumId, out var siteGame))
+                    {
+                        game.GameSite = siteGame.Name;
+                        game.SiteId = siteGame.id;
+                    }
                 }
-                else if (!playedAtHome && game.PostSeason == 0)
+
+                // the title games are the regular-season games in SeasonInfo.RegularSeasonWeekConferenceChampionship between
+                // two teams of a conference, named as NCAA 14 named them ("ACC Championship")
+                if (sg.SeasonWeek == titleGameWeek &&
+                    conferenceByTeamRow.TryGetValue(sg.HomeTeamId, out var homeConference) &&
+                    conferenceByTeamRow.TryGetValue(sg.AwayTeamId, out var awayConference) &&
+                    homeConference.ConferenceId == awayConference.ConferenceId &&
+                    CFBConference.ClassicNames.TryGetValue(homeConference.ConferenceId, out var conferenceName))
                 {
-                    game.IsNeutralSite = true;
-                    game.SiteId = stadiumId;
-                    game.GameSite = KickoffGames.TryGetValue((uint)game.StadiumId, out var kickoff) ? kickoff.Name : game.GameSite;
+                    game.IsConferenceChampionshipGame = true;
+                    game.GameSite = conferenceName + " Championship";
+                    game.ConferenceChampionshipGameId = ConferenceChampionshipGameIds.TryGetValue(homeConference.ConferenceId, out var titleGameId) ? titleGameId : 0;
                 }
 
                 schedule.Add(game.Key, game);
@@ -795,16 +813,37 @@ namespace EA_DB_Editor
             return schedule;
         }
 
+        /// <summary>Classic conference id -> the NCAA 14 bowl id of its title game (week 16 bowl games there).</summary>
+        private static readonly Dictionary<int, int> ConferenceChampionshipGameIds = new Dictionary<int, int>
+        {
+            { 0, 36 },  // ACC
+            { 1, 38 },  // Big Ten
+            { 2, 40 },  // Big 12
+            { 3, 41 },  // American
+            { 4, 37 },  // C-USA
+            { 7, 34 },  // MAC
+            { 9, 44 },  // MWC
+            { 10, 33 }, // Pac-12
+            { 11, 35 }, // SEC
+            { 13, 42 }, // Sun Belt
+        };
+
+        /// <summary>Neutral-site rivalries by stadium: played mid-season, so the save doesn't flag them as kickoff games.</summary>
+        private static Dictionary<uint, (string Name, int id)> NeutralSiteRivalries = new Dictionary<uint, (string Name, int id)>
+        {
+            [0x80639E01] = (Name: "World's Largest Outdoor Cocktail Party", id: 183),
+            [0x806385C1] = (Name: "Red River Shootout", id: 182),
+        };
+
+        /// <summary>Kickoff games (SeasonGame.IsKickoffGame) by stadium, with their NCAA 14 ids.</summary>
         private static Dictionary<uint, (string Name, int id)> KickoffGames = new Dictionary<uint, (string Name, int id)>
         {
             [0x80639DCE] = (Name: "Texas Kickoff", id: 272),
             [0x806385D0] = (Name: "Allstate Kickoff Classic", id: 271),
-            [0x80639E01] = (Name: "World's Largest Outdoor Cocktail Party", id: 183),
-            [0x806385C1] = (Name: "Red River Shootout", id: 182),
             [0x8095C153] = (Name: "Aer Lingus College Football Classic", id: 261),
             [0x80639DE7] = (Name: "Cactus Kickoff Classic", id: 22500),
             [0x806385B3] = (Name: "Duke's Mayo Classic", id: 34596),
-            [0x80654CB9] = (Name: "The Kickoff Classic", id: 76729),
+            [0x80654CB9] = (Name: "Metlife Stadium Classic", id: 76729),
             [0x806A4715] = (Name: "Camping World Kickoff", id: 703724112),
             [0x806385CF] = (Name: "Louisiana Kickoff", id: 77841),
             [0x80654CE3] = (Name: "Vegas Kickoff Classic", id: 75076),
