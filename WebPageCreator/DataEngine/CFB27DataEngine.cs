@@ -41,13 +41,13 @@ namespace EA_DB_Editor
             this.TeamNames = this.Teams.Records.ToDictionary(t => t.TeamId, t => t.DisplayName);
             this.Bowls = dynasty.GetTable<CFBBowl>(TableName.BowlGame, CFBBowl.Transform);
             this.SeasonGames = dynasty.GetTable<CFBSeasonGame>(TableName.SeasonGame);
-            this.BowlSeasonGames = this.SeasonGames.Records.Where(g => !g.IsEmpty && g.IsBowlGame).ToDictionary(g => g.BowlId);
+            this.BowlSeasonGames = this.SeasonGames.Records.Where(g => !g.IsEmpty && g.IsBowlGame).ToDictionary(g => g.BowlRow);
 
             // CFP quarterfinal/semifinal rows (12-17) rotate between the NY6 bowls; the host bowl is
             // only identified by the SeasonGame's stadium (BowlGame.Stadium is empty for those rows).
             foreach (var bsg in this.BowlSeasonGames.Values)
             {
-                this.Bowls.Records[bsg.BowlId].StadiumId = bsg.Stadium.CFBToInt64();
+                this.Bowls.Records[bsg.BowlRow].StadiumId = bsg.StadiumId;
             }
 
             this.Stories = dynasty.GetTable<CFBStory>(TableName.Story);
@@ -58,11 +58,11 @@ namespace EA_DB_Editor
             var bowls = new Dictionary<string, Bowl>();
             foreach (var bsg in BowlSeasonGames.Values)
             {
-                var b = this.Bowls.Records[bsg.BowlId];
+                var b = this.Bowls.Records[bsg.BowlRow];
 
                 var bowl = new Bowl
                 {
-                    Name = b.Name,
+                    Name = b.DisplayName,
                     Week = bsg.SeasonWeek,
                     Game = bsg.SeasonGameNum,
                     Day = bsg.GameDateDay,
@@ -241,6 +241,10 @@ namespace EA_DB_Editor
                 return;
             }
 
+            // the save is the source of truth for its season: a result already in the table (BowlChampionsTable keeps
+            // every run, so a rerun of the season finds its first results) is replaced. Only two of this save's bowls
+            // landing on the same key is an error, i.e. two bowls mapped to the same classic bowl id.
+            var fromThisSave = new Dictionary<string, int>();
             foreach (var sg in BowlSeasonGames.Values)
             {
                 if (sg.GameStatus != "HomeWon" && sg.GameStatus != "AwayWon")
@@ -250,19 +254,15 @@ namespace EA_DB_Editor
                 {
                     TeamId = sg.GameStatus == "HomeWon" ? sg.RealHomeTeamId : sg.RealAwayTeamId,
                     Year = sg.SeasonYear + ContinuationData.ContinuationYear,
-                    BowlId = this.Bowls.Records[sg.BowlId].BowlId,
+                    BowlId = sg.BowlId,
                 };
 
-                if (bowlChampions.TryGetValue(bc.GetKey(), out var existing))
-                {
-                    // already loaded (e.g. from the archive); a different team means two bowls mapped to the same id
-                    if (existing.TeamId != bc.TeamId)
-                        throw new InvalidOperationException($"Bowl key {bc.GetKey()} already has team {existing.TeamId}; season game for bowl row {sg.BowlId} maps to the same bowl");
-                }
-                else
-                {
-                    bowlChampions.Add(bc.GetKey(), bc);
-                }
+                var key = bc.GetKey();
+                if (fromThisSave.TryGetValue(key, out var otherRow))
+                    throw new InvalidOperationException($"Bowl key {key}: bowl rows {otherRow} and {sg.BowlRow} map to the same bowl");
+
+                fromThisSave[key] = sg.BowlRow;
+                bowlChampions[key] = bc;
             }
         }
 
@@ -1600,10 +1600,21 @@ namespace EA_DB_Editor
             return depthCharts;
         }
 
+        /// <summary>
+        /// The 25 head coaches with the least job security (Coach.CurrentJobSecurityPercentage), keyed by coach id (the Coach
+        /// row, as ReadCoaches) with a heat value: 100 minus the percentage, so higher is hotter, as NCAA 14's JSCR.
+        /// </summary>
         public Dictionary<int, int> FindCoachesOnHotSeat()
         {
-            throw new Exception();
+            return this.Coaches.Records
+                .Where(c => c.IsOnTeam && c.PositionId == 0)
+                .OrderBy(c => c.JobSecurity)
+                .ThenByDescending(c => c.JobSecurityRank)
+                .Take(HotSeatCount)
+                .ToDictionary(c => c.Row, c => 100 - c.JobSecurity);
         }
+
+        private const int HotSeatCount = 25;
 
         public string ReadStadiumName(int siteId)
         {

@@ -10,7 +10,7 @@ namespace CFB27.Data.Model
     {
         public static CFBBowl Transform(FranchiseFile dynasty, FranchiseFileRecord record)
         {
-            var bowl= dynasty.DefaultTransform<CFBBowl>(record);
+            var bowl = dynasty.DefaultTransform<CFBBowl>(record);
 
             if (!string.Equals(bowl.Conference1, NoRefString))
             {
@@ -68,18 +68,18 @@ namespace CFB27.Data.Model
         {
             get
             {
-                if (this.Row >= 12 && this.Row <= 17)
-                {
-                    return LookupBowlId(this.StadiumId);
-                }
-         
-                return LookupBowlId(this.Row);
+                return LookupBowlId(this.Row, this.StadiumId);
             }
         }
 
-        public static int LookupBowlId(long id)
+        /// <summary>
+        /// The NCAA 14 bowl id for a BowlGame row; the rows that rotate between the New Year's Six (CFP quarterfinals and
+        /// semifinals, 12-17) aren't in the map, so they go by the stadium the game is played in.
+        /// </summary>
+        public static int LookupBowlId(long id, long? bowlGameStadium = null)
         {
-            if(NewBowlIdToOldBowlIdMap.TryGetValue(id, out var classicId)   )
+            if (NewBowlIdToOldBowlIdMap.TryGetValue(id, out var classicId) ||
+                (bowlGameStadium.HasValue && NewBowlIdToOldBowlIdMap.TryGetValue(bowlGameStadium.Value, out classicId)))
             {
                 return classicId;
             }
@@ -88,15 +88,47 @@ namespace CFB27.Data.Model
             return -1;
         }
 
+        /// <summary>
+        /// The bowl's name; a CFP quarterfinal or semifinal row ("CFP Quarterfinal") goes by the New Year's Six bowl hosting
+        /// the game, from its stadium, and a first-round game by its seeds as in NCAA 14 ("CFP 1st Round 5v12").
+        /// </summary>
+        [JsonIgnore]
+        public string DisplayName
+        {
+            get
+            {
+                if (this.IsPlayoffBowl && this.PlayoffBracketSlot < FirstQuarterfinalSlot)
+                {
+                    return $"CFP 1st Round {this.Conference1Rank + 1}v{this.Conference2Rank + 1}";
+                }
+
+                return !NewBowlIdToOldBowlIdMap.ContainsKey(this.Row) && NewYearsSixBowlNames.TryGetValue(this.StadiumId, out var host) ? host : this.Name;
+            }
+        }
+
+        /// <summary>PlayoffBracketSlot 0-3 are the first round; Conference1Rank/2Rank hold their 0-based seeds.</summary>
+        private const int FirstQuarterfinalSlot = 4;
+
         public override string ToString()
         {
             return this.Name;
         }
 
+        /// <summary>The New Year's Six bowls by stadium (as in NewBowlIdToOldBowlIdMap).</summary>
+        public static Dictionary<long, string> NewYearsSixBowlNames = new Dictionary<long, string>
+        {
+            { 0x806385CF, "Sugar Bowl" },
+            { 0x80654CDE, "Rose Bowl" },
+            { 0x80638637, "Peach Bowl" },
+            { 0x80638607, "Orange Bowl" },
+            { 0x80639DE7, "Fiesta Bowl" },
+            { 0x806385D0, "Cotton Bowl" },
+        };
+
         /// <summary>
         /// bowls 12-17 are dynamic based on playoff rotation.  
         /// </summary>
-        public static Dictionary<long,int> NewBowlIdToOldBowlIdMap = new Dictionary<long, int>
+        public static Dictionary<long, int> NewBowlIdToOldBowlIdMap = new Dictionary<long, int>
         {
             { 0, 0 }, // 68 ventures bowl
             { 1, 14 }, // alamo bowl
@@ -112,14 +144,14 @@ namespace CFB27.Data.Model
             { 11, 39 }, // National Championship
             { 18, 987043 }, // Cure Bowl
             { 19, 31 }, // Duke's Mayo Bowl
-            { 20, 31 }, // none
+            { 20, 999999 }, // none
             { 21, 6 }, // Famous Idaho Potato Bowl
             { 22, 987100 }, // Fenway Bowl
             { 23, 32 }, // First Responder Bowl
             { 24, 987101 }, // Frisco Bowl
             { 25, 23 }, // Gasparilla Bowl
             { 26, 19 }, // Gator Bowl
-            { 27, 31 }, // na
+            { 27, 999998 }, // na
             { 28, 30 }, // Hawaii Bowl
             { 29, 13 }, // Holiday Bowl
             { 30, 15 }, // Independence Bowl

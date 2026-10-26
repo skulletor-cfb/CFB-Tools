@@ -81,14 +81,23 @@ namespace CFB27.Data.Model
         [JsonIgnore]
         public bool IsBowlGame => !string.Equals(this.BowlGame, NoRefString);
 
+        /// <summary>The BowlGame row (for looking the bowl up in its table).</summary>
         [JsonIgnore]
-        public int BowlId => this.BowlGame.ToRowId();
+        public int BowlRow => this.BowlGame.ToRowId();
+
+        /// <summary>The stadium the game is played in (its asset reference, as in CFBBowl.NewBowlIdToOldBowlIdMap); 0 for none.</summary>
+        [JsonIgnore]
+        public long StadiumId => this.Stadium.CFBToInt64();
+
+        /// <summary>The NCAA 14 bowl id; a CFP quarterfinal or semifinal goes by the stadium it's played in.</summary>
+        [JsonIgnore]
+        public int BowlId => CFBBowl.LookupBowlId(this.BowlRow, this.StadiumId);
 
         /// <summary>
         /// One of the 11 CFP games. SeasonGame has no playoff flag (BowlSeason1/2 weeks mix bowls and playoff games), so
         /// it's the BowlGame row's IsPlayoffBowl.
         /// </summary>
-        public bool IsPlayoffGame(CFBTable<CFBBowl> bowls) => this.IsBowlGame && bowls.Records[this.BowlId].IsPlayoffBowl;
+        public bool IsPlayoffGame(CFBTable<CFBBowl> bowls) => this.IsBowlGame && bowls.Records[this.BowlRow].IsPlayoffBowl;
 
         [JsonIgnore]
         public int HomeTeamId => this.HomeTeam.ToRowId();

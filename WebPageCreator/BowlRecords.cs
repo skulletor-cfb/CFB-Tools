@@ -286,6 +286,7 @@ namespace EA_DB_Editor
 
             // make sure we have our data structure
             EnsureInstanceExists(dataEngine);
+            AddMissingTeams(dataEngine);
 
             foreach (var bowl in Bowl.Bowls.Values.Where(b => b.ScheduleGame.Week >= 16))
             {
@@ -315,6 +316,29 @@ namespace EA_DB_Editor
 
             // write it out to the file
             Instance.ToJsonFile(BowlRecordsFile);
+        }
+
+        /// <summary>
+        /// Names the teams the record file doesn't know yet. Its team list is only built with the file, so programs added
+        /// later (CFB 27's new ones, e.g. Liberty 909, NDSU 911, Sam Houston 913) showed up as bare ids.
+        /// </summary>
+        private static void AddMissingTeams(IDataEngine dataEngine)
+        {
+            if (Instance == null || Team.Teams == null)
+                return;
+
+            if (Instance.Teams == null)
+                Instance.Teams = new List<TeamMap>();
+
+            var known = new HashSet<int>(Instance.Teams.Select(t => t.TeamId));
+            foreach (var team in Team.Teams.Values)
+            {
+                var id = team.Id.GetRealTeamId(dataEngine);
+                if (known.Add(id))
+                {
+                    Instance.Teams.Add(new TeamMap { TeamId = id, School = team.Name, Mascot = team.Mascot });
+                }
+            }
         }
 
         public static void EnsureInstanceExists(IDataEngine dataEngine)

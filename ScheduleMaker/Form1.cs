@@ -505,14 +505,16 @@ namespace ScheduleMaker
 
             grid.Columns.AddRange(weekColumn,  homeColumn, awayColumn, stadiumColumn, kickoffColumn, dayColumn, timeColumn, conferenceColumn);
 
-            // combo and checkbox edits take effect right away rather than when the cell loses focus
+            // checkbox edits take effect right away rather than when the cell loses focus; a dropdown pick takes effect on
+            // Enter or a click (typing only moves through the list)
             grid.CurrentCellDirtyStateChanged += (s, e) =>
             {
-                if (grid.IsCurrentCellDirty)
+                if (grid.IsCurrentCellDirty && grid.CurrentCell is not DataGridViewComboBoxCell)
                 {
                     grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
                 }
             };
+            ComboTypeAhead.Attach(grid);
             grid.CellValueChanged += OnCellValueChanged;
             grid.DataError += (s, e) => e.ThrowException = false;
 

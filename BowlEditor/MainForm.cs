@@ -245,14 +245,9 @@ namespace BowlEditor
             grid.Columns.Add(TextColumn("Date", 80));
             grid.Columns.Add(TextColumn("Seeds", 80));
 
-            // commit a team pick right away, so the row colors and status update as you choose
-            grid.CurrentCellDirtyStateChanged += (s, e) =>
-            {
-                if (grid.IsCurrentCellDirty && grid.CurrentCell is DataGridViewComboBoxCell)
-                {
-                    grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
-                }
-            };
+            // a team pick takes effect on Enter or a click (typing only moves through the list), so the row colors,
+            // swaps and status update once per pick
+            ComboTypeAhead.Attach(grid);
             grid.CellValueChanged += OnCellValueChanged;
 
             Controls.Add(grid);

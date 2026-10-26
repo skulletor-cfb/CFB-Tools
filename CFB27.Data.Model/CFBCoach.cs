@@ -34,6 +34,8 @@ namespace CFB27.Data.Model
             coach.ExperiencePoints = Convert.ToInt32(record["ExperiencePoints"]);
             coach.CareerLongWinStreak = Convert.ToInt32(record["CareerLongWinStreak"]);
             coach.CoachPrestige = record["CoachPrestige"] as string;
+            coach.JobSecurity = Convert.ToInt32(record["CurrentJobSecurityPercentage"]);
+            coach.JobSecurityRank = Convert.ToInt32(record["CurrentJobSecurityPercentageRank"]);
             coach.AlmaMater = Convert.ToInt32(record["AlmaMater"]);
             coach.Portrait = Convert.ToInt32(record["Portrait"]);
             coach.OffensivePlaybook = CFBPlaybook.Find(record["OffensivePlaybook"] as string);
@@ -80,6 +82,12 @@ namespace CFB27.Data.Model
 
         /// <summary>LetterGrade enum name, e.g. Bminus</summary>
         public string CoachPrestige { get; set; }
+
+        /// <summary>CurrentJobSecurityPercentage: 100 is safe, lower is hotter</summary>
+        public int JobSecurity { get; set; }
+
+        /// <summary>CurrentJobSecurityPercentageRank across every coach (1 most secure)</summary>
+        public int JobSecurityRank { get; set; }
 
         /// <summary>
         /// Team.TEAM_ORIGID minus <see cref="AlmaMaterOrigIdOffset"/> (Deion Sanders 32 = Florida State 1132), not a TeamIndex.

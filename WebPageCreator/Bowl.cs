@@ -13,6 +13,9 @@ namespace EA_DB_Editor
         /// starting with 2584 the Rose Bowl is only a quarterfinal
         /// </summary>
         public const int CFP12TeamRoseBowlQFOnlyStartingYear = 2584;
+
+        /// <summary>first CFB 27 season (Form1.CFB27StartingYear is the dynasty file's year, 587)</summary>
+        public const int CFB27StartingYear = 2587;
         public const int CFP12TeamPlayoffStartingYear = 2542;
         public const int CureBowl = 987043;
         public const int SaluteVetsBowl = 987051;
@@ -296,49 +299,58 @@ namespace EA_DB_Editor
             }
 
             List<Bowl> bowls = new List<Bowl>();
-            var firstRnd = new[] { CFB5v12, CFB6v11, CFB7v10, CFB8v9};
-            var order = new List<int>() { NationalChampionship };
-            var rotation = (Form1.CalendarYear - CFP12TeamRoseBowlQFOnlyStartingYear) % 5;
-
-            switch (rotation)
+            if (Form1.CalendarYear >= CFB27StartingYear)
             {
-                case 0:
-                    // Sugar & Orange are semi
-                    // Rose, Cotton, Peach, Fiesta  are quarter
-                    order.AddBowls(SugarBowl, OrangeBowl, RoseBowl, CottonBowl, PeachBowl, FiestaBowl);
-                    break;
-
-                case 1:
-                    // Cotton & Peach are semi
-                    // Sugar, Fiesta, Orange, Rose
-                    order.AddBowls(CottonBowl, PeachBowl, RoseBowl, SugarBowl, OrangeBowl, FiestaBowl);
-                    break;
-
-                case 2:
-                    // Fiesta & Sugar are semi
-                    // Rose, Orange, Cotton, Peach are quarter
-                    order.AddBowls(SugarBowl, FiestaBowl, RoseBowl, OrangeBowl, CottonBowl, PeachBowl);
-                    break;
-
-                case 3:
-                    // Orange & Cotton
-                    // Rose, Sugar, Peach, Fiesta
-                    order.AddBowls(OrangeBowl, CottonBowl, RoseBowl, SugarBowl, PeachBowl, FiestaBowl);
-                    break;
-
-                case 4:
-                    // Fiesta & Peach
-                    // Rose, Sugar, Orange, Cotton
-                    order.AddBowls(PeachBowl, FiestaBowl, RoseBowl, SugarBowl, OrangeBowl, CottonBowl);
-                    break;
-
-                default:
-                    throw new InvalidOperationException("BAD PLAYOFF ORDER");
-
+                // CFB 27 plays each round in its own week (first round 17 ... title 20), and the New Year's Six bowls hosting
+                // the quarterfinals and semifinals don't follow the rotation
+                bowls.AddRange(Bowls.Values.Where(b => b.Week > 16 && b.ScheduleGame.IsPlayoffGame).OrderByDescending(b => b.Week).ThenBy(b => b.Game));
             }
+            else
+            {
+                var firstRnd = new[] { CFB5v12, CFB6v11, CFB7v10, CFB8v9};
+                var order = new List<int>() { NationalChampionship };
+                var rotation = (Form1.CalendarYear - CFP12TeamRoseBowlQFOnlyStartingYear) % 5;
 
-            order.AddRange(firstRnd);
-            bowls.AddRange(order.Select(i => Bowl.FindById(i)));
+                switch (rotation)
+                {
+                    case 0:
+                        // Sugar & Orange are semi
+                        // Rose, Cotton, Peach, Fiesta  are quarter
+                        order.AddBowls(SugarBowl, OrangeBowl, RoseBowl, CottonBowl, PeachBowl, FiestaBowl);
+                        break;
+
+                    case 1:
+                        // Cotton & Peach are semi
+                        // Sugar, Fiesta, Orange, Rose
+                        order.AddBowls(CottonBowl, PeachBowl, RoseBowl, SugarBowl, OrangeBowl, FiestaBowl);
+                        break;
+
+                    case 2:
+                        // Fiesta & Sugar are semi
+                        // Rose, Orange, Cotton, Peach are quarter
+                        order.AddBowls(SugarBowl, FiestaBowl, RoseBowl, OrangeBowl, CottonBowl, PeachBowl);
+                        break;
+
+                    case 3:
+                        // Orange & Cotton
+                        // Rose, Sugar, Peach, Fiesta
+                        order.AddBowls(OrangeBowl, CottonBowl, RoseBowl, SugarBowl, PeachBowl, FiestaBowl);
+                        break;
+
+                    case 4:
+                        // Fiesta & Peach
+                        // Rose, Sugar, Orange, Cotton
+                        order.AddBowls(PeachBowl, FiestaBowl, RoseBowl, SugarBowl, OrangeBowl, CottonBowl);
+                        break;
+
+                    default:
+                        throw new InvalidOperationException("BAD PLAYOFF ORDER");
+
+                }
+
+                order.AddRange(firstRnd);
+                bowls.AddRange(order.Select(i => Bowl.FindById(i)));
+            }
 
             // we have expanded playoffs find teams where rank < than playoff count
             foreach (var bowl in Bowls.Values.Where(b => b.Week > 16 && b.ScheduleGame.IsPlayoffGame && !bowls.Any(bowl => bowl.Id == b.Id)).OrderBy(b => b.ScheduleGame.HomeTeam.BCSRank))
@@ -346,13 +358,32 @@ namespace EA_DB_Editor
                 bowls.Add(bowl);
             }
 
-            foreach (var bowl in Bowls.Values.Where(b => b.Week > 16 && !bowls.Any(bowl => bowl.Id == b.Id)).OrderByDescending(b => b.Week).ThenByDescending(b => b.Game))
+            // the rest in BowlEditor's order; a bowl not in that list goes after, latest first
+            var nameOrder = NonPlayoffBowlOrder.Select((name, i) => (Key: NormalizeBowlName(name), Index: i)).ToDictionary(x => x.Key, x => x.Index);
+            int Position(Bowl b) => nameOrder.TryGetValue(NormalizeBowlName(b.Name), out var i) ? i : NonPlayoffBowlOrder.Length;
+
+            foreach (var bowl in Bowls.Values.Where(b => b.Week > 16 && !bowls.Any(bowl => bowl.Id == b.Id)).OrderBy(Position).ThenByDescending(b => b.Week).ThenByDescending(b => b.Game))
             {
                 bowls.Add(bowl);
             }
 
             return bowls;
         }
+
+        /// <summary>The non-playoff bowls in the order BowlEditor lists them (BowlMatchups.DisplayOrder).</summary>
+        private static readonly string[] NonPlayoffBowlOrder =
+        {
+            "Citrus Bowl", "Alamo Bowl", "Reliaquest Bowl", "Pop-Tarts Bowl", "Las Vegas Bowl", "Gator Bowl",
+            "Duke's Mayo Bowl", "Music City Bowl", "Texas Bowl", "Liberty Bowl", "Holiday Bowl", "Sun Bowl", "Rate Bowl",
+            "Military Bowl", "Birmingham Bowl", "Independence Bowl", "Gasparilla Bowl", "First Responder Bowl",
+            "Fenway Bowl", "Hawai'i Bowl", "Armed Forces Bowl", "New Orleans Bowl", "Boca Raton Bowl", "New Mexico Bowl",
+            "Famous Idaho Potato Bowl", "Cure Bowl", "Myrtle Beach Bowl", "Arizona Bowl", "68 Ventures Bowl",
+            "Salute to Veterans Bowl", "Xbox Bowl", "Frisco Bowl",
+        };
+
+        /// <summary>Letters and digits only, lower case ("Hawai'i Bowl" and "Hawaii Bowl" match).</summary>
+        private static string NormalizeBowlName(string name) =>
+            new string((name ?? string.Empty).Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
 
         public static List<Bowl> GetBowlsInPlayoffOrderOld()
         {

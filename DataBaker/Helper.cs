@@ -240,6 +240,10 @@ namespace DataBaker
         const int cfp12Start = 2542;
         const int cfp12RoseBowlQFStart = 2584;
 
+        // CFB 27 seasons play each playoff round in its own week (first round 17 ... title 20), and the bowls hosting the
+        // quarterfinals and semifinals don't follow the rotation in Spots
+        public const int cfb27Start = 2587;
+
         public static bool IsPlayoffBowl(this PlayedGame game)
         {
             int[] order;

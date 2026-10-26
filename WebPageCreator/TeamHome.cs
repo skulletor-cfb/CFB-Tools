@@ -1109,8 +1109,8 @@ namespace EA_DB_Editor
             Win = team.Win;
             Loss = team.Loss;
             Streak = team.SeasonWinLossStreak;
-            BCSRank = team.CFPPoll_CurrentRank;
-            BCSPrevious = team.CFPPoll_LastWeeksRank;
+            BCSRank = isPreseason? team.CFPPoll_CurrentRank : team.CoachesPoll_CurrentRank;
+            BCSPrevious = isPreseason? team.CFPPoll_LastWeeksRank : team.CoachesPoll_LastWeeksRank;
             MediaPollRank = team.MediaPoll_CurrentRank;
             MediaPollFirstPlaceVotes = team.MediaPoll_FirstPlaceVotes;
             MediaPollPoints = team.MediaPoll_CurrentPoints;

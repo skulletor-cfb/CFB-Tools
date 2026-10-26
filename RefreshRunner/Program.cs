@@ -288,7 +288,7 @@ namespace RefreshRunner
                 string dynastyFile = null;
 
                 dynastyFile = Path.Combine(dirs[i], GetPreseasonFileName(dirs[i]));
-                if (false && File.Exists(dynastyFile))
+                if (File.Exists(dynastyFile))
                 {
                     Console.WriteLine("Preseason");
                     appDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString());
@@ -319,6 +319,7 @@ namespace RefreshRunner
                     form.CreateReports(false);
                     // AppDomain.Unload(appDomain);
 
+#if false
                     // do recruit updates
                     Console.WriteLine("Post season");
                     appDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString());
@@ -332,6 +333,7 @@ namespace RefreshRunner
                         form.UpdateRecruitingReports(false);
                     }
                     catch { }
+#endif
 
                     // copy all files
                     Parallel.ForEach(Directory.GetFiles(ReportsDir), file => File.Copy(file, Path.Combine(reportDestinations[i], Path.GetFileName(file)), true));
