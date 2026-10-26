@@ -581,10 +581,10 @@ namespace EA_DB_Editor
             RecruitClassRanking.Create(this.DataEngine);
             Stadium.Create(this.DataEngine);
             ConferenceChampion.Create(this.DataEngine);
-            Recruit.CreateRecruits(this.DataEngine);
+            Recruit.CreateRecruits(this.DataEngine, isPreseason);
             ScheduledGame.Create(this.DataEngine, isPreseason);
             Award.Create(this.DataEngine);
-            Recruit.CreateRecruits(this.DataEngine);
+            Recruit.CreateRecruits(this.DataEngine, isPreseason);
             NcaaRecord.Create(this.DataEngine);
             PlayerDB.Create(this.DataEngine);
             Conference.Create(this.DataEngine);

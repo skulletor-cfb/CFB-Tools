@@ -1445,6 +1445,11 @@ namespace EA_DB_Editor
                 exp = table[idx].lEntries[14].Data.ToInt32();
             }
         }
+
+        public Dictionary<int, Recruit> ReadTransferPortal()
+        {
+            return new Dictionary<int, Recruit>();
+        }
         #endregion
     }
 }

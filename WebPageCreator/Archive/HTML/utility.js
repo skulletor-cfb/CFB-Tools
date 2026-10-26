@@ -5453,6 +5453,15 @@ function loadRecruitData() {
     });
 
     $.ajax({
+        url: "txportal.csv",
+        // async: false,
+        success: function (data) {
+            var gems = csvJSON(data);
+            addRecruitRows(gems, "txportalTable", teamId, stateFilter, positionFilter, juco);
+        }
+    });
+
+    $.ajax({
         url: "elite11.csv",
         // async: false,
         success: function (data) {

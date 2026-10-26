@@ -1298,7 +1298,8 @@ namespace EA_DB_Editor
         /// <summary>
         /// Every ranked recruit, keyed like NCAA 14: by RecruitId (the Recruit table row) and again by 10000 + national rank.
         /// </summary>
-        public Dictionary<int, Recruit> ReadRecruits()
+        public Dictionary<int, Recruit> ReadRecruits() => ReadRecruits(false);
+        public Dictionary<int, Recruit> ReadRecruits(bool transferPortal)
         {
             var recruits = new Dictionary<int, Recruit>();
 
@@ -1313,7 +1314,7 @@ namespace EA_DB_Editor
             }
 
             var recruitTable = dynasty.GetTable<CFBRecruit>(TableName.Recruit, CFBRecruit.Transform);
-            foreach (var record in recruitTable.Records.Where(r => r.IsRanked && !r.IsTransfer))
+            foreach (var record in recruitTable.Records.Where(r => r.IsRanked && r.IsTransfer == transferPortal))
             {
                 var player = this.Players.Records[record.PlayerRow];
                 var topSchools = record.TopSchoolTeamIndexes.Select(t => CFBTeam.TeamIndexToOldIdMap[t]).Concat(Enumerable.Repeat(NoTeamId, 3)).ToList();
@@ -1349,7 +1350,11 @@ namespace EA_DB_Editor
                 };
 
                 recruits[recruit.RecruitId] = recruit;
-                recruits[10000 + recruit.Rank] = recruit;
+
+                if (!transferPortal)
+                {
+                    recruits[10000 + recruit.Rank] = recruit;
+                }
             }
 
             return recruits;
@@ -1664,5 +1669,7 @@ namespace EA_DB_Editor
         {
             return ReadStadiums().TryGetValue(siteId, out var stadium) ? stadium.Name : string.Empty;
         }
+
+        public Dictionary<int, Recruit> ReadTransferPortal() => ReadRecruits(true);
     }
 }

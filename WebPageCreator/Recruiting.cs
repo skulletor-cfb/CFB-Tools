@@ -21,6 +21,7 @@ namespace EA_DB_Editor
         private const string Elite11 = "elite11";
         private const string SimpsonSelect = "simpsonselect";
         private const string MrTexas = "mrtexas";
+        private const string TransferPortal = "txportal";
         private const int TexasId = 42;
         public static void CreateFeatureRecruitPage(IDataEngine dataEngine, string scenario, bool isPreseason)
         {
@@ -34,7 +35,7 @@ namespace EA_DB_Editor
                     tw.WriteLine("<table><tr><td width=800 height=40></td></tr></table>");
                     tw.WriteLine("<table width=800 cellpadding=20 cellspacing=0><tr><td width=100% align=left colspan=20>");
                     tw.WriteLine("<table cellpadding=0 cellspacing=0 width=100%>");
-                    tw.WriteLine($"<tr><td class=c8 width=100%><center><img id='currentSchoolLogo' border=0 src=../HTML/Logos/{scenario}.png></center></td><td class=c8></td></tr>	 <tr><td class=c3 width=800 align=center colspan=8><b>| <a href='recruits.html'>Recruits</a> | | <a href='elite11.html'>Elite 11</a> | | <a href='simpsonselect.html'>Simpson Select</a> | | <a href='mrtexas.html'>Mr. Texas Football</a> |</b></td></tr>");
+                    tw.WriteLine($"<tr><td class=c8 width=100%><center><img id='currentSchoolLogo' border=0 src=../HTML/Logos/{scenario}.png></center></td><td class=c8></td></tr>	 <tr><td class=c3 width=800 align=center colspan=8><b>| <a href='recruits.html'>Recruits</a> | | <a href='txportal.html'>Transfer Portal</a>| | <a href='elite11.html'>Elite 11</a> | | <a href='simpsonselect.html'>Simpson Select</a> | | <a href='mrtexas.html'>Mr. Texas Football</a> |</b></td></tr>");
                     tw.WriteLine("</table>");
                     tw.WriteLine("</td></tr>");
 
@@ -43,6 +44,10 @@ namespace EA_DB_Editor
 
                     switch (scenario)
                     {
+                        case TransferPortal:
+                            recruits = dataEngine.ReadTransferPortal().Values.OrderBy( r => r.Rank).ToArray();
+                            name = "Transfer Portal";
+                            break;
                         case Elite11:
                             // only take 11 of the top 20
                             recruits = Recruit.RecruitRankings.Values.Where(r => r.PositionValue == 0 && !r.IsAthlete && (r.Tendency == 0 || r.Tendency == 1)).Distinct().OrderBy(r => r.Rank).Take(11).ToArray();
@@ -80,6 +85,7 @@ namespace EA_DB_Editor
         
         public static void CreateRecruitsPage(IDataEngine dataEngine, bool isPreseason)
         {
+            CreateFeatureRecruitPage(dataEngine, TransferPortal, isPreseason);
             CreateFeatureRecruitPage(dataEngine, Elite11, isPreseason);
             CreateFeatureRecruitPage(dataEngine, SimpsonSelect, isPreseason);
             CreateFeatureRecruitPage(dataEngine, MrTexas, isPreseason);
@@ -89,7 +95,7 @@ namespace EA_DB_Editor
                     tw.WriteLine("<table><tr><td width=800 height=40></td></tr></table>");
                     tw.WriteLine("<table width=800 cellpadding=20 cellspacing=0><tr><td width=100% align=left colspan=20>");
                     tw.WriteLine("<table cellpadding=0 cellspacing=0 width=100%>");
-                    tw.WriteLine("<tr><td class=c8 width=100%><center><img border=0 src=../HTML/Logos/ESPNU.jpg></center></td><td class=c8></td></tr>	 <tr><td class=c3 width=800 align=center colspan=8><b>| <a href='recruits.html'>Recruits</a> | | <a href='elite11.html'>Elite 11</a> | | <a href='simpsonselect.html'>Simpson Select</a>| | <a href='hsaaroster.html'>All American Game Rosters</a> | | <a href='RecruitingRankings.html'>National Team Recruiting Rankings</a> | | <a href='RecruitingRankingsConf.html'>Recruiting Rankings by Conference</a> |</b></td></tr>");
+                    tw.WriteLine("<tr><td class=c8 width=100%><center><img border=0 src=../HTML/Logos/ESPNU.jpg></center></td><td class=c8></td></tr>	 <tr><td class=c3 width=800 align=center colspan=8><b>| <a href='recruits.html'>Recruits</a> | | <a href='txportal.html'>Transfer Portal</a> | | <a href='elite11.html'>Elite 11</a> | | <a href='simpsonselect.html'>Simpson Select</a>| | <a href='hsaaroster.html'>All American Game Rosters</a> | | <a href='RecruitingRankings.html'>National Team Recruiting Rankings</a> | | <a href='RecruitingRankingsConf.html'>Recruiting Rankings by Conference</a> |</b></td></tr>");
                     tw.WriteLine("</table>");
                     tw.WriteLine("</td></tr>");
 
@@ -107,7 +113,7 @@ namespace EA_DB_Editor
                     tw.WriteLine("<table><tr><td width=800 height=40></td></tr></table>");
                     tw.WriteLine("<table width=800 cellpadding=20 cellspacing=0><tr><td width=100% align=left colspan=20>");
                     tw.WriteLine("<table cellpadding=0 cellspacing=0 width=100%>");
-                    tw.WriteLine("<tr><td class=c8 width=100%><center><img id='currentSchoolLogo' border=0 src=../HTML/Logos/ESPNU.jpg></center></td><td class=c8></td></tr>	 <tr><td class=c3 width=800 align=center colspan=8><b>| <a href='recruits.html'>Recruits</a> | | <a href='elite11.html'>Elite 11</a> | | <a href='simpsonselect.html'>Simpson Select</a> | | <a href='hsaaroster.html'>All American Game Rosters</a> | | <a href='recruits.html?juco=true'>JUCO Recruits</a> | | <a href='RecruitingRankings.html'>National Team Recruiting Rankings</a> | | <a href='RecruitingRankingsConf.html'>Recruiting Rankings by Conference</a> |</b></td></tr>");
+                    tw.WriteLine("<tr><td class=c8 width=100%><center><img id='currentSchoolLogo' border=0 src=../HTML/Logos/ESPNU.jpg></center></td><td class=c8></td></tr>	 <tr><td class=c3 width=800 align=center colspan=8><b>| <a href='recruits.html'>Recruits</a>| | <a href='txportal.html'>Transfer Portal</a>  | | <a href='elite11.html'>Elite 11</a> | | <a href='simpsonselect.html'>Simpson Select</a> | | <a href='hsaaroster.html'>All American Game Rosters</a> | | <a href='recruits.html?juco=true'>JUCO Recruits</a> | | <a href='RecruitingRankings.html'>National Team Recruiting Rankings</a> | | <a href='RecruitingRankingsConf.html'>Recruiting Rankings by Conference</a> |</b></td></tr>");
                     tw.WriteLine("</table>");
                     tw.WriteLine("</td></tr>");
 
@@ -239,7 +245,7 @@ namespace EA_DB_Editor
 
         public static void CreateRecruitingPages(IDataEngine dataEngine, bool isPreseason)
         {
-            Recruit.CreateRecruits(dataEngine);
+            Recruit.CreateRecruits(dataEngine, isPreseason);
             Conference.Create(dataEngine);
             RecruitClassRanking.Create(dataEngine);
             CreateRecruitsPage(dataEngine, isPreseason);
@@ -378,13 +384,18 @@ namespace EA_DB_Editor
     public class Recruit
     {
         public static Dictionary<int, Recruit> RecruitRankings { get; set; }
-        public static void CreateRecruits(IDataEngine dataEngine)
+        public static Dictionary<int, Recruit> TransferPortalRankings { get; set; }
+        public static void CreateRecruits(IDataEngine dataEngine, bool isPreseason)
         {
             if (RecruitRankings != null)
                 return;
 
             RecruitRankings = dataEngine.ReadRecruits();
 
+            if (!isPreseason)
+            {
+                TransferPortalRankings = dataEngine.ReadTransferPortal();
+            }
         }
 
         public static void ToCsvFile(IEnumerable<Recruit> recruits, string filename, bool showLogo = false)

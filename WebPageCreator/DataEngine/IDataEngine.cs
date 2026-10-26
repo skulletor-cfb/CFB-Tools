@@ -185,5 +185,12 @@ namespace EA_DB_Editor
         /// <param name="siteId"></param>
         /// <returns></returns>
         string ReadStadiumName(int siteId);
+
+        /// <summary>
+        /// read transfrs from the dynasty
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<int, Recruit> ReadTransferPortal();
+
     }
 }
