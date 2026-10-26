@@ -2,6 +2,7 @@ using CFB27.Data.Model;
 using MaddenFranchise;
 using MaddenFranchise.Dynasty;
 using NCAA14Utility;
+using NCAA14Utility.Scheduling;
 
 namespace ScheduleMaker
 {
@@ -396,6 +397,7 @@ namespace ScheduleMaker
             var loaded = PreseasonSchedule.Load(file);
 
             schedule = loaded;
+            ScheduleHelpers.TeamAndConferences = CFBConference.ReadTeamConferences(file);
             isDirty = false;
 
             SetColumnChoices();

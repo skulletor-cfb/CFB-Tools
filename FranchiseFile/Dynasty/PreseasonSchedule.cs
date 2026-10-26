@@ -6,8 +6,8 @@ namespace MaddenFranchise.Dynasty;
 /// The coming season's schedule while a dynasty is in the preseason.
 ///
 /// Before week 0, the regular-season games aren't in SeasonGame yet. They're a "known games" list:
-/// SeasonScheduleManager.ScheduleKnownGames → one ScheduleKnownGames row per season (index 0 = the
-/// coming season) → KnownGames → ScheduleKnownGame rows. When the game advances to week 0 it copies
+/// SeasonScheduleManager.ScheduleKnownGames → one ScheduleKnownGames row per dynasty season (index =
+/// SeasonInfo.CurrentYear for the coming season) → KnownGames → ScheduleKnownGame rows. When the game advances to week 0 it copies
 /// that list into SeasonGame (home, away, week, day, time slot, kickoff flag and stadium carry over
 /// unchanged), adds the conference-championship placeholders, and empties the list. Editing these
 /// rows in a preseason save therefore edits the season the game will build.
@@ -49,8 +49,13 @@ public sealed class PreseasonSchedule
             ?? throw new InvalidDataException("No SeasonScheduleManager record was found in this save.");
         var seasons = Follow(file, manager.GetFieldByKey("ScheduleKnownGames")?.ReferenceData)
             ?? throw new InvalidDataException("SeasonScheduleManager has no known-games list.");
-        var comingSeason = Follow(file, ArrayItems(seasons).FirstOrDefault())
-            ?? throw new InvalidDataException("The known-games list has no entry for the coming season.");
+        // one list per dynasty season, by SeasonInfo.CurrentYear (0 = the dynasty's first season); a season's list
+        // is emptied when the game builds SeasonGame from it at week 0
+        var seasonInfo = FirstRecord(file.GetPrimaryTable("SeasonInfo"))
+            ?? throw new InvalidDataException("No SeasonInfo record was found in this save.");
+        int year = Convert.ToInt32(seasonInfo["CurrentYear"]);
+        var comingSeason = (year >= 0 && year < seasons.FieldsArray.Count ? Follow(file, seasons.FieldsArray[year].ReferenceData) : null)
+            ?? throw new InvalidDataException($"The known-games list has no entry for the coming season (dynasty year {year}).");
         var gameList = Follow(file, comingSeason.GetFieldByKey("KnownGames")?.ReferenceData)
             ?? throw new InvalidDataException("The coming season has no known-games list.");
 

@@ -77,6 +77,15 @@ namespace CFB27.Data.Model
             return ClassicIds.TryGetValue(conference["ConferenceEnum"] as string ?? string.Empty, out var id) ? id : -1;
         }
 
+        /// <summary>
+        /// Team table row -> classic conference id for every team in a conference, as the save has them (membership can
+        /// change between seasons). The generic FCS teams are in no conference and aren't included.
+        /// </summary>
+        public static Dictionary<int, int> ReadTeamConferences(FranchiseFile dynasty) =>
+            Read(dynasty)
+                .SelectMany(c => c.Divisions.SelectMany(d => d.TeamRows).Select(row => (Row: row, c.ClassicId)))
+                .ToDictionary(t => t.Row, t => t.ClassicId);
+
         /// <summary>The save's conferences (named slots only), with divisions and member teams.</summary>
         public static List<CFBConference> Read(FranchiseFile dynasty)
         {
