@@ -577,6 +577,11 @@ namespace EA_DB_Editor
                 conferences.Add(conference.Id, conference);
             }
 
+            // stubs
+            conferences[6] = new Conference { Id = 6, Name = "stub" };
+            conferences[8] = new Conference { Id = 8, Name = "stub" };
+            conferences[12] = new Conference { Id = 12, Name = "stub" };
+
             return conferences;
         }
 
@@ -1308,7 +1313,7 @@ namespace EA_DB_Editor
             }
 
             var recruitTable = dynasty.GetTable<CFBRecruit>(TableName.Recruit, CFBRecruit.Transform);
-            foreach (var record in recruitTable.Records.Where(r => r.IsRanked))
+            foreach (var record in recruitTable.Records.Where(r => r.IsRanked && !r.IsTransfer))
             {
                 var player = this.Players.Records[record.PlayerRow];
                 var topSchools = record.TopSchoolTeamIndexes.Select(t => CFBTeam.TeamIndexToOldIdMap[t]).Concat(Enumerable.Repeat(NoTeamId, 3)).ToList();

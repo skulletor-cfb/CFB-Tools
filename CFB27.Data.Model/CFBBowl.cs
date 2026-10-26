@@ -154,7 +154,7 @@ namespace CFB27.Data.Model
             { 27, 999998 }, // na
             { 28, 30 }, // Hawaii Bowl
             { 29, 13 }, // Holiday Bowl
-            { 30, 15 }, // Independence Bowl
+            { 30, 16 }, // Independence Bowl
             { 31, 1 }, // Las Vegas Bowl
             { 32, 10 }, // Liberty Bowl
             { 33, 24 }, // Military Bowl

@@ -64,6 +64,7 @@ namespace CFB27.Data.Model
 
         /// <summary>DraftPositionE name of a second position (SS, WR, CB ...), Invalid_ for none</summary>
         public string AlternatePosition1 { get; set; }
+        public bool IsTransfer => Class.StartsWith("Transfer", StringComparison.OrdinalIgnoreCase);
 
         public List<int> TopSchoolTeamIndexes { get; set; } = new List<int>();
 
