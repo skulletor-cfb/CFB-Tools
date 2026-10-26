@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace NCAA14Utility.Scheduling
@@ -370,5 +371,74 @@ namespace NCAA14Utility.Scheduling
                 this.ConferenceSchedule = this.ScenarioForSeason.BuildHashSet();
             }
         }
+
+        public bool IsEvenYear => this.Year % 2 == 0;
+
+        /// <summary>
+        /// Whether a game must be played in a particular week: true with that week in <paramref name="expectedWeek"/>
+        /// (its current week when it just mustn't move), false when it can go anywhere.
+        /// </summary>
+        public bool IsLocked(int team1, int team2, int currentWeek, out int expectedWeek) =>
+            this.IsGameLocked(team1, team2, currentWeek, out expectedWeek);
+
+        /// <summary>The locks every conference shares (<see cref="IsSharedLock"/>); a conference adds its own by overriding.</summary>
+        protected virtual bool IsGameLocked(int team1, int team2, int currentWeek, out int expectedWeek) =>
+            IsSharedLock(team1, team2, this.IsEvenYear, currentWeek, out expectedWeek);
+
+        /// <summary>Rivalries that never move from the week the game schedules them.</summary>
+        private static readonly (int, int)[] FixedRivalries =
+        {
+            (Navy, NotreDame), (Army, AF), (AF, Navy),
+            (FSU, UF), (UGA, GT), (Clemson, SCAR), (UL, UK),
+        };
+
+        public const int ArmyNavyWeek = 13;
+
+        /// <summary>
+        /// Army-Navy in week 13 and the fixed rivalries where they are, plus Notre Dame's: it travels to Stanford (even
+        /// years) or USC (odd years) in week 13 and hosts the other in week 7.
+        /// </summary>
+        public static bool IsSharedLock(int team1, int team2, bool evenYear, int currentWeek, out int expectedWeek)
+        {
+            bool Is(int a, int b) => (team1 == a && team2 == b) || (team1 == b && team2 == a);
+
+            expectedWeek = currentWeek;
+            if (Is(Army, Navy))
+            {
+                expectedWeek = ArmyNavyWeek;
+                return true;
+            }
+
+            if (FixedRivalries.Any(r => Is(r.Item1, r.Item2)))
+            {
+                return true;
+            }
+
+            if (Is(NotreDame, Stanford) || Is(NotreDame, USC))
+            {
+                bool roadGame = Is(NotreDame, evenYear ? Stanford : USC);
+                expectedWeek = roadGame ? NotreDameRoadRivalryWeek : NotreDameHomeRivalryWeek;
+                return true;
+            }
+
+            expectedWeek = -1;
+            return false;
+        }
+
+        /// <summary>The host of a Notre Dame-Stanford or Notre Dame-USC game for the year, or -1 for any other game.</summary>
+        public static int NotreDameRivalryHost(int team1, int team2, bool evenYear)
+        {
+            int other = team1 == NotreDame ? team2 : team2 == NotreDame ? team1 : -1;
+            if (other != Stanford && other != USC)
+            {
+                return -1;
+            }
+
+            // the road game is the one played in week 13
+            return other == (evenYear ? Stanford : USC) ? other : NotreDame;
+        }
+
+        public const int NotreDameRoadRivalryWeek = 13;
+        public const int NotreDameHomeRivalryWeek = 7;
     }
 }

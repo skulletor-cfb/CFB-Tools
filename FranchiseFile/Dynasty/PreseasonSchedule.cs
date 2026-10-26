@@ -158,13 +158,14 @@ public sealed class PreseasonSchedule
     /// Problems introduced since the schedule was loaded: a team booked more times in a week than it
     /// was, or a team whose number of games changed. Empty when the edits look consistent. (The
     /// game's generic FCS opponents legitimately appear several times in one week, so this compares
-    /// against the loaded schedule rather than requiring one game per team per week.)
+    /// against the loaded schedule rather than requiring one game per team per week, and doesn't check
+    /// the generic FCS teams' weeks at all.)
     /// </summary>
     public List<string> Validate()
     {
         var problems = new List<string>();
         var bookingsNow = CountBookingsPerWeek();
-        foreach (var entry in bookingsNow)
+        foreach (var entry in bookingsNow.Where(e => !IsGenericFcs(e.Key.Team)))
         {
             if (entry.Value > Math.Max(1, _bookingsAtLoad.GetValueOrDefault(entry.Key)))
             {
@@ -183,6 +184,10 @@ public sealed class PreseasonSchedule
         }
         return problems;
     }
+
+    /// <summary>The game's generic FCS opponents (FCS East, West...) have no TeamIndex (255).</summary>
+    private bool IsGenericFcs(int teamRow) =>
+        teamRow >= 0 && teamRow < TeamTable.Records.Count && Convert.ToInt32(TeamTable.Records[teamRow]["TeamIndex"]) == 255;
 
     /// <summary>Makes the current schedule the baseline <see cref="Validate"/> compares against (after a bulk rewrite such as an import).</summary>
     public void AcceptChanges()

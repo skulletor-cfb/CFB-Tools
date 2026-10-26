@@ -141,6 +141,44 @@ namespace ScheduleMaker
         }
 
         /// <summary>
+        /// Ctrl+Z. Initializes the season the game generated: tops the FCS games up to 110 with FCS-vs-FCS placeholders, then
+        /// sets every conference's games to our rotation for the year in the save's name (DYNASTY-Y588P is 2588). Nothing
+        /// is written until Save as.
+        /// </summary>
+        private void InitializeSeason()
+        {
+            LoadSchedule();
+            if (dynasty == null || schedule == null || savePath == null)
+            {
+                status.Text = "Ctrl+O to open a save first.";
+                return;
+            }
+
+            try
+            {
+                int year = SeasonInitializer.YearFromFileName(savePath);
+                Cursor = Cursors.WaitCursor;
+                grid.EndEdit();
+                var report = SeasonInitializer.Initialize(dynasty, schedule, year);
+                isDirty = true;
+                RefreshGrid();
+
+                var problems = schedule.Validate();
+                MessageBox.Show(this, $"{year} season\n\n" + string.Join("\n", report) +
+                    (problems.Count > 0 ? "\n\nValidate:\n" + string.Join("\n", problems.Take(20)) : string.Empty),
+                    "Initialize season", MessageBoxButtons.OK, problems.Count > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "Initialize season", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        /// <summary>
         /// Ctrl+I. Replaces the whole schedule with an NCAA 14 SCHD dump (CSV); the teams new in CFB 27 get a round robin
         /// and an FCS game. Nothing is written until Save as.
         /// </summary>
@@ -478,6 +516,7 @@ namespace ScheduleMaker
 
             var functions = new ToolStripMenuItem("F&unctions");
             functions.DropDownItems.Add(new ToolStripMenuItem("Read &Rankings", null, (s, e) => ReadRankings(), Keys.Control | Keys.B));
+            functions.DropDownItems.Add(new ToolStripMenuItem("&Initialize season schedule", null, (s, e) => InitializeSeason(), Keys.Control | Keys.Z));
 
             menu.Items.Add(file);
             menu.Items.Add(games);
