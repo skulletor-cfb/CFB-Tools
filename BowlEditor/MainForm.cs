@@ -175,8 +175,8 @@ namespace BowlEditor
                 status.Text = poll != null
                     ? $"Saved the CFP poll ({changed} team(s) moved) to {result.Destination}. Advance to bowl week to build the playoff from it."
                     : $"Saved {changed} changed game(s) to {result.Destination}. Changed games are unplayed again; advancing simulates them." +
-                      (matchups!.ClosedUserRequest ? "  Your team left this week's game, so its play-your-game request was closed." : string.Empty) +
-                      (matchups.WrittenResults.Count > 0 ? $"  Final score written (no box score): {string.Join("; ", matchups.WrittenResults)}." : string.Empty);
+                      (matchups!.ClosedUserRequest ? "  Your team left this week's game, so its play-your-game request went back to the CPU; advancing simulates that game." : string.Empty) +
+                      (matchups.RankChanges.Count > 0 ? $"  CFP rankings now match the seeds: {string.Join(", ", matchups.RankChanges)}." : string.Empty);
             }
             catch (Exception ex)
             {
@@ -307,8 +307,8 @@ namespace BowlEditor
                     return;
                 }
 
-                awayColumn.DataSource = matchups.BowlTeams;
-                homeColumn.DataSource = matchups.BowlTeams;
+                awayColumn.DataSource = matchups.Teams;
+                homeColumn.DataSource = matchups.Teams;
                 bool readOnly = matchups.NotEditableReason != null;
 
                 foreach (var game in matchups.Games)
@@ -319,13 +319,15 @@ namespace BowlEditor
                     row.ReadOnly = readOnly;
                     if (game.Locked)
                     {
-                        // the CFP field comes from the poll; a quarterfinal's visitor is the first-round winner
+                        // a quarterfinal's host is a top-four seed and its visitor the first-round winner
                         row.Cells[awayColumn.Index] = new DataGridViewTextBoxCell { Value = game.AwayNote ?? matchups.TeamName(game.Away) };
                         row.Cells[homeColumn.Index] = new DataGridViewTextBoxCell { Value = matchups.TeamName(game.Home) };
                         row.ReadOnly = true;
                         row.DefaultCellStyle.ForeColor = SystemColors.GrayText;
                     }
                 }
+
+                RefreshChoices(null);
             }
             finally
             {
@@ -333,6 +335,43 @@ namespace BowlEditor
             }
 
             Recolor();
+        }
+
+        /// <summary>
+        /// Gives each editable row's dropdowns the teams it can take as the games stand (a bowl: no CFP teams; a
+        /// first-round game: no quarterfinal hosts). The row being edited is skipped, its list can't change under it.
+        /// </summary>
+        private void RefreshChoices(DataGridViewRow? editing)
+        {
+            if (matchups == null)
+            {
+                return;
+            }
+
+            bool wasPopulating = populating;
+            populating = true;
+            try
+            {
+                foreach (DataGridViewRow row in grid.Rows)
+                {
+                    if (row == editing || row.Tag is not BowlSlot game || game.Locked)
+                    {
+                        continue;
+                    }
+
+                    var choices = matchups.ChoicesFor(game);
+                    foreach (var cell in new[] { row.Cells[homeColumn.Index], row.Cells[awayColumn.Index] }.OfType<DataGridViewComboBoxCell>())
+                    {
+                        cell.DataSource = choices;
+                        cell.ValueMember = nameof(TeamChoice.Row);
+                        cell.DisplayMember = nameof(TeamChoice.Label);
+                    }
+                }
+            }
+            finally
+            {
+                populating = wasPopulating;
+            }
         }
 
         private void OnCellValueChanged(object? sender, DataGridViewCellEventArgs e)
@@ -355,6 +394,8 @@ namespace BowlEditor
                 ShowTeams(swapped);
             }
 
+            // a first-round change moves teams in or out of the playoff, which changes what the bowls can pick
+            RefreshChoices(grid.Rows[e.RowIndex]);
             Recolor();
         }
 

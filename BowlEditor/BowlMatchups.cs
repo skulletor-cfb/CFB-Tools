@@ -5,9 +5,10 @@ using System.Linq;
 namespace BowlEditor
 {
     /// <summary>
-    /// The bowl games whose teams can still be changed: the regular bowls of the first two bowl weeks, from the current
-    /// week on. A matchup is only SeasonGame.HomeTeam / AwayTeam (nothing else in the save names the teams). The CFP
-    /// games are listed but not editable: the game builds the bracket from the week-16 CFP poll (see <see cref="CfpPoll"/>).
+    /// The postseason games whose teams can still be changed: the regular bowls and the CFP first round of the first two
+    /// bowl weeks, from the current week on. A matchup is only SeasonGame.HomeTeam / AwayTeam (nothing else in the save
+    /// names the teams). The quarterfinals are listed but not editable: their hosts are the top four seeds and their
+    /// visitors the first-round winners. (Before bowl week the field comes from the week-16 CFP poll, see <see cref="CfpPoll"/>.)
     /// <para>
     /// Edit in bowl week 1 (week 17). The matchups seen at week 16 are only projections: advancing re-picks every bowl
     /// from the standings, tie-ins and CFP rankings, then simulates the new week's games straight away. Those results
@@ -20,15 +21,18 @@ namespace BowlEditor
     /// <para>
     /// The user's own game this week also carries the user's "play your game" request (a SeasonGameRequest with a
     /// TargetUser), which is tied to the game, not the team. Moving the user's team out of it leaves the request on a
-    /// game the team isn't in, so the request is closed the way the game closes an answered one, and the vacated game
-    /// gets a written final score, as MyDynasty does: the game only plays the user's game through that request, so left
-    /// unplayed it would never be played (game-verified). Its two teams get the result but no box score.
+    /// game the team isn't in, so the request is handed back to the CPU in the shape the game gives an answered one: no
+    /// TargetUser, Resolution 1, ResolveTime = IssueTime, the closed RequestId, and Response = DefaultResponse. Without
+    /// the Response the game skips the game (game-verified: it stayed unplayed for good); with it, the vacated game is an
+    /// ordinary CPU game the next advance simulates. No score is written (it would be posted with no stats behind it).
     /// </para>
     /// <para>
     /// The CFP bracket is the BowlGame rows with IsPlayoffBowl (PlayoffBracketSlot 0-3 first round, 4-7 quarterfinals,
     /// 8-9 semifinals, 10 title game), whose Conference1Rank / Conference2Rank hold the 0-based seeds. Seeds 1-4 wait at
     /// home in quarterfinals 4-7 for the winner of first-round slot 0-3. Nothing stores which team holds a seed: the
-    /// bracket screen seeds the field from the CFP rankings (Team.CFPPoll_CurrentRank) each time it opens.
+    /// bracket screen seeds the field from the CFP rankings (Team.CFPPoll_CurrentRank) each time it opens, so a team put
+    /// into a first-round seat also takes that seat's seed as its CFP rank (trading rank and points with the team that
+    /// held it).
     /// </para>
     /// </summary>
     internal sealed class BowlMatchups
@@ -98,16 +102,14 @@ namespace BowlEditor
         /// <summary>Whether the last <see cref="Apply"/> closed the user's play-your-game request.</summary>
         public bool ClosedUserRequest { get; private set; }
 
-        /// <summary>The final scores the last <see cref="Apply"/> wrote into games the user's team left, e.g. "Independence Bowl: UNLV 17, Nebraska 42".</summary>
-        public List<string> WrittenResults { get; } = new List<string>();
 
         public List<BowlSlot> Games { get; } = new List<BowlSlot>();
 
         /// <summary>FBS teams, by name.</summary>
         public List<TeamChoice> Teams { get; } = new List<TeamChoice>();
 
-        /// <summary>The teams a bowl can take: the FBS teams not in a CFP game (those come from the poll).</summary>
-        public List<TeamChoice> BowlTeams { get; } = new List<TeamChoice>();
+        /// <summary>CFP ranks moved by the last <see cref="Apply"/>, e.g. "UCF #20 → #12".</summary>
+        public List<string> RankChanges { get; } = new List<string>();
 
         /// <summary>Why nothing can be edited (bowl week already under way, or no bowls yet); null when the games are editable.</summary>
         public string? NotEditableReason { get; }
@@ -221,15 +223,15 @@ namespace BowlEditor
                     OriginalAway = away,
                     Home = home,
                     Away = away,
-                    // the bracket comes from the CFP poll; shown, not edited
-                    Locked = playoff,
+                    // the quarterfinal hosts are the top four seeds and the visitors the first-round winners; shown, not edited
+                    Locked = quarterfinal,
+                    // a first-round game is played at the higher seed (Conference1Rank)
+                    HomeSeed = playoff && !quarterfinal ? Convert.ToInt32(bowl["Conference1Rank"]) + 1 : 0,
+                    AwaySeed = playoff && !quarterfinal ? Convert.ToInt32(bowl["Conference2Rank"]) + 1 : 0,
                     // quarterfinal slot 4-7 gets the winner of first-round slot 0-3
                     AwayNote = quarterfinal ? $"Winner of {(firstRoundSeeds.TryGetValue(slot - FirstQuarterfinalSlot, out var fed) ? fed : "the first round")}" : null,
                 });
             }
-
-            var playoffTeams = Games.Where(g => g.IsPlayoff).SelectMany(g => new[] { g.Home, g.Away }).Where(r => r != null).ToHashSet();
-            BowlTeams.AddRange(Teams.Where(t => !playoffTeams.Contains(t.Row)));
 
             var order = DisplayOrder.Select((name, i) => (Key: Normalize(name), Index: i)).ToDictionary(x => x.Key, x => x.Index);
             int Position(BowlSlot game) => order.TryGetValue(Normalize(game.OrderName), out var i) ? i : DisplayOrder.Length;
@@ -263,6 +265,19 @@ namespace BowlEditor
         }
 
         private static string Normalize(string name) => new string(name.Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
+
+        /// <summary>
+        /// The teams a game's dropdowns offer, as the games stand now. A bowl: the teams not in a CFP game. A first-round
+        /// game: all but the quarterfinal hosts, who can't move.
+        /// </summary>
+        public List<TeamChoice> ChoicesFor(BowlSlot game)
+        {
+            var excluded = Games.Where(g => game.IsPlayoff ? g.Locked : g.IsPlayoff)
+                .SelectMany(g => new[] { g.Home, g.Away })
+                .Where(r => r != null)
+                .ToHashSet();
+            return Teams.Where(t => !excluded.Contains(t.Row)).ToList();
+        }
 
         public string TeamName(int? row) => row == null ? string.Empty : teams.Records[row.Value]["DisplayName"] as string ?? "?";
 
@@ -301,8 +316,8 @@ namespace BowlEditor
 
         /// <summary>
         /// Puts a team on one side of a game. If the team was already in another editable game (or on the other side of
-        /// this one), the team it replaces takes its old place, so the two swap; returns that other game, or null. A CFP
-        /// team can't move, so picking one is left as a conflict.
+        /// this one), the team it replaces takes its old place, so the two swap; returns that other game, or null. A
+        /// quarterfinal host can't move, so picking one is left as a conflict.
         /// </summary>
         public BowlSlot? Assign(BowlSlot game, bool home, int? team)
         {
@@ -348,16 +363,12 @@ namespace BowlEditor
         {
             int changed = 0;
             ClosedUserRequest = false;
-            WrittenResults.Clear();
-            var vacated = new List<BowlSlot>();
+            bool userLeftThisWeeksGame = false;
             foreach (var game in Games.Where(g => g.IsChanged && !g.Locked))
             {
                 bool wasUserGame = UserTeams.Contains(game.OriginalHome ?? -1) || UserTeams.Contains(game.OriginalAway ?? -1);
                 bool isUserGame = UserTeams.Contains(game.Home ?? -1) || UserTeams.Contains(game.Away ?? -1);
-                if (game.Week == currentWeek && !game.WasSimulated && wasUserGame && !isUserGame)
-                {
-                    vacated.Add(game);
-                }
+                userLeftThisWeeksGame |= game.Week == currentWeek && !game.WasSimulated && wasUserGame && !isUserGame;
 
                 game.Record["HomeTeam"] = BinaryUtil.GetBinaryReferenceData(teams.Header.TableId, game.Home!.Value);
                 game.Record["AwayTeam"] = BinaryUtil.GetBinaryReferenceData(teams.Header.TableId, game.Away!.Value);
@@ -373,70 +384,53 @@ namespace BowlEditor
                 changed++;
             }
 
-            if (vacated.Count > 0)
+            if (userLeftThisWeeksGame)
             {
                 ClosedUserRequest = CloseUserRequests() > 0;
-                foreach (var game in vacated)
-                {
-                    WriteFinalScore(game);
-                }
             }
 
+            SyncPlayoffSeeds();
             return changed;
         }
 
         /// <summary>
-        /// A final score for a game the game itself won't play (the user's vacated game), written as MyDynasty does: quarter
-        /// scores, the winner as ForceWin, IsSimmed. The stronger team (TEAM_RATINGOVR) is more likely to win.
+        /// Gives every team in a first-round seat that seat's seed as its CFP rank, trading rank and poll points with the
+        /// team that held it (so the rankings stay in points order and the bracket screen seeds the edited field).
         /// </summary>
-        private void WriteFinalScore(BowlSlot game)
+        private void SyncPlayoffSeeds()
         {
-            var home = teams.Records[game.Home!.Value];
-            var away = teams.Records[game.Away!.Value];
-            int ratingGap = Convert.ToInt32(home["TEAM_RATINGOVR"]) - Convert.ToInt32(away["TEAM_RATINGOVR"]);
-            // about 4 in 5 for a 10-point better team, 19 in 20 for 20 points
-            bool homeWins = Random.Shared.NextDouble() < 1 / (1 + Math.Exp(-ratingGap / 7.0));
+            const string Rank = "CFPPoll_CurrentRank";
+            const string Points = "CFPPoll_CurrentPoints";
+            var fbs = teams.Records.Where(t => !t.IsEmpty && Convert.ToInt32(t["TeamIndex"]) != NoTeamIndex).ToList();
+            var before = fbs.ToDictionary(t => t.Index, t => Convert.ToInt32(t[Rank]));
 
-            int[] homeQuarters = Quarters(), awayQuarters = Quarters();
-            int homeTotal = homeQuarters.Sum(), awayTotal = awayQuarters.Sum();
-            if ((homeTotal > awayTotal) != homeWins || homeTotal == awayTotal)
+            var seats = Games.Where(g => g.HomeSeed > 0).SelectMany(g => new[] { (Seed: g.HomeSeed, Team: g.Home), (Seed: g.AwaySeed, Team: g.Away) });
+            foreach (var (seed, team) in seats.Where(x => x.Team != null))
             {
-                // give the winner the better line; a tie gets a late field goal
-                if (homeTotal != awayTotal)
+                var record = teams.Records[team!.Value];
+                var holder = fbs.FirstOrDefault(t => Convert.ToInt32(t[Rank]) == seed);
+                if (holder == null || holder == record)
                 {
-                    (homeQuarters, awayQuarters) = (awayQuarters, homeQuarters);
+                    continue;
                 }
-                else
+
+                foreach (var field in new[] { Rank, Points })
                 {
-                    (homeWins ? homeQuarters : awayQuarters)[3] += 3;
+                    var value = record[field];
+                    record[field] = holder[field];
+                    holder[field] = value;
                 }
             }
 
-            var record = game.Record;
-            for (int q = 0; q < 4; q++)
-            {
-                record[$"HomeScoreQuarter{q + 1}"] = homeQuarters[q];
-                record[$"AwayScoreQuarter{q + 1}"] = awayQuarters[q];
-            }
-
-            record["HomeScore"] = homeQuarters.Sum();
-            record["AwayScore"] = awayQuarters.Sum();
-            record["GameStatus"] = homeWins ? "HomeWon" : "AwayWon";
-            record["ForceWin"] = homeWins ? "Home" : "Away";
-            record["IsSimmed"] = true;
-            WrittenResults.Add($"{game.Bowl}: {away["DisplayName"]} {awayQuarters.Sum()}, {home["DisplayName"]} {homeQuarters.Sum()}");
-        }
-
-        /// <summary>One team's quarter-by-quarter points, from ordinary scoring drives.</summary>
-        private static int[] Quarters()
-        {
-            int[] drives = { 0, 0, 0, 3, 3, 7, 7, 7, 10, 14 };
-            return Enumerable.Range(0, 4).Select(_ => drives[Random.Shared.Next(drives.Length)]).ToArray();
+            RankChanges.Clear();
+            RankChanges.AddRange(fbs.Where(t => Convert.ToInt32(t[Rank]) != before[t.Index])
+                .OrderBy(t => Convert.ToInt32(t[Rank]))
+                .Select(t => $"{t["DisplayName"]} #{before[t.Index]} → #{t[Rank]}"));
         }
 
         /// <summary>
-        /// Closes the user's open game requests the way the game closes an answered one: no TargetUser, the closed RequestId,
-        /// ResolveTime = IssueTime, Resolution 1. Returns how many were closed.
+        /// Hands the user's open game requests back to the CPU, in the shape the game gives an answered one: no TargetUser,
+        /// the closed RequestId, ResolveTime = IssueTime, Resolution 1, Response = DefaultResponse. Returns how many.
         /// </summary>
         private int CloseUserRequests()
         {
@@ -447,6 +441,8 @@ namespace BowlEditor
                 request["RequestId"] = Convert.ChangeType(ClosedRequestId, request["RequestId"]!.GetType());
                 request["ResolveTime"] = request["IssueTime"];
                 request["Resolution"] = Convert.ChangeType(1, request["Resolution"]!.GetType());
+                // without a response the game skips the game instead of simulating it
+                request["Response"] = request["DefaultResponse"];
                 closed++;
             }
 
@@ -463,6 +459,7 @@ namespace BowlEditor
             game["IsSimmed"] = false;
             game["IsOvertimeGame"] = false;
             game["ForceWin"] = "None";
+            game["Attendance"] = 0;
             foreach (var field in Scores)
             {
                 game[field] = 0;
@@ -520,9 +517,12 @@ namespace BowlEditor
         public int? OriginalAway { get; set; }
         public int? Home { get; set; }
         public int? Away { get; set; }
-        /// <summary>a CFP game: its teams come from the CFP poll (a quarterfinal's visitor is the first-round winner)</summary>
+        /// <summary>a quarterfinal: its host is a top-four seed and its visitor the first-round winner, both set by the game</summary>
         public bool Locked { get; init; }
         public string? AwayNote { get; init; }
+        /// <summary>a first-round game's seeds (5-12), 0 for other games</summary>
+        public int HomeSeed { get; init; }
+        public int AwaySeed { get; init; }
         public bool IsChanged => Home != OriginalHome || Away != OriginalAway;
     }
 
