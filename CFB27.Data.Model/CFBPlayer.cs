@@ -50,6 +50,15 @@ namespace CFB27.Data.Model
             player.HomeStateId = EnumValue(record, "PLYR_HOME_STATE");
             player.PlayerType = record["PlayerType"] as string;
             player.StarRating = ToStars(record["ProspectStarRating"] as string);
+
+            var previousTeamIndex = Convert.ToInt32(record["PrevTeamIndex"] );
+
+            if (CFBTeam.TeamIndexToOldIdMap.TryGetValue(previousTeamIndex, out var idx))
+            {
+                //this  is really team row
+                player.PreviousTeamId = idx;
+            }
+
             return player;
         }
 
@@ -75,6 +84,7 @@ namespace CFB27.Data.Model
             return member == null ? -1 : (int)member.Value;
         }
 
+        public int PreviousTeamId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public int TeamIndex { get; set; }

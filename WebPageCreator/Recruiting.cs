@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Configuration;
+using System.Net.NetworkInformation;
 
 namespace EA_DB_Editor
 {
@@ -41,12 +42,14 @@ namespace EA_DB_Editor
 
                     Recruit[] recruits = null;
                     string name = string.Empty;
+                    bool transfer = false;
 
                     switch (scenario)
                     {
                         case TransferPortal:
                             recruits = dataEngine.ReadTransferPortal().Values.OrderBy( r => r.Rank).ToArray();
                             name = "Transfer Portal";
+                            transfer = true;
                             break;
                         case Elite11:
                             // only take 11 of the top 20
@@ -73,7 +76,7 @@ namespace EA_DB_Editor
                             break;
                     }
 
-                    Recruit.ToCsvFile(recruits, $"{scenario}.csv");
+                    Recruit.ToCsvFile(recruits, $"{scenario}.csv", isTransfer: true);
                     CreateRecruitTable(tw, name, $"{scenario}Table");
                 }
                 finally
@@ -398,15 +401,21 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void ToCsvFile(IEnumerable<Recruit> recruits, string filename, bool showLogo = false)
+        public static void ToCsvFile(IEnumerable<Recruit> recruits, string filename, bool showLogo = false, bool isTransfer = false)
         {
+            string GetName(string n, int year)
+            {
+                var addClass = isTransfer ? $"({year.CalculateYear()})" : string.Empty;
+                return $"{n}{addClass}";
+            }
+
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("CommittedTeam,Rnk,PosRnk,Recruit,Pos,IsAth,Star,PreScout,ActOvr,Dif,Team1,Team2,Team3,Hometown,TopTeamID,Group,PlayerYear");
             foreach (var gem in recruits)
             {
                 sb.AppendLine(String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16}",
                     gem.CommittedTeam == 1023 ? 0 : gem.Team1,
-                    gem.Rank, gem.PositionRank, gem.FullName, gem.Position, gem.IsAthlete ? "Yes" : " ", gem.StarRating, gem.PreScoutOVR, gem.RealOVR, gem.OvrDiff,
+                    gem.Rank, gem.PositionRank, GetName(gem.FullName, gem.PlayerYear), gem.Position, gem.IsAthlete ? "Yes" : " ", gem.StarRating, gem.PreScoutOVR, gem.RealOVR, gem.OvrDiff,
                     gem.Team1.ToTeamName(),
                     gem.Team2.ToTeamName(),
                     gem.Team3.ToTeamName(),
@@ -448,7 +457,8 @@ namespace EA_DB_Editor
                 // CFB27 recruits carry their hometown as text rather than an NCAA 14 city id
                 if (!string.IsNullOrEmpty(this.Hometown))
                 {
-                    return string.Format("{0}, {1}", this.Hometown, this.Homestate);
+                    var suffix = string.IsNullOrEmpty(this.Homestate) ? string.Empty : $", {this.Homestate}";
+                    return $"{this.Hometown}{suffix}";
                 }
 
                 return City.Cities.ContainsKey(this.HometownValue) ? string.Format("{0}, {1}", City.Cities[this.HometownValue].Name, City.Cities[this.HometownValue].State) : "N/A";

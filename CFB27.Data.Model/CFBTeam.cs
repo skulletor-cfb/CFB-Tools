@@ -591,7 +591,7 @@ namespace CFB27.Data.Model
             { 142, 115 },    // Wyoming
         };
 
-        public static  Dictionary<int,int> OldTeamIdToTeamRowMap => TeamRowToOldTeamIdMap.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+        public static Dictionary<int, int> OldTeamIdToTeamRowMap => TeamRowToOldTeamIdMap.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
 
         // Keyed by Team.TeamIndex (0-137). The 5 generic FCS teams all share TeamIndex 255,
         // so they can't be keyed by index; see FcsTeamRowToOldIdMap below.

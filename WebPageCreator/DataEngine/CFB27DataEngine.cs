@@ -1349,6 +1349,12 @@ namespace EA_DB_Editor
                     Team3 = topSchools[2],
                 };
 
+                if (transferPortal)
+                {
+                    recruit.Hometown = this.TeamNames[player.PreviousTeamId];
+                    recruit.Homestate = string.Empty;
+                }
+
                 recruits[recruit.RecruitId] = recruit;
 
                 if (!transferPortal)
