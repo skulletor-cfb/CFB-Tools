@@ -17,8 +17,9 @@ namespace ScheduleMaker
     /// 4. locked games go to their week (ScheduleBase.IsLocked: Army-Navy and Notre Dame's road rivalry in week 13, its
     ///    home rivalry in week 7, the other rivalries where the game put them) and Notre Dame's rivalry hosts are set;
     /// 5. every other game is arranged in weeks 0-13 so that no team plays twice in a week, goes more than
-    ///    <see cref="MaxGamesWithoutBye"/> games without a bye or plays more than <see cref="MaxSameSiteInARow"/> home
-    ///    or road games in a row, everyone plays in weeks 0 and 13, and non-conference games (other than FCS games, which can
+    ///    <see cref="MaxGamesWithoutBye"/> games without a bye, more than <see cref="MaxHomeInARow"/> home games (four to
+    ///    open the season) or
+    ///    <see cref="MaxRoadInARow"/> road games in a row, everyone plays in weeks 0 and 13, and non-conference games (other than FCS games, which can
     ///    go late) are played by week <see cref="LastNonConferenceWeek"/>.
     /// </summary>
     internal static class SeasonInitializer
@@ -31,7 +32,10 @@ namespace ScheduleMaker
         private const int LastScheduledWeek = 13;
         private const int LastNonConferenceWeek = 4;
         private const int MaxGamesWithoutBye = 6;
-        private const int MaxSameSiteInARow = 2;
+        private const int MaxHomeInARow = 3;
+        // a season can open with one more
+        private const int MaxOpeningHomeInARow = 4;
+        private const int MaxRoadInARow = 2;
 
         private static readonly HashSet<int> FcsTeams = new HashSet<int>
         {
@@ -124,8 +128,10 @@ namespace ScheduleMaker
             report.AddRange(PairIndependents(schedule, rivalries, evenYear));
             report.AddRange(SwapInFcsPlaceholders(schedule, rivalries, evenYear));
             report.Add(HostAtP5(schedule));
-            var locked = ApplyLocks(schedule, plans, evenYear);
+            var lockNotes = new List<string>();
+            var locked = ApplyLocks(schedule, plans, evenYear, lockNotes);
             report.Add($"{locked.Count} locked games in their weeks: {string.Join(", ", locked.OrderBy(g => g.Week).Select(g => $"{Describe(schedule, g)} (week {g.Week})"))}.");
+            report.AddRange(lockNotes);
 
             var moved = new Arrangement(schedule, locked).Solve(new Random(year));
             report.Add($"{moved} games moved to another week.");
@@ -449,15 +455,14 @@ namespace ScheduleMaker
         }
 
         /// <summary>
-        /// Puts the locked games in their weeks (a conference game asks its conference's plan, any other game the shared
-        /// locks) and sets Notre Dame's rivalry hosts. A game locked where it is that clashes with a game locked to that
-        /// week (a rivalry the game put in week 13, say) is left for the arrangement to move.
-        /// Returns the locked games.
+        /// Puts the locked games in their weeks and sets Notre Dame's rivalry hosts. A game asks the shared locks, then its
+        /// own conference's, then every other conference's (their lists include rivalries with outsiders, Iowa-Iowa State
+        /// say). When two locked games put a team in the same week, the one locked to a week beats one that only mustn't
+        /// move, then the first found wins; the other is left for the arrangement and reported. Returns the locked games.
         /// </summary>
-        private static HashSet<ScheduledGame> ApplyLocks(PreseasonSchedule schedule, List<ScheduleBase> plans, bool evenYear)
+        private static HashSet<ScheduledGame> ApplyLocks(PreseasonSchedule schedule, List<ScheduleBase> plans, bool evenYear, List<string> report)
         {
-            var locked = new HashSet<ScheduledGame>();
-            var stays = new HashSet<ScheduledGame>();
+            var found = new List<(ScheduledGame Game, int Week, bool Stays)>();
             foreach (var game in schedule.Games)
             {
                 int host = ScheduleBase.NotreDameRivalryHost(game.HomeTeamRow, game.AwayTeamRow, evenYear);
@@ -466,26 +471,31 @@ namespace ScheduleMaker
                     game.FlipHomeAndAway();
                 }
 
-                var plan = plans.FirstOrDefault(p => p.ConferenceSchedule.ContainsKey(game.HomeTeamRow) && p.ConferenceSchedule.ContainsKey(game.AwayTeamRow));
-                bool isLocked = plan != null
-                    ? plan.IsLocked(game.HomeTeamRow, game.AwayTeamRow, game.Week, out var week)
-                    : ScheduleBase.IsSharedLock(game.HomeTeamRow, game.AwayTeamRow, evenYear, game.Week, out week);
+                int week = -1;
+                bool isLocked = ScheduleBase.IsSharedLock(game.HomeTeamRow, game.AwayTeamRow, evenYear, game.Week, out week) ||
+                    plans.OrderBy(p => p.ConferenceSchedule.ContainsKey(game.HomeTeamRow) && p.ConferenceSchedule.ContainsKey(game.AwayTeamRow) ? 0 : 1)
+                        .Any(p => p.IsLocked(game.HomeTeamRow, game.AwayTeamRow, game.Week, out week));
                 if (isLocked)
                 {
-                    if (week == game.Week)
-                    {
-                        stays.Add(game);
-                    }
-
-                    game.Week = week;
-                    locked.Add(game);
+                    found.Add((game, week, week == game.Week));
                 }
             }
 
-            foreach (var game in stays.Where(s => locked.Any(l => !stays.Contains(l) && l.Week == s.Week &&
-                (l.HomeTeamRow == s.HomeTeamRow || l.HomeTeamRow == s.AwayTeamRow || l.AwayTeamRow == s.HomeTeamRow || l.AwayTeamRow == s.AwayTeamRow))).ToList())
+            var locked = new HashSet<ScheduledGame>();
+            var booked = new Dictionary<(int Team, int Week), ScheduledGame>();
+            foreach (var (game, week, _) in found.OrderBy(f => f.Stays ? 1 : 0))
             {
-                locked.Remove(game);
+                var teams = new[] { game.HomeTeamRow, game.AwayTeamRow }.Where(t => !FcsTeams.Contains(t)).ToList();
+                var clash = teams.Select(t => booked.TryGetValue((t, week), out var other) ? other : null).FirstOrDefault(o => o != null);
+                if (clash != null)
+                {
+                    report.Add($"{Describe(schedule, game)} is locked to week {week}, but {Describe(schedule, clash)} is too; it's left for the arrangement.");
+                    continue;
+                }
+
+                game.Week = week;
+                locked.Add(game);
+                teams.ForEach(t => booked[(t, week)] = game);
             }
 
             return locked;
@@ -497,8 +507,10 @@ namespace ScheduleMaker
         /// <see cref="SeasonCost"/> plus <see cref="LateNonConferenceCost"/> for each week a non-conference game (other
         /// than an FCS game) is played after week <see cref="LastNonConferenceWeek"/>, <see cref="ConferenceWeekZeroCost"/>
         /// for a conference game in week 0 (week 0 is for non-conference and FCS games) and <see cref="EarlyConferenceCost"/>
-        /// for each week a conference game is played before week 13 and <see cref="LastWeekFcsCost"/> for an FCS game in
-        /// week 13, starting from <see cref="Seed"/>.
+        /// for each week a conference game is played before week 13, <see cref="EarlyConferenceZoneCost"/> for a conference
+        /// game before week 4, <see cref="LateFcsCost"/> for each week an FCS game is played after week 4,
+        /// <see cref="LastWeekFcsCost"/> for an FCS game in week 13 and <see cref="ShortWeekCost"/> for
+        /// each game a week is short of its share (so byes don't pile up in one week), starting from <see cref="Seed"/>.
         /// </summary>
         private sealed class Arrangement
         {
@@ -538,9 +550,10 @@ namespace ScheduleMaker
 
             /// <summary>
             /// The search's starting point, built from scratch (as EADBEditor's MoveNonConfGamesEarly did): around the locked
-            /// games, the conference games take the latest week both teams are open, then the non-conference games (other
-            /// than FCS games; independents' first, since they have the most) the earliest, and last each FCS game, which
-            /// can go anywhere, takes the open week that best spaces its FBS team's byes. A game with no week both teams
+            /// games, the non-conference games (other than FCS games; independents' first, since they have the most) take the
+            /// earliest week both teams are open, then the conference games the latest from week 13 back to week 4 (earlier
+            /// only when they must), and last each FCS game, which can go anywhere, takes the open week that best spaces its
+            /// FBS team's byes. A game with no week both teams
             /// are open takes the week with the fewest clashes.
             /// </summary>
             private void Seed()
@@ -576,8 +589,11 @@ namespace ScheduleMaker
                 int NonConferenceGames(int team) => gamesByTeam.TryGetValue(team, out var list) ? list.Count(i => nonConference[i]) : 0;
                 void Place(int g, bool late)
                 {
-                    var order = Enumerable.Range(FirstWeek, Weeks);
-                    order = late ? order.Reverse() : order;
+                    // early: week 0 on; late: week 13 back to week 4, then the weeks before it
+                    var order = late
+                        ? Enumerable.Range(LastNonConferenceWeek, LastScheduledWeek - LastNonConferenceWeek + 1).Reverse()
+                            .Concat(Enumerable.Range(FirstWeek, LastNonConferenceWeek - FirstWeek).Reverse())
+                        : Enumerable.Range(FirstWeek, Weeks);
                     int week = order.FirstOrDefault(w => !Busy(home[g], w) && !Busy(away[g], w), -1);
                     weeks[g] = week >= 0 ? week
                         : order.OrderBy(w => (Busy(home[g], w) ? 1 : 0) + (Busy(away[g], w) ? 1 : 0)).First();
@@ -586,15 +602,15 @@ namespace ScheduleMaker
 
                 bool IsFcs(int g) => FcsTeams.Contains(home[g]) || FcsTeams.Contains(away[g]);
 
-                foreach (var g in movable.Where(g => conference[g]))
-                {
-                    Place(g, late: true);
-                }
-
                 foreach (var g in movable.Where(g => !conference[g] && !IsFcs(g))
                     .OrderByDescending(g => NonConferenceGames(home[g]) + NonConferenceGames(away[g])).ThenBy(g => g))
                 {
                     Place(g, late: false);
+                }
+
+                foreach (var g in movable.Where(g => conference[g]))
+                {
+                    Place(g, late: true);
                 }
 
                 foreach (var g in movable.Where(IsFcs))
@@ -623,7 +639,17 @@ namespace ScheduleMaker
                     isMovable[g] = true;
                 }
 
-                int cost = gamesByTeam.Keys.Sum(TeamCost) + Enumerable.Range(0, games.Count).Sum(GameCost);
+                gamesPerWeek = new int[LastScheduledWeek + 2];
+                foreach (var w in weeks)
+                {
+                    gamesPerWeek[w]++;
+                }
+
+                // a week should have at least this many games, so byes don't pile up in one week
+                shortWeekTarget = games.Count * 85 / 100 / (LastScheduledWeek - FirstWeek + 1);
+
+                int cost = gamesByTeam.Keys.Sum(TeamCost) + Enumerable.Range(0, games.Count).Sum(GameCost) +
+                    Enumerable.Range(FirstWeek, LastScheduledWeek - FirstWeek + 1).Sum(ShortWeek);
                 int bestCost = cost;
                 var best = weeks.ToArray();
                 // a move: up to three games and the weeks they had
@@ -665,15 +691,15 @@ namespace ScheduleMaker
                         }
                     }
 
-                    int before = Cost(moving);
+                    int before = Cost(moving) + ShortWeek(from) + ShortWeek(to);
                     oldWeeks.Clear();
                     foreach (var game in moving)
                     {
                         oldWeeks.Add(weeks[game]);
-                        weeks[game] = game == g ? to : from;
+                        Move(game, game == g ? to : from);
                     }
 
-                    int delta = Cost(moving) - before;
+                    int delta = Cost(moving) + ShortWeek(from) + ShortWeek(to) - before;
                     if (delta <= 0 || random.NextDouble() < Math.Exp(-delta / temperature))
                     {
                         cost += delta;
@@ -687,7 +713,7 @@ namespace ScheduleMaker
                     {
                         for (int i = 0; i < moving.Count; i++)
                         {
-                            weeks[moving[i]] = oldWeeks[i];
+                            Move(moving[i], oldWeeks[i]);
                         }
                     }
                 }
@@ -730,12 +756,26 @@ namespace ScheduleMaker
                 return cost;
             }
 
+            private int[] gamesPerWeek = Array.Empty<int>();
+            private int shortWeekTarget;
+
+            private void Move(int g, int week)
+            {
+                gamesPerWeek[weeks[g]]--;
+                weeks[g] = week;
+                gamesPerWeek[week]++;
+            }
+
+            /// <summary><see cref="ShortWeekCost"/> for each game a week is short of its share.</summary>
+            private int ShortWeek(int week) => Math.Max(0, shortWeekTarget - gamesPerWeek[week]) * ShortWeekCost;
+
             private int TeamCostIfFbs(int team) => gamesByTeam.ContainsKey(team) ? TeamCost(team) : 0;
 
             private int GameCost(int g) =>
                 (nonConference[g] ? Math.Max(0, weeks[g] - LastNonConferenceWeek) * LateNonConferenceCost : 0) +
-                (conference[g] ? (weeks[g] == FirstWeek ? ConferenceWeekZeroCost : 0) + (LastScheduledWeek - weeks[g]) * EarlyConferenceCost : 0) +
-                (fcsGame[g] && weeks[g] == LastScheduledWeek ? LastWeekFcsCost : 0);
+                (conference[g] ? (weeks[g] == FirstWeek ? ConferenceWeekZeroCost : 0) + (LastScheduledWeek - weeks[g]) * EarlyConferenceCost +
+                    (weeks[g] < LastNonConferenceWeek ? EarlyConferenceZoneCost : 0) : 0) +
+                (fcsGame[g] ? (weeks[g] == LastScheduledWeek ? LastWeekFcsCost : 0) + Math.Max(0, weeks[g] - LastNonConferenceWeek) * LateFcsCost : 0);
 
             private int TeamCost(int team)
             {
@@ -758,26 +798,38 @@ namespace ScheduleMaker
         // for a bye in the first or last week: each team's two byes belong in between
         private const int NoWeekZeroCost = 3;
         private const int NoLastWeekCost = 15;
+        // byes a week apart rather than back to back: bye-game-bye (6-1-5) is fine
+        private const int BackToBackByeCost = 12;
         // per week past LastNonConferenceWeek: a non-conference game in week 8 weighs as much as one broken rule
         private const int LateNonConferenceCost = 10;
         // more than a week-0 bye costs, so a conference game leaves week 0 when a non-conference or FCS game can take it
         private const int ConferenceWeekZeroCost = 8;
         // per week before week 13: conference games go as late as they can, FCS games fill in around them
         private const int EarlyConferenceCost = 1;
+        // weeks 0-3 are for non-conference games; a conference game can slip into week 4
+        private const int EarlyConferenceZoneCost = 40;
+        // per game a week is short of 85% of an even share
+        private const int ShortWeekCost = 4;
+        // per week past week 4: an FCS game takes an early opening when its team has one, but can go late
+        private const int LateFcsCost = 3;
         // an FCS game in week 13 is the last resort: more than a week-13 bye or any other preference, less than a broken rule
         private const int LastWeekFcsCost = 25;
 
         /// <summary>
         /// What a team's season breaks, from its games per week and the site of each week's game (+1 home, -1 road,
         /// 0 neutral): <see cref="DoubleBookedCost"/> for each extra game in a week, <see cref="RuleCost"/> for each game
-        /// past <see cref="MaxGamesWithoutBye"/> in a row without a bye and each home or road game past
-        /// <see cref="MaxSameSiteInARow"/> in a row (by game: a bye doesn't break a streak, a neutral site does), and
-        /// <see cref="NoWeekZeroCost"/> for not playing in week 0 and <see cref="NoLastWeekCost"/> for not playing in week 13.
+        /// past <see cref="MaxGamesWithoutBye"/> in a row without a bye, each home game past <see cref="MaxHomeInARow"/>
+        /// (<see cref="MaxOpeningHomeInARow"/> when they open the season) in a
+        /// row and each road game past <see cref="MaxRoadInARow"/> (by game: a bye doesn't break a streak, a neutral site
+        /// does), and
+        /// <see cref="NoWeekZeroCost"/> for not playing in week 0, <see cref="NoLastWeekCost"/> for not playing in week 13 and
+        /// <see cref="BackToBackByeCost"/> for byes in consecutive weeks.
         /// </summary>
         private static int SeasonCost(ReadOnlySpan<int> perWeek, ReadOnlySpan<int> site)
         {
-            int cost = (perWeek[FirstWeek] == 0 ? NoWeekZeroCost : 0) + (perWeek[LastScheduledWeek] == 0 ? NoLastWeekCost : 0);
-            int run = 0, streak = 0, last = 0;
+            int cost = (perWeek[FirstWeek] == 0 ? NoWeekZeroCost : 0) + (perWeek[LastScheduledWeek] == 0 ? NoLastWeekCost : 0) +
+                BackToBackByes(perWeek) * BackToBackByeCost;
+            int run = 0, streak = 0, last = 0, played = 0;
             for (int week = 0; week < perWeek.Length; week++)
             {
                 cost += Math.Max(0, perWeek[week] - 1) * DoubleBookedCost;
@@ -786,14 +838,31 @@ namespace ScheduleMaker
 
                 if (perWeek[week] > 0)
                 {
+                    played++;
                     streak = site[week] == 0 ? 0 : site[week] == last ? streak + 1 : 1;
                     last = site[week];
-                    cost += streak > MaxSameSiteInARow ? RuleCost : 0;
+                    cost += TooMany(streak, last, opensSeason: streak == played) ? RuleCost : 0;
                 }
             }
 
             return cost;
         }
+
+        /// <summary>Byes in consecutive weeks (weeks 0-13; week 14 is always empty).</summary>
+        private static int BackToBackByes(ReadOnlySpan<int> perWeek)
+        {
+            int count = 0;
+            for (int week = FirstWeek; week < LastScheduledWeek; week++)
+            {
+                count += perWeek[week] == 0 && perWeek[week + 1] == 0 ? 1 : 0;
+            }
+
+            return count;
+        }
+
+        /// <summary>Whether a streak of games at one site (+1 home, -1 road) is too long; a home stand that opens the season can be longer.</summary>
+        private static bool TooMany(int streak, int site, bool opensSeason) =>
+            streak > (site < 0 ? MaxRoadInARow : opensSeason ? MaxOpeningHomeInARow : MaxHomeInARow);
 
         /// <summary>What still breaks a rule, as report lines.</summary>
         private static IEnumerable<string> Summary(PreseasonSchedule schedule)
@@ -801,14 +870,14 @@ namespace ScheduleMaker
             var doubleBooked = new List<string>();
             var noBye = new List<string>();
             var streaks = new List<string>();
-            int noWeekZero = 0, noLastWeek = 0;
+            int noWeekZero = 0, noLastWeek = 0, backToBack = 0;
 
             var teams = schedule.Games.SelectMany(g => new[] { g.HomeTeamRow, g.AwayTeamRow }).Where(t => t >= 0 && !FcsTeams.Contains(t)).Distinct();
             foreach (var team in teams.OrderBy(t => schedule.TeamName(t)))
             {
                 var season = schedule.GamesFor(team).OrderBy(g => g.Week).ToList();
                 string name = schedule.TeamName(team) ?? team.ToString();
-                int run = 0, streak = 0, last = 0;
+                int run = 0, streak = 0, last = 0, gamesSoFar = 0;
                 bool tooLong = false, sameSite = false;
                 for (int week = FirstWeek; week <= LastScheduledWeek + 1; week++)
                 {
@@ -819,9 +888,10 @@ namespace ScheduleMaker
                     foreach (var game in played)
                     {
                         int site = Site(schedule, game, team);
+                        gamesSoFar++;
                         streak = site == 0 ? 0 : site == last ? streak + 1 : 1;
                         last = site;
-                        sameSite |= streak > MaxSameSiteInARow;
+                        sameSite |= TooMany(streak, last, opensSeason: streak == gamesSoFar);
                     }
                 }
 
@@ -829,14 +899,15 @@ namespace ScheduleMaker
                 if (sameSite) streaks.Add(name);
                 if (!season.Any(g => g.Week == FirstWeek)) noWeekZero++;
                 if (!season.Any(g => g.Week == LastScheduledWeek)) noLastWeek++;
+                if (Enumerable.Range(FirstWeek, LastScheduledWeek - FirstWeek).Any(w => !season.Any(g => g.Week == w) && !season.Any(g => g.Week == w + 1))) backToBack++;
             }
 
             int lateNonConference = schedule.Games.Count(g => g.Week > LastNonConferenceWeek && !IsConferenceGame(g) &&
                 !FcsTeams.Contains(g.HomeTeamRow) && !FcsTeams.Contains(g.AwayTeamRow));
-            yield return $"{lateNonConference} non-conference games (not counting FCS games) after week {LastNonConferenceWeek}; {noWeekZero} teams don't play in week {FirstWeek}, {noLastWeek} in week {LastScheduledWeek}.";
+            yield return $"{lateNonConference} non-conference games (not counting FCS games) after week {LastNonConferenceWeek}; {noWeekZero} teams don't play in week {FirstWeek}, {noLastWeek} in week {LastScheduledWeek}; {backToBack} have back-to-back byes.";
             if (doubleBooked.Count > 0) yield return $"Play twice in a week: {string.Join(", ", doubleBooked)}.";
             if (noBye.Count > 0) yield return $"More than {MaxGamesWithoutBye} games without a bye: {string.Join(", ", noBye)}.";
-            if (streaks.Count > 0) yield return $"More than {MaxSameSiteInARow} home or road games in a row: {string.Join(", ", streaks)}.";
+            if (streaks.Count > 0) yield return $"More than {MaxHomeInARow} home ({MaxOpeningHomeInARow} to open) or {MaxRoadInARow} road games in a row: {string.Join(", ", streaks)}.";
             var late = schedule.Games.Where(g => g.Week > LastScheduledWeek).ToList();
             if (late.Count > 0) yield return $"After week {LastScheduledWeek}: {string.Join(", ", late.Select(g => $"{Describe(schedule, g)} (week {g.Week})"))}.";
         }

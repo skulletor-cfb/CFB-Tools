@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NCAA14Utility.Scheduling
 {
@@ -17,6 +18,19 @@ namespace NCAA14Utility.Scheduling
         };
 
         protected override int InitialYear => 2587;
+
+        // EADBEditor's Pac12Locks
+        protected override Func<int, int, int?>[] LockChecks => new Func<int, int, int?>[]
+        {
+            (h, a) => MatchTeams(13, h, a, Washington, WSU),
+            (h, a) => MatchTeams(13, h, a, Utah, BYU),
+            (h, a) => MatchTeams(13, h, a, Oregon, OrSt),
+            (h, a) => MatchTeams(13, h, a, Arizona, ASU),
+            (h, a) => MatchTeams(this.IsEvenYear ? 13 : 12, h, a, UCLA, USC),
+            (h, a) => MatchTeams(this.IsEvenYear ? 12 : 13, h, a, Cal, Stanford),
+            // non-conference
+            (h, a) => MatchTeams(0, h, a, Utah, UtahSt),
+        };
 
         public static Dictionary<int, int[]> CreateA()
         {

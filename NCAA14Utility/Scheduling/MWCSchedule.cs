@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NCAA14Utility.Scheduling
 {
@@ -16,6 +17,11 @@ namespace NCAA14Utility.Scheduling
         };
 
         protected override int InitialYear => 2545;
+
+        // EADBEditor's MWCLocks
+        protected override Func<int, int, int?>[] LockChecks => new Func<int, int, int?>[]
+        {
+        };
 
         public static Dictionary<int, int[]> CreateA()
         {

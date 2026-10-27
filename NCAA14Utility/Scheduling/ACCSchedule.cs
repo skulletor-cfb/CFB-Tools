@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NCAA14Utility.Scheduling
 {
@@ -16,6 +17,30 @@ namespace NCAA14Utility.Scheduling
         };
 
         protected override int InitialYear => 2487;
+
+        // EADBEditor's AccLocks. UGA-GT, FSU-UF, Clemson-South Carolina and Louisville-Kentucky are shared locks.
+        protected override Func<int, int, int?>[] LockChecks => new Func<int, int, int?>[]
+        {
+            (h, a) => MatchTeams(13, h, a, Duke, WF),
+            (h, a) => MatchTeams(13, h, a, Pitt, WVU),
+            (h, a) => MatchTeams(13, h, a, UVA, VT),
+            (h, a) => MatchTeams(13, h, a, UNC, NCSU),
+            (h, a) => MatchTeams(13, h, a, Miami, BC),
+            (h, a) => h == Miami && a == FSU ? 6 : (int?)null,
+            (h, a) => h == FSU && a == Miami ? 6 : (int?)null,
+            (h, a) => MatchTeams(7, h, a, Miami, VT),
+            (h, a) => MatchTeams(12, h, a, BC, VT),
+            (h, a) => MatchTeams(12, h, a, SU, Pitt),
+            // Clemson at Florida State in week 8, Florida State at Clemson in week 12
+            (h, a) => h == FSU && a == Clemson ? 8 : h == Clemson && a == FSU ? 12 : (int?)null,
+            (h, a) => MatchTeams(Unmoved, h, a, UMD, WVU),
+            (h, a) => MatchTeams(5, h, a, UMD, FSU),
+            (h, a) => MatchTeams(8, h, a, NCSU, WF),
+            (h, a) => MatchTeams(12, h, a, UNC, UVA),
+            (h, a) => MatchTeams(8, h, a, UNC, Duke),
+            (h, a) => MatchTeams(6, h, a, Clemson, GT),
+            (h, a) => MatchTeams(6, h, a, VT, WVU),
+        };
 
         public static Dictionary<int, int[]> CreateA()
         {

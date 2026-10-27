@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NCAA14Utility.Scheduling
 {
@@ -19,6 +20,25 @@ namespace NCAA14Utility.Scheduling
         };
 
         protected override int InitialYear => 2587;        
+
+   
+        protected override Func<int, int, int?>[] LockChecks => new Func<int, int, int?>[]
+        {
+            (h, a) => MatchTeams(13, h, a, TCU, Baylor),
+            (h, a) => MatchTeams(13, h, a, TT, Texas),
+            (h, a) => MatchTeams(13, h, a, KU, KSU),
+            (h, a) => MatchTeams(13, h, a, Oklahoma, OkSt),
+            (h, a) => MatchTeams(13, h, a, Colorado, Nebraska),
+            (h, a) => MatchTeams(12, h, a, Nebraska, Oklahoma),
+            (h, a) => MatchTeams(12, h, a, ISU, KSU),
+            (h, a) => MatchTeams(this.WeekOf(this.Calendar.RedRiverShowdown), h, a, Texas, Oklahoma),
+            // Iowa State and Cincinnati end the season when they play
+            (h, a) => MatchTeams(13, h, a, Cincy, ISU),
+            (h, a) => MatchTeams(7, h, a, Baylor, TT),
+            (h, a) => MatchTeams(12, h, a, Colorado, OkSt),
+            // non-conference
+            (h, a) => MatchTeams(0, h, a, Colorado, CSU),
+        };
 
         public static Dictionary<int, int[]> CreateNDY()
         {

@@ -116,6 +116,35 @@ namespace NCAA14Utility
             return default;
         }
 
+        public static DateTime GetThirdSaturdayInSeptember(this int year)
+        {
+            for (int i = 15; i <= 22; i++)
+            {
+                var testDate = new DateTime(year, 9, i, 0, 0, 0);
+                if (testDate.DayOfWeek == DayOfWeek.Saturday)
+                {
+                    return testDate;
+                }
+            }
+
+            return default;
+        }
+
+        public static DateTime GetLastSaturdayInSeptember(this int year)
+        {
+            for (int i = 30; i > 23; i--)
+            {
+                var testDate = new DateTime(year, 9, i, 0, 0, 0);
+                if (testDate.DayOfWeek == DayOfWeek.Saturday)
+                {
+                    return testDate;
+                }
+            }
+
+            return default;
+        }
+
+
         public static DateTime GetTexasStateFairStartDate(this int year)
         {
             // last friday in september

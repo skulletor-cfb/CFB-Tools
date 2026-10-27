@@ -381,9 +381,37 @@ namespace NCAA14Utility.Scheduling
         public bool IsLocked(int team1, int team2, int currentWeek, out int expectedWeek) =>
             this.IsGameLocked(team1, team2, currentWeek, out expectedWeek);
 
-        /// <summary>The locks every conference shares (<see cref="IsSharedLock"/>); a conference adds its own by overriding.</summary>
-        protected virtual bool IsGameLocked(int team1, int team2, int currentWeek, out int expectedWeek) =>
-            IsSharedLock(team1, team2, this.IsEvenYear, currentWeek, out expectedWeek);
+        /// <summary>
+        /// The locks every conference shares (<see cref="IsSharedLock"/>), then the conference's own (<see cref="LockChecks"/>).
+        /// <paramref name="team1"/> is the home team.
+        /// </summary>
+        protected virtual bool IsGameLocked(int team1, int team2, int currentWeek, out int expectedWeek)
+        {
+            if (IsSharedLock(team1, team2, this.IsEvenYear, currentWeek, out expectedWeek))
+            {
+                return true;
+            }
+
+            var week = this.CheckWeekLock(team1, team2);
+            expectedWeek = week == Unmoved ? currentWeek : week ?? -1;
+            return week.HasValue;
+        }
+
+        /// <summary>A lock's week for a game that stays where the game scheduled it.</summary>
+        protected const int Unmoved = -2;
+
+        private SeasonCalendar calendar;
+
+        /// <summary>The season's weeks (0-13) and dates, for locks tied to the calendar.</summary>
+        protected SeasonCalendar Calendar => this.calendar ?? (this.calendar = new SeasonCalendar(this.Year));
+
+        /// <summary>Week 0 when Labor Day weekend is the first week of the season, otherwise week 1.</summary>
+        protected int LaborDayWeek => this.Calendar.IsLaborDayWeekendFirstWeek ? 0 : 1;
+
+        protected int LastWeekOfOctober => Enumerable.Range(0, this.Calendar.Weeks.Length).Last(this.Calendar.IsOctober);
+
+        /// <summary>The week a date falls in.</summary>
+        protected int WeekOf(DateTime date) => (int)(date - this.Calendar.FirstDayOfSeason).TotalDays / 7;
 
         /// <summary>Rivalries that never move from the week the game schedules them.</summary>
         private static readonly (int, int)[] FixedRivalries =
@@ -440,5 +468,18 @@ namespace NCAA14Utility.Scheduling
 
         public const int NotreDameRoadRivalryWeek = 13;
         public const int NotreDameHomeRivalryWeek = 7;
+
+        protected static int? MatchTeams(int lockedWeek, int home, int away, params int[] teams)
+        {
+            return teams.Contains(home) && teams.Contains(away) ? lockedWeek : (int?)null;
+        }
+
+        public virtual int? CheckWeekLock(int home, int away)
+        {
+            return LockChecks.Select(f => f(home, away)).Where(lw => lw.HasValue).FirstOrDefault();
+        }
+
+        protected abstract Func<int, int, int?>[] LockChecks { get; }
+
     }
 }

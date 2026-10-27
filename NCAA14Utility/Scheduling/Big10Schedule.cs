@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NCAA14Utility.Scheduling
 {
@@ -19,6 +20,26 @@ namespace NCAA14Utility.Scheduling
         };
 
         protected override int InitialYear => 2574;
+
+        // EADBEditor's Big10Locks
+        protected override Func<int, int, int?>[] LockChecks => new Func<int, int, int?>[]
+        {
+            (h, a) => MatchTeams(8, h, a, Illinois, OhioSt),
+            (h, a) => MatchTeams(13, h, a, Illinois, Northwestern),
+            (h, a) => MatchTeams(13, h, a, Indiana, Purdue),
+            (h, a) => MatchTeams(13, h, a, Michigan, OhioSt),
+            (h, a) => MatchTeams(11, h, a, Michigan, PennSt),
+            (h, a) => MatchTeams(13, h, a, PennSt, MichiganSt),
+            (h, a) => MatchTeams(9, h, a, Michigan, MichiganSt),
+            (h, a) => MatchTeams(12, h, a, OhioSt, MichiganSt),
+            (h, a) => MatchTeams(5, h, a, Iowa, Minnesota),
+            (h, a) => MatchTeams(6, h, a, PennSt, OhioSt),
+            (h, a) => MatchTeams(12, h, a, PennSt, Rutgers),
+            (h, a) => MatchTeams(13, h, a, Wisconsin, Minnesota),
+            (h, a) => MatchTeams(10, h, a, Michigan, Minnesota),
+            // non-conference: the week after Labor Day weekend
+            (h, a) => MatchTeams(this.LaborDayWeek + 1, h, a, Iowa, ISU),
+        };
 
         public static Dictionary<int, int[]> CreateA()
         {

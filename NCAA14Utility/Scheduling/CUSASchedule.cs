@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NCAA14Utility.Scheduling
 {
@@ -14,6 +15,15 @@ namespace NCAA14Utility.Scheduling
         };
 
         protected override int InitialYear => 2576;
+
+        // EADBEditor's CUSALocks; Army-Navy is a shared lock
+        protected override Func<int, int, int?>[] LockChecks => new Func<int, int, int?>[]
+        {
+            (h, a) => MatchTeams(7, h, a, MTSU, NT),
+            (h, a) => MatchTeams(13, h, a, MTSU, WKU),
+            (h, a) => MatchTeams(13, h, a, Army, Navy),
+            (h, a) => MatchTeams(12, h, a, NT, UTSA),
+        };
 
         public static Dictionary<int, int[]> CreateA()
         {

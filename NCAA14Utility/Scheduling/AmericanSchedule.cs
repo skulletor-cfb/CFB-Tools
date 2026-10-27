@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NCAA14Utility.Scheduling
 {
@@ -16,6 +17,24 @@ namespace NCAA14Utility.Scheduling
         };
 
         protected override int InitialYear => 2587;
+
+        // EADBEditor's AmericanLocks; the featured rivalries' weeks are shuffled, seeded by the year
+        private int[] featuredRivalryWeeks;
+
+        private int[] FeaturedRivalryWeeks => this.featuredRivalryWeeks ??
+            (this.featuredRivalryWeeks = new[] { 12, 11, 10, 9, 8 }.OrderBy(_ => new Random(this.Year).Next()).ToArray());
+
+        protected override Func<int, int, int?>[] LockChecks => new Func<int, int, int?>[]
+        {
+            (h, a) => MatchTeams(13, h, a, UCF, USF),
+            (h, a) => MatchTeams(13, h, a, Houston, SMU),
+            (h, a) => MatchTeams(7, h, a, Houston, Rice),
+            (h, a) => MatchTeams(this.FeaturedRivalryWeeks[0], h, a, NT, UTSA),
+            (h, a) => MatchTeams(this.FeaturedRivalryWeeks[1], h, a, Rice, Tulsa),
+            (h, a) => MatchTeams(this.FeaturedRivalryWeeks[2], h, a, ECU, Charlotte),
+            (h, a) => MatchTeams(this.FeaturedRivalryWeeks[3], h, a, Memphis, UAB),
+            (h, a) => MatchTeams(this.FeaturedRivalryWeeks[4], h, a, USF, FAU),
+        };
 
         public static Dictionary<int, int[]> CreateA()
         {

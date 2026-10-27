@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NCAA14Utility.Scheduling
 {
@@ -16,6 +17,39 @@ namespace NCAA14Utility.Scheduling
         };
 
         protected override int InitialYear => 2491;
+
+        // EADBEditor's MACLocks; which pair of rivalries ends the season goes by the year
+        protected override Func<int, int, int?>[] LockChecks
+        {
+            get
+            {
+                var locks = new List<Func<int, int, int?>>
+                {
+                    (h, a) => MatchTeams(13, h, a, MiamiOH, Ohio),
+                    (h, a) => MatchTeams(13, h, a, BallSt, NIU),
+                };
+
+                switch (this.Year % 3)
+                {
+                    case 0:
+                        locks.Add((h, a) => MatchTeams(13, h, a, CMU, WMU));
+                        locks.Add((h, a) => MatchTeams(13, h, a, BGSU, KentSt));
+                        break;
+
+                    case 1:
+                        locks.Add((h, a) => MatchTeams(13, h, a, CMU, EMU));
+                        locks.Add((h, a) => MatchTeams(13, h, a, Akron, KentSt));
+                        break;
+
+                    default:
+                        locks.Add((h, a) => MatchTeams(13, h, a, EMU, WMU));
+                        locks.Add((h, a) => MatchTeams(13, h, a, BGSU, Toledo));
+                        break;
+                }
+
+                return locks.ToArray();
+            }
+        }
 
         public static Dictionary<int, int[]> CreateA()
         {

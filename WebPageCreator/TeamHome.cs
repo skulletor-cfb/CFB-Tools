@@ -1113,8 +1113,8 @@ namespace EA_DB_Editor
             Win = team.Win;
             Loss = team.Loss;
             Streak = team.SeasonWinLossStreak;
-            BCSRank = isPreseason? team.CFPPoll_CurrentRank : team.CoachesPoll_CurrentRank;
-            BCSPrevious = isPreseason? team.CFPPoll_LastWeeksRank : team.CoachesPoll_LastWeeksRank;
+            BCSRank = isPreseason ? team.CFPPoll_CurrentRank : team.CoachesPoll_CurrentRank;
+            BCSPrevious = team.CFPPoll_LastWeeksRank;
             MediaPollRank = team.MediaPoll_CurrentRank;
             MediaPollFirstPlaceVotes = team.MediaPoll_FirstPlaceVotes;
             MediaPollPoints = team.MediaPoll_CurrentPoints;
@@ -1136,7 +1136,7 @@ namespace EA_DB_Editor
             HomeTie = team.HistoricalData.HomeTies;
             HomeStreakRaw = team.HistoricalData.CurrentHomeWinStreak;
 
-            if(HomeStreakRaw < 0 )
+            if (HomeStreakRaw < 0)
             {
                 HomeStreak = $"L{-HomeStreakRaw}";
             }
@@ -1173,7 +1173,7 @@ namespace EA_DB_Editor
             // CFB-TODO Need to parse this out
             //MainRival = record["TRIV"].ToInt32();
             // bt = // need to figure this out, this is static data
-            this.Process(isPreseason, atw, atl, att, bw , bl, bt , nts, cts);
+            this.Process(isPreseason, atw, atl, att, bw, bl, bt, nts, cts);
             this.ToughestPlaceToPlayRank = team.ToughestPlacesRank;
         }
 

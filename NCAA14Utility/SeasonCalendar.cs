@@ -15,6 +15,8 @@ namespace NCAA14Utility
         public DateTime FinalDayOfSeason { get; }
         public DateTime TexasStateFairStartDate { get; }
         public DateTime RedRiverShowdown { get; }
+        public DateTime ThirdSaturdayInSeptember { get; }
+        public DateTime LastSaturdayInSeptember { get; }
         public int Year { get; }
         public SeasonCalendar(int year)
         {
@@ -25,6 +27,8 @@ namespace NCAA14Utility
             Thanksgiving = year.GetThanksgivingDate();
             FinalDayOfSeason = Thanksgiving.AddDays(2);
             TexasStateFairStartDate = year.GetTexasStateFairStartDate();
+            ThirdSaturdayInSeptember = year.GetThirdSaturdayInSeptember();
+            LastSaturdayInSeptember = year.GetLastSaturdayInSeptember();
             var rrs = TexasStateFairStartDate.AddDays(15);
             if (rrs.Day >= 15)
             {

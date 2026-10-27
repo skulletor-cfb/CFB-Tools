@@ -29,7 +29,7 @@ namespace ScheduleMaker
         private bool scheduleLoaded=false;
 
         // grid columns
-        private DataGridViewComboBoxColumn weekColumn = null!;
+        private DataGridViewTextBoxColumn weekColumn = null!;
         private DataGridViewComboBoxColumn dayColumn = null!;
         private DataGridViewComboBoxColumn timeColumn = null!;
         private DataGridViewComboBoxColumn awayColumn = null!;
@@ -535,7 +535,7 @@ namespace ScheduleMaker
             grid.EditMode = DataGridViewEditMode.EditOnEnter;
             grid.RowHeadersWidth = 30;
 
-            weekColumn = ComboColumn("Week", 60);
+            weekColumn = new DataGridViewTextBoxColumn { HeaderText = "Week", Width = 60, ValueType = typeof(int), MaxInputLength = 2 };
             dayColumn = ComboColumn("Day", 100);
             timeColumn = ComboColumn("Time", 160);
             awayColumn = ComboColumn("Away", 180);
@@ -544,17 +544,19 @@ namespace ScheduleMaker
             kickoffColumn = new DataGridViewCheckBoxColumn { HeaderText = "Kickoff", Width = 60 };
             conferenceColumn = new DataGridViewTextBoxColumn { HeaderText = "Conf", Width = 120, ReadOnly = true };
 
-            grid.Columns.AddRange(weekColumn,  homeColumn, awayColumn, stadiumColumn, kickoffColumn, dayColumn, timeColumn, conferenceColumn);
+            grid.Columns.AddRange(homeColumn, awayColumn, weekColumn, stadiumColumn, kickoffColumn, dayColumn, timeColumn, conferenceColumn);
 
             // checkbox edits take effect right away rather than when the cell loses focus; a dropdown pick takes effect on
-            // Enter or a click (typing only moves through the list)
+            // Enter or a click (typing only moves through the list), a typed week on Enter or leaving the cell
             grid.CurrentCellDirtyStateChanged += (s, e) =>
             {
-                if (grid.IsCurrentCellDirty && grid.CurrentCell is not DataGridViewComboBoxCell)
+                if (grid.IsCurrentCellDirty && grid.CurrentCell is DataGridViewCheckBoxCell)
                 {
                     grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
                 }
             };
+            grid.CellValidating += OnCellValidating;
+            grid.CellEndEdit += (s, e) => grid.Rows[e.RowIndex].ErrorText = string.Empty;
             ComboTypeAhead.Attach(grid);
             grid.CellValueChanged += OnCellValueChanged;
             grid.DataError += (s, e) => e.ThrowException = false;
@@ -588,7 +590,6 @@ namespace ScheduleMaker
         {
             var s = schedule!;
 
-            weekColumn.DataSource = Enumerable.Range(0, LastRegularSeasonWeek + 1).ToList();
             dayColumn.DataSource = s.DayOptions.ToList();
             timeColumn.DataSource = s.TimeSlotOptions.ToList();
 
@@ -704,6 +705,21 @@ namespace ScheduleMaker
             row.Cells[conferenceColumn.Index].Value = schedule!.IsConferenceGame(game) ? schedule.ConferenceOf(game.HomeTeamRow) : string.Empty;
 
             populating = wasPopulating;
+        }
+
+        /// <summary>A typed week must be a whole week of the regular season; anything else stays in the cell with an error.</summary>
+        private void OnCellValidating(object? sender, DataGridViewCellValidatingEventArgs e)
+        {
+            if (e.ColumnIndex != weekColumn.Index || populating)
+            {
+                return;
+            }
+
+            if (!int.TryParse(Convert.ToString(e.FormattedValue)?.Trim(), out var week) || week < 0 || week > LastRegularSeasonWeek)
+            {
+                grid.Rows[e.RowIndex].ErrorText = $"Week must be 0-{LastRegularSeasonWeek}.";
+                e.Cancel = true;
+            }
         }
 
         private void OnCellValueChanged(object? sender, DataGridViewCellEventArgs e)

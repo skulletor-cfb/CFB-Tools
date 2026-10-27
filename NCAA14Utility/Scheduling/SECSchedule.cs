@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NCAA14Utility.Scheduling
 {
@@ -15,6 +16,22 @@ namespace NCAA14Utility.Scheduling
         };
 
         protected override int InitialYear => 2548;
+
+        // EADBEditor's SecLocks. UGA-GT, FSU-UF, Clemson-South Carolina and Louisville-Kentucky are shared locks.
+        protected override Func<int, int, int?>[] LockChecks => new Func<int, int, int?>[]
+        {
+            (h, a) => MatchTeams(13, h, a, Alabama, Auburn),
+            (h, a) => MatchTeams(13, h, a, MissSt, OleMiss),
+            (h, a) => MatchTeams(13, h, a, Arkansas, LSU),
+            (h, a) => MatchTeams(13, h, a, Missouri, TAMU),
+            (h, a) => MatchTeams(13, h, a, Vandy, Tennessee),
+            (h, a) => MatchTeams(this.LastWeekOfOctober, h, a, UF, UGA),
+            (h, a) => MatchTeams(this.LaborDayWeek + 1, h, a, UGA, SCAR),
+            (h, a) => MatchTeams(this.WeekOf(this.Calendar.ThirdSaturdayInOctober), h, a, Alabama, Tennessee),
+            (h, a) => MatchTeams(12, h, a, UK, Tennessee),
+            (h, a) => MatchTeams(this.WeekOf(this.Calendar.ThirdSaturdayInSeptember), h, a, UF, Tennessee),
+            (h, a) => MatchTeams(this.WeekOf(this.Calendar.LastSaturdayInSeptember), h, a, Arkansas, TAMU),
+        };
 
         public static Dictionary<int, int[]> CreateA()
         {
