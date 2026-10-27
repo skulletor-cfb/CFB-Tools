@@ -9,6 +9,23 @@ using System.Linq;
 
 namespace EA_DB_Editor
 {
+    /// <summary>Points in a CFB 27 dynasty's offseason (<see cref="CFB27DataEngine.CurrentOffseasonStage"/>).</summary>
+    public enum OffseasonStage
+    {
+        Unknown, 
+        /// <summary>The bowls are over and recruiting is still open.</summary>
+        EndOfSeason,
+
+        /// <summary>National Signing Day is over: recruiting and signing have closed.</summary>
+        NationalSigningDay,
+
+        /// <summary>The coming season's preseason (SeasonInfo.CurrentStage PreSeason), before week 0.</summary>
+        Preseason,
+        /// <summary>
+        /// during the season
+        /// </summary>
+        InSeason,
+    }
 
     public class CFB27DataEngine : IDataEngine
     {
@@ -25,7 +42,40 @@ namespace EA_DB_Editor
         public CFBTable<CFBPlayer> Players => this.players ?? (this.players = dynasty.GetTable<CFBPlayer>(TableName.Player, CFBPlayer.Transform));
 
         private CFBTable<CFBCoach> coaches;
-        public CFBTable<CFBCoach> Coaches => this.coaches ?? (this.coaches = dynasty.GetTable<CFBCoach>(TableName.Coach, CFBCoach.Transform));
+
+        /// <summary>
+        /// read coaches from the database
+        /// in preseason the coaches are accurate
+        /// at the end of the season, some coaches have retired or already accepted jobs, so they're put back where they were
+        /// in the season (CoachSeasonStart, cached during the season) with their final stats from the save
+        /// for NSD the save is accurate
+        /// </summary>
+        public CFBTable<CFBCoach> Coaches
+        {
+            get
+            {
+                const string coachCacheFile = "coachcache.txt";
+                if (this.coaches != null)
+                {
+                    return this.coaches;
+                }
+
+                var result = this.coaches = dynasty.GetTable<CFBCoach>(TableName.Coach, CFBCoach.Transform);
+                var stage = this.CurrentOffseasonStage;
+
+                if (stage == OffseasonStage.EndOfSeason && File.Exists(coachCacheFile))
+                {
+                    CoachSeasonStart.Restore(result, CoachSeasonStart.Read(coachCacheFile));
+                }
+                else if (stage == OffseasonStage.InSeason)
+                {
+                    // where everyone is coaching this season, for the end-of-season save
+                    CoachSeasonStart.Write(result, coachCacheFile);
+                }
+
+                return result;
+            }
+        }
 
         private List<CFBConference> conferences;
         public List<CFBConference> Conferences => this.conferences ?? (this.conferences = CFBConference.Read(dynasty));
@@ -231,6 +281,40 @@ namespace EA_DB_Editor
         {
             var seasonInfo = dynasty.GetPrimaryTable("SeasonInfo").Records.First(r => !r.IsEmpty);
             return string.Equals(seasonInfo["CurrentStage"] as string, "OffSeason");
+        }
+
+        /// <summary>
+        /// Where the offseason is: <see cref="OffseasonStage.Preseason"/> in the preseason (SeasonInfo.CurrentStage
+        /// PreSeason), null during the season (NFLSeason). In the offseason, recruiting runs from the end of the season to
+        /// National Signing Day: SeasonInfo's IsRecruitingPeriodActive and IsSigningPeriodActive are set at the end of the
+        /// season (CurrentOffseasonStage 1) and cleared once signing day is over (stage 7, of OffseasonNumStages 9).
+        /// </summary>
+        public OffseasonStage CurrentOffseasonStage
+        {
+            get
+            {
+                var seasonInfo = dynasty.GetPrimaryTable("SeasonInfo").Records.First(r => !r.IsEmpty);
+                var stage = seasonInfo["CurrentStage"] as string;
+
+                if (string.Equals(stage, "NFLSeason", StringComparison.OrdinalIgnoreCase))
+                {
+                    return OffseasonStage.InSeason;
+                }
+
+                if (string.Equals(stage, "PreSeason"))
+                {
+                    return OffseasonStage.Preseason;
+                }
+
+                if (!string.Equals(stage, "OffSeason"))
+                {
+                    return OffseasonStage.Unknown;
+                }
+
+                return seasonInfo["IsRecruitingPeriodActive"] is true || seasonInfo["IsSigningPeriodActive"] is true
+                    ? OffseasonStage.EndOfSeason
+                    : OffseasonStage.NationalSigningDay;
+            }
         }
 
         public void ReadBowlChampions(Dictionary<string, BowlChampion> bowlChampions)

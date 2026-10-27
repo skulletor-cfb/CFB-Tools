@@ -18,6 +18,12 @@ namespace CFB27.Data.Model
             return JsonConvert.SerializeObject(payload, Formatting.Indented);
         }
 
+        public static void WriteJsonCache(this object payload, string file)
+        {
+            var json = payload.WriteJson();
+            File.WriteAllText(file, json);
+        }
+
         public static int ToRowId(this string id, int suffixLength = 12)
         {
             return Convert.ToInt32(id.Substring(id.Length - suffixLength), 2);
