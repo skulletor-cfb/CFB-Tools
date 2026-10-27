@@ -177,7 +177,7 @@ public sealed class PreseasonSchedule
         {
             int before = _gameCountsAtLoad.GetValueOrDefault(team);
             int now = countsNow.GetValueOrDefault(team);
-            if (now != before)
+            if (now != before && !IsGenericFcs(team))
             {
                 problems.Add($"{TeamName(team)} now has {now} games (had {before}).");
             }

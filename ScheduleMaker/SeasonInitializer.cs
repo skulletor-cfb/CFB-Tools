@@ -29,6 +29,7 @@ namespace ScheduleMaker
         /// <summary>FCS games a season should start with.</summary>
         public const int ExpectedFcsGames = 110;
 
+        private const string Saturday = "Saturday";
         private const int FirstWeek = 0;
         // nothing is played in week 14
         private const int LastScheduledWeek = 13;
@@ -130,6 +131,7 @@ namespace ScheduleMaker
             report.AddRange(PairIndependents(schedule, rivalries, evenYear));
             report.AddRange(SwapInFcsPlaceholders(schedule, rivalries, evenYear));
             report.AddRange(SetNeutralSites(dynasty, schedule));
+            report.Add(SwapP5AndG5Opponents(schedule, rivalries, plans, evenYear));
             report.Add(HostAtP5(schedule));
             var lockNotes = new List<string>();
             var locked = ApplyLocks(schedule, plans, evenYear, lockNotes);
@@ -138,6 +140,16 @@ namespace ScheduleMaker
 
             var moved = new Arrangement(schedule, locked).Solve(new Random(year));
             report.Add($"{moved} games moved to another week.");
+
+            // every game on Saturday (the game spreads some onto Thursdays and Fridays); days are set by hand afterwards
+            int otherDays = 0;
+            foreach (var game in schedule.Games.Where(g => g.DayOfWeek != Saturday))
+            {
+                game.DayOfWeek = Saturday;
+                otherDays++;
+            }
+
+            report.Add($"{otherDays} games moved to Saturday.");
             report.AddRange(Summary(schedule));
             return report;
         }
@@ -462,6 +474,65 @@ namespace ScheduleMaker
             }
 
             return rivalries;
+        }
+
+        /// <summary>
+        /// Turns pairs of non-conference games in the same week, one P5 vs P5 and one G5 vs G5, into two P5 vs G5 games:
+        /// A vs B and C vs D become A vs C and B vs D, so every team keeps its week. Rivalries, locked and required games,
+        /// Notre Dame's games, neutral sites, kickoff games and FCS games are left alone. Pairings that don't repeat a matchup
+        /// the season already has come first, but a repeat is allowed (it's fixed by hand). G5 is any FBS team outside the
+        /// P5, independents included. Hosts are set afterwards (P5 at home).
+        /// </summary>
+        private static string SwapP5AndG5Opponents(PreseasonSchedule schedule, HashSet<(int, int)> rivalries, List<ScheduleBase> plans, bool evenYear)
+        {
+            bool IsFbs(int team) => ScheduleHelpers.TeamAndConferences.ContainsKey(team);
+            bool Locked(ScheduledGame g) =>
+                ScheduleBase.IsSharedLock(g.HomeTeamRow, g.AwayTeamRow, evenYear, g.Week, out _) ||
+                plans.Any(p => p.IsLocked(g.HomeTeamRow, g.AwayTeamRow, g.Week, out _));
+            bool Swappable(ScheduledGame g) =>
+                !IsConferenceGame(g) && IsFbs(g.HomeTeamRow) && IsFbs(g.AwayTeamRow) &&
+                g.HomeTeamRow != ScheduleBase.NotreDame && g.AwayTeamRow != ScheduleBase.NotreDame &&
+                g.StadiumId == 0 && !g.IsKickoffGame && !requiredGames.Contains(g) &&
+                !rivalries.Contains(Pair(g.HomeTeamRow, g.AwayTeamRow)) && !Locked(g);
+            var matchups = new HashSet<(int, int)>(schedule.Games.Select(g => Pair(g.HomeTeamRow, g.AwayTeamRow)));
+
+            int swapped = 0;
+            foreach (var week in schedule.Games.Where(Swappable).GroupBy(g => g.Week))
+            {
+                var p5Games = week.Where(g => IsP5(g.HomeTeamRow) && IsP5(g.AwayTeamRow)).ToList();
+                var g5Games = week.Where(g => !IsP5(g.HomeTeamRow) && !IsP5(g.AwayTeamRow)).ToList();
+                foreach (var p5Game in p5Games)
+                {
+                    int a = p5Game.HomeTeamRow, b = p5Game.AwayTeamRow;
+                    // the G5 game whose teams the P5 teams don't already play, if there is one
+                    int Repeats(ScheduledGame g, bool crossed) =>
+                        (matchups.Contains(Pair(a, crossed ? g.AwayTeamRow : g.HomeTeamRow)) ? 1 : 0) +
+                        (matchups.Contains(Pair(b, crossed ? g.HomeTeamRow : g.AwayTeamRow)) ? 1 : 0);
+                    foreach (var g5Game in g5Games.OrderBy(g => Math.Min(Repeats(g, false), Repeats(g, true))).ToList())
+                    {
+                        int c = g5Game.HomeTeamRow, d = g5Game.AwayTeamRow;
+                        // A vs C and B vs D, or A vs D and B vs C, whichever repeats fewer matchups (repeats are fixed by hand)
+                        if (Repeats(g5Game, true) < Repeats(g5Game, false))
+                        {
+                            (c, d) = (d, c);
+                        }
+
+                        matchups.Remove(Pair(a, b));
+                        matchups.Remove(Pair(g5Game.HomeTeamRow, g5Game.AwayTeamRow));
+                        matchups.Add(Pair(a, c));
+                        matchups.Add(Pair(b, d));
+                        p5Game.SetHomeTeam(a);
+                        p5Game.SetAwayTeam(c);
+                        g5Game.SetHomeTeam(b);
+                        g5Game.SetAwayTeam(d);
+                        g5Games.Remove(g5Game);
+                        swapped++;
+                        break;
+                    }
+                }
+            }
+
+            return $"{swapped} pairs of P5 vs P5 and G5 vs G5 games swapped into P5 vs G5 games.";
         }
 
         /// <summary>

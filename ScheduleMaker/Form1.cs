@@ -658,15 +658,13 @@ namespace ScheduleMaker
 
         #region grid
 
-        /// <summary>Ctrl+H. Rebuilds the grid sorted by week, then home team.</summary>
+        /// <summary>Ctrl+H. Rebuilds the grid sorted by week, then home team, and goes back to the top.</summary>
         private void RefreshGrid()
         {
             if (schedule == null)
             {
                 return;
             }
-
-            var selected = grid.CurrentRow?.Tag as ScheduledGame;
 
             populating = true;
             grid.SuspendLayout();
@@ -681,9 +679,11 @@ namespace ScheduleMaker
             populating = false;
 
             HighlightConflicts();
-            if (selected != null)
+            if (grid.Rows.Count > 0)
             {
-                SelectGame(selected);
+                grid.FirstDisplayedScrollingRowIndex = 0;
+                // the read-only column, so landing there doesn't open a cell for editing
+                grid.CurrentCell = grid.Rows[0].Cells[conferenceColumn.Index];
             }
 
             UpdateStatus();
@@ -743,11 +743,14 @@ namespace ScheduleMaker
                 return;
             }
 
+            string? swapNote = null;
             if (e.ColumnIndex == weekColumn.Index) game.Week = Convert.ToInt32(value);
             else if (e.ColumnIndex == dayColumn.Index) game.DayOfWeek = (string)value;
             else if (e.ColumnIndex == timeColumn.Index) game.TimeSlot = (string)value;
             else if (e.ColumnIndex == awayColumn.Index) game.SetAwayTeam(Convert.ToInt32(value));
             else if (e.ColumnIndex == homeColumn.Index) game.SetHomeTeam(Convert.ToInt32(value));
+//            else if (e.ColumnIndex == awayColumn.Index) swapNote = SwapInTeam(game, game.AwayTeamRow, Convert.ToInt32(value));
+  //          else if (e.ColumnIndex == homeColumn.Index) swapNote = SwapInTeam(game, game.HomeTeamRow, Convert.ToInt32(value));
             else if (e.ColumnIndex == stadiumColumn.Index) game.StadiumId = (uint)Convert.ToInt64(value);
             else if (e.ColumnIndex == kickoffColumn.Index) game.IsKickoffGame = (bool)value;
             else return;
@@ -758,6 +761,42 @@ namespace ScheduleMaker
             FillRow(grid.Rows[e.RowIndex]);
             HighlightConflicts();
             UpdateStatus();
+            if (swapNote != null)
+            {
+                status.Text = swapNote;
+            }
+        }
+
+        /// <summary>
+        /// Puts <paramref name="newTeam"/> in <paramref name="game"/> in place of <paramref name="oldTeam"/>, and the old team
+        /// takes the new team's place in the game it had that week (same side), so both games stay in their week. Nothing
+        /// else changes when the new team has a bye, or is a generic FCS team (they play several games a week).
+        /// Returns a note for the status bar when another game changed.
+        /// </summary>
+        private string? SwapInTeam(ScheduledGame game, int oldTeam, int newTeam)
+        {
+            var other = IsGenericFcsTeam(newTeam) || newTeam == oldTeam ? null
+                : schedule!.Games.FirstOrDefault(g => g != game && g.Week == game.Week && (g.HomeTeamRow == newTeam || g.AwayTeamRow == newTeam));
+
+            if (game.HomeTeamRow == oldTeam) game.SetHomeTeam(newTeam);
+            else game.SetAwayTeam(newTeam);
+
+            if (other == null)
+            {
+                return null;
+            }
+
+            if (other.HomeTeamRow == newTeam) other.SetHomeTeam(oldTeam);
+            else other.SetAwayTeam(oldTeam);
+
+            var otherRow = grid.Rows.Cast<DataGridViewRow>().FirstOrDefault(r => r.Tag == other);
+            if (otherRow != null)
+            {
+                FillRow(otherRow);
+            }
+
+            return $"{schedule.TeamName(oldTeam)} takes {schedule.TeamName(newTeam)}'s place in week {game.Week}: " +
+                $"{schedule.TeamName(other.AwayTeamRow)} at {schedule.TeamName(other.HomeTeamRow)}.";
         }
 
         /// <summary>
