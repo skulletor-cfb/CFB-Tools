@@ -1,5 +1,7 @@
+using CFB27.Data.Model;
 using MaddenFranchise;
 using MaddenFranchise.Dynasty;
+using MaddenFranchise.Util;
 using NCAA14Utility.Scheduling;
 using System.Text.RegularExpressions;
 
@@ -127,6 +129,7 @@ namespace ScheduleMaker
 
             report.AddRange(PairIndependents(schedule, rivalries, evenYear));
             report.AddRange(SwapInFcsPlaceholders(schedule, rivalries, evenYear));
+            report.AddRange(SetNeutralSites(dynasty, schedule));
             report.Add(HostAtP5(schedule));
             var lockNotes = new List<string>();
             var locked = ApplyLocks(schedule, plans, evenYear, lockNotes);
@@ -362,6 +365,78 @@ namespace ScheduleMaker
 
             yield return $"{swapped} FCS-vs-FCS games swapped into FBS games, for {schedule.Games.Count(g => FcsTeams.Contains(g.HomeTeamRow) != FcsTeams.Contains(g.AwayTeamRow))} FBS games against FCS teams" +
                 (doubled.Count > 0 ? $"; {doubled.Count} teams got a second FCS game ({string.Join(", ", doubled)})." : ".");
+        }
+
+        /// <summary>Rivalries always played at one neutral site, whatever the save's list says: Texas-Oklahoma at the
+        /// Cotton Bowl, Florida-Georgia at EverBank Stadium.</summary>
+        private static readonly ((int, int) Teams, uint Stadium)[] FixedNeutralSites =
+        {
+            (Pair(ScheduleBase.Texas, ScheduleBase.Oklahoma), 0x806385C1),
+            (Pair(ScheduleBase.UF, ScheduleBase.UGA), 0x80639E01),
+        };
+
+        /// <summary>
+        /// The known-games list keeps every game at the home team's stadium; the season's neutral sites are
+        /// ScheduleStructure.ScheduleNeutralStadiumsArray[SeasonInfo.CurrentYear] (Army-Navy's rotates). Each scheduled
+        /// game in that list gets its stadium, then <see cref="FixedNeutralSites"/> override it (the list entry is changed
+        /// too, so the game can't put it back at week 0).
+        /// </summary>
+        private static IEnumerable<string> SetNeutralSites(FranchiseFile dynasty, PreseasonSchedule schedule)
+        {
+            var sites = new Dictionary<(int, int), uint>();
+            var entries = new Dictionary<(int, int), FranchiseFileRecord>();
+            var manager = dynasty.GetPrimaryTable("SeasonScheduleManager")?.Records.FirstOrDefault(r => !r.IsEmpty);
+            var structure = manager == null ? null : dynasty.Follow(manager.GetReferenceDataByKey("ScheduleStructure").Value);
+            var seasonInfo = dynasty.GetPrimaryTable("SeasonInfo").Records.First(r => !r.IsEmpty);
+            int year = Convert.ToInt32(seasonInfo["CurrentYear"]);
+            var seasons = structure == null ? new List<FranchiseFileRecord>() : dynasty.FollowArray(structure, "ScheduleNeutralStadiumsArray");
+            int teamTableId = schedule.TeamTable.Header.TableId;
+            if (year >= 0 && year < seasons.Count)
+            {
+                foreach (var entry in dynasty.FollowArray(seasons[year], "ScheduleNeutralStadiums").Where(e => e != null && !e.IsEmpty && e["IsEnabled"] is true))
+                {
+                    var team1 = entry.GetReferenceDataByKey("Team1");
+                    var team2 = entry.GetReferenceDataByKey("Team2");
+                    if (team1?.TableId == teamTableId && team2?.TableId == teamTableId && entry["Stadium"] is string bits)
+                    {
+                        var pair = Pair(team1.Value.RowNumber, team2.Value.RowNumber);
+                        sites[pair] = Convert.ToUInt32(bits, 2);
+                        entries[pair] = entry;
+                    }
+                }
+            }
+
+            foreach (var (teams, stadium) in FixedNeutralSites)
+            {
+                sites[teams] = stadium;
+                if (entries.TryGetValue(teams, out var entry))
+                {
+                    entry["Stadium"] = BinaryUtil.GetBinaryReferenceData((int)(stadium >> 17), (int)(stadium & 0x1FFFF));
+                }
+            }
+
+            var set = new List<string>();
+            foreach (var game in schedule.Games)
+            {
+                if (sites.TryGetValue(Pair(game.HomeTeamRow, game.AwayTeamRow), out var stadium) && stadium != 0)
+                {
+                    game.StadiumId = stadium;
+                    set.Add($"{Describe(schedule, game)} at {StadiumName(stadium)}");
+                }
+            }
+
+            if (set.Count > 0)
+            {
+                yield return $"Neutral sites: {string.Join(", ", set)}.";
+            }
+
+            // a neutral site can be a team's home (Lincoln Financial Field for Army-Navy)
+            string StadiumName(uint id) =>
+                CFBStadium.NeutralSites.TryGetValue(id, out var name) ? name
+                : schedule.TeamTable.Records
+                    .Where(r => !r.IsEmpty && r["Stadium"] is string bits && Convert.ToUInt32(bits, 2) == id)
+                    .Select(r => CFBStadium.FindHome(r["AssetName"] as string, r["ShortName"] as string)?.Name)
+                    .FirstOrDefault(n => n != null) ?? $"0x{id:X8}";
         }
 
         /// <summary>The save's rivalries as team-row pairs (Rivalry.Team1 / Team2).</summary>
