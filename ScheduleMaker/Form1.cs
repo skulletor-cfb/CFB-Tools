@@ -3,6 +3,7 @@ using MaddenFranchise;
 using MaddenFranchise.Dynasty;
 using NCAA14Utility;
 using NCAA14Utility.Scheduling;
+using System.Windows.Forms.VisualStyles;
 
 namespace ScheduleMaker
 {
@@ -461,25 +462,30 @@ namespace ScheduleMaker
                 }
             }
 
-            using var dialog = new SaveFileDialog
+            if (this.newFile == null)
             {
-                Title = "Save schedule as",
-                InitialDirectory = savePath == null ? null : Path.GetDirectoryName(savePath),
-                FileName = savePath == null ? "DYNASTY-EDIT" : Path.GetFileName(savePath) + "-EDIT",
-                Filter = "Dynasty saves|DYNASTY-*|All files|*.*",
-                OverwritePrompt = true,
-            };
+                using var dialog = new SaveFileDialog
+                {
+                    Title = "Save schedule as",
+                    InitialDirectory = savePath == null ? null : Path.GetDirectoryName(savePath),
+                    FileName = savePath == null ? "DYNASTY-EDIT" : Path.GetFileName(savePath) + "-EDIT",
+                    Filter = "Dynasty saves|DYNASTY-*|All files|*.*",
+                    OverwritePrompt = true,
+                };
 
-            if (dialog.ShowDialog(this) != DialogResult.OK)
-            {
-                return;
+                if (dialog.ShowDialog(this) != DialogResult.OK)
+                {
+                    return;
+                }
+
+                newFile = dialog.FileName;
             }
 
             try
             {
-                var result = dynasty.Save(dialog.FileName);
+                var result = dynasty.Save(newFile);
                 isDirty = false;
-                savePath = dialog.FileName;
+                savePath = newFile;
                 status.Text = $"Saved {result.Destination} ({result.CompressedSize:N0} of {result.Budget:N0} bytes).";
             }
             catch (Exception ex)
@@ -487,6 +493,8 @@ namespace ScheduleMaker
                 MessageBox.Show(this, ex.Message, "Save failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private string newFile = null;
 
         #endregion
 
