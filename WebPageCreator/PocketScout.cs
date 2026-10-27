@@ -1557,6 +1557,14 @@ namespace EA_DB_Editor
             else if (Team_ID == 903) { Team_Name = "Coastal Carolina"; }
             else if (Team_ID == 904) { Team_Name = "Charlotte"; }
             else if (Team_ID == 905) { Team_Name = "James Madison"; }
+            else if (Team_ID == 906) { Team_Name = "Delaware"; }
+            else if (Team_ID == 907) { Team_Name = "Jax State"; }
+            else if (Team_ID == 908) { Team_Name = "Kennesaw State"; }
+            else if (Team_ID == 909) { Team_Name = "Liberty"; }
+            else if (Team_ID == 910) { Team_Name = "Missouri State"; }
+            else if (Team_ID == 911) { Team_Name = "NDSU"; }
+            else if (Team_ID == 912) { Team_Name = "Sac State"; }
+            else if (Team_ID == 913) { Team_Name = "Sam Houston"; }
             else { Team_Name = "Unemployeed"; }
             return Team_Name;
         }
