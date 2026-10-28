@@ -180,6 +180,42 @@ namespace ScheduleMaker
         }
 
         /// <summary>
+        /// Ctrl+G. Smooths G5 schedules (see <see cref="G5Smoother"/>): spreads out extra FCS games, then extra P5 games
+        /// of G5 teams, by trading opponents within a week. Nothing is written until Save as.
+        /// </summary>
+        private void SmoothG5Schedules()
+        {
+            LoadSchedule();
+            if (dynasty == null || schedule == null || savePath == null)
+            {
+                status.Text = "Ctrl+O to open a save first.";
+                return;
+            }
+
+            try
+            {
+                Cursor = Cursors.WaitCursor;
+                grid.EndEdit();
+                var report = new G5Smoother(dynasty, schedule).Smooth();
+                isDirty = true;
+                RefreshGrid();
+
+                var problems = schedule.Validate();
+                MessageBox.Show(this, string.Join("\n", report.Take(60)) + (report.Count > 60 ? $"\n...and {report.Count - 60} more" : string.Empty) +
+                    (problems.Count > 0 ? "\n\nValidate:\n" + string.Join("\n", problems.Take(20)) : string.Empty),
+                    "Smooth G5 schedules", MessageBoxButtons.OK, problems.Count > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "Smooth G5 schedules", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        /// <summary>
         /// Ctrl+I. Replaces the whole schedule with an NCAA 14 SCHD dump (CSV); the teams new in CFB 27 get a round robin
         /// and an FCS game. Nothing is written until Save as.
         /// </summary>
@@ -525,6 +561,7 @@ namespace ScheduleMaker
             var functions = new ToolStripMenuItem("F&unctions");
             functions.DropDownItems.Add(new ToolStripMenuItem("Read &Rankings", null, (s, e) => ReadRankings(), Keys.Control | Keys.B));
             functions.DropDownItems.Add(new ToolStripMenuItem("&Initialize season schedule", null, (s, e) => InitializeSeason(), Keys.Control | Keys.Z));
+            functions.DropDownItems.Add(new ToolStripMenuItem("Smooth &G5 schedules", null, (s, e) => SmoothG5Schedules(), Keys.Control | Keys.G));
 
             menu.Items.Add(file);
             menu.Items.Add(games);

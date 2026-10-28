@@ -156,7 +156,8 @@ public sealed class PreseasonSchedule
 
     /// <summary>
     /// Problems introduced since the schedule was loaded: a team booked more times in a week than it
-    /// was, or a team whose number of games changed. Empty when the edits look consistent. (The
+    /// was, or a team whose number of games changed (a team playing at Hawai'i may go up to
+    /// <see cref="HawaiiExemptionGames"/>). Empty when the edits look consistent. (The
     /// game's generic FCS opponents legitimately appear several times in one week, so this compares
     /// against the loaded schedule rather than requiring one game per team per week, and doesn't check
     /// the generic FCS teams' weeks at all.)
@@ -177,12 +178,22 @@ public sealed class PreseasonSchedule
         {
             int before = _gameCountsAtLoad.GetValueOrDefault(team);
             int now = countsNow.GetValueOrDefault(team);
-            if (now != before && !IsGenericFcs(team))
+            if (now != before && !IsGenericFcs(team) && !(now <= HawaiiExemptionGames && PlaysAtHawaii(team)))
             {
                 problems.Add($"{TeamName(team)} now has {now} games (had {before}).");
             }
         }
         return problems;
+    }
+
+    /// <summary>A team that plays at Hawai'i, and Hawai'i itself, may play this many games (the Hawai'i exemption).</summary>
+    public const int HawaiiExemptionGames = 13;
+
+    private bool PlaysAtHawaii(int teamRow)
+    {
+        var hawaii = FindTeam("Hawai'i") ?? FindTeam("Hawaii");
+        return hawaii.HasValue &&
+            (teamRow == hawaii.Value || Games.Any(g => g.IsEnabled && g.HomeTeamRow == hawaii.Value && g.AwayTeamRow == teamRow));
     }
 
     /// <summary>The game's generic FCS opponents (FCS East, West...) have no TeamIndex (255).</summary>

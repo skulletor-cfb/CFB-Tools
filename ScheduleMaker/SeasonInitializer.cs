@@ -452,7 +452,7 @@ namespace ScheduleMaker
         }
 
         /// <summary>The save's rivalries as team-row pairs (Rivalry.Team1 / Team2).</summary>
-        private static HashSet<(int, int)> ReadRivalries(FranchiseFile dynasty, PreseasonSchedule schedule)
+        internal static HashSet<(int, int)> ReadRivalries(FranchiseFile dynasty, PreseasonSchedule schedule)
         {
             var rivalries = new HashSet<(int, int)>();
             var table = dynasty.GetPrimaryTable("Rivalry");

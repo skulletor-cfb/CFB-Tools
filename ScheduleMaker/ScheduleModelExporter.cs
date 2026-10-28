@@ -206,11 +206,6 @@ namespace ScheduleMaker
                 team.Notes.Add("No FCS.");
             }
 
-            if (fcsOpponents >= 1 && IsG5(row) && conference != AmericanId)
-            {
-                team.Notes.Add("G5-FCS MATCHUP.");
-            }
-
             if (conference != IndependentsId && conferenceGamesByConference.TryGetValue(conference, out var expected))
             {
                 if (conferenceGames.Count != expected)
