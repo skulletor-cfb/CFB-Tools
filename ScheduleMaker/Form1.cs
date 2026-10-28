@@ -40,6 +40,9 @@ namespace ScheduleMaker
         private DataGridViewTextBoxColumn conferenceColumn = null!;
 
         private bool populating;
+        /// <summary>Ctrl+D: the grid is sorted by week, then day (Tuesday ... Monday, CFB 27's week); Ctrl+H: by week, then home team.</summary>
+        private bool sortByDay;
+        private static readonly string[] WeekDays = { "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Monday" };
 
         public Form1()
         {
@@ -208,6 +211,50 @@ namespace ScheduleMaker
             catch (Exception ex)
             {
                 MessageBox.Show(this, ex.Message, "Smooth G5 schedules", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        /// <summary>
+        /// Ctrl+V. Puts the season on TV (see <see cref="ScheduleMaker.TV.TelevisionScheduler"/>): sets each game's day and
+        /// kickoff from its network slot and writes the TV schedule files to the working directory. Run it after Ctrl+Z.
+        /// Nothing is written to the save until Save as. While a cell is being edited, Ctrl+V still pastes.
+        /// </summary>
+        private void ScheduleTelevision()
+        {
+            if (grid.EditingControl is TextBox box)
+            {
+                box.Paste();
+                return;
+            }
+
+            LoadSchedule();
+            if (dynasty == null || schedule == null || savePath == null)
+            {
+                status.Text = "Ctrl+O to open a save first.";
+                return;
+            }
+
+            try
+            {
+                int year = SeasonInitializer.YearFromFileName(savePath);
+                Cursor = Cursors.WaitCursor;
+                grid.EndEdit();
+                var report = ScheduleMaker.TV.TelevisionScheduler.FixTelevisionSchedule(dynasty, schedule, year, Environment.CurrentDirectory);
+                isDirty = true;
+                RefreshGrid();
+
+                var problems = schedule.Validate();
+                MessageBox.Show(this, $"{year} TV schedule\n\n" + string.Join("\n", report) +
+                    (problems.Count > 0 ? "\n\nValidate:\n" + string.Join("\n", problems.Take(20)) : string.Empty),
+                    "TV schedules", MessageBoxButtons.OK, problems.Count > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "TV schedules", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -555,13 +602,15 @@ namespace ScheduleMaker
             games.DropDownItems.Add(new ToolStripMenuItem("&Add game", null, (s, e) => AddGame(), Keys.Control | Keys.N));
             games.DropDownItems.Add(new ToolStripMenuItem("&Flip home and away", null, (s, e) => FlipSelected(), Keys.Control | Keys.F));
             games.DropDownItems.Add(new ToolStripSeparator());
-            games.DropDownItems.Add(new ToolStripMenuItem("Re&fresh grid", null, (s, e) => { grid.EndEdit(); RefreshGrid(); }, Keys.Control | Keys.H));
+            games.DropDownItems.Add(new ToolStripMenuItem("Re&fresh grid (week, home team)", null, (s, e) => SortGrid(byDay: false), Keys.Control | Keys.H));
+            games.DropDownItems.Add(new ToolStripMenuItem("Sort by week, &day", null, (s, e) => SortGrid(byDay: true), Keys.Control | Keys.D));
             games.DropDownItems.Add(new ToolStripMenuItem("&Validate", null, (s, e) => ShowValidation()));
 
             var functions = new ToolStripMenuItem("F&unctions");
             functions.DropDownItems.Add(new ToolStripMenuItem("Read &Rankings", null, (s, e) => ReadRankings(), Keys.Control | Keys.B));
             functions.DropDownItems.Add(new ToolStripMenuItem("&Initialize season schedule", null, (s, e) => InitializeSeason(), Keys.Control | Keys.Z));
             functions.DropDownItems.Add(new ToolStripMenuItem("Smooth &G5 schedules", null, (s, e) => SmoothG5Schedules(), Keys.Control | Keys.G));
+            functions.DropDownItems.Add(new ToolStripMenuItem("T&V schedules", null, (s, e) => ScheduleTelevision(), Keys.Control | Keys.V));
 
             menu.Items.Add(file);
             menu.Items.Add(games);
@@ -580,7 +629,7 @@ namespace ScheduleMaker
             grid.EditMode = DataGridViewEditMode.EditOnEnter;
             grid.RowHeadersWidth = 30;
 
-            weekColumn = new DataGridViewTextBoxColumn { HeaderText = "Week", Width = 60, ValueType = typeof(int), MaxInputLength = 2 };
+            weekColumn = new DataGridViewTextBoxColumn { HeaderText = "Week", Width = 90, ValueType = typeof(int), MaxInputLength = 2 };
             dayColumn = ComboColumn("Day", 100);
             timeColumn = ComboColumn("Time", 160);
             awayColumn = ComboColumn("Away", 180);
@@ -589,7 +638,7 @@ namespace ScheduleMaker
             kickoffColumn = new DataGridViewCheckBoxColumn { HeaderText = "Kickoff", Width = 60 };
             conferenceColumn = new DataGridViewTextBoxColumn { HeaderText = "Conf", Width = 120, ReadOnly = true };
 
-            grid.Columns.AddRange(homeColumn, awayColumn, weekColumn, stadiumColumn, kickoffColumn, dayColumn, timeColumn, conferenceColumn);
+            grid.Columns.AddRange(homeColumn, awayColumn, weekColumn, conferenceColumn, stadiumColumn, kickoffColumn, dayColumn, timeColumn);
 
             // checkbox edits take effect right away rather than when the cell loses focus; a dropdown pick takes effect on
             // Enter or a click (typing only moves through the list), a typed week on Enter or leaving the cell
@@ -696,6 +745,13 @@ namespace ScheduleMaker
         #region grid
 
         /// <summary>Ctrl+H. Rebuilds the grid sorted by week, then home team, and goes back to the top.</summary>
+        private void SortGrid(bool byDay)
+        {
+            grid.EndEdit();
+            sortByDay = byDay;
+            RefreshGrid();
+        }
+
         private void RefreshGrid()
         {
             if (schedule == null)
@@ -706,9 +762,13 @@ namespace ScheduleMaker
             populating = true;
             grid.SuspendLayout();
             grid.Rows.Clear();
-            foreach (var game in schedule.Games
-                .OrderBy(g => g.Week)
-                .ThenBy(g => schedule.TeamName(g.HomeTeamRow) ?? string.Empty))
+            var games = schedule.Games.OrderBy(g => g.Week);
+            if (sortByDay)
+            {
+                games = games.ThenBy(g => Array.IndexOf(WeekDays, g.DayOfWeek) is var day && day >= 0 ? day : WeekDays.Length);
+            }
+
+            foreach (var game in games.ThenBy(g => schedule.TeamName(g.HomeTeamRow) ?? string.Empty))
             {
                 AddRow(game);
             }

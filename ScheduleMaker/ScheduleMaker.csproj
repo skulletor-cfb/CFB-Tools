@@ -19,5 +19,9 @@
     <ProjectReference Include="..\NCAA14Utility\NCAA14Utility.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- the TV schedule page (Ctrl+V); {tvall} is replaced with the schedule json -->
+    <EmbeddedResource Include="TV\tv-schedule.html" LogicalName="ScheduleMaker.TV.tv-schedule.html" />
+  </ItemGroup>
 
 </Project>

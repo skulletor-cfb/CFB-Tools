@@ -1,9 +1,15 @@
+#nullable enable
+using System;
+using System.Linq;
 using MaddenFranchise;
 
-namespace StatusPage
+namespace CFB27.Data.Model
 {
-    /// <summary>The page colors, from the user's team (Team.TEAM_BACKGROUNDCOLOR* primary, *2 secondary).</summary>
-    internal sealed class TeamTheme
+    /// <summary>
+    /// Page colors from a team (Team.TEAM_BACKGROUNDCOLOR* primary, *2 secondary): the status page uses the user's team, the
+    /// TV schedule last season's national champion.
+    /// </summary>
+    public sealed class TeamTheme
     {
         private const string NoRef = "00000000000000000000000000000000";
         private const string White = "#ffffff";
@@ -36,11 +42,12 @@ namespace StatusPage
                 team = teams.Records.FirstOrDefault(t => !t.IsEmpty && Convert.ToInt32(t["TeamIndex"]) == teamIndex);
             }
 
-            if (team == null)
-            {
-                return null;
-            }
+            return team == null ? null : ForTeam(team);
+        }
 
+        /// <summary>The colors of a Team record.</summary>
+        public static TeamTheme ForTeam(FranchiseFileRecord team)
+        {
             var primary = Rgb(team, string.Empty);
             var secondary = Convert.ToBoolean(team["TEAM_HAS_SECONDARY_COLOR"]) ? Rgb(team, "2") : primary;
             return new TeamTheme
