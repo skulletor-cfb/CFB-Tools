@@ -11,13 +11,13 @@ namespace NCAA14Utility.Scheduling
         }
 
         protected override Func<Dictionary<int, int[]>>[] Creators => new Func<Dictionary<int, int[]>>[] {
-            CreateA, CreateB,
-            CreateX, CreateY,
-            CreateB, CreateA,
-            CreateY, CreateX,
+            CreateD, CreateD,
+            CreateC, CreateC,
+            CreateB, CreateB,
+            CreateA, CreateA,
         };
 
-        protected override int InitialYear => 2587;
+        protected override int InitialYear => 2589;
 
         // EADBEditor's Pac12Locks
         protected override Func<int, int, int?>[] LockChecks => new Func<int, int, int?>[]
@@ -36,19 +36,18 @@ namespace NCAA14Utility.Scheduling
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Washington.Create(WSU, BYU, Stanford, Arizona),
-                WSU.Create(OrSt, Utah, Cal, ASU),
-                OrSt.Create(Washington, Oregon, BYU, USC),
-                Oregon.Create(Washington, WSU, Utah, UCLA),
-                BYU.Create(WSU, Oregon, Utah, Arizona),
-                Utah.Create(Washington, OrSt, UCLA, ASU),
-
-                Stanford.Create(OrSt, BYU, Cal, UCLA),
-                Cal.Create(Oregon, Utah, USC, ASU),
-                USC.Create(Washington, BYU, Stanford, UCLA),
-                UCLA.Create(WSU, Cal, Arizona, ASU),
-                Arizona.Create(OrSt, Stanford, Cal, USC),
-                ASU.Create(Oregon, Stanford, USC, Arizona),
+                USC.Create(UCLA, Stanford, Washington, OrSt, BYU),
+                UCLA.Create(Cal, WSU, Oregon, Utah),
+                Cal.Create(USC, Washington, OrSt, Arizona, BYU),
+                Stanford.Create(UCLA, Cal, WSU, ASU),
+                WSU.Create(Cal, Oregon, Arizona, Utah),
+                Washington.Create(Stanford, WSU, OrSt, ASU, BYU),
+                Oregon.Create(USC, Stanford, Washington,ASU),
+                OrSt.Create(UCLA, WSU, Oregon, Arizona, Utah),
+                ASU.Create(UCLA, Cal, OrSt, Arizona, Utah),
+                Arizona.Create(USC, Stanford, Oregon, BYU),
+                Utah.Create(USC, Stanford, Washington, Arizona),
+                BYU.Create(UCLA, WSU, Oregon, ASU, Utah),
             }.Create();
         }
 
@@ -56,59 +55,55 @@ namespace NCAA14Utility.Scheduling
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Washington.Create(WSU, BYU, Cal , ASU),
-                WSU.Create(OrSt, Utah, Stanford, USC),
-                OrSt.Create(Washington, Oregon, BYU, UCLA),
-                Oregon.Create(Washington, WSU, Utah, Arizona),
-                BYU.Create(WSU, Oregon, Utah, ASU),
-                Utah.Create(Washington, OrSt, USC, Arizona),
-
-                Stanford.Create(Oregon, Utah, Cal, UCLA),
-                Cal.Create(OrSt, BYU, USC, ASU),
-                USC.Create(Oregon, Stanford, UCLA, ASU),
-                UCLA.Create(Washington, BYU, Cal , Arizona),
-                Arizona.Create(WSU, Stanford, Cal, USC),
-                ASU.Create(OrSt, Stanford, UCLA, Arizona),
+                USC.Create(UCLA, Stanford, Oregon, ASU, Utah),
+                UCLA.Create(Cal, WSU, OrSt, Arizona, BYU),
+                Cal.Create(USC, Washington, Oregon, ASU),
+                Stanford.Create(UCLA, Cal, OrSt, Utah),
+                WSU.Create(USC, Cal, Oregon, ASU, BYU),
+                Washington.Create(UCLA, Stanford, WSU, OrSt, Arizona),
+                Oregon.Create(Stanford, Washington, ASU, Utah),
+                OrSt.Create(USC, WSU, Oregon, Arizona, BYU),
+                ASU.Create(UCLA, Washington, Arizona, Utah),
+                Arizona.Create(Cal, Stanford, Oregon, BYU),
+                Utah.Create(Cal, WSU, OrSt, Arizona),
+                BYU.Create(USC, Stanford, Washington, ASU, Utah),
             }.Create();
         }
-
-        public static Dictionary<int, int[]> CreateX()
+        public static Dictionary<int, int[]> CreateC()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Washington.Create(WSU, ASU, Stanford, Utah),
-                WSU.Create(OrSt, Arizona, Cal, BYU),
-                OrSt.Create(Washington, Oregon, ASU, USC),
-                Oregon.Create(Washington, WSU, Arizona, UCLA),
-                ASU.Create(WSU, Oregon, Arizona, Utah),
-                Arizona.Create(Washington, OrSt, UCLA, BYU),
-
-                Stanford.Create(OrSt, ASU, Cal, UCLA),
-                Cal.Create(Oregon, Arizona, USC, BYU),
-                USC.Create(Washington, ASU, Stanford, UCLA),
-                UCLA.Create(WSU, Cal, Utah, BYU),
-                Utah.Create(OrSt, Stanford, Cal, USC),
-                BYU.Create(Oregon, Stanford, USC, Utah),
+                USC.Create(UCLA, Stanford, Washington, ASU, BYU),
+                UCLA.Create(Cal, WSU, Oregon, Arizona),
+                Cal.Create(USC, Washington, OrSt, BYU),
+                Stanford.Create(UCLA, Cal, OrSt, Utah),
+                WSU.Create(USC, Stanford, Oregon, ASU),
+                Washington.Create(UCLA, WSU, OrSt, Arizona, Utah),
+                Oregon.Create(Cal, Stanford, Washington, Arizona, BYU),
+                OrSt.Create(USC, WSU, Oregon, ASU, Utah),
+                ASU.Create(UCLA, Stanford, Washington, Arizona, Utah),
+                Arizona.Create(USC, Cal, WSU, BYU),
+                Utah.Create(UCLA, Cal, Oregon, Arizona),
+                BYU.Create(Stanford, WSU, OrSt, ASU, Utah),
             }.Create();
         }
 
-        public static Dictionary<int, int[]> CreateY()
+        public static Dictionary<int, int[]> CreateD()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Washington.Create(WSU, ASU, Cal , BYU),
-                WSU.Create(OrSt, Arizona, Stanford, USC),
-                OrSt.Create(Washington, Oregon, ASU, UCLA),
-                Oregon.Create(Washington, WSU, Arizona, Utah),
-                ASU.Create(WSU, Oregon, Arizona, BYU),
-                Arizona.Create(Washington, OrSt, USC, Utah),
-
-                Stanford.Create(Oregon, Arizona, Cal, UCLA),
-                Cal.Create(OrSt, ASU, USC, BYU),
-                USC.Create(Oregon, Stanford, UCLA, BYU),
-                UCLA.Create(Washington, ASU, Cal , Utah),
-                Utah.Create(WSU, Stanford, Cal, USC),
-                BYU.Create(OrSt, Stanford, UCLA, Utah),
+                USC.Create(UCLA, Stanford, Washington, ASU, Utah),
+                UCLA.Create(Cal, Washington, Oregon, Arizona),
+                Cal.Create(USC, WSU, OrSt, Utah, BYU),
+                Stanford.Create(UCLA, Cal, Washington, ASU),
+                WSU.Create(USC, Stanford, Oregon, Arizona),
+                Washington.Create(WSU, OrSt, Utah, BYU),
+                Oregon.Create(USC, Cal, Washington, BYU),
+                OrSt.Create(UCLA, Stanford, WSU, Oregon, ASU),
+                ASU.Create(Cal, WSU, Oregon, Arizona, Utah),
+                Arizona.Create(USC, Stanford, Washington, OrSt, BYU),
+                Utah.Create(UCLA, WSU, Oregon, Arizona),
+                BYU.Create(UCLA, Stanford, OrSt, ASU, Utah),
             }.Create();
         }
     }

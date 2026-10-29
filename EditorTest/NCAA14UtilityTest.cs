@@ -29,5 +29,40 @@ namespace EditorTest
             Assert.AreEqual(16, dict.Keys.Count);
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
         }
+
+        [TestMethod]
+        public void Pac12ScheduleA()
+        {
+            var dict = Pac12Schedule.CreateA();
+            var hash = dict.BuildHashSet();
+            Assert.AreEqual(12, dict.Keys.Count);
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
+
+        [TestMethod]
+        public void Pac12ScheduleB()
+        {
+            var dict = Pac12Schedule.CreateB();
+            var hash = dict.BuildHashSet();
+            Assert.AreEqual(12, dict.Keys.Count);
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
+        [TestMethod]
+        public void Pac12ScheduleC()
+        {
+            var dict = Pac12Schedule.CreateC();
+            var hash = dict.BuildHashSet();
+            Assert.AreEqual(12, dict.Keys.Count);
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
+
+        [TestMethod]
+        public void Pac12ScheduleD()
+        {
+            var dict = Pac12Schedule.CreateD();
+            var hash = dict.BuildHashSet();
+            Assert.AreEqual(12, dict.Keys.Count);
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
     }
 }
