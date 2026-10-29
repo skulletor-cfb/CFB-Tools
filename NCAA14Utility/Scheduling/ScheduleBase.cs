@@ -212,7 +212,7 @@ namespace NCAA14Utility.Scheduling
 
         public const int AF = 0; // Air Force
 
-        public const int BSU = 12; // Boise State
+        public const int BoiseSt = 12; // Boise State
 
         public const int CSU = 24; // Colorado State
 
@@ -233,6 +233,8 @@ namespace NCAA14Utility.Scheduling
         public const int UtahSt = 129; // Utah State
 
         public const int Wyoming = 142; // Wyoming
+
+        public const int SacState = 912; // Sac State
 
 
 

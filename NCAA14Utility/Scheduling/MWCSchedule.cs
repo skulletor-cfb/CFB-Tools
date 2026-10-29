@@ -6,17 +6,16 @@ namespace NCAA14Utility.Scheduling
 {
     public class MWCSchedule : ScheduleBase
     {
-        public MWCSchedule(int year) : base(year, 12, ScheduleHelpers.MWC, nameof(ScheduleHelpers.MWC))
+        public MWCSchedule(int year) : base(year, 16, ScheduleHelpers.MWC, nameof(ScheduleHelpers.MWC))
         {
         }
 
         protected override Func<Dictionary<int, int[]>>[] Creators => new Func<Dictionary<int, int[]>>[] {
-            CreateA, CreateB,
-            CreateC, CreateA,
-            CreateB, CreateC,
+            CreateA, CreateA,
+            CreateB, CreateB,
         };
 
-        protected override int InitialYear => 2545;
+        protected override int InitialYear => 2589;
 
         // EADBEditor's MWCLocks
         protected override Func<int, int, int?>[] LockChecks => new Func<int, int, int?>[]
@@ -27,18 +26,22 @@ namespace NCAA14Utility.Scheduling
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Wyoming.Create(AF, Nevada, UtahSt, SJSU),
-                CSU.Create(Wyoming, Hawaii, UNM, SDSU),
-                AF.Create(CSU, UNLV, UtahSt, FresnoSt),
-                Hawaii.Create(Wyoming, AF, Nevada, SDSU),
-                BSU.Create(CSU, Hawaii, UNLV, FresnoSt),
-                Nevada.Create(AF, BSU, UNM, SJSU),
-                UNLV.Create(CSU, Nevada, UtahSt, SDSU),
-                UNM.Create(Wyoming, BSU, UNLV, FresnoSt),
-                UtahSt.Create(Hawaii, BSU, UNM, SJSU),
-                FresnoSt.Create(CSU, Nevada, UtahSt, SDSU),
-                SJSU.Create(AF, Hawaii, UNLV, FresnoSt),
-                SDSU.Create(Wyoming, BSU, UNM, SJSU),
+            Wyoming.Create(AF, Hawaii, UNLV, UtahSt, SDSU),
+            CSU.Create(Wyoming, UNM, NMSU, NDSU),
+            AF.Create(CSU, FresnoSt, UTEP, NDSU),
+            Hawaii.Create(AF, UNLV, UtahSt, SacState, UTEP),
+            BoiseSt.Create(CSU, Hawaii, FresnoSt, SDSU, SacState),
+            Nevada.Create(CSU, BoiseSt, UTEP, NDSU),
+            UNLV.Create(AF, BoiseSt, Nevada, UNM, SacState),
+            UNM.Create(Wyoming, AF, NMSU, NDSU),
+            UtahSt.Create(BoiseSt, Nevada, SJSU, NMSU),
+            FresnoSt.Create(Nevada, UNM, UtahSt, SDSU, NDSU),
+            SJSU.Create(Wyoming, Hawaii, UNLV, FresnoSt, NMSU),
+            SDSU.Create(CSU, Nevada, UNM, SJSU, SacState),
+            SacState.Create(CSU, AF, Nevada, SJSU),
+            UTEP.Create(UNM, UtahSt, FresnoSt, SDSU),
+            NMSU.Create(Hawaii, BoiseSt, UNLV, SacState, UTEP),
+            NDSU.Create(Wyoming, UtahSt, SJSU, UTEP),
             }.Create();
         }
 
@@ -46,37 +49,22 @@ namespace NCAA14Utility.Scheduling
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Wyoming.Create(AF, Nevada, UtahSt, FresnoSt),
-                CSU.Create(Wyoming, BSU, UtahSt, FresnoSt),
-                AF.Create(CSU, UNLV, UNM, SJSU),
-                Hawaii.Create(AF, UNLV, UNM, SDSU),
-                BSU.Create(Wyoming, AF, Hawaii, FresnoSt),
-                Nevada.Create(CSU,  Hawaii, BSU, SDSU),
-                UNLV.Create(Wyoming, Nevada, UtahSt, SDSU),
-                UNM.Create(CSU, BSU, UNLV, SJSU),
-                UtahSt.Create(Hawaii, Nevada, UNM, SJSU),
-                FresnoSt.Create(Hawaii, UNLV, UNM, SDSU),
-                SJSU.Create(CSU, BSU,  Nevada, FresnoSt),
-                SDSU.Create(Wyoming, AF, UtahSt, SJSU),
-            }.Create();
-        }
-
-        public static Dictionary<int, int[]> CreateC()
-        {
-            return new List<KeyValuePair<int, int[]>>
-            {
-                Wyoming.Create(BSU, UNLV, UtahSt, SJSU),
-                CSU.Create(Wyoming, Hawaii, Nevada,SDSU),
-                AF.Create(CSU, UNM, UtahSt, FresnoSt),
-                Hawaii.Create(Wyoming, AF, UNLV, SJSU),
-                BSU.Create(AF, Hawaii, UtahSt, SDSU),
-                Nevada.Create(AF, BSU, UNM, FresnoSt),
-                UNLV.Create(CSU, BSU, Nevada, SJSU),
-                UNM.Create(Wyoming, Hawaii, UNLV, SDSU),
-                UtahSt.Create(CSU, Nevada, UNM, FresnoSt),
-                FresnoSt.Create(Wyoming, Hawaii, UNLV, SDSU),
-                SJSU.Create(CSU, BSU, UNM, FresnoSt),
-                SDSU.Create(AF, Nevada, UtahSt, SJSU),
+            Wyoming.Create(BoiseSt, UtahSt, FresnoSt, SacState, UTEP),
+            CSU.Create(Wyoming, UNLV, SJSU, NDSU),
+            AF.Create(CSU, Nevada, UtahSt, UTEP),
+            Hawaii.Create(CSU, AF, UNLV, UNM, NDSU),
+            BoiseSt.Create(AF, Hawaii, UNM, FresnoSt, NDSU),
+            Nevada.Create(Wyoming, Hawaii, BoiseSt, NMSU),
+            UNLV.Create(Nevada, UNM, UtahSt, UTEP, NDSU),
+            UNM.Create(Nevada, UtahSt, SJSU, NMSU),
+            UtahSt.Create(CSU, SDSU, SacState, NMSU),
+            FresnoSt.Create(CSU, Hawaii, UNLV, SDSU, NMSU),
+            SJSU.Create(AF, BoiseSt, Nevada, FresnoSt, UTEP),
+            SDSU.Create(AF, Hawaii, UNLV, SJSU, SacState),
+            SacState.Create(Nevada, UNM, FresnoSt, SJSU),
+            UTEP.Create(CSU, BoiseSt, UNM, SacState),
+            NMSU.Create(Wyoming, AF, SDSU, UTEP, NDSU),
+            NDSU.Create(Wyoming, UtahSt, SDSU, SacState),
             }.Create();
         }
     }

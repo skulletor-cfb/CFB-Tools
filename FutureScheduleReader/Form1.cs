@@ -12,7 +12,7 @@ namespace FutureScheduleReader
 {
     public partial class Form1 : Form
     {
-        private const int TeamCount = 66; 
+        private const int TeamCount = 69; 
         private static ExcelApp.Application excelApp;
         List<(int year, string away, string home)> list = new List<(int year, string away, string home)>();
         int start = 0;

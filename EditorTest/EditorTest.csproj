@@ -64,6 +64,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="NCAA14UtilityTest.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -71,6 +72,10 @@
     <ProjectReference Include="..\EADBEditor\EA DB Editor.csproj">
       <Project>{19be3bc4-ec8a-4378-a6a9-211d9f93e1bc}</Project>
       <Name>EA DB Editor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NCAA14Utility\NCAA14Utility.csproj">
+      <Project>{2eea8c26-0b85-48e8-b85c-5ad17980c922}</Project>
+      <Name>NCAA14Utility</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>
