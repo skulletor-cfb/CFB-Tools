@@ -13,6 +13,25 @@ namespace EditorTest
         }
 
         [TestMethod]
+        public void AmericanScheduleA()
+        {
+            var dict = AmericanSchedule.CreateA();
+            var hash = dict.BuildHashSet();
+            Assert.AreEqual(14, dict.Keys.Count);
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+        [TestMethod]
+        public void AmericanScheduleB()
+        {
+            var dict = AmericanSchedule.CreateB();
+            var hash = dict.BuildHashSet();
+            Assert.AreEqual(14, dict.Keys.Count);
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+
+
+        [TestMethod]
         public void MWCScheduleA()
         {
             var dict = MWCSchedule.CreateA();
