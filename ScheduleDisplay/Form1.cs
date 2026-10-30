@@ -17,6 +17,8 @@ namespace ScheduleDisplay
         public Form1()
         {
             InitializeComponent();
+            // the exe's icon (ApplicationIcon) for the title bar too
+            this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             this.file = ConfigurationManager.AppSettings["ScheduleFile"];
             ThreadPool.QueueUserWorkItem(Loop, null);
         }

@@ -20,53 +20,10 @@ namespace EA_DB_Editor
 
     public static class TableUtility
     {
-        /// <summary>
-        /// Returns true if a check passes the threshold
-        /// </summary>
-        /// <param name="threshold">% success, so if we pass in 10, there's a 10% chance this check passes</param>
-        /// <returns></returns>
-        public static bool Check(int threshold)
-        {
-            return Rand100() < threshold;
-        }
-
-        public static T Check<T>( int[] pct, params T[] values)
-        {
-            var val = Rand100();
-
-            for (int i = 0; i < pct.Length; i++)
-            {
-                if (val < pct.Take(1 + i).Sum())
-                {
-                    return values[i];
-                }
-            }
-
-            return values.Last();
-        }
-
-        /// <summary>
-        /// randomly returns a choice from a set
-        /// </summary>
-        /// <param name="choices"></param>
-        /// <returns></returns>
-        public static T Choose<T>(this T[] choices)
-        {
-            var guid = Guid.NewGuid().ToByteArray().Take(4).ToArray();
-            int i = BitConverter.ToInt32(guid, 0) & 0x7fffffff;
-            return choices[i % choices.Length];
-        }
-
-        public static int Rand100()
-        {
-            var guid = Guid.NewGuid().ToByteArray().Take(4).ToArray();
-            int i = BitConverter.ToInt32(guid, 0) & 0x7fffffff;
-            return i % 100;
-        }
 
         public static MaddenTable FindTable(string name)
         {
-            return MaddenTable.FindMaddenTable(Form1.MainForm.maddenDB.lTables, name);
+            return MaddenTable.FindMaddenTable(Form1.MainForm.MaddenDB.lTables, name);
         }
 
         public static HashSet<int> FindUserTeams()
@@ -428,7 +385,7 @@ namespace EA_DB_Editor
                 {
                     try
                     {
-                        teamAndConferences = Form1.MainForm.maddenDB.lTables[167].lRecords
+                        teamAndConferences = Form1.MainForm.MaddenDB.lTables[167].lRecords
                             .Where(mr => mr.lEntries[40].Data.ToInt32() != 611 && mr.lEntries[40].Data.ToInt32() != 300)
                             .ToDictionary(mr => mr.lEntries[40].Data.ToInt32(), record => record.lEntries[36].Data.ToInt32());
                     }
@@ -459,7 +416,7 @@ namespace EA_DB_Editor
             dict.Add(3, new int[] { SECId, SBCId, AmericanId, CUSAId }); //AR
             dict.Add(4, new int[] { Pac16Id, NotreDameId, MWCId }); //CA
             dict.Add(5, new int[] { Big12Id, MWCId, NotreDameId }); //CO
-            dict.Add(6, new int[] { ACCId, Big10Id, MACId, AmericanId}); //CT
+            dict.Add(6, new int[] { ACCId, Big10Id, MACId, AmericanId }); //CT
             dict.Add(7, new int[] { ACCId, Big10Id, MACId, AmericanId }); //DE
             dict.Add(8, new int[] { SECId, ACCId, Big12Id, AmericanId, CUSAId, SBCId }); //FL
             dict.Add(9, new int[] { SECId, ACCId, AmericanId, CUSAId, SBCId }); //GA
@@ -481,10 +438,10 @@ namespace EA_DB_Editor
             dict.Add(25, new int[] { Pac16Id, NotreDameId, MWCId }); //MT
             dict.Add(26, allConf); //NE
             dict.Add(27, new int[] { Pac16Id, NotreDameId, BYUId, MWCId }); //NV
-            dict.Add(28, new int[] { ACCId, Big10Id, NotreDameId,MACId, AmericanId }); //NH
+            dict.Add(28, new int[] { ACCId, Big10Id, NotreDameId, MACId, AmericanId }); //NH
             dict.Add(29, new int[] { ACCId, Big10Id, NotreDameId, MACId, AmericanId }); //NJ
             dict.Add(30, new int[] { Pac16Id, Big12Id, NotreDameId, MWCId }); //NM
-            dict.Add(31, new int[] { ACCId, Big10Id, NotreDameId,MACId, AmericanId }); //NY
+            dict.Add(31, new int[] { ACCId, Big10Id, NotreDameId, MACId, AmericanId }); //NY
             dict.Add(32, new int[] { ACCId, AmericanId, SBCId }); //NC
             dict.Add(33, new int[] { Pac16Id, NotreDameId, BYUId, MWCId }); //ND
             dict.Add(34, new int[] { Big10Id, NotreDameId, CincyId, MACId }); //OH
@@ -798,67 +755,6 @@ namespace EA_DB_Editor
         }
 
         #endregion
-        #region calendar utlities
-        public static DateTime GetThanksgivingDate(this int year)
-        {
-
-            for (int i = 22; i <= 30; i++)
-            {
-                var testDate = new DateTime(year, 11, i, 0, 0, 0);
-                if (testDate.DayOfWeek == DayOfWeek.Thursday)
-                {
-                    return testDate;
-                }
-            }
-
-            return default;
-        }
-
-        public static DateTime GetLaborDay(this int year)
-        {
-
-            for (int i = 1; i <= 7; i++)
-            {
-                var testDate = new DateTime(year, 9, i, 0, 0, 0);
-                if (testDate.DayOfWeek == DayOfWeek.Monday)
-                {
-                    return testDate;
-                }
-            }
-
-            return default;
-        }
-
-        public static DateTime GetThirdSaturdayInOctober(this int year)
-        {
-            for (int i = 15; i <= 22; i++)
-            {
-                var testDate = new DateTime(year, 10, i, 0, 0, 0);
-                if (testDate.DayOfWeek == DayOfWeek.Saturday)
-                {
-                    return testDate;
-                }
-            }
-
-            return default;
-        }
-
-        public static DateTime GetTexasStateFairStartDate(this int year)
-        {
-            // last friday in september
-
-            for (int i = 30; i >= 20; i--)
-            {
-                var testDate = new DateTime(year, 9, i, 0, 0, 0);
-                if (testDate.DayOfWeek == DayOfWeek.Friday)
-                {
-                    return testDate;
-                }
-            }
-
-            return default;
-        }
-        #endregion
 
 
         public static bool TryPop<T>(this Stack<T> stack, out T result)
@@ -871,68 +767,6 @@ namespace EA_DB_Editor
 
             result = stack.Pop();
             return true;
-        }
-    }
-
-    public class SeasonCalendar
-    {
-        public bool IsLaborDayWeekendFirstWeek { get; }
-        public DateTime[] Weeks { get; }
-        public DateTime FirstDayOfSeason { get; }
-        public DateTime ThirdSaturdayInOctober { get; }
-        public DateTime LaborDay { get; }
-        public DateTime Thanksgiving { get; }
-        public DateTime FinalDayOfSeason { get; }
-        public DateTime TexasStateFairStartDate { get; }
-        public DateTime RedRiverShowdown { get; }
-        public int Year { get; }
-        public SeasonCalendar(int year)
-        {
-            Year = year;
-            Weeks = new DateTime[14];
-            ThirdSaturdayInOctober = year.GetThirdSaturdayInOctober();
-            LaborDay = year.GetLaborDay();
-            Thanksgiving = year.GetThanksgivingDate();
-            FinalDayOfSeason = Thanksgiving.AddDays(2);
-            TexasStateFairStartDate = year.GetTexasStateFairStartDate();
-            var rrs = TexasStateFairStartDate.AddDays(15);
-            if (rrs.Day >= 15)
-            {
-                rrs = rrs.AddDays(-7);
-            }
-            RedRiverShowdown = rrs;
-            FirstDayOfSeason = FinalDayOfSeason.AddDays(-7 * 13);
-
-            var curr = FirstDayOfSeason;
-            for (int i = 0; i < Weeks.Length; i++)
-            {
-                Weeks[i] = curr;
-                curr = curr.AddDays(7);
-            }
-
-            IsLaborDayWeekendFirstWeek = LaborDay < Weeks[1];
-        }
-
-        public bool IsOctober(int week)
-        {
-            var date = Weeks[week];
-            return date.Month == 10;
-        }
-
-        public bool IsAugustSeptember(int week)
-        {
-            var date = Weeks[week];
-            return date.Month == 8 || date.Month == 9;
-        }
-        public bool IsNovember(int week)
-        {
-            var date = Weeks[week];
-            return date.Month >= 11;
-        }
-        public DateTime GetDate(int week, int day)
-        {
-            var saturday = Weeks[week];
-            return saturday.AddDays(day - 5);
         }
     }
 }

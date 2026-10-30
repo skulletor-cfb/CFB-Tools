@@ -1,0 +1,121 @@
+#nullable disable
+using NCAA14Utility.Scheduling;
+
+namespace ScheduleMaker.TV
+{
+    public class Peacock : NetworkSchedule
+    {
+        public static Peacock Instance { get; private set; }
+
+        public static void Reset() => Instance = new Peacock();
+
+        private Peacock() : base(ChannelName.Peacock, StreamingProvider.Peacock)
+        {
+        }
+
+        public override NetworkSchedule AssignGames()
+        {
+            // week 1 game goes at 8pm thursday
+            if (this.WeeklySchedule.TryGetValue(0, out var week1Games) && week1Games.Count > 0)
+            {
+                Streaming.AssignGame(week1Games.First(), 0, 8, 0, 3);
+            }
+
+            // the rest at either 1230pm or 4pm
+            var queue = this.SelectedGames.ToAssignmentQueue();
+            while (queue.TryDequeueGameForAssignment(out var game))
+            {
+                var timeslot = TelevisionScheduler.Random.Next(2) == 0 ? new TimeSlot(12, 30, game.Week) : new TimeSlot(4, 0, game.Week);
+                Streaming.AssignGame(game, timeslot);
+            }
+
+            return this;
+        }
+    }
+
+    public class NBCNetwork : NetworkSchedule
+    {
+        public static NBCNetwork Instance { get; private set; }
+
+        public static void Reset() => Instance = new NBCNetwork();
+
+        private NBCNetwork() : base(ChannelName.NBC, StreamingProvider.None)
+        {
+        }
+
+        public override NetworkSchedule AssignGames()
+        {
+            foreach (var kvp in this.WeeklySchedule)
+            {
+                var nd = kvp.Value.Where(g => g.IsNotreDameHomeGame).FirstOrDefault();
+                var b10 = kvp.Value.Where(g => !g.IsNotreDameHomeGame).FirstOrDefault();
+
+                // nbc plays the last game on friday
+                if (kvp.Key == 13)
+                {
+                    Primary.AssignGame(b10, kvp.Key, 7, 30, day: 4);
+                    b10 = null;
+                }
+
+                // no nd game, b10 it is
+                if (nd == null)
+                {
+                    Primary.AssignGame(b10, kvp.Key, 8, 0);
+                    continue;
+                }
+
+                // nd plays at night if it's a premier game
+                if (nd.BothTeamsRanked)
+                {
+                    Primary.AssignGame(nd, kvp.Key, 8, 0);
+                    continue;
+                }
+
+                // nd is early, big 10 late
+                Primary.AssignGame(nd, kvp.Key, 3, 30);
+                Primary.AssignGame(b10, kvp.Key, 8, 00);
+            }
+
+            // we might need to put games back into the pool
+            this.SelectedGames.ReturnInventory();
+            return this;
+        }
+
+        public override bool PreassignGame(TelevisedGame game)
+        {
+            // Shamrock Series: Notre Dame's neutral-site home game keeps its day and goes at 8pm
+            if (game.IsNotreDameHomeGame && game.IsNeutralSite)
+            {
+                return !Primary.PreassignGame(game, new TimeSlot(8, 0, game.Week, day: game.Day), true);
+            }
+
+            // the rest of the notre dame home games come to NBC.  Stan vs ND and USC vs ND are always at 330.
+            if ((game.CheckMatchup(ScheduleBase.NotreDame, ScheduleBase.Stanford) && game.IsNotreDameHomeGame) ||
+                (game.CheckMatchup(ScheduleBase.NotreDame, ScheduleBase.USC) && game.IsNotreDameHomeGame) ||
+                (game.IsNotreDameHomeGame && game.AwayTeam.IsG5()))
+            {
+                return !Primary.PreassignGame(game, new TimeSlot(3, 30, game.Week), true);
+            }
+
+            // ND vs P5 top 25 goes at night
+            if (game.IsP5Game && game.IsNotreDameHomeGame && game.AwayRank <= 25)
+            {
+                return !Primary.PreassignGame(game, new TimeSlot(8, 0, game.Week), true);
+            }
+
+            // first big 10 game observed gets assigned to black friday
+            if (game.Week == 13 && game.IsBig10Game)
+            {
+                return !Primary.PreassignGame(game, new TimeSlot(7, 30, game.Week, day: 4), true);
+            }
+
+            // otherwise a big 10 game goes at night
+            if (game.IsBig10Game)
+            {
+                return !Primary.PreassignGame(game, new TimeSlot(8, 0, game.Week), true);
+            }
+
+            return base.PreassignGame(game);
+        }
+    }
+}

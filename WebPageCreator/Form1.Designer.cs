@@ -627,7 +627,7 @@
             this.button9.TabIndex = 20;
             this.button9.Text = "Create Preseason Reports";
             this.button9.UseVisualStyleBackColor = true;
-            this.button9.Click += new System.EventHandler(this.button9_Click);
+            this.button9.Click += new System.EventHandler(this.CreatePreseasonMagazine_Click);
             // 
             // checkBox1
             // 

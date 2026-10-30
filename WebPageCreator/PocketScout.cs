@@ -23,7 +23,7 @@ namespace EA_DB_Editor
         public static int Team_ID_GLOBAL;
 
 
-        public static void CreateStandingsPage(MaddenDatabase db)
+        public static void CreateStandingsPage()
         {
             using (var tw = new StreamWriter("./Archive/Reports/Standings.html", false))
             {
@@ -41,7 +41,7 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void Polls(MaddenDatabase db)
+        public static void Polls(IDataEngine dataEngine)
         {
 
             TextWriter tw;
@@ -95,7 +95,7 @@ namespace EA_DB_Editor
             sb.AppendLine("Team,TeamId,Record,National,Conference,WinPct");
             foreach (var team in Team.Teams.Values.Where(t => t.Id.IsFCS()==false).OrderByDescending(t => t.NationalTitles).ThenByDescending(t => t.AllTimeWin))
             {
-                if(team.Id.TeamNoLongerFBS())
+                if(team.Id.TeamNoLongerFBS(dataEngine))
                 {
                     continue;
                 }
@@ -135,7 +135,7 @@ namespace EA_DB_Editor
             Utility.WriteData(@".\archive\reports\cc.csv", sb.ToString());
 
             // standings
-            CreateStandingsPage(db);
+            CreateStandingsPage();
 
             // make sure the conference json file is written out
             Conference.ToJsonFile();
@@ -235,11 +235,11 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void SOS_Rnk(MaddenDatabase db, bool isPreseason)
+        public static void SOS_Rnk(IDataEngine dataEngine, bool isPreseason)
         {
             // SOS Rank only done after the season starts
-            TeamSchedule.CalculateOpponentMetrics(db,false);
-            TeamSchedule.ToSOSCsv(db,isPreseason);
+            TeamSchedule.CalculateOpponentMetrics(dataEngine, false);
+            TeamSchedule.ToSOSCsv(dataEngine, isPreseason);
             TextWriter tw;
             using (tw = new StreamWriter("./Archive/Reports/SOS_Rankings.html", false))
             {
@@ -271,7 +271,7 @@ namespace EA_DB_Editor
                 {
                     foreach (var player in PlayerDB.Rosters[team.Id].OrderBy(p => p.Position).ThenByDescending(p => p.Ovr).ThenByDescending(p => p.Spd).ThenByDescending(p => p.Awr))
                     {
-                        string city = string.Empty, state = string.Empty;
+                        string city = player.HomeTown ?? string.Empty, state = player.HomeState ?? string.Empty;
                         if (City.Cities.ContainsKey(player.City))
                         {
                             city = City.Cities[player.City].Name;
@@ -344,7 +344,7 @@ namespace EA_DB_Editor
                 {
                     foreach (var player in PlayerDB.Rosters[team.Id].Where(p => p.IsRedShirt == false && p.Year == 0).OrderByDescending(p => p.Ovr).ThenByDescending(p => p.Spd).ThenByDescending(p => p.Awr))
                     {
-                        string city = string.Empty, state = string.Empty;
+                        string city = player.HomeTown ?? string.Empty, state = player.HomeState ?? string.Empty;
                         if (City.Cities.ContainsKey(player.City))
                         {
                             city = City.Cities[player.City].Name;
@@ -506,10 +506,10 @@ namespace EA_DB_Editor
             }
         }
 
-        public static void CreateTeamPlayerStats(MaddenDatabase db, bool careerStats)
+        public static void CreateTeamPlayerStats(IDataEngine dataEngine, bool careerStats)
         {
             TextWriter tw = null;
-            PlayerDB.Create(db);
+            PlayerDB.Create(dataEngine);
 
             foreach (var key in PlayerDB.Rosters.Keys.Where(k => k != 1023))
             {
@@ -1557,6 +1557,14 @@ namespace EA_DB_Editor
             else if (Team_ID == 903) { Team_Name = "Coastal Carolina"; }
             else if (Team_ID == 904) { Team_Name = "Charlotte"; }
             else if (Team_ID == 905) { Team_Name = "James Madison"; }
+            else if (Team_ID == 906) { Team_Name = "Delaware"; }
+            else if (Team_ID == 907) { Team_Name = "Jax State"; }
+            else if (Team_ID == 908) { Team_Name = "Kennesaw State"; }
+            else if (Team_ID == 909) { Team_Name = "Liberty"; }
+            else if (Team_ID == 910) { Team_Name = "Missouri State"; }
+            else if (Team_ID == 911) { Team_Name = "NDSU"; }
+            else if (Team_ID == 912) { Team_Name = "Sac State"; }
+            else if (Team_ID == 913) { Team_Name = "Sam Houston"; }
             else { Team_Name = "Unemployeed"; }
             return Team_Name;
         }

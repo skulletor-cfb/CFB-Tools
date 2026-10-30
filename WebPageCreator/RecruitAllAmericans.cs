@@ -81,7 +81,7 @@ namespace EA_DB_Editor
             var pitchRecord = PitchTable.lRecords.Where( rec => rec.lEntries[34].Data.ToInt32() == this.Id).First();
             var commitedTeam = pitchRecord.lEntries[35].Data.ToInt32();
             this.Committed = commitedTeam != 1023;
-            this.TopTeamId = pitchRecord.lEntries[6].Data.ToInt32().GetRealTeamId();
+            this.TopTeamId = pitchRecord.lEntries[6].Data.ToInt32().GetRealTeamId(true);
             this.TopTeam = this.TopTeamId.ToTeamName();
 
         }

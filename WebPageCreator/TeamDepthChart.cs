@@ -10,34 +10,15 @@ namespace EA_DB_Editor
     public class MediaCoverage
     {
         public static Dictionary<int, MediaCoverage[]> MediaReports { get; set; }
-        public static void Create(MaddenDatabase db, bool isPreseason)
+        public static void Create(IDataEngine dataEngine, bool isPreseason)
         {
-            Team.Create(db,isPreseason);
-            PlayerDB.Create(db);
+            Team.Create(dataEngine, isPreseason);
+            PlayerDB.Create(dataEngine);
 
             if (MediaReports != null)
                 return;
 
-            var mediaTable = MaddenTable.FindMaddenTable(db.lTables, "MCOV");
-            MediaReports = mediaTable.lRecords
-                .GroupBy(mr => mr["TGID"].ToInt32().GetRealTeamId())
-                .ToDictionary(
-                    group => group.Key,
-                    group => group
-                        .Where(mr => mr["SGNM"].ToInt32() == 127)  // we don't want week 1 game info
-                        .Select(mr =>
-                        new MediaCoverage
-                        {
-                            TeamId = mr["TGID"].ToInt32().GetRealTeamId(),
-                            GameNumber = mr["SGNM"].ToInt32(),
-                            Week = mr["SEWN"].ToInt32(),
-                            PlayerId = mr["PGID"].ToInt32(),
-                            Headline = Transform(mr["MHTX"]),
-                            Content = Transform(mr["MCTX"])
-                        }
-                        )
-                        .ToArray()
-                );
+            MediaReports = dataEngine.ReadMediaCoverage();
 
             foreach (var team in Team.Teams.Values)
             {
@@ -97,26 +78,15 @@ namespace EA_DB_Editor
     public class TeamDepthChart
     {
         public static Dictionary<int, Dictionary<int, DepthChartPosition[]>> TeamDepthCharts { get; private set; }
-        public static void Create(MaddenDatabase db, bool isPreseason)
+        public static void Create(IDataEngine dataEngine, bool isPreseason)
         {
-            Team.Create(db,isPreseason);
-            PlayerDB.Create(db);
+            Team.Create(dataEngine, isPreseason);
+            PlayerDB.Create(dataEngine);
 
             if (TeamDepthCharts != null)
                 return;
 
-            var depthChartTable = MaddenTable.FindMaddenTable(db.lTables, "DCHT");
-            TeamDepthCharts = depthChartTable.lRecords.Where(mr => mr["TGID"].ToInt32().GetRealTeamId().IsValidTeam()).GroupBy(mr => mr["TGID"].ToInt32().GetRealTeamId()).ToDictionary(
-                group => group.Key,
-                group => group.Select(g =>
-                    new DepthChartPosition
-                    {
-                        PlayerId = g["PGID"].ToInt32(),
-                        PlayerPosition = g["PPOS"].ToInt32(),
-                        PositionDepth = g["ddep"].ToInt32()
-                    }).ToArray()
-                .GroupBy(dpp => dpp.PlayerPosition)
-                .ToDictionary(g => g.Key, g => g.OrderBy(pos => pos.PositionDepth).ToArray()));
+            TeamDepthCharts = dataEngine.ReadDepthCharts();
         }
     }
 

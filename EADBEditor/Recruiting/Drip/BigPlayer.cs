@@ -1,4 +1,6 @@
-﻿namespace EA_DB_Editor
+﻿using NCAA14Utility;
+
+namespace EA_DB_Editor
 {
     /// <summary>
     /// prototype for big players like OL, DL, LB
@@ -14,7 +16,7 @@
         public override void SetKnee()
         {
             // about 20 % of these guys have one at least
-            if (TableUtility.Check(kneeBraceTreshold))
+            if (CommonUtility.Check(kneeBraceTreshold))
             {
                 var knees = new int[] { NoKneeBrace, KneeBrace };
                 var left = knees.Choose();
@@ -29,7 +31,7 @@
 
         public override void SetSplat()
         {
-            if (TableUtility.Check(kneeBraceTreshold))
+            if (CommonUtility.Check(kneeBraceTreshold))
             {
                 var knees = new int[] { NoAnkleGear, AnkleBrace };
                 var left = knees.Choose();

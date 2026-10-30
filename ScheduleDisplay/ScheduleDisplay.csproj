@@ -88,6 +88,13 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <PropertyGroup>
+    <!-- the calendar-and-pen art on black; also the window icon (Form1) -->
+    <ApplicationIcon>display.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="display.ico" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NCAA14Utility\NCAA14Utility.csproj">
       <Project>{2eea8c26-0b85-48e8-b85c-5ad17980c922}</Project>

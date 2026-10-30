@@ -99,11 +99,10 @@ namespace EA_DB_Editor
         /// <summary>
         /// Top 5 Coordinators, Top 5 G5 HCs, Top 10 Hot Seat, New Coaches
         /// </summary>
-        public static void CreateCoachingChangePage(MaddenDatabase db)
+        public static void CreateCoachingChangePage(IDataEngine dataEngine)
         {
             var lastYearCoaches = Coach.FromCsv(Seasons.LastYearDirectory, "coaches.csv");
-            var table = MaddenTable.FindTable(db.lTables, "CPRF");
-            var hotSeat = table.lRecords.Where(mr => mr["JSCR"].ToInt32() > 100).GroupBy(mr => mr["CCID"].ToInt32(), mr => mr["JSCR"].ToInt32()).ToDictionary(g => g.Key, g => g.OrderByDescending(r => r).First());
+            var hotSeat = dataEngine.FindCoachesOnHotSeat();
 
             // hot OC/DC/MidMajor coaches should be kinda young so they can be ready to take over for years
             var coachPage = new PreseasonCoachPage

@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FranchiseFile\FranchiseFile.csproj" />
+    <!-- conferences, team maps, neutral-site names -->
+    <ProjectReference Include="..\CFB27.Data.Model\CFB27.Data.Model.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- FranchiseFile reads its schema with Newtonsoft.Json, which finds the schema DTOs' constructors and properties by
+         reflection; keep them from being trimmed -->
+    <TrimmerRootAssembly Include="FranchiseFile" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="status.html" LogicalName="StatusPage.status.html" />
+  </ItemGroup>
+
+</Project>

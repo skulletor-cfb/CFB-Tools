@@ -12,26 +12,29 @@ namespace EA_DB_Editor
         /// <summary>
         /// starting with 2584 the Rose Bowl is only a quarterfinal
         /// </summary>
-        private const int CFP12TeamRoseBowlQFOnlyStartingYear = 2584;
-        private const int CFP12TeamPlayoffStartingYear = 2542;
-        private const int CureBowl = 987043;
-        private const int SaluteVetsBowl = 987051;
-        private const int XboxBowl = 987052;
-        private const int MyrtleBeachBowl = 987044;
-        private const int ArizonaBowl = 987045;
-        private const int MobileAlabamaBowl = 0;
-        private const int FGSChampionship = 987053;
-        private const int CFB8v9 = 987047;
-        private const int CFB7v10 = 987048;
-        private const int CFB6v11 = 987049;
-        private const int CFB5v12 = 987050;
-        private const int SugarBowl = 27;
-        private const int RoseBowl = 25;
-        private const int FiestaBowl = 26;
-        private const int PeachBowl = 12;
-        private const int OrangeBowl = 28;
-        private const int CottonBowl = 17;
-        private const int NationalChampionship = 39;
+        public const int CFP12TeamRoseBowlQFOnlyStartingYear = 2584;
+
+        /// <summary>first CFB 27 season (Form1.CFB27StartingYear is the dynasty file's year, 587)</summary>
+        public const int CFB27StartingYear = 2587;
+        public const int CFP12TeamPlayoffStartingYear = 2542;
+        public const int CureBowl = 987043;
+        public const int SaluteVetsBowl = 987051;
+        public const int XboxBowl = 987052;
+        public const int MyrtleBeachBowl = 987044;
+        public const int ArizonaBowl = 987045;
+        public const int MobileAlabamaBowl = 0;
+        public const int FGSChampionship = 987053;
+        public const int CFB8v9 = 987047;
+        public const int CFB7v10 = 987048;
+        public const int CFB6v11 = 987049;
+        public const int CFB5v12 = 987050;
+        public const int SugarBowl = 27;
+        public const int RoseBowl = 25;
+        public const int FiestaBowl = 26;
+        public const int PeachBowl = 12;
+        public const int OrangeBowl = 28;
+        public const int CottonBowl = 17;
+        public const int NationalChampionship = 39;
 
         private static HashSet<int> AugmentedBowls = new HashSet<int>()
         {
@@ -46,7 +49,7 @@ namespace EA_DB_Editor
 
         public bool IsAugmentedBowl => AugmentedBowls.Contains(this.Id);
 
-        public static Dictionary<int, Tuple<int, int>> BowlIdOverrides = new Dictionary<int, Tuple<int,int>>();
+        public static Dictionary<int, Tuple<int, int>> BowlIdOverrides = new Dictionary<int, Tuple<int, int>>();
         public static Dictionary<string, Bowl> Bowls { get; private set; }
         public static Bowl FindById(int id)
         {
@@ -70,183 +73,16 @@ namespace EA_DB_Editor
             return week + "-" + game;
         }
 
-        public static void Create(MaddenDatabase db, bool isPreseason)
+        public static void Create(IDataEngine dataEngine, bool isPreseason)
         {
             if (Bowls != null)
                 return;
 
-            Bowls = new Dictionary<string, Bowl>();
-            var table = db.lTables[129];
-            for (int i = 0; i < table.Table.currecords; i++)
-            {
-                var bowl = new Bowl
-                {
-                    Id = table.lRecords[i].lEntries[15].Data.ToInt32(),
-                    Name = table.lRecords[i].lEntries[8].Data,
-                    Week = table.lRecords[i].lEntries[12].Data.ToInt32(),
-                    Game = table.lRecords[i].lEntries[10].Data.ToInt32(),
-                    ConferenceTieInId1 = table.lRecords[i]["BCI1"].ToInt32(),
-                    ConferenceTieInId2 = table.lRecords[i]["BCI2"].ToInt32(),
-                    ConferenceTieInSelection1 = table.lRecords[i]["BCR1"].ToInt32(),
-                    ConferenceTieInSelection2 = table.lRecords[i]["BCR2"].ToInt32(),
-                };
-
-                if (BowlIdOverrides.ContainsKey(bowl.Id) && BowlIdOverrides[bowl.Id].Item2 <= BowlChampion.CurrentYear)
-                    bowl.Id = BowlIdOverrides[bowl.Id].Item1;
-
-                if (bowl.Game != 255)
-                    Bowls.Add(bowl.Key, bowl);
-            }
-
-            var cureBowl = new Bowl
-            {
-                Id = CureBowl,
-                Name = "Cure Bowl",
-                Week = 18,
-                Game = 43,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            var mbBowl = new Bowl
-            {
-                Id = MyrtleBeachBowl,
-                Name = "Myrtle Beach Bowl",
-                Week = 18,
-                Game = 44,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            var arizonaBowl = new Bowl
-            {
-                Id = ArizonaBowl,
-                Name = "Arizona Bowl",
-                Week = 18,
-                Game = 45,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            var saluteVetsBowl = new Bowl
-            {
-                Id = SaluteVetsBowl,
-                Name = "Salute to Veterans Bowl",
-                Week = 18,
-                Game = 51,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            var xboxBowl = new Bowl
-            {
-                Id = XboxBowl,
-                Name = "Xbox Bowl",
-                Week = 18,
-                Game = 52,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            var venturesBowl = new Bowl
-            {
-                Id = MobileAlabamaBowl,
-                Name = "68 Ventures Bowl",
-                Week = 18,
-                Game = 46,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            var fgsChampionship = new Bowl
-            {
-                Id = FGSChampionship,
-                Name = "FGS Championship Game",
-                Week = 20,
-                Game = 53,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-
-
-            var cfp8v9 = new Bowl
-            {
-                Id = CFB8v9,
-                Name = "CFP 1st Round 8v9",
-                Week = 18,
-                Game = 47,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            var cfp7v10 = new Bowl
-            {
-                Id = CFB7v10,
-                Name = "CFP 1st Round 7v10",
-                Week = 18,
-                Game = 48,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            var cfp6v11 = new Bowl
-            {
-                Id = CFB6v11,
-                Name = "CFP 1st Round 6v11",
-                Week = 18,
-                Game = 49,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            var cfp5v12 = new Bowl
-            {
-                Id = CFB5v12,
-                Name = "CFP 1st Round 5v12",
-                Week = 18,
-                Game = 50,
-                ConferenceTieInId1 = 0,
-                ConferenceTieInId2 = 1,
-                ConferenceTieInSelection1 = 0,
-                ConferenceTieInSelection2 = 1,
-            };
-
-            Bowls.Add(cureBowl.Key, cureBowl);
-            Bowls.Add(mbBowl.Key, mbBowl);
-            Bowls.Add(arizonaBowl.Key, arizonaBowl);
-            Bowls.Add(venturesBowl.Key, venturesBowl);
-            Bowls.Add(saluteVetsBowl.Key, saluteVetsBowl);
-            Bowls.Add(xboxBowl.Key, xboxBowl);
-//            Bowls.Add(fgsChampionship.Key, fgsChampionship);
-            Bowls.Add(cfp8v9.Key, cfp8v9);
-            Bowls.Add(cfp7v10.Key, cfp7v10);
-            Bowls.Add(cfp6v11.Key, cfp6v11);
-            Bowls.Add(cfp5v12.Key, cfp5v12);
+            Bowls = dataEngine.CreateBowlTable();
 
             if (!isPreseason)
             {
-                BowlRecords.EnsureInstanceExists();
+                BowlRecords.EnsureInstanceExists(dataEngine);
             }
         }
 
@@ -258,11 +94,12 @@ namespace EA_DB_Editor
         public string Name { get; set; }
         public int Week { get; set; }
         public int Game { get; set; }
+        public int Day { get; set; }
         public ScheduledGame ScheduleGame { get { return ScheduledGame.Schedule[this.Key]; } }
-        public string Key { get { return string.Format("{0}-{1}", Week, Game); } }
+        public string Key => $"{Week}-{Game}";
 
         // Order the bowl games will show up in on the bowls.html page
-        public static int[] PlayoffBowlOrder = ConfigurationManager.AppSettings["BowlOrder"].Split(',').Select(s => Convert.ToInt32(s.Trim())).ToArray();
+        public static int[] PlayoffBowlOrder = ConfigurationManager.AppSettings["BowlOrder"]?.Split(',').Select(s => Convert.ToInt32(s.Trim())).ToArray();
 
         public static bool IsPlayoffRound1( Game g)
         {
@@ -462,63 +299,91 @@ namespace EA_DB_Editor
             }
 
             List<Bowl> bowls = new List<Bowl>();
-            var firstRnd = new[] { CFB5v12, CFB6v11, CFB7v10, CFB8v9};
-            var order = new List<int>() { NationalChampionship };
-            var rotation = (Form1.CalendarYear - CFP12TeamRoseBowlQFOnlyStartingYear) % 5;
-
-            switch (rotation)
+            if (Form1.CalendarYear >= CFB27StartingYear)
             {
-                case 0:
-                    // Sugar & Orange are semi
-                    // Rose, Cotton, Peach, Fiesta  are quarter
-                    order.AddBowls(SugarBowl, OrangeBowl, RoseBowl, CottonBowl, PeachBowl, FiestaBowl);
-                    break;
+                // CFB 27 plays each round in its own week (first round 17 ... title 20), and the New Year's Six bowls hosting
+                // the quarterfinals and semifinals don't follow the rotation
+                bowls.AddRange(Bowls.Values.Where(b => b.Week > 16 && b.ScheduleGame.IsPlayoffGame).OrderByDescending(b => b.Week).ThenBy(b => b.Game));
+            }
+            else
+            {
+                var firstRnd = new[] { CFB5v12, CFB6v11, CFB7v10, CFB8v9};
+                var order = new List<int>() { NationalChampionship };
+                var rotation = (Form1.CalendarYear - CFP12TeamRoseBowlQFOnlyStartingYear) % 5;
 
-                case 1:
-                    // Cotton & Peach are semi
-                    // Sugar, Fiesta, Orange, Rose
-                    order.AddBowls(CottonBowl, PeachBowl, RoseBowl, SugarBowl, OrangeBowl, FiestaBowl);
-                    break;
+                switch (rotation)
+                {
+                    case 0:
+                        // Sugar & Orange are semi
+                        // Rose, Cotton, Peach, Fiesta  are quarter
+                        order.AddBowls(SugarBowl, OrangeBowl, RoseBowl, CottonBowl, PeachBowl, FiestaBowl);
+                        break;
 
-                case 2:
-                    // Fiesta & Sugar are semi
-                    // Rose, Orange, Cotton, Peach are quarter
-                    order.AddBowls(SugarBowl, FiestaBowl, RoseBowl, OrangeBowl, CottonBowl, PeachBowl);
-                    break;
+                    case 1:
+                        // Cotton & Peach are semi
+                        // Sugar, Fiesta, Orange, Rose
+                        order.AddBowls(CottonBowl, PeachBowl, RoseBowl, SugarBowl, OrangeBowl, FiestaBowl);
+                        break;
 
-                case 3:
-                    // Orange & Cotton
-                    // Rose, Sugar, Peach, Fiesta
-                    order.AddBowls(OrangeBowl, CottonBowl, RoseBowl, SugarBowl, PeachBowl, FiestaBowl);
-                    break;
+                    case 2:
+                        // Fiesta & Sugar are semi
+                        // Rose, Orange, Cotton, Peach are quarter
+                        order.AddBowls(SugarBowl, FiestaBowl, RoseBowl, OrangeBowl, CottonBowl, PeachBowl);
+                        break;
 
-                case 4:
-                    // Fiesta & Peach
-                    // Rose, Sugar, Orange, Cotton
-                    order.AddBowls(PeachBowl, FiestaBowl, RoseBowl, SugarBowl, OrangeBowl, CottonBowl);
-                    break;
+                    case 3:
+                        // Orange & Cotton
+                        // Rose, Sugar, Peach, Fiesta
+                        order.AddBowls(OrangeBowl, CottonBowl, RoseBowl, SugarBowl, PeachBowl, FiestaBowl);
+                        break;
 
-                default:
-                    throw new InvalidOperationException("BAD PLAYOFF ORDER");
+                    case 4:
+                        // Fiesta & Peach
+                        // Rose, Sugar, Orange, Cotton
+                        order.AddBowls(PeachBowl, FiestaBowl, RoseBowl, SugarBowl, OrangeBowl, CottonBowl);
+                        break;
 
+                    default:
+                        throw new InvalidOperationException("BAD PLAYOFF ORDER");
+
+                }
+
+                order.AddRange(firstRnd);
+                bowls.AddRange(order.Select(i => Bowl.FindById(i)));
             }
 
-            order.AddRange(firstRnd);
-            bowls.AddRange(order.Select(i => Bowl.FindById(i)));
-
             // we have expanded playoffs find teams where rank < than playoff count
-            foreach (var bowl in Bowls.Values.Where(b => b.Week > 16 && b.ScheduleGame.IsPlayoffGame(Utility.PlayoffTeamCount) && !bowls.Any(bowl => bowl.Id == b.Id)).OrderBy(b => b.ScheduleGame.HomeTeam.BCSRank))
+            foreach (var bowl in Bowls.Values.Where(b => b.Week > 16 && b.ScheduleGame.IsPlayoffGame && !bowls.Any(bowl => bowl.Id == b.Id)).OrderBy(b => b.ScheduleGame.HomeTeam.BCSRank))
             {
                 bowls.Add(bowl);
             }
 
-            foreach (var bowl in Bowls.Values.Where(b => b.Week > 16 && !bowls.Any(bowl => bowl.Id == b.Id)).OrderByDescending(b => b.Week).ThenByDescending(b => b.Game))
+            // the rest in BowlEditor's order; a bowl not in that list goes after, latest first
+            var nameOrder = NonPlayoffBowlOrder.Select((name, i) => (Key: NormalizeBowlName(name), Index: i)).ToDictionary(x => x.Key, x => x.Index);
+            int Position(Bowl b) => nameOrder.TryGetValue(NormalizeBowlName(b.Name), out var i) ? i : NonPlayoffBowlOrder.Length;
+
+            foreach (var bowl in Bowls.Values.Where(b => b.Week > 16 && !bowls.Any(bowl => bowl.Id == b.Id)).OrderBy(Position).ThenByDescending(b => b.Week).ThenByDescending(b => b.Game))
             {
                 bowls.Add(bowl);
             }
 
             return bowls;
         }
+
+        /// <summary>The non-playoff bowls in the order BowlEditor lists them (BowlMatchups.DisplayOrder).</summary>
+        private static readonly string[] NonPlayoffBowlOrder =
+        {
+            "Citrus Bowl", "Alamo Bowl", "Reliaquest Bowl", "Pop-Tarts Bowl", "Las Vegas Bowl", "Gator Bowl",
+            "Duke's Mayo Bowl", "Music City Bowl", "Texas Bowl", "Liberty Bowl", "Holiday Bowl", "Sun Bowl", "Rate Bowl",
+            "Military Bowl", "Birmingham Bowl", "Independence Bowl", "Gasparilla Bowl", "First Responder Bowl",
+            "Fenway Bowl", "Hawai'i Bowl", "Armed Forces Bowl", "New Orleans Bowl", "Boca Raton Bowl", "New Mexico Bowl",
+            "Famous Idaho Potato Bowl", "Cure Bowl", "Myrtle Beach Bowl", "Arizona Bowl", "68 Ventures Bowl",
+            "Salute to Veterans Bowl", "Xbox Bowl", "Frisco Bowl",
+        };
+
+        /// <summary>Letters and digits only, lower case ("Hawai'i Bowl" and "Hawaii Bowl" match).</summary>
+        private static string NormalizeBowlName(string name) =>
+            new string((name ?? string.Empty).Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
 
         public static List<Bowl> GetBowlsInPlayoffOrderOld()
         {
@@ -554,7 +419,7 @@ namespace EA_DB_Editor
             }
 
             // we have expanded playoffs find teams where rank < than playoff count
-            foreach (var bowl in Bowls.Values.Where(b => b.Week > 16 && b.ScheduleGame.IsPlayoffGame(Utility.PlayoffTeamCount) && !bowls.Any(bowl => bowl.Id == b.Id)).OrderBy(b => b.ScheduleGame.HomeTeam.BCSRank))
+            foreach (var bowl in Bowls.Values.Where(b => b.Week > 16 && b.ScheduleGame.IsPlayoffGame && !bowls.Any(bowl => bowl.Id == b.Id)).OrderBy(b => b.ScheduleGame.HomeTeam.BCSRank))
             {
                 bowls.Add(bowl);
             }

@@ -240,6 +240,16 @@ namespace DataBaker
         const int cfp12Start = 2542;
         const int cfp12RoseBowlQFStart = 2584;
 
+        // CFB 27 seasons play each playoff round in its own week (first round 17 ... title 20), and the bowls hosting the
+        // quarterfinals and semifinals don't follow the rotation in Spots
+        public const int cfb27Start = 2587;
+
+        /// <summary>A conference title game: week 16 in NCAA 14 (a bowl game), week 15 in CFB 27 (the week before the bowls).</summary>
+        public static bool IsConferenceChampionshipGame(this PlayedGame game)
+        {
+            return game.Week == (game.Year >= cfb27Start ? 15 : 16);
+        }
+
         public static bool IsPlayoffBowl(this PlayedGame game)
         {
             int[] order;

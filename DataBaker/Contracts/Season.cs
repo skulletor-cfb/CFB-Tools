@@ -162,10 +162,13 @@ namespace DataBaker.Contracts
                 case scheduleKey:
                     int[] gameOrder = null;
                     var games = csv.Select(l => PlayedGame.Generate(l.CsvSplit(), this.Year)).Where(pg => pg != null).ToArray();
-                    var bowlsAndKickoff = games.Where(g => g.WonGame && (g.Week >= 16 || (g.BowlId.HasValue && ClassicGames.Contains(g.BowlId.Value)) || (g.Week <= 2 && g.BowlId.HasValue && kickoffGames.Contains(g.BowlId.Value)))).ToArray();
+                    var bowlsAndKickoff = games.Where(g => g.WonGame && (g.Week >= 16 || (g.IsConferenceChampionshipGame() && g.BowlId.HasValue) || (g.BowlId.HasValue && ClassicGames.Contains(g.BowlId.Value)) || (g.Week <= 2 && g.BowlId.HasValue && kickoffGames.Contains(g.BowlId.Value)))).ToArray();
                     this.BowlResults = bowlsAndKickoff.GroupBy(g => g.BowlId.Value).ToDictionary(g => g.Key, g => g.ToList());
                     this.Schedule = games.GroupBy(pg => pg.TeamId).ToDictionary(g => g.Key, g => g.ToList());
-                    this.PlayoffGames = GetPlayoffGamesInOrder(games.Where(g => g.WonGame && g.IsPlayoffBowl(out gameOrder)).ToArray(), gameOrder);
+                    var playoffGames = games.Where(g => g.WonGame && g.IsPlayoffBowl(out gameOrder)).ToArray();
+                    this.PlayoffGames = this.Year >= Helper.cfb27Start
+                        ? playoffGames.OrderByDescending(g => g.Week).ThenBy(g => g.Game).ToList()
+                        : GetPlayoffGamesInOrder(playoffGames, gameOrder);
                     this.KickOffGames = games.Where(g => g.WonGame && g.IsKickoff).OrderBy(g => g.BowlId.Value).ToList();
                     this.NY6Games = games.Where(g => g.WonGame && g.IsNY6Bowl()).OrderByDescending(g => g.BowlId.Value).ToList();
                     break;

@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>College Football TV Schedule</title>
+<style>
+  :root{
+    /* last season's national champion's colors replace these (see applyTheme) */
+    --accent:#0d7f41;
+    --on-accent:#ffffff;
+    --accent-ink:#0a6535;
+    --secondary:#0d7f41;
+    --hover:#e8f3ec;
+    --bar-dark:#1a1a1a;
+    --bar-dark2:#242424;
+    --stripe:#f2f2f2;
+    --border:#e0e0e0;
+    --text:#1a1a1a;
+    --text-muted:#666;
+    --bg:#ffffff;
+    --page-bg:#f5f5f5;
+    --today:#fff8e1;
+    --today-border:#f0b429;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--page-bg);
+    color:var(--text);
+    font-family:Helvetica,Arial,sans-serif;
+    font-size:14px;
+    line-height:1.4;
+  }
+  a{color:var(--accent-ink);}
+  .topbar{
+    background:var(--bar-dark);
+    color:#fff;
+    padding:14px 20px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    border-bottom:4px solid var(--secondary);
+  }
+  .topbar .logo{
+    font-weight:800;
+    font-size:20px;
+    letter-spacing:.3px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .topbar .logo .ball{font-size:20px;}
+  .topbar .season{
+    margin-left:auto;
+    background:var(--accent);
+    color:var(--on-accent);
+    font-weight:700;
+    font-size:12px;
+    padding:4px 10px;
+    border-radius:12px;
+    letter-spacing:.5px;
+  }
+  .wrap{
+    max-width:900px;
+    margin:0 auto;
+    padding:20px 16px 60px;
+  }
+  h1{
+    font-size:22px;
+    margin:4px 0 8px;
+  }
+  .intro{
+    color:var(--text-muted);
+    font-size:13px;
+    margin-bottom:18px;
+  }
+  .controls{
+    background:var(--bg);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:14px;
+    margin-bottom:18px;
+  }
+  .weekrow{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-bottom:12px;
+  }
+  .week-btn{
+    border:1px solid var(--border);
+    background:#fafafa;
+    color:var(--text);
+    font-size:12px;
+    font-weight:600;
+    padding:6px 11px;
+    border-radius:14px;
+    cursor:pointer;
+  }
+  .week-btn:hover{background:#eee;}
+  .week-btn.active{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:var(--on-accent);
+  }
+  .filters{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+  }
+  .filters input[type="search"]{
+    flex:1;
+    min-width:180px;
+    padding:8px 10px;
+    border:1px solid var(--border);
+    border-radius:4px;
+    font-size:13px;
+  }
+  .filters select{
+    padding:8px 10px;
+    border:1px solid var(--border);
+    border-radius:4px;
+    font-size:13px;
+    background:#fff;
+  }
+  .filters button.today-btn{
+    padding:8px 12px;
+    border:1px solid var(--accent-ink);
+    background:#fff;
+    color:var(--accent-ink);
+    border-radius:4px;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .filters button.today-btn:hover{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+
+  .schedule-title{
+    background:var(--bar-dark2);
+    color:#fff;
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:.4px;
+    padding:10px 14px;
+    margin-top:22px;
+    border-radius:4px 4px 0 0;
+  }
+  .day-block{border:1px solid var(--border);border-top:none;}
+  .day-header{
+    background:var(--accent);
+    color:var(--on-accent);
+    font-weight:700;
+    font-size:13px;
+    padding:8px 14px;
+  }
+  .day-header.today{
+    background:var(--today-border);
+    color:#3a2a00;
+  }
+  table.games{
+    width:100%;
+    border-collapse:collapse;
+  }
+  table.games th{
+    background:#e9e9e9;
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+    color:var(--text-muted);
+    padding:7px 14px;
+    font-weight:700;
+  }
+  table.games td{
+    padding:9px 14px;
+    border-top:1px solid var(--border);
+    vertical-align:middle;
+    font-size:13px;
+  }
+  table.games tr.odd td{background:var(--stripe);}
+  table.games tr:hover td{background:var(--hover);}
+  table.games tr.today-row td{background:var(--today);}
+  .matchup{white-space:nowrap;}
+  .matchup .rank{
+    color:var(--text-muted);
+    font-size:11px;
+    font-weight:700;
+    margin-right:2px;
+  }
+  .matchup .at{
+    color:var(--text-muted);
+    font-size:11px;
+    margin:0 6px;
+    text-transform:uppercase;
+  }
+  .matchup .team.home{font-weight:700;}
+  .note{display:block;color:var(--text-muted);font-size:11px;margin-top:2px;white-space:normal;}
+  .note.rivalry{color:var(--accent-ink);font-style:italic;font-weight:700;}
+  .time{white-space:nowrap;color:var(--text-muted);font-weight:600;}
+  .chan{
+    display:inline-block;
+    background:var(--hover);
+    border:1px solid var(--accent);
+    color:var(--accent-ink);
+    font-weight:700;
+    font-size:11px;
+    padding:3px 8px;
+    border-radius:3px;
+    white-space:nowrap;
+  }
+  .empty{
+    padding:30px;
+    text-align:center;
+    color:var(--text-muted);
+    background:#fff;
+    border:1px solid var(--border);
+    border-top:none;
+  }
+  .week-search-label{
+    background:#333;
+    color:#fff;
+    font-size:12px;
+    font-weight:700;
+    padding:8px 14px;
+    margin-top:22px;
+    border-radius:4px 4px 0 0;
+  }
+  footer{
+    text-align:center;
+    color:var(--text-muted);
+    font-size:11px;
+    margin-top:30px;
+  }
+  @media (max-width:520px){
+    table.games th:nth-child(3), table.games td:nth-child(3){display:none;}
+    .matchup{white-space:normal;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><span class="ball">🏈</span> College Football TV Schedule</div>
+  <div class="season" id="seasonBadge">SEASON</div>
+</div>
+
+<div class="wrap">
+  <h1>College Football TV Schedule</h1>
+  <div class="intro">Every game below, with kickoff time and TV channel. Pick a week, search a team or rivalry, or jump to today's games.</div>
+
+  <div class="controls">
+    <div class="weekrow" id="weekRow"></div>
+    <div class="filters">
+      <input type="search" id="teamSearch" placeholder="Search by team name…">
+      <select id="channelFilter"><option value="">All channels</option></select>
+      <select id="conferenceFilter"><option value="">All conferences</option></select>
+      <button class="today-btn" id="todayBtn">Jump to Today</button>
+    </div>
+  </div>
+
+  <div id="scheduleOutput"></div>
+  <footer id="themeNote"></footer>
+</div>
+
+<script id="gameData" type="application/json">{tvall}</script>
+<script>
+(function(){
+  const _src = JSON.parse(document.getElementById('gameData').textContent);
+  const allGames = _src.allGames;
+  // Source data is built from a fixed weekly template (e.g. "Week N is always
+  // August 31"); the real-world weekday that date falls on depends on the season
+  // year and is irrelevant here, so day names are taken from each game's own
+  // "Day" field rather than recomputed from the calendar.
+  const SEASON_YEAR = _src.year || new Date().getFullYear();
+
+  const MONTH_IDX = {January:0,February:1,March:2,April:3,May:4,June:5,July:6,August:7,September:8,October:9,November:10,December:11};
+  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  // Month/Date is each game's own accurate day-of-month; Day is just its weekday
+  // name for display. No offset math needed -- use them as given.
+
+  document.getElementById('seasonBadge').textContent = SEASON_YEAR + ' SEASON';
+
+  function applyTheme(theme, note){
+    if(!theme) return;
+    const root = document.documentElement.style;
+    root.setProperty('--accent', theme.Accent);
+    root.setProperty('--on-accent', theme.OnAccent);
+    root.setProperty('--accent-ink', theme.AccentInk);
+    root.setProperty('--hover', theme.Hover);
+    root.setProperty('--secondary', theme.Secondary);
+    if(note) document.getElementById('themeNote').textContent = note;
+  }
+  applyTheme(_src.theme, _src.themeNote);
+
+  allGames.forEach(g=>{
+    g._date = new Date(SEASON_YEAR, MONTH_IDX[g.Month], g.Date);
+    const m = /(\d{1,2}):(\d{2})(AM|PM)/.exec(g.Time);
+    let hh = parseInt(m[1],10), mm = parseInt(m[2],10);
+    if(m[3]==='PM' && hh!==12) hh+=12;
+    if(m[3]==='AM' && hh===12) hh=0;
+    g._minutes = hh*60+mm;
+  });
+
+  const weeks = [...new Set(allGames.map(g=>g.Week))].sort((a,b)=>a-b);
+  const channels = [...new Set(allGames.map(g=>g.Channel))].sort();
+  const conferences = [...new Set(allGames.flatMap(g=>[g.HomeConference, g.AwayConference]))].filter(Boolean).sort();
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  function sameDay(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+
+  // pick default week: the one whose games are closest to (covering) today
+  function defaultWeek(){
+    let best = weeks[0], bestDiff = Infinity;
+    for(const w of weeks){
+      const wg = allGames.filter(g=>g.Week===w);
+      const min = wg.reduce((a,g)=>g._date<a?g._date:a, wg[0]._date);
+      const max = wg.reduce((a,g)=>g._date>a?g._date:a, wg[0]._date);
+      if(today>=min && today<=max) return w;
+      const diff = today<min ? (min-today) : (today-max);
+      if(diff < bestDiff){ bestDiff = diff; best = w; }
+    }
+    return best;
+  }
+
+  let currentWeek = defaultWeek();
+  let searchTerm = '';
+  let channelFilter = '';
+  let conferenceFilter = '';
+
+  const weekRow = document.getElementById('weekRow');
+  weeks.forEach(w=>{
+    const b = document.createElement('button');
+    b.className = 'week-btn';
+    b.textContent = w===0 ? 'Week 0' : 'Week '+w;
+    b.dataset.week = w;
+    b.addEventListener('click', ()=>{ currentWeek = w; render(); });
+    weekRow.appendChild(b);
+  });
+
+  const chanSel = document.getElementById('channelFilter');
+  channels.forEach(c=>{
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    chanSel.appendChild(o);
+  });
+  chanSel.addEventListener('change', ()=>{ channelFilter = chanSel.value; render(); });
+
+  const confSel = document.getElementById('conferenceFilter');
+  conferences.forEach(c=>{
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    confSel.appendChild(o);
+  });
+  confSel.addEventListener('change', ()=>{ conferenceFilter = confSel.value; render(); });
+
+  document.getElementById('teamSearch').addEventListener('input', (e)=>{
+    searchTerm = e.target.value.trim().toLowerCase();
+    render();
+  });
+
+  document.getElementById('todayBtn').addEventListener('click', ()=>{
+    currentWeek = defaultWeek();
+    document.getElementById('teamSearch').value = '';
+    searchTerm = '';
+    render();
+    setTimeout(()=>{
+      const el = document.querySelector('.today-row, .day-header.today');
+      if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
+    }, 30);
+  });
+
+  function fmtDate(g){ return g.Day + ', ' + MONTH_NAMES[g._date.getMonth()] + ' ' + g._date.getDate(); }
+  function fmtTime(t){ return t.replace('AM',' AM').replace('PM',' PM').toLowerCase(); }
+
+  function rankSpan(rank, name, isHome){
+    const cls = 'team' + (isHome ? ' home' : '');
+    if(rank && rank<=25){
+      return '<span class="rank">#'+rank+'</span><span class="'+cls+'">'+esc(name)+'</span>';
+    }
+    return '<span class="'+cls+'">'+esc(name)+'</span>';
+  }
+
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function buildTable(gamesIn){
+    const games = [...gamesIn].sort((a,b)=>a._minutes-b._minutes);
+    let rows = '';
+    games.forEach((g,i)=>{
+      const isToday = sameDay(g._date, today);
+      const trCls = (isToday ? 'today-row ' : '') + (i%2===1 ? 'odd' : '');
+      rows += '<tr class="'+trCls.trim()+'">'
+        + '<td class="matchup">'+rankSpan(g.AwayRank, g.Away, false)+'<span class="at">'+(g.Site ? 'vs' : 'at')+'</span>'+rankSpan(g.HomeRank, g.Home, true)
+        + (g.Site ? '<span class="note">'+esc(g.Site)+'</span>' : '')
+        + (g.Rivalry ? '<span class="note rivalry">'+esc(g.Rivalry)+'</span>' : '')
+        + '</td>'
+        + '<td class="time">'+fmtTime(g.Time)+'</td>'
+        + '<td><span class="chan">'+esc(g.Channel)+'</span></td>'
+        + '</tr>';
+    });
+    return '<table class="games"><tr><th>Matchup</th><th>Time (ET)</th><th>TV</th></tr>'+rows+'</table>';
+  }
+
+  function groupByDay(games){
+    const map = new Map();
+    games.forEach(g=>{
+      const key = g._date.getTime();
+      if(!map.has(key)) map.set(key, []);
+      map.get(key).push(g);
+    });
+    return [...map.entries()].sort((a,b)=>a[0]-b[0]).map(e=>e[1]);
+  }
+
+  function applyFilters(games){
+    return games.filter(g=>{
+      if(channelFilter && g.Channel!==channelFilter) return false;
+      if(conferenceFilter && g.HomeConference!==conferenceFilter && g.AwayConference!==conferenceFilter) return false;
+      if(searchTerm){
+        const hay = (g.Home+' '+g.Away+' '+(g.Rivalry||'')).toLowerCase();
+        if(!hay.includes(searchTerm)) return false;
+      }
+      return true;
+    });
+  }
+
+  function render(){
+    [...weekRow.children].forEach(b=>b.classList.toggle('active', Number(b.dataset.week)===currentWeek));
+
+    const out = document.getElementById('scheduleOutput');
+    out.innerHTML = '';
+
+    if(searchTerm){
+      // global search across all weeks
+      const matches = applyFilters(allGames);
+      if(matches.length===0){
+        out.innerHTML = '<div class="week-search-label">SEARCH RESULTS</div><div class="empty">No games match your search.</div>';
+        return;
+      }
+      out.innerHTML += '<div class="week-search-label">SEARCH RESULTS &mdash; '+matches.length+' game'+(matches.length===1?'':'s')+'</div>';
+      const dayGroups = groupByDay(matches);
+      const block = document.createElement('div');
+      block.className = 'day-block';
+      dayGroups.forEach(dg=>{
+        const isTodayGroup = sameDay(dg[0]._date, today);
+        block.innerHTML += '<div class="day-header'+(isTodayGroup?' today':'')+'">Week '+dg[0].Week+' &middot; '+fmtDate(dg[0])+'</div>' + buildTable(dg);
+      });
+      out.appendChild(block);
+      return;
+    }
+
+    const weekGames = applyFilters(allGames.filter(g=>g.Week===currentWeek));
+    out.innerHTML += '<div class="schedule-title">COLLEGE FOOTBALL SCHEDULE &mdash; WEEK '+currentWeek+'</div>';
+    if(weekGames.length===0){
+      out.innerHTML += '<div class="empty">No games match the selected filters.</div>';
+      return;
+    }
+    const dayGroups = groupByDay(weekGames);
+    const block = document.createElement('div');
+    block.className = 'day-block';
+    dayGroups.forEach(dg=>{
+      const isTodayGroup = sameDay(dg[0]._date, today);
+      block.innerHTML += '<div class="day-header'+(isTodayGroup?' today':'')+'">'+fmtDate(dg[0])+'</div>' + buildTable(dg);
+    });
+    out.appendChild(block);
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>

@@ -164,7 +164,7 @@ namespace DataBaker
             }
             else if (ccg)
             {
-                filter = s => s.Week == 16;
+                filter = s => s.IsConferenceChampionshipGame();
                 desc = "Conference Championship Game Record ";
             }
             else if (bowlId != 0)
@@ -367,7 +367,7 @@ namespace DataBaker
                         filterFunc = s => s.Week > 16;
                         break;
                     case "CCG":
-                        filterFunc = s => s.Week == 16;
+                        filterFunc = s => s.IsConferenceChampionshipGame();
                         break;
                 }
 

@@ -467,6 +467,30 @@ namespace EA_DB_Editor
             return player.CalculateYear(modifier, false);
         }
 
+        public static string CalculateYear(this int year)
+        {
+            var result = string.Empty;
+            switch (year)
+            {
+                case 0:
+                    result = "Fr";
+                    break;
+                case 1:
+                    result = "So";
+                    break;
+                case 2:
+                    result = "Jr";
+                    break;
+                case 3:
+                    result = "Sr";
+                    break;
+                default:
+                    throw new Exception("Not a valid year");
+            }
+
+            return result;
+        }
+
         public static string CalculateYear(this Player player, int modifier, bool omitRedshirtDesignation)
         {
             if (modifier < 0)

@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="../BowlEditor/BowlEditor.csproj" />
+  <Project Path="../CFB27.Data.Model/CFB27.Data.Model.csproj" />
+  <Project Path="../NCAA14ToCFB27/NCAA14ToCFB27.csproj" />
+  <Project Path="../NCAA14Utility/NCAA14Utility.csproj" />
+  <Project Path="../StatusPage/StatusPage.csproj" />
+  <Project Path="D:/repos/CFB-Tools/FranchiseFile/FranchiseFile.csproj" />
+  <Project Path="ScheduleMaker.csproj" />
+</Solution>
