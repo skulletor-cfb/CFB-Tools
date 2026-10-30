@@ -1018,6 +1018,12 @@ namespace EA_DB_Editor
         public TeamStat HomeTeamBoxScore { get; set; }
         [DataMember]
         public TeamStat AwayTeamBoxScore { get; set; }
+
+        /// <summary>points by quarter (1-4), then all overtime periods together; set by the CFB27 engine, NCAA 14 has none</summary>
+        [DataMember(EmitDefaultValue = false)]
+        public int[] HomeLineScore { get; set; }
+        [DataMember(EmitDefaultValue = false)]
+        public int[] AwayLineScore { get; set; }
         [DataMember]
         public string StatsTable { get; set; }
 

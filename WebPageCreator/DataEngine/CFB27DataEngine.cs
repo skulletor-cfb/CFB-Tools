@@ -1114,7 +1114,8 @@ namespace EA_DB_Editor
         /// AwayTeamStatCache (a TeamStats record, like the season totals). Player stats are Game*Stats records, each naming
         /// its SeasonGame; a player's are under Player.GameStats, except the newest games', which are still in
         /// UnpublishedGameStats (Player, GameStats). The save has no scoring plays (SeasonGame.ScoringSummaries is empty),
-        /// so Scores stays empty.
+        /// so Scores stays empty; the score by quarter (SeasonGame.HomeScoreQuarter1-4 / HomeScoreOT, the same for away,
+        /// which add up to the final score) is the line score.
         /// </summary>
         public void ReadGameStats(Dictionary<string, ScheduledGame> games)
         {
@@ -1131,6 +1132,8 @@ namespace EA_DB_Editor
                 var record = this.SeasonGames.RawTable.Records[sg.Row];
                 game.HomeTeamBoxScore = ReadBoxScore(record, "HomeTeamStatCache", game.HomeTeamId) ?? game.HomeTeamBoxScore;
                 game.AwayTeamBoxScore = ReadBoxScore(record, "AwayTeamStatCache", game.AwayTeamId) ?? game.AwayTeamBoxScore;
+                game.HomeLineScore = new[] { sg.HomeScoreQuarter1, sg.HomeScoreQuarter2, sg.HomeScoreQuarter3, sg.HomeScoreQuarter4, sg.HomeScoreOT };
+                game.AwayLineScore = new[] { sg.AwayScoreQuarter1, sg.AwayScoreQuarter2, sg.AwayScoreQuarter3, sg.AwayScoreQuarter4, sg.AwayScoreOT };
             }
 
             var counted = new HashSet<(int Table, int Row)>();

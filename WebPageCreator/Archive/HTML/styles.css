@@ -89,6 +89,34 @@ table.standard tr:hover > td.c12 {
 	background-color: var(--gold-soft);
 }
 
+/* Box score line score (boxscore.html): the logo beside the team name, the scores in the display face, the total biggest */
+#lineScoreTable td.c3 {
+	font-family: var(--display);
+	font-size: 22px;
+	padding: 6px 4px;
+}
+
+#lineScoreTable td.c3:first-child,
+#lineScoreTable td.c7:first-child {
+	text-align: left;
+	padding-left: 16px;
+}
+
+#lineScoreTable td.c3:first-child {
+	font-size: 16px;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+
+#lineScoreTable td.c3 img {
+	vertical-align: middle;
+	margin-right: 10px;
+}
+
+#lineScoreTable td.c3:last-child {
+	font-size: 28px;
+}
+
 /* Card title bar */
 td.c2 {
 	font-family: var(--display);

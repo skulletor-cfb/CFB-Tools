@@ -3446,11 +3446,60 @@ function loadBoxScoreData() {
             var boxData = evalJson(data).Games[boxId[1]];
             var statData = csvJSON(boxData.StatsTable, null, false, true);
             loadBoxScoreLogos(boxData);
+            loadLineScore(boxData);
             loadScoreSummary(boxData);
             loadTeamBoxScore(boxData);
             loadBoxScoreStatTables(boxData, statData);
         }
     });
+}
+
+// hides the page row holding a box score table
+function hideBoxScoreSection(table) {
+    var row = table.parentElement ? table.parentElement.closest("tr") : null;
+    if (row) {
+        row.style.display = "none";
+    }
+}
+
+// the score by quarter: CFB 27 games have Home/AwayLineScore (quarters 1-4, then all overtime periods together); NCAA 14
+// games and older box score pages have neither, so the table is left out. The OT column only shows for an overtime game.
+function loadLineScore(box) {
+    var table = document.getElementById("lineScoreTable");
+    if (!table) {
+        return;
+    }
+
+    if (!box.HomeLineScore || !box.AwayLineScore) {
+        hideBoxScoreSection(table);
+        return;
+    }
+
+    var overtime = box.HomeLineScore[4] > 0 || box.AwayLineScore[4] > 0;
+    var periods = overtime ? 5 : 4;
+    var cells = ["Team", "1", "2", "3", "4"];
+    var widths = ["40%", "10%", "10%", "10%", "10%"];
+    if (overtime) {
+        cells.push("OT");
+        widths.push("10%");
+    }
+    cells.push("T");
+    widths.push("10%");
+    addBasicRowsToTable(table, cells, "c7", widths);
+
+    var teams = [
+        [box.AwayTeamId, box.AwayTeamName, box.AwayLineScore, box.AwayScore],
+        [box.HomeTeamId, box.HomeTeamName, box.HomeLineScore, box.HomeScore]
+    ];
+    for (var i = 0; i < teams.length; i++) {
+        var team = teams[i];
+        cells = [createTeamLogoLinkToTeams(team[0], 35) + " " + createTeamLinkTableCell(team[0], team[1])];
+        for (var p = 0; p < periods; p++) {
+            cells.push(team[2][p]);
+        }
+        cells.push("<b>" + team[3] + "</b>");
+        addBasicRowsToTable(table, cells, "c3");
+    }
 }
 
 function loadTeamBoxScore(box) {
@@ -3509,6 +3558,12 @@ function formatSeconds(seconds) {
 
 function loadScoreSummary(box) {
     var table = document.getElementById("scoringTable");
+
+    // CFB 27 saves keep no scoring plays (the line score shows the scoring instead)
+    if (!box.Scores || box.Scores.length == 0) {
+        hideBoxScoreSection(table);
+        return;
+    }
 
     var currentQtr = -1;
     var home = 0;
