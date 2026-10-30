@@ -25,9 +25,6 @@ namespace NCAA14Utility.Scheduling
 
         protected override Func<int, int, int?>[] LockChecks => new Func<int, int, int?>[]
         {
-            (h, a) => MatchTeams(13, h, a, UCF, USF),
-            (h, a) => MatchTeams(13, h, a, Houston, SMU),
-            (h, a) => MatchTeams(7, h, a, Houston, Rice),
             (h, a) => MatchTeams(this.FeaturedRivalryWeeks[0], h, a, NT, UTSA),
             (h, a) => MatchTeams(this.FeaturedRivalryWeeks[1], h, a, Rice, Tulsa),
             (h, a) => MatchTeams(this.FeaturedRivalryWeeks[2], h, a, ECU, Charlotte),

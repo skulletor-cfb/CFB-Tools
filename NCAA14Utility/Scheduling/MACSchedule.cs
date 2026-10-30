@@ -11,100 +11,114 @@ namespace NCAA14Utility.Scheduling
         }
 
         protected override Func<Dictionary<int, int[]>>[] Creators => new Func<Dictionary<int, int[]>>[] {
-            CreateA, CreateB,
-            CreateC, CreateA,
-            CreateB, CreateC,
+            CreateX, CreateY,
+            CreateZ, CreateP,
+            CreateQ, CreateX,
+            CreateY, CreateZ,
+            CreateP, CreateQ,
         };
 
-        protected override int InitialYear => 2491;
+        protected override int InitialYear => 2589;
 
         // EADBEditor's MACLocks; which pair of rivalries ends the season goes by the year
-        protected override Func<int, int, int?>[] LockChecks
-        {
-            get
-            {
-                var locks = new List<Func<int, int, int?>>
-                {
-                    (h, a) => MatchTeams(13, h, a, MiamiOH, Ohio),
-                    (h, a) => MatchTeams(13, h, a, BallSt, NIU),
-                };
+        protected override Func<int, int, int?>[] LockChecks => Array.Empty<Func<int, int, int?>>();
 
-                switch (this.Year % 3)
-                {
-                    case 0:
-                        locks.Add((h, a) => MatchTeams(13, h, a, CMU, WMU));
-                        locks.Add((h, a) => MatchTeams(13, h, a, BGSU, KentSt));
-                        break;
-
-                    case 1:
-                        locks.Add((h, a) => MatchTeams(13, h, a, CMU, EMU));
-                        locks.Add((h, a) => MatchTeams(13, h, a, Akron, KentSt));
-                        break;
-
-                    default:
-                        locks.Add((h, a) => MatchTeams(13, h, a, EMU, WMU));
-                        locks.Add((h, a) => MatchTeams(13, h, a, BGSU, Toledo));
-                        break;
-                }
-
-                return locks.ToArray();
-            }
-        }
-
-        public static Dictionary<int, int[]> CreateA()
+        public static Dictionary<int, int[]> CreateP()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Akron.Create(MiamiOH, Ohio, Buffalo, CMU),
-                KentSt.Create(Akron, NIU, Buffalo, WMU),
-                BGSU.Create(KentSt, NIU, MiamiOH, EMU),
-                Toledo.Create(Akron, BGSU, BallSt, CMU),
-                NIU.Create(Akron, Toledo, Ohio, WMU),
-                BallSt.Create(KentSt, BGSU, NIU, EMU),
-                MiamiOH.Create(Toledo, BallSt, Buffalo, CMU),
-                Ohio.Create(KentSt, Toledo, MiamiOH, WMU),
-                Buffalo.Create(BGSU, BallSt, Ohio, EMU),
-                EMU.Create(KentSt, NIU, Ohio, CMU),
-                CMU.Create(BGSU, BallSt, Buffalo, WMU),
-                WMU.Create(Akron, Toledo, MiamiOH, EMU),
+    Akron.Create(Miami, Buffalo, UMass, WMU),
+    KentSt.Create(Akron, BallSt, UMass, EMU),
+    BGSU.Create(KentSt, BallSt, Ohio, WMU),
+    Toledo.Create(KentSt, BGSU, Buffalo, CMU),
+    NIU.Create(KentSt, Toledo, Miami, WMU),
+    BallSt.Create(Akron, NIU, UMass, EMU),
+    Miami.Create(BGSU, Toledo, BallSt, EMU),
+    Ohio.Create(Akron, NIU, Miami, CMU),
+    Buffalo.Create(BGSU, BallSt, Ohio, CMU),
+    UMass.Create(Toledo, NIU, Ohio, Buffalo),
+    EMU.Create(Akron, BGSU, NIU, CMU),
+    CMU.Create(KentSt, Miami, UMass, WMU),
+    WMU.Create(Toledo, Ohio, Buffalo, EMU),
             }.Create();
         }
 
-        public static Dictionary<int, int[]> CreateB()
+        public static Dictionary<int, int[]> CreateQ()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Akron.Create(NIU, Ohio, Buffalo, EMU),
-                KentSt.Create(Akron, BallSt, Buffalo, CMU),
-                BGSU.Create(Akron, KentSt, NIU, WMU),
-                Toledo.Create(KentSt, BGSU, BallSt, EMU),
-                NIU.Create(Toledo, MiamiOH, Buffalo, CMU),
-                BallSt.Create(Akron, NIU, Ohio, WMU),
-                MiamiOH.Create(KentSt, BGSU, BallSt, EMU),
-                Ohio.Create(BGSU, Toledo, MiamiOH, CMU),
-                Buffalo.Create(Toledo, MiamiOH, Ohio, WMU),
-                EMU.Create(KentSt, NIU, Ohio, CMU),
-                CMU.Create(BGSU, BallSt, Buffalo, WMU),
-                WMU.Create(Akron, Toledo, MiamiOH, EMU),
+    Akron.Create(Toledo, NIU, UMass, CMU),
+    KentSt.Create(Akron, NIU, Miami, WMU),
+    BGSU.Create(Akron, KentSt, Buffalo, UMass),
+    Toledo.Create(BGSU, BallSt, Ohio, EMU),
+    NIU.Create(BGSU, Toledo, Buffalo, CMU),
+    BallSt.Create(BGSU, NIU, Ohio, CMU),
+    Miami.Create(Akron, Toledo, BallSt, WMU),
+    Ohio.Create(KentSt, Miami, UMass, EMU),
+    Buffalo.Create(KentSt, Miami, Ohio, EMU),
+    UMass.Create(BallSt, Miami, Buffalo, WMU),
+    EMU.Create(KentSt, NIU, UMass, CMU),
+    CMU.Create(BGSU, Toledo, Buffalo, WMU),
+    WMU.Create(Akron, BallSt, Ohio, EMU),
+            }.Create();
+        }
+        public static Dictionary<int, int[]> CreateX()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+    Akron.Create(BallSt, Ohio, UMass, EMU),
+    KentSt.Create(Akron, Toledo, Buffalo, CMU),
+    BGSU.Create(KentSt, NIU, Miami, EMU),
+    Toledo.Create(Akron, BGSU, UMass, WMU),
+    NIU.Create(Toledo, Ohio, UMass, CMU),
+    BallSt.Create(Toledo, NIU, Buffalo, WMU),
+    Miami.Create(KentSt, NIU, BallSt, WMU),
+    Ohio.Create(BGSU, BallSt, Miami, CMU),
+    Buffalo.Create(Akron, NIU, Miami, Ohio),
+    UMass.Create(KentSt, BGSU, Buffalo, EMU),
+    EMU.Create(Toledo, BallSt, Ohio, CMU),
+    CMU.Create(Akron, Miami, UMass, WMU),
+    WMU.Create(KentSt, BGSU, Buffalo, EMU),
             }.Create();
         }
 
-        public static Dictionary<int, int[]> CreateC()
+        public static Dictionary<int, int[]> CreateY()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Akron.Create(BallSt, MiamiOH, Buffalo, EMU),
-                KentSt.Create(Akron, NIU, Ohio, CMU),
-                BGSU.Create(Akron, KentSt, Buffalo, WMU),
-                Toledo.Create(Akron, KentSt, BGSU, EMU),
-                NIU.Create(Toledo, MiamiOH, Ohio, CMU),
-                BallSt.Create(BGSU, NIU , Buffalo, WMU),
-                MiamiOH.Create(KentSt, Toledo, BallSt, EMU),
-                Ohio.Create(BGSU, BallSt, MiamiOH, CMU),
-                Buffalo.Create(Toledo, NIU, Ohio, WMU),
-                EMU.Create(BGSU, BallSt, Buffalo, CMU),
-                CMU.Create(Akron, Toledo, MiamiOH, WMU),
-                WMU.Create(KentSt, NIU, Ohio, EMU),
+    Akron.Create(BGSU, Buffalo, UMass, WMU),
+    KentSt.Create(Akron, Ohio, UMass, EMU),
+    BGSU.Create(KentSt, BallSt, Ohio, CMU),
+    Toledo.Create(KentSt, BGSU, Miami, Buffalo),
+    NIU.Create(Akron, Toledo, Miami, EMU),
+    BallSt.Create(Akron, KentSt, NIU, EMU),
+    Miami.Create(Akron, BallSt, UMass, CMU),
+    Ohio.Create(Toledo, NIU, Miami, WMU),
+    Buffalo.Create(BGSU, BallSt, Ohio, WMU),
+    UMass.Create(Toledo, NIU, Buffalo, CMU),
+    EMU.Create(BGSU, Miami, Buffalo, CMU),
+    CMU.Create(KentSt, BallSt, Ohio, WMU),
+    WMU.Create(Toledo, NIU, UMass, EMU),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateZ()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+    Akron.Create(Toledo, NIU, UMass, CMU),
+    KentSt.Create(Akron, NIU, BallSt, Miami),
+    BGSU.Create(Akron, KentSt, UMass, WMU),
+    Toledo.Create(BGSU, BallSt, Ohio, CMU),
+    NIU.Create(BGSU, Toledo, Buffalo, WMU),
+    BallSt.Create(NIU, Ohio, UMass, CMU),
+    Miami.Create(BGSU, BallSt, Buffalo, EMU),
+    Ohio.Create(Akron, KentSt, Miami, EMU),
+    Buffalo.Create(KentSt, Toledo, Ohio, EMU),
+    UMass.Create(Miami, Ohio, Buffalo, WMU),
+    EMU.Create(Akron, Toledo, UMass, CMU),
+    CMU.Create(BGSU, NIU, Buffalo, WMU),
+    WMU.Create(KentSt, BallSt, Miami, EMU),
             }.Create();
         }
     }

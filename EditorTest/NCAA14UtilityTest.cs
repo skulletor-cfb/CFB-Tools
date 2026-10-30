@@ -136,5 +136,46 @@ namespace EditorTest
             Assert.AreEqual(10, dict.Keys.Count);
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
         }
+
+        [TestMethod]
+        public void MACScheduleX()
+        {
+            var dict = MACSchedule.CreateX();
+            var hash = dict.BuildHashSet();
+            Assert.AreEqual(13, dict.Keys.Count);
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+        [TestMethod]
+        public void MACScheduleY()
+        {
+            var dict = MACSchedule.CreateY();
+            var hash = dict.BuildHashSet();
+            Assert.AreEqual(13, dict.Keys.Count);
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+        [TestMethod]
+        public void MACScheduleZ()
+        {
+            var dict = MACSchedule.CreateZ();
+            var hash = dict.BuildHashSet();
+            Assert.AreEqual(13, dict.Keys.Count);
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+        [TestMethod]
+        public void MACScheduleP()
+        {
+            var dict = MACSchedule.CreateP();
+            var hash = dict.BuildHashSet();
+            Assert.AreEqual(13, dict.Keys.Count);
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
+        [TestMethod]
+        public void MACScheduleQ()
+        {
+            var dict = MACSchedule.CreateQ();
+            var hash = dict.BuildHashSet();
+            Assert.AreEqual(13, dict.Keys.Count);
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 8));
+        }
     }
 }
