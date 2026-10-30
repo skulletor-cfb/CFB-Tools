@@ -36,7 +36,16 @@ namespace ScheduleMaker
             var conferenceTable = file.GetPrimaryTable("Conference", "TeamSlots");
             foreach (var conference in CFBConference.Read(file))
             {
-                conferenceGamesByConference[conference.ClassicId] = Convert.ToInt32(conferenceTable.Records[conference.Row]["NumConferenceGames"]);
+                // todo temporary override for the 2589 season
+                if (conference.ClassicId == 4)
+                {
+                    conferenceGamesByConference[conference.ClassicId] = 9;
+                }
+                else
+                {
+                    conferenceGamesByConference[conference.ClassicId] = Convert.ToInt32(conferenceTable.Records[conference.Row]["NumConferenceGames"]);
+                }
+
                 foreach (var row in conference.TeamRows)
                 {
                     conferenceByTeamRow[row] = conference.ClassicId;
@@ -135,7 +144,7 @@ namespace ScheduleMaker
                 var g5Opponents = ooc.Count(IsG5Game);
 
                 fcsGames += fcsOpponents;
-                if (IsP5(row))
+                if (IsP5OrNotreDame(row))
                 {
                     p5Matchups += p5Opponents;
                     p5VsG5 += ooc.Count - p5Opponents - fcsOpponents;
@@ -175,6 +184,7 @@ namespace ScheduleMaker
         private void AddNotes(TeamSeasonSchedule team, int row, int conference, List<ScheduledGame> teamGames, List<ScheduledGame> conferenceGames,
             List<ScheduledGame> ooc, int homeGames, int p5Opponents, int fcsOpponents)
         {
+            var expectedP5Opp = 10 - conferenceGames.Count;
             if (homeGames < 5 && IsP5OrNotreDame(row))
             {
                 team.Notes.Add($"{homeGames} home games.");
@@ -185,7 +195,7 @@ namespace ScheduleMaker
                 team.Notes.Add("Wrong game count.");
             }
 
-            if (IsP5(row) && p5Opponents != 1)
+            if (IsP5(row) && p5Opponents != expectedP5Opp)
             {
                 team.Notes.Add($"{p5Opponents} P5 Opponents.");
             }

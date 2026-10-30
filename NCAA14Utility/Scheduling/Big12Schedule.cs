@@ -6,22 +6,18 @@ namespace NCAA14Utility.Scheduling
 {
     public class Big12Schedule : ScheduleBase
     {
-        public Big12Schedule(int year) : base(year, 12, ScheduleHelpers.Big12, nameof(ScheduleHelpers.Big12))
+        public Big12Schedule(int year) : base(year, 15, ScheduleHelpers.Big12, nameof(ScheduleHelpers.Big12))
         {
         }
 
         protected override Func<Dictionary<int, int[]>>[] Creators => new Func<Dictionary<int, int[]>>[] {
-            CreateNDY, CreateNDA,
-            CreateNDZ, CreateNDY,
-            CreateNDAPrime, CreateNDZ,
-            CreateNDY, CreateNDAPrime,
-            CreateNDZ, CreateNDY,
-            CreateNDA, CreateNDZ,
+            CreateA, CreateA,
+            CreateB, CreateB,
         };
 
-        protected override int InitialYear => 2587;        
+        protected override int InitialYear => 2578;
 
-   
+
         protected override Func<int, int, int?>[] LockChecks => new Func<int, int, int?>[]
         {
             (h, a) => MatchTeams(13, h, a, TCU, Baylor),
@@ -40,83 +36,47 @@ namespace NCAA14Utility.Scheduling
             (h, a) => MatchTeams(0, h, a, Colorado, CSU),
         };
 
-        public static Dictionary<int, int[]> CreateNDY()
+        public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Texas.Create(Nebraska, ISU, TCU, TT),
-                Oklahoma.Create(Texas, OkSt, KU, Baylor),
-                OkSt.Create(Texas, Colorado, KSU, TT),
-                Colorado.Create(Oklahoma, Nebraska, ISU, Baylor),
-                Nebraska.Create(Oklahoma, OkSt, KSU, Cincy),
-                KU.Create(OkSt, Colorado, Nebraska, TCU),
-                KSU.Create(Texas, KU, Cincy, Baylor),
-                ISU.Create(Oklahoma, KSU, Cincy, TCU),
-                Cincy.Create(Oklahoma, Colorado, KU, TT),
-                TCU.Create(OkSt, Nebraska, Cincy, TT),
-                Baylor.Create(Texas, KU, ISU, TCU),
-                TT.Create(Colorado, KSU, ISU, Baylor),
-
+                Oklahoma.Create(Texas, Baylor, UCF, OkSt),
+                Texas.Create(TT, Houston, Cincy, KSU),
+                TT.Create(Baylor, SMU, UCF, ISU),
+                Baylor.Create(TCU, UCF, ISU, Colorado),
+                TCU.Create(Texas, SMU, Cincy, KU),
+                SMU.Create(Oklahoma, Baylor, Houston, ISU),
+                Houston.Create(TCU, Cincy, Nebraska, OkSt),
+                UCF.Create(SMU, Houston, KSU, Colorado),
+                Cincy.Create(UCF, KU, Colorado, OkSt),
+                ISU.Create(Oklahoma, Cincy, KSU, Nebraska),
+                KSU.Create(Baylor, SMU, KU, Nebraska),
+                KU.Create(Oklahoma, TT, Houston, Colorado),
+                Nebraska.Create(Oklahoma, TT, TCU, KU),
+                Colorado.Create(Texas, ISU, Nebraska, OkSt),
+                OkSt.Create(Texas, TT, TCU, KSU),
             }.Create();
         }
 
-        public static Dictionary<int, int[]> CreateNDA()
+        public static Dictionary<int, int[]> CreateB()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Texas.Create(Nebraska, ISU, Cincy, TT),
-                Oklahoma.Create(Texas, OkSt, KU, Baylor),
-                OkSt.Create(Colorado, KSU, TCU, TT),
-                Colorado.Create(Texas, Nebraska, KSU, Cincy),
-                Nebraska.Create(Oklahoma, KSU, ISU, TCU),
-                KU.Create(Texas, Nebraska, ISU, Baylor),
-                KSU.Create(Oklahoma, KU, TCU, TT),
-                ISU.Create(OkSt, Colorado, KSU, Cincy),
-                Cincy.Create(Oklahoma, OkSt, KU, Baylor),
-                TCU.Create(Oklahoma, Colorado, Cincy, TT),
-                Baylor.Create(Texas, OkSt, ISU, TCU),
-                TT.Create(Colorado, Nebraska, KU, Baylor),
-
-            }.Create();
-        }
-
-        public static Dictionary<int, int[]> CreateNDZ()
-        {
-            return new List<KeyValuePair<int, int[]>>
-            {
-                Texas.Create(Colorado, KU, TCU, TT),
-                Oklahoma.Create(Texas, OkSt, KSU, TCU),
-                OkSt.Create(Colorado, Nebraska, ISU, TT),
-                Colorado.Create(Oklahoma, Nebraska, KSU, Baylor),
-                Nebraska.Create(Oklahoma, ISU, Cincy, Baylor),
-                KU.Create(OkSt, Colorado, Nebraska, ISU),
-                KSU.Create(Texas, KU, Cincy, TCU),
-                ISU.Create(Oklahoma, KSU, Cincy, TT),
-                Cincy.Create(Texas, OkSt, Baylor, TT),
-                TCU.Create(Colorado, KU, ISU, Cincy),
-                Baylor.Create(Texas, OkSt, KSU, TCU),
-                TT.Create(Oklahoma, Nebraska, KU, Baylor),
-
-            }.Create();
-        }
-
-        public static Dictionary<int, int[]> CreateNDAPrime()
-        {
-            return new List<KeyValuePair<int, int[]>>
-            {
-                Texas.Create(OkSt, Colorado, KU, TT),
-                Oklahoma.Create(Texas, OkSt, KU, TCU),
-                OkSt.Create(Colorado, KSU, Cincy, Baylor),
-                Colorado.Create(Nebraska, KSU, ISU, TT),
-                Nebraska.Create(Oklahoma, ISU, TCU, Baylor),
-                KU.Create(Nebraska, ISU, Cincy, TT),
-                KSU.Create(Oklahoma, Nebraska, KU, TCU),
-                ISU.Create(Texas, OkSt, KSU, Cincy),
-                Cincy.Create(Texas, Oklahoma, Colorado, Baylor),
-                TCU.Create(OkSt, Colorado, Cincy, TT),
-                Baylor.Create(Texas, KU, ISU, TCU),
-                TT.Create(Oklahoma, Nebraska, KSU, Baylor),
-
+                Oklahoma.Create(Texas, TT, TCU, OkSt),
+                Texas.Create(TT, SMU, ISU, KU),
+                TT.Create(Baylor, Houston, KSU, Colorado),
+                Baylor.Create(Texas, TCU, Cincy, Nebraska),
+                TCU.Create(TT, SMU, UCF, ISU),
+                SMU.Create(Houston, Cincy, Nebraska, Colorado),
+                Houston.Create(Oklahoma, Baylor, KSU, Colorado),
+                UCF.Create(Texas, Houston, Nebraska, OkSt ),
+                Cincy.Create(Oklahoma, TT, UCF, ISU),
+                ISU.Create(Houston, UCF, KSU, OkSt),
+                KSU.Create(Oklahoma, TCU , Cincy, KU),
+                KU.Create(Baylor, SMU, UCF, ISU),
+                Nebraska.Create(Texas, Cincy, KU, OkSt),
+                Colorado.Create(Oklahoma, TCU ,KSU, Nebraska),
+                OkSt.Create(Baylor, SMU, KU, Colorado),
             }.Create();
         }
     }
