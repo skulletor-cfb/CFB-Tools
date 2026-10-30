@@ -127,5 +127,14 @@ namespace EditorTest
             Assert.AreEqual(12, dict.Keys.Count);
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
         }
+
+        [TestMethod]
+        public void CUSAScheduleA()
+        {
+            var dict = CUSASchedule.CreateA();
+            var hash = dict.BuildHashSet();
+            Assert.AreEqual(10, dict.Keys.Count);
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
     }
 }

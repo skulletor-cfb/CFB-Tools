@@ -6,7 +6,7 @@ namespace NCAA14Utility.Scheduling
 {
     public class CUSASchedule : ScheduleBase
     {
-        public CUSASchedule(int year) : base(year, 9, ScheduleHelpers.CUSA, nameof(ScheduleHelpers.CUSA))
+        public CUSASchedule(int year) : base(year, 10, ScheduleHelpers.CUSA, nameof(ScheduleHelpers.CUSA))
         {
         }
 
@@ -14,30 +14,28 @@ namespace NCAA14Utility.Scheduling
             CreateA, CreateA,
         };
 
-        protected override int InitialYear => 2576;
+        protected override int InitialYear => 2589;
 
         // EADBEditor's CUSALocks; Army-Navy is a shared lock
         protected override Func<int, int, int?>[] LockChecks => new Func<int, int, int?>[]
         {
-            (h, a) => MatchTeams(7, h, a, MTSU, NT),
             (h, a) => MatchTeams(13, h, a, MTSU, WKU),
-            (h, a) => MatchTeams(13, h, a, Army, Navy),
-            (h, a) => MatchTeams(12, h, a, NT, UTSA),
         };
 
         public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Army.Create(MTSU, LT, UTEP, UTSA),
-                Navy.Create(Army, WKU, FAU, NT),
-                MTSU.Create(Navy, LT, UTEP, NT),
-                WKU.Create(Army, MTSU, LT, UTSA),
-                LT.Create(Navy, FAU, UTEP, UTSA),
-                FAU.Create(Army, MTSU, WKU, NT),
-                UTEP.Create(Navy, WKU, FAU, UTSA),
-                UTSA.Create(Navy, MTSU, FAU, NT),
-                NT.Create(Army, WKU, LT, UTEP),
+                MTSU.Create(Delaware, KennesawSt, FIU, LT, SHSU),
+                WKU.Create(MTSU, Liberty, JaxSt, MissouriSt, LT),
+                Delaware.Create(WKU, KennesawSt, FIU, SHSU),
+                Liberty.Create(MTSU, Delaware, JaxSt, MissouriSt, LT),
+                KennesawSt.Create(WKU, Liberty, FIU, SHSU),
+                JaxSt.Create(MTSU, Delaware, KennesawSt, MissouriSt, LT ),
+                FIU.Create(WKU, Liberty, JaxSt, SHSU),
+                MissouriSt.Create(MTSU, Delaware, KennesawSt, FIU, LT),
+                LT.Create(Delaware, KennesawSt, FIU, SHSU),
+                SHSU.Create(WKU, Liberty, JaxSt, MissouriSt),
             }.Create();
         }
     }
