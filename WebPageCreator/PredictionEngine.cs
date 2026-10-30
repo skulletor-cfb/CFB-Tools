@@ -114,6 +114,11 @@ namespace EA_DB_Editor
 
         public static bool ConferenceHasNoDivisions(int confId)
         {
+            if (confId == TableUtility.CUSAId && Form1.CalendarYear >= 2587)
+            {
+                return true;
+            }
+
             if (NoDivisionConference.TryGetValue(confId, out var years))
             {
                 foreach (var year in years)
@@ -140,9 +145,7 @@ namespace EA_DB_Editor
 
                 // do we have a conference with less than 12 teams have a ccg?
                 // either the Sun Belt or CUSA will have a CCG with 11 team conference
-                if (conf.First().ConferenceId == 13 && conf.Count() == 11 ||
-                    ConferenceHasNoDivisions(conf.First().ConferenceId)
-                    )
+                if (                    ConferenceHasNoDivisions(conf.First().ConferenceId)                    )
                 {
                     var top2 = FindTopTwo(conf);
                     var home = top2[0];
