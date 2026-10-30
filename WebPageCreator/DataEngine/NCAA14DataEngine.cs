@@ -1044,7 +1044,7 @@ namespace EA_DB_Editor
             return bowls;
         }
 
-        public List<AllAmerican> CreateAllAmericans()
+        public List<AllAmerican> CreateAllAmericans(bool isPreseason)
         {
             return MaddenTable.FindMaddenTable(MaddenDatabase.lTables, "AAPL").lRecords.Where(mr => mr["SEYR"].ToInt32() == BowlChampion.DynastyFileYear && PlayerDB.Players.ContainsKey(mr["PGID"].ToInt32())).Select(mr =>
                 new AllAmerican

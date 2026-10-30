@@ -681,7 +681,7 @@ namespace EA_DB_Editor
             if (chkbxTopPrograms.Checked == true) { Team.TopPrograms(this.DataEngine, false); }
             if (chkbxAtt.Checked == true) { PocketScout.Attendance(); }
             if (chkbxAllAmericans.Checked == true) { RecruitAllAmericans.CreateRosterFiles(@".\archive\reports"); }
-            if (chkbxAllAmericans.Checked == true) { AllAmerican.CreateReport(); }
+            if (chkbxAllAmericans.Checked == true) { AllAmerican.CreateReport(this.DataEngine); }
             if (chkbxBowlRecords.Checked == true) { BowlRecords.Create(this.DataEngine, false); }
             progressBar1.Value = 0;
             sw.Stop();
@@ -977,7 +977,7 @@ namespace EA_DB_Editor
             foreach (System.IO.FileInfo file in new DirectoryInfo(@".\archive\reports").GetFiles()) file.Delete();
             progressBar1.Value = 1;
 
-            AllAmerican.CreateReport(true);
+            AllAmerican.CreateReport(this.DataEngine, true);
 
             Bowl.Create(this.DataEngine, true);
             // coaches won't change from start and end, so emit them

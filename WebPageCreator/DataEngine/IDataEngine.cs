@@ -41,7 +41,7 @@ namespace EA_DB_Editor
         /// returns the list of all americans
         /// </summary>
         /// <returns></returns>
-        List<AllAmerican> CreateAllAmericans();
+        List<AllAmerican> CreateAllAmericans(bool isPreseason);
 
         /// <summary>
         /// Read the database for players

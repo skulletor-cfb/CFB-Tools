@@ -68,7 +68,7 @@ namespace EA_DB_Editor
             {
                 var year = cfb27.CurrentSeasonYear;
                 history.Seasons.RemoveAll(s => s.Year == year);
-                history.Seasons.Add(new CoachAwardSeason { Year = year, Coaches = cfb27.ReadSeasonCoachAwards() });
+                history.Seasons.Add(new CoachAwardSeason { Year = year, Coaches = cfb27.ReadSeasonCoachAwards(isPreseason) });
                 history.Seasons.Sort((a, b) => a.Year.CompareTo(b.Year));
                 history.ToJsonFile(CoachAwardsFile);
             }

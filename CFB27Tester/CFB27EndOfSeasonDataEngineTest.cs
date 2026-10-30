@@ -311,7 +311,7 @@ namespace CFB27Tester
         [TestMethod]
         public void TestCreateAllAmericans()
         {
-            var allAmericans = season.CreateAllAmericans();
+            var allAmericans = season.CreateAllAmericans(true);
 
             // the season is over: final 1st, 2nd and Freshman teams of 25, nationally (14) and for the 11 conferences
             Assert.AreEqual(12 * 3 * 25, allAmericans.Count);

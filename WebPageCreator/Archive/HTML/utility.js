@@ -117,9 +117,10 @@ function loadaaacData(confId, file) {
 
 function parseAllAmericanData() {
     var teams = [[], []];
+var year = getCurrentYear();
 
     // all americans have a freshman team too
-    if (currentConferenceId == 14) {
+    if (year>=2587 || currentConferenceId == 14) {
         teams[2] = [];
     }
 

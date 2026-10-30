@@ -112,7 +112,7 @@ namespace CFB27Tester
         public void CreateAllAmericans()
         {
             // before the season ends only the preseason 1st and 2nd teams exist
-            var allAmericans = season.CreateAllAmericans();
+            var allAmericans = season.CreateAllAmericans(true);
             Assert.AreEqual(12 * 2 * 25, allAmericans.Count);
             Assert.IsFalse(allAmericans.Any(a => a.AllAmericanTeam == AllAmericanTeam.Freshman));
         }

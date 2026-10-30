@@ -203,7 +203,7 @@ namespace EA_DB_Editor
         /// - a top 25 recruiting class (the game's Team.TopClassRank): the head coach
         /// - coach of the year (CoachAward BEST_HC) and the Broyles (BEST_AC, assistants): the coach named
         /// </summary>
-        public List<CoachAwardCount> ReadSeasonCoachAwards()
+        public List<CoachAwardCount> ReadSeasonCoachAwards(bool isPreseason)
         {
             var counts = new Dictionary<int, CoachAwardCount>();
             CoachAwardCount For(int coachRow)
@@ -238,7 +238,7 @@ namespace EA_DB_Editor
                 }
             }
 
-            foreach (var allAmerican in this.CreateAllAmericans().Where(a => a.ConferenceId == NationalAllAmericanConferenceId && a.AllAmericanTeam != AllAmericanTeam.Freshman))
+            foreach (var allAmerican in this.CreateAllAmericans(isPreseason).Where(a => a.ConferenceId == NationalAllAmericanConferenceId && a.AllAmericanTeam != AllAmericanTeam.Freshman))
             {
                 Credit(this.Players.Records[allAmerican.PlayerId].TeamId, allAmerican.Position, c => c.AllAmericans++);
             }
@@ -358,7 +358,7 @@ namespace EA_DB_Editor
         /// conference. The final 1st, 2nd and Freshman teams are used once they're named at the end of the season; before
         /// that, the preseason 1st and 2nd teams.
         /// </summary>
-        public List<AllAmerican> CreateAllAmericans()
+        public List<AllAmerican> CreateAllAmericans(bool isPreseason)
         {
             var finalTeams = new Dictionary<string, AllAmericanTeam>
             {
@@ -371,20 +371,18 @@ namespace EA_DB_Editor
                 { "ALL_AM_1ST_PRE_CONF", AllAmericanTeam.First }, { "ALL_AM_2ND_PRE_CONF", AllAmericanTeam.Second },
             };
 
+            var teamToCheck = isPreseason ? preseasonTeams : finalTeams;
+
             var playerTableId = this.Players.RawTable.Header.TableId;
             var awards = dynasty.GetPrimaryTable("PlayerAward").Records
                 .Where(r => !r.IsEmpty && (r["Period"] as string) == "Season")
+                .Where( r => teamToCheck.ContainsKey(r["AwardType"] as string))
                 .ToList();
-            var teams = awards.Any(r => finalTeams.ContainsKey(r["AwardType"] as string)) ? finalTeams : preseasonTeams;
 
             var allAmericans = new List<AllAmerican>();
             foreach (var award in awards)
             {
-                if (!teams.TryGetValue(award["AwardType"] as string, out var team))
-                {
-                    continue;
-                }
-
+                var awardType = teamToCheck[award["AwardType"] as string];
                 var player = award.GetReferenceDataByKey("Player").Value;
                 if (player.TableId != playerTableId || !this.Players.Records[player.RowNumber].IsOnTeam)
                 {
@@ -393,14 +391,15 @@ namespace EA_DB_Editor
 
                 // national teams have no conference
                 var conference = dynasty.Follow(award.GetReferenceDataByKey("Conference").Value);
-                var positionField = award.GetFieldByKey("Position");
+                var positionField = award["Position"] as string;
+                var ppos = DepthChartPositions[positionField];
 
                 allAmericans.Add(new AllAmerican
                 {
-                    AllAmericanTeam = team,
+                    AllAmericanTeam = awardType,
                     PlayerId = player.RowNumber,
                     // PositionE uses the classic position numbers (QB 0 ... P 20)
-                    Position = (int)positionField.Offset.Enum.GetMemberByName(positionField.Value as string).Value,
+                    Position = ppos,
                     ConferenceId = conference == null ? NationalAllAmericanConferenceId : CFBConference.ToClassicId(conference),
                 });
             }

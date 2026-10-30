@@ -25,13 +25,14 @@ namespace EA_DB_Editor
             Team.Create(dataEngine, isPreseason);
             BowlChampion.Create(dataEngine);
 
-            AllAmericans = dataEngine.CreateAllAmericans();
+            AllAmericans = dataEngine.CreateAllAmericans(isPreseason);
         }
 
-        public static void CreateReport(bool isPreseason = false)
+        public static void CreateReport(IDataEngine dataEngine, bool isPreseason = false)
         {
             var dict = AllAmericans.GroupBy(aa => new AllAmericanTeamKey { ConferenceId = aa.ConferenceId, Team = aa.AllAmericanTeam }).ToDictionary(g => g.Key, g => g.ToList());
-            var finalList = dict.Values.Select(list => DeriveTopReturner(list, isPreseason)).SelectMany(a => a).ToArray();
+            var haveReturner = dataEngine is NCAA14DataEngine ? true : false;
+            var finalList = dict.Values.Select(list => DeriveTopReturner(list, isPreseason, haveReturner)).SelectMany(a => a).ToArray();
 
             var allAmericanFile = isPreseason ? "ps-aaac.csv" : "aaac.csv";
             finalList.ToCsvFile(
@@ -78,7 +79,7 @@ namespace EA_DB_Editor
             tw.WriteLine("</tr>");
         }
 
-        static List<AllAmerican> DeriveTopReturner(List<AllAmerican> players, bool isPreseason)
+        static List<AllAmerican> DeriveTopReturner(List<AllAmerican> players, bool isPreseason, bool haveReturner)
         {
             var year = BowlChampion.CurrentYear;
             if (isPreseason)
@@ -86,7 +87,7 @@ namespace EA_DB_Editor
 
             var topReturner = players.OrderByDescending(p => p.Player.GetStatsForYear(year).GetValueOrDefault(PlayerStats.KRYds, 0) + p.Player.GetStatsForYear(year).GetValueOrDefault(PlayerStats.PRYds, 0)).FirstOrDefault();
 
-            if (topReturner != null)
+            if (haveReturner && topReturner != null)
             {
                 topReturner.Position = 1000;
                 topReturner.Yards = topReturner.Player.CurrentYearStats.GetValueOrDefault(PlayerStats.KRYds, 0) + topReturner.Player.CurrentYearStats.GetValueOrDefault(PlayerStats.PRYds, 0);
@@ -120,7 +121,11 @@ namespace EA_DB_Editor
             positionOverride[6] = "OG";
             positionOverride[8] = "DE";
             positionOverride[10] = "OLB";
-            positionOverride[order.Length - 1] = "RET";
+
+            if (haveReturner)
+            {
+                positionOverride[order.Length - 1] = "RET";
+            }
 
             List<AllAmerican> result = new List<AllAmerican>();
             for (int i = 0; i < order.Length; i++)
