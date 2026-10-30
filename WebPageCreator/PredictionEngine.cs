@@ -145,7 +145,7 @@ namespace EA_DB_Editor
 
                 // do we have a conference with less than 12 teams have a ccg?
                 // either the Sun Belt or CUSA will have a CCG with 11 team conference
-                if (                    ConferenceHasNoDivisions(conf.First().ConferenceId)                    )
+                if (ConferenceHasNoDivisions(conf.First().ConferenceId))
                 {
                     var top2 = FindTopTwo(conf);
                     var home = top2[0];
@@ -165,7 +165,7 @@ namespace EA_DB_Editor
                     ScheduledGame.Schedule.Add(sg.Key, sg);
                     CreatePostSeasonGame(home, away, sg.Week, sg.GameNumber, sg);
                     CreatePostSeasonGame(away, home, sg.Week, sg.GameNumber, sg);
-                    var ccgPrediction = PredictedGame.Predict(sg.Week, sg.GameNumber);
+                    var ccgPrediction = PredictedGame.Predict(sg.Week, sg.GameNumber, true);
                     ConferenceChampionPrediction.Add(key, ccgPrediction.Winner);
 
                     // Shoud already be sorted properly
@@ -206,7 +206,7 @@ namespace EA_DB_Editor
                     ScheduledGame.Schedule.Add(sg.Key, sg);
                     CreatePostSeasonGame(div1Winner, div2Winner, sg.Week, sg.GameNumber, sg);
                     CreatePostSeasonGame(div2Winner, div1Winner, sg.Week, sg.GameNumber, sg);
-                    ConferenceChampionPrediction.Add(key, PredictedGame.Predict(sg.Week, sg.GameNumber).Winner);
+                    ConferenceChampionPrediction.Add(key, PredictedGame.Predict(sg.Week, sg.GameNumber, true).Winner);
 
                     // now that we have a CCG done, now set predictions
                     conferencePrediction.DivisionA = CreateDivisionPrediction(div1Winner, conferencePrediction, conf);
@@ -336,6 +336,7 @@ namespace EA_DB_Editor
 
     public class PredictedGame
     {
+        private  bool isConferenceChampionshipGame;
         public static Dictionary<string, PredictedGame> Predictions = new Dictionary<string, PredictedGame>();
 
         public static PredictedGame FindGame(Game game)
@@ -343,22 +344,23 @@ namespace EA_DB_Editor
             return Predictions[game.ScheduledGame.Key];
         }
 
-        public static PredictedGame Predict(int week, int game)
+        public static PredictedGame Predict(int week, int game, bool isConferenceChampionshipGame = false)
         {
             var key = week + "-" + game;
             PredictedGame gamePrediction = null;
 
             if (!Predictions.TryGetValue(key, out gamePrediction))
             {
-                gamePrediction = new PredictedGame(ScheduledGame.Schedule[key]);
+                gamePrediction = new PredictedGame(ScheduledGame.Schedule[key], isConferenceChampionshipGame);
                 Predictions.Add(key, gamePrediction);
             }
 
             return gamePrediction;
         }
 
-        public PredictedGame(ScheduledGame game)
+        public PredictedGame(ScheduledGame game, bool isConferenceChampionshipGame)
         {
+            this.isConferenceChampionshipGame = isConferenceChampionshipGame;
             this.Game = game;
             this.CalculateWinner();
         }
@@ -376,7 +378,7 @@ namespace EA_DB_Editor
             loser.PredictedLoss += 1;
 
             // set predicted conference won/loss
-            if (winner.ConferenceId == loser.ConferenceId)
+            if (!isConferenceChampionshipGame && winner.ConferenceId == loser.ConferenceId)
             {
                 winner.PredictedConferenceWin += 1;
                 loser.PredictedConferenceLoss += 1;
