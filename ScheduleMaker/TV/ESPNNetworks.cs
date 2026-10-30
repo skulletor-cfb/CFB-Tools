@@ -641,7 +641,7 @@ namespace ScheduleMaker.TV
 
                 // top sec conference game
                 var games = this.WeeklySchedule.Week(i);
-                var secGames = games.Where(g => !g.Assigned && ((g.IsSecGame && g.IsP5Game) || g.IsSecAccGame)).OrderBy(g => g.Score).ToQueue();
+                var secGames = games.Where(g => !g.Assigned && ((g.IsSecGame && g.IsP5Game) || g.IsSecAccGame || (g.IsSecGame && g.IsKickoffGame))).OrderBy(g => g.Score).ToQueue();
                 secGames.Enqueue(games.Where(g => !g.Assigned && g.IsSecGame).OrderBy(g => g.Score));
                 secGames.Enqueue(games.Where(g => !g.Assigned && g.IsAccGame).OrderBy(g => g.Score));
 
