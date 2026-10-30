@@ -64,5 +64,49 @@ namespace EditorTest
             Assert.AreEqual(12, dict.Keys.Count);
             Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
         }
+
+        [TestMethod]
+        public void Big10ScheduleA()
+        {
+            var dict = Big10Schedule.CreateA();
+            var hash = dict.BuildHashSet();
+            Assert.AreEqual(12, dict.Keys.Count);
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
+
+        [TestMethod]
+        public void Big10ScheduleB()
+        {
+            var dict = Big10Schedule.CreateB();
+            var hash = dict.BuildHashSet();
+            Assert.AreEqual(12, dict.Keys.Count);
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
+        [TestMethod]
+        public void Big10ScheduleC()
+        {
+            var dict = Big10Schedule.CreateC();
+            var hash = dict.BuildHashSet();
+            Assert.AreEqual(12, dict.Keys.Count);
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
+
+        [TestMethod]
+        public void Big10ScheduleD()
+        {
+            var dict = Big10Schedule.CreateD();
+            var hash = dict.BuildHashSet();
+            Assert.AreEqual(12, dict.Keys.Count);
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
+
+        [TestMethod]
+        public void Big10ScheduleE()
+        {
+            var dict = Big10Schedule.CreateE();
+            var hash = dict.BuildHashSet();
+            Assert.AreEqual(12, dict.Keys.Count);
+            Assert.IsTrue(hash.All(kvp => kvp.Value.Count == 9));
+        }
     }
 }

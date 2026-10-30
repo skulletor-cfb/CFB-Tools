@@ -11,15 +11,14 @@ namespace NCAA14Utility.Scheduling
         }
 
         protected override Func<Dictionary<int, int[]>>[] Creators => new Func<Dictionary<int, int[]>>[] {
-            CreateA, CreateB,
-            CreateC, CreateA,
-            CreateB, CreateC,
-            CreateX, CreateY,
-            CreateZ, CreateX,
-            CreateY, CreateZ,
+            CreateE, CreateE,
+            CreateA, CreateA,
+            CreateD, CreateD,
+            CreateC, CreateC,
+            CreateB, CreateB,
         };
 
-        protected override int InitialYear => 2574;
+        protected override int InitialYear => 2589;
 
         // EADBEditor's Big10Locks
         protected override Func<int, int, int?>[] LockChecks => new Func<int, int, int?>[]
@@ -41,22 +40,41 @@ namespace NCAA14Utility.Scheduling
             (h, a) => MatchTeams(this.LaborDayWeek + 1, h, a, Iowa, ISU),
         };
 
-        public static Dictionary<int, int[]> CreateA()
+        public static Dictionary<int, int[]> CreateC()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Rutgers.Create(Michigan, Indiana, Wisconsin, Iowa),
-                PennSt.Create(Rutgers, OhioSt, Purdue, Wisconsin),
-                MichiganSt.Create(Rutgers, PennSt, Illinois, Minnesota),
-                Michigan.Create(PennSt, MichiganSt, Indiana, Iowa),
-                OhioSt.Create(Rutgers, Michigan, Illinois, Minnesota),
-                Illinois.Create(PennSt, Northwestern, Indiana, Iowa),
-                Northwestern.Create(Rutgers, Michigan, OhioSt, Purdue),
-                Purdue.Create(MichiganSt, OhioSt, Illinois, Wisconsin),
-                Indiana.Create(MichiganSt, Northwestern, Purdue, Minnesota),
-                Wisconsin.Create(Michigan, OhioSt, Northwestern, Iowa),
-                Minnesota.Create(PennSt, Illinois, Purdue, Wisconsin),
-                Iowa.Create(MichiganSt, Northwestern, Indiana, Minnesota),
+                Rutgers.Create(Michigan, Minnesota, Iowa,Northwestern),
+                PennSt.Create(Rutgers, OhioSt, Michigan, Wisconsin, Illinois),
+                OhioSt.Create(Rutgers, Michigan, Purdue, Illinois),
+                Michigan.Create(MichiganSt, Wisconsin, Indiana, Northwestern),
+                MichiganSt.Create(Rutgers, PennSt, OhioSt, Wisconsin, Purdue),
+                Wisconsin.Create(Rutgers, OhioSt, Indiana, Iowa),
+                Indiana.Create(OhioSt, MichiganSt, Iowa, Northwestern),
+                Purdue.Create(Michigan, Wisconsin, Indiana, Minnesota, Illinois),
+                Minnesota.Create(PennSt, MichiganSt, Wisconsin, Indiana, Northwestern),
+                Iowa.Create(PennSt, MichiganSt, Purdue, Minnesota, Illinois),
+                Northwestern.Create(PennSt, OhioSt, Purdue, Iowa),
+                Illinois.Create(Rutgers, Michigan, Indiana, Minnesota, Northwestern),
+            }.Create();
+        }
+
+        public static Dictionary<int, int[]> CreateD()
+        {
+            return new List<KeyValuePair<int, int[]>>
+            {
+                Rutgers.Create(OhioSt, MichiganSt, Purdue, Northwestern),
+                PennSt.Create(Rutgers, OhioSt, Wisconsin, Indiana, Illinois),
+                OhioSt.Create(Michigan, Wisconsin, Purdue, Iowa),
+                Michigan.Create(Rutgers, PennSt, MichiganSt, Indiana, Minnesota),
+                MichiganSt.Create(PennSt, OhioSt, Wisconsin, Iowa, Northwestern),
+                Wisconsin.Create(Rutgers, Michigan, Iowa, Illinois),
+                Indiana.Create(Rutgers, OhioSt, Minnesota, Iowa, Northwestern),
+                Purdue.Create(PennSt, Michigan, Indiana, Illinois),
+                Minnesota.Create(OhioSt, MichiganSt, Wisconsin, Purdue, Illinois),
+                Iowa.Create(Michigan, Purdue, Minnesota, Northwestern, Illinois),
+                Northwestern.Create(PennSt, Wisconsin, Purdue, Minnesota),
+                Illinois.Create(Rutgers, MichiganSt, Indiana, Northwestern),
             }.Create();
         }
 
@@ -64,94 +82,56 @@ namespace NCAA14Utility.Scheduling
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Rutgers.Create(Michigan, Illinois, Indiana , Iowa),
-                PennSt.Create(Rutgers, OhioSt, Indiana, Wisconsin),
-                MichiganSt.Create(PennSt, OhioSt, Illinois, Minnesota),
-                Michigan.Create(MichiganSt, Northwestern, Minnesota, Iowa),
-                OhioSt.Create(Rutgers, Michigan, Illinois, Indiana),
-                Illinois.Create(Michigan, Northwestern, Wisconsin, Minnesota),
-                Northwestern.Create(PennSt, MichiganSt, Purdue, Iowa),
-                Purdue.Create(Rutgers, PennSt, Michigan, Illinois),
-                Indiana.Create(MichiganSt, Northwestern, Purdue, Wisconsin),
-                Wisconsin.Create(MichiganSt, OhioSt, Purdue, Iowa),
-                Minnesota.Create(Rutgers, Northwestern, Indiana, Wisconsin),
-                Iowa.Create(PennSt, OhioSt, Purdue, Minnesota),
+                Rutgers.Create(Michigan, Purdue, Minnesota, Illinois),
+                PennSt.Create(Rutgers, OhioSt, Purdue, Iowa, Northwestern),
+                OhioSt.Create(Rutgers, Michigan, Wisconsin, Illinois),
+                Michigan.Create(PennSt, MichiganSt, Minnesota, Iowa, Northwestern),
+                MichiganSt.Create(OhioSt, Wisconsin, Purdue, Illinois),
+                Wisconsin.Create(Michigan, Indiana, Iowa, Northwestern),
+                Indiana.Create(Rutgers, PennSt, MichiganSt, Iowa, Northwestern),
+                Purdue.Create(Wisconsin, Indiana, Minnesota, Illinois),
+                Minnesota.Create(PennSt, OhioSt, MichiganSt, Wisconsin, Indiana),
+                Iowa.Create(Rutgers, OhioSt, MichiganSt, Purdue, Minnesota),
+                Northwestern.Create(Rutgers, OhioSt, MichiganSt, Purdue),
+                Illinois.Create(PennSt, Michigan, Wisconsin, Indiana, Northwestern),
             }.Create();
         }
 
-        public static Dictionary<int, int[]> CreateC()
+        public static Dictionary<int, int[]> CreateE()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Rutgers.Create(MichiganSt, Illinois, Indiana, Wisconsin),
-                PennSt.Create(Rutgers, Michigan, Northwestern, Iowa),
-                MichiganSt.Create(PennSt, OhioSt, Wisconsin, Iowa),
-                Michigan.Create(MichiganSt, Illinois, Purdue, Minnesota),
-                OhioSt.Create(Michigan, Illinois, Indiana, Minnesota),
-                Illinois.Create(PennSt, Northwestern, Indiana, Wisconsin),
-                Northwestern.Create(Rutgers, MichiganSt, OhioSt, Purdue),
-                Purdue.Create(Rutgers, MichiganSt, OhioSt, Minnesota),
-                Indiana.Create(PennSt, Michigan, Purdue, Iowa),
-                Wisconsin.Create(Michigan, Northwestern, Indiana, Iowa),
-                Minnesota.Create(Rutgers, PennSt, Northwestern, Wisconsin),
-                Iowa.Create(OhioSt, Illinois, Purdue, Minnesota),
+                Rutgers.Create(OhioSt, MichiganSt, Purdue, Minnesota),
+                PennSt.Create(Rutgers, OhioSt, Michigan, Purdue, Iowa),
+                OhioSt.Create(Michigan, Indiana, Minnesota, Illinois),
+                Michigan.Create(Rutgers, Indiana, Minnesota, Iowa, Illinois),
+                MichiganSt.Create(PennSt, Wisconsin, Purdue, Northwestern),
+                Wisconsin.Create(Rutgers, PennSt, Indiana, Iowa, Illinois),
+                Indiana.Create(Rutgers, PennSt, MichiganSt, Northwestern),
+                Purdue.Create(OhioSt, Michigan, Wisconsin, Indiana, Illinois),
+                Minnesota.Create(PennSt, MichiganSt, Wisconsin, Northwestern),
+                Iowa.Create(Rutgers, OhioSt, MichiganSt, Minnesota, Northwestern),
+                Northwestern.Create(OhioSt, Michigan, Wisconsin, Purdue),
+                Illinois.Create(MichiganSt, Indiana, Minnesota, Iowa, Northwestern),
             }.Create();
         }
 
-        public static Dictionary<int, int[]> CreateX()
+        public static Dictionary<int, int[]> CreateA()
         {
             return new List<KeyValuePair<int, int[]>>
             {
-                Rutgers.Create(Michigan, Northwestern, Minnesota, Iowa),
-                PennSt.Create(Rutgers, OhioSt, Illinois, Iowa),
-                OhioSt.Create(Rutgers, Michigan, Indiana, Wisconsin),
-                Michigan.Create(MichiganSt, Indiana, Illinois, Minnesota),
-                MichiganSt.Create(Rutgers, PennSt, Purdue, Iowa),
-                Indiana.Create(Rutgers, MichiganSt, Purdue, Wisconsin),
-                Purdue.Create(PennSt, OhioSt, Illinois, Minnesota),
-                Illinois.Create(MichiganSt, Indiana, Northwestern, Wisconsin),
-                Northwestern.Create(PennSt, OhioSt, Michigan, Purdue),
-                Wisconsin.Create(PennSt, MichiganSt, Northwestern, Iowa),
-                Minnesota.Create(OhioSt, Indiana, Northwestern, Wisconsin),
-                Iowa.Create(Michigan, Purdue, Illinois, Minnesota),
-            }.Create();
-        }
-
-        public static Dictionary<int, int[]> CreateY()
-        {
-            return new List<KeyValuePair<int, int[]>>
-            {
-                Rutgers.Create(OhioSt, Indiana, Northwestern, Iowa),
-                PennSt.Create(Rutgers, OhioSt, Indiana, Wisconsin),
-                OhioSt.Create(Michigan, Purdue, Illinois, Minnesota),
-                Michigan.Create(PennSt, MichiganSt, Indiana, Illinois),
-                MichiganSt.Create(PennSt, OhioSt, Northwestern, Wisconsin),
-                Indiana.Create(MichiganSt, Purdue, Northwestern, Iowa),
-                Purdue.Create(Rutgers, Michigan, Illinois, Wisconsin),
-                Illinois.Create(Rutgers, MichiganSt, Northwestern, Minnesota),
-                Northwestern.Create(PennSt, Purdue, Minnesota, Iowa),
-                Wisconsin.Create(Rutgers, Michigan, Illinois, Iowa),
-                Minnesota.Create(PennSt, MichiganSt, Indiana, Wisconsin),
-                Iowa.Create(OhioSt, Michigan, Purdue, Minnesota),
-            }.Create();
-        }
-
-        public static Dictionary<int, int[]> CreateZ()
-        {
-            return new List<KeyValuePair<int, int[]>>
-            {
-                Rutgers.Create(Michigan, Purdue, Northwestern, Wisconsin),
-                PennSt.Create(Rutgers, OhioSt, Indiana, Illinois),
-                OhioSt.Create(Michigan, Indiana, Illinois, Iowa),
-                Michigan.Create(PennSt, MichiganSt, Northwestern, Minnesota),
-                MichiganSt.Create(Rutgers, OhioSt, Purdue, Minnesota),
-                Indiana.Create(MichiganSt, Purdue, Northwestern, Iowa),
-                Purdue.Create(PennSt, Michigan, Illinois, Wisconsin),
-                Illinois.Create(Rutgers, Indiana, Northwestern, Minnesota),
-                Northwestern.Create(OhioSt, MichiganSt, Wisconsin, Iowa),
-                Wisconsin.Create(OhioSt, Michigan, Indiana, Iowa),
-                Minnesota.Create(Rutgers, PennSt, Purdue, Wisconsin),
-                Iowa.Create(PennSt, MichiganSt, Illinois, Minnesota),
+                Rutgers.Create(MichiganSt, Purdue, Minnesota, Northwestern),
+                PennSt.Create(Rutgers, Wisconsin, Indiana, Iowa, Illinois),
+                OhioSt.Create(Michigan, MichiganSt, Indiana, Illinois),
+                Michigan.Create(MichiganSt, Indiana, Minnesota, Iowa, Illinois),
+                MichiganSt.Create(PennSt, Wisconsin, Purdue, Northwestern),
+                Wisconsin.Create(Rutgers, OhioSt, Michigan, Indiana, Northwestern),
+                Indiana.Create(Rutgers, MichiganSt, Minnesota, Iowa),
+                Purdue.Create(PennSt, OhioSt, Michigan, Wisconsin, Indiana),
+                Minnesota.Create(PennSt, OhioSt, Purdue, Northwestern),
+                Iowa.Create(Rutgers, OhioSt, Purdue, Minnesota, Illinois),
+                Northwestern.Create(PennSt, OhioSt, Michigan, Iowa),
+                Illinois.Create(Rutgers, MichiganSt, Wisconsin, Minnesota, Northwestern),
             }.Create();
         }
     }
